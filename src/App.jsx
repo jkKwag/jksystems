@@ -1,13 +1,31 @@
 import { useState, useEffect, useRef } from "react";
 
-const campingCars = [
-  { id: 1, name: "Forest Wanderer", type: "대형 캠핑카", seats: 6, price: 180000, image: "🌲", tag: "인기", features: ["침대 2개", "주방", "화장실", "에어컨", "TV"], desc: "넓은 실내 공간과 완벽한 주방 시설을 갖춘 프리미엄 대형 캠핑카. 가족 여행에 최적화.", color: "#2d6a4f", bg: "linear-gradient(135deg,#2d6a4f,#52b788)", location: "강원도 춘천", lat: 37.88, lng: 127.73 },
-  { id: 2, name: "Sky Cruiser", type: "중형 캠핑카", seats: 4, price: 130000, image: "☁️", tag: "신차", features: ["침대 1개", "주방", "화장실", "에어컨"], desc: "세련된 디자인과 연비 좋은 엔진. 커플 또는 소규모 가족 여행에 최적.", color: "#1d3557", bg: "linear-gradient(135deg,#1d3557,#457b9d)", location: "서울 마포", lat: 37.56, lng: 126.91 },
-  { id: 3, name: "Sunset Rover", type: "소형 캠핑카", seats: 2, price: 90000, image: "🌅", tag: "할인", features: ["침대 1개", "미니주방", "에어컨"], desc: "자유로운 2인 여행을 위한 소형 캠핑카. 주차와 골목 진입이 편리합니다.", color: "#c85a2a", bg: "linear-gradient(135deg,#c85a2a,#e9a87c)", location: "부산 해운대", lat: 35.16, lng: 129.16 },
-  { id: 4, name: "Mountain King", type: "SUV 캠핑카", seats: 5, price: 160000, image: "⛰️", tag: "4WD", features: ["침대 2개", "주방", "4WD", "에어컨", "루프랙"], desc: "오프로드에 특화된 SUV 기반. 산악 지형도 거뜬히 달리는 강인한 캠핑카.", color: "#6b4423", bg: "linear-gradient(135deg,#6b4423,#b08655)", location: "경북 안동", lat: 36.57, lng: 128.73 },
-  { id: 5, name: "Ocean Breeze", type: "버스형 캠핑카", seats: 8, price: 230000, image: "🌊", tag: "BEST", features: ["침대 3개", "대형주방", "화장실", "에어컨", "TV", "샤워실"], desc: "버스 개조형 초대형. 대가족 또는 그룹 여행을 위한 최고급 이동식 숙소.", color: "#0077b6", bg: "linear-gradient(135deg,#0077b6,#48cae4)", location: "전남 여수", lat: 34.76, lng: 127.66 },
-  { id: 6, name: "Starlight", type: "팝업 캠핑카", seats: 3, price: 75000, image: "⭐", tag: "경제적", features: ["팝업 루프", "침대 1개", "미니주방", "에어컨"], desc: "팝업 루프로 밤하늘을 즐기는 독특한 캠핑카. 별을 보며 잠드는 특별한 경험.", color: "#6d28d9", bg: "linear-gradient(135deg,#6d28d9,#a78bfa)", location: "제주 서귀포", lat: 33.25, lng: 126.56 },
-];
+// ─── Supabase 설정 ───────────────────────────────────────────
+const SUPABASE_URL = "https://zhtqkjorhhqnnhgsddmn.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpodHFram9yaGhxbm5oZ3NkZG1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyMzIwNTksImV4cCI6MjA5MTgwODA1OX0.yGME2-cI6Rms8oXH612THOnXq_-eWW7wqIxAi3OCm1Y";
+
+const supabase = {
+  from: (table) => ({
+    select: async (cols = "*") => {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?select=${cols}`, {
+        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+      });
+      const data = await res.json();
+      return { data, error: res.ok ? null : data };
+    },
+    insert: async (row) => {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+        method: "POST",
+        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json", Prefer: "return=representation" },
+        body: JSON.stringify(row),
+      });
+      const data = await res.json();
+      return { data, error: res.ok ? null : data };
+    },
+  }),
+};
+
+
 
 const faqs = [
   { q: "예약 취소는 언제까지 가능한가요?", a: "출발 3일 전까지 100% 환불, 1~2일 전 50% 환불, 당일 취소는 환불 불가합니다." },
@@ -280,9 +298,21 @@ function BookingModal({ car, onClose }) {
   const total = nights * car.price;
   const setField = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  const submit = () => {
+  const submit = async () => {
     if (!form.name || !form.phone || !form.startDate || !form.endDate) return alert("필수 항목을 입력해주세요.");
     if (nights <= 0) return alert("올바른 날짜를 선택해주세요.");
+    const { error } = await supabase.from("reservations").insert({
+      car_id: car.id,
+      car_name: car.name,
+      name: form.name,
+      phone: form.phone,
+      start_date: form.startDate,
+      end_date: form.endDate,
+      people: Number(form.people),
+      total_price: total,
+      request: form.request,
+    });
+    if (error) { alert("예약 저장 중 오류가 발생했습니다."); return; }
     setDone(true);
   };
 
@@ -494,19 +524,32 @@ const al = {
 
 // ─── QnA ────────────────────────────────────────────────────
 function QnA() {
-  const [posts, setPosts] = useState([
-    { id: 1, title: "Forest Wanderer 예약 후 취소 방법이 궁금합니다", author: "여행러버", date: "2026-04-01", answer: "마이페이지 > 예약내역에서 취소하실 수 있습니다. 출발 3일 전까지 100% 환불됩니다." },
-    { id: 2, title: "주차 공간 사이즈 기준이 있나요?", author: "캠핑초보", date: "2026-04-03", answer: null },
-    { id: 3, title: "반려견 동반 가능한 차량 추천해주세요", author: "댕댕이부모", date: "2026-04-05", answer: "Sunset Rover와 Starlight 차량이 소형 반려동물 동반 가능합니다." },
-  ]);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({ title: "", content: "", author: "" });
   const [open, setOpen] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const sf = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  const submit = () => {
+  useEffect(() => {
+    const fetchQna = async () => {
+      const { data, error } = await supabase.from("qna").select("*");
+      if (!error) setPosts(data || []);
+      setLoading(false);
+    };
+    fetchQna();
+  }, []);
+
+  const submit = async () => {
     if (!form.title || !form.content || !form.author) return alert("모든 항목을 입력해주세요.");
-    setPosts([{ id: Date.now(), title: form.title, author: form.author, date: new Date().toISOString().slice(0, 10), answer: null }, ...posts]);
+    const { data, error } = await supabase.from("qna").insert({
+      title: form.title,
+      content: form.content,
+      author: form.author,
+    });
+    if (error) { alert("등록 중 오류가 발생했습니다."); return; }
+    const newPost = { id: Date.now(), title: form.title, author: form.author, content: form.content, answer: null, created_at: new Date().toISOString() };
+    setPosts([newPost, ...posts]);
     setForm({ title: "", content: "", author: "" });
     setShowForm(false);
   };
@@ -534,7 +577,11 @@ function QnA() {
         </div>
       )}
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {posts.map((p) => (
+        {loading ? (
+          <div style={{ textAlign: "center", padding: "40px 0", color: "#9ca3af" }}>
+            <p style={{ fontSize: 14 }}>문의 목록을 불러오는 중...</p>
+          </div>
+        ) : posts.map((p) => (
           <div key={p.id} style={{ ...s.listCard, borderLeft: open === p.id ? "3px solid #1d3557" : "3px solid transparent" }}>
             <div style={s.listTop} onClick={() => setOpen(open === p.id ? null : p.id)}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
@@ -544,7 +591,9 @@ function QnA() {
                 <span style={{ fontWeight: 600, fontSize: 14, color: "#111827", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.title}</span>
               </div>
               <div style={{ display: "flex", gap: 10, color: "#9ca3af", fontSize: 12, flexShrink: 0, marginLeft: 12 }}>
-                <span>{p.author}</span><span>{p.date}</span><span>{open === p.id ? "▲" : "▼"}</span>
+                <span>{p.author}</span>
+                <span>{(p.created_at || p.date || "").slice(0, 10)}</span>
+                <span>{open === p.id ? "▲" : "▼"}</span>
               </div>
             </div>
             {open === p.id && (
@@ -600,7 +649,31 @@ export default function App() {
   const [selected, setSelected] = useState(null);
   const [hovered, setHovered] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [viewMode, setViewMode] = useState("list"); // "list" | "map"
+  const [viewMode, setViewMode] = useState("list");
+  const [campingCars, setCampingCars] = useState([]);
+  const [carsLoading, setCarsLoading] = useState(true);
+
+  // Supabase에서 캠핑카 목록 불러오기
+  useEffect(() => {
+    const fetchCars = async () => {
+      setCarsLoading(true);
+      const { data, error } = await supabase.from("cars").select("*");
+      if (error) {
+        console.error("cars 불러오기 실패:", error);
+      } else {
+        // features가 문자열로 저장된 경우 배열로 변환
+        const parsed = data.map(c => ({
+          ...c,
+          features: typeof c.features === "string"
+            ? c.features.split(",").map(f => f.trim())
+            : c.features || [],
+        }));
+        setCampingCars(parsed);
+      }
+      setCarsLoading(false);
+    };
+    fetchCars();
+  }, []);
 
   const menuItems = [["cars", "🏕", "캠핑카 소개"], ["qna", "💬", "Q&A"], ["faq", "❓", "FAQ"]];
   const goMenu = (key) => { setMenu(key); setDrawerOpen(false); };
@@ -676,6 +749,17 @@ export default function App() {
 
             {viewMode === "list" ? (
               <>
+                {carsLoading ? (
+                  <div style={{ textAlign: "center", padding: "60px 0", color: "#9ca3af" }}>
+                    <div style={{ fontSize: 40, marginBottom: 12 }}>🚐</div>
+                    <p style={{ fontSize: 14, fontWeight: 600 }}>캠핑카 목록을 불러오는 중...</p>
+                  </div>
+                ) : campingCars.length === 0 ? (
+                  <div style={{ textAlign: "center", padding: "60px 0", color: "#9ca3af" }}>
+                    <div style={{ fontSize: 40, marginBottom: 12 }}>😅</div>
+                    <p style={{ fontSize: 14 }}>등록된 캠핑카가 없습니다.</p>
+                  </div>
+                ) : (
                 <div style={s.grid}>
                   {campingCars.map((car) => (
                     <div
@@ -711,6 +795,7 @@ export default function App() {
                     </div>
                   ))}
                 </div>
+                )} {/* 로딩/빈 상태 끝 */}
                 <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 20 }}>
                 </div>
               </>
