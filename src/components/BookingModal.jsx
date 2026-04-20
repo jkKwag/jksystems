@@ -20,6 +20,7 @@ function BookingModal({ car, onClose }) {
       car_id: car.id, car_name: car.name, name: form.name, phone: form.phone,
       start_date: form.startDate, end_date: form.endDate,
       people: Number(form.people), total_price: total, request: form.request,
+      status: "pending",
     });
     if (error) { alert("예약 저장 중 오류가 발생했습니다."); return; }
     setDone(true);
@@ -44,19 +45,25 @@ function BookingModal({ car, onClose }) {
         <div style={ms.body}>
           {done ? (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-              <div style={{ fontSize: 48, marginBottom: 8 }}>🎉</div>
-              <h3 style={{ margin: "0 0 4px", fontSize: 20, fontWeight: 800 }}>예약 완료!</h3>
-              <p style={{ margin: "0 0 16px", color: "#6b7280", fontSize: 13 }}><b>{form.name}</b>님의 예약이 접수되었습니다.</p>
+              <div style={{ fontSize: 48, marginBottom: 8 }}>📋</div>
+              <h3 style={{ margin: "0 0 4px", fontSize: 20, fontWeight: 800 }}>예약 접수 완료!</h3>
+              <p style={{ margin: "0 0 8px", color: "#6b7280", fontSize: 13 }}><b>{form.name}</b>님의 예약이 접수되었습니다.</p>
+              <div style={{ background: "#fef9c3", border: "1px solid #fde047", borderRadius: 10, padding: "8px 16px", marginBottom: 16, fontSize: 12, color: "#854d0e" }}>
+                🕐 예약 대기 중 · 확정 후 연락드리겠습니다
+              </div>
               <div style={ms.receipt}>
-                {[["차량", car.name], ["기간", `${form.startDate} ~ ${form.endDate}`], ["박수", `${nights}박 ${nights+1}일`], ["인원", `${form.people}명`]].map(([k, v]) => (
-                  <div key={k} style={ms.receiptRow}><span style={{ color: "#6b7280", fontSize: 13 }}>{k}</span><span style={{ fontWeight: 600, fontSize: 13 }}>{v}</span></div>
+                {[["차량", car.name], ["기간", `${form.startDate} ~ ${form.endDate}`], ["박수", `${nights}박 ${nights+1}일`], ["인원", `${form.people}명`], ["상태", "대기 중"]].map(([k, v]) => (
+                  <div key={k} style={ms.receiptRow}>
+                    <span style={{ color: "#6b7280", fontSize: 13 }}>{k}</span>
+                    <span style={{ fontWeight: 600, fontSize: 13, color: k === "상태" ? "#854d0e" : "#111" }}>{v}</span>
+                  </div>
                 ))}
                 <div style={{ ...ms.receiptRow, borderTop: "1px solid #d1fae5", marginTop: 8, paddingTop: 10 }}>
                   <span style={{ fontWeight: 700 }}>총 금액</span>
                   <span style={{ fontWeight: 800, fontSize: 18, color: "#059669" }}>₩{total.toLocaleString()}</span>
                 </div>
               </div>
-              <p style={{ color: "#9ca3af", fontSize: 11, margin: "12px 0 14px" }}>예약 확인 문자가 발송되었습니다 · 문의 1588-0000</p>
+              <p style={{ color: "#9ca3af", fontSize: 11, margin: "12px 0 14px" }}>문의 1588-0000</p>
               <button style={{ ...ms.submitBtn, background: car.bg }} onClick={onClose}>닫기</button>
             </div>
           ) : (
