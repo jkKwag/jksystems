@@ -21,64 +21,26 @@ const s = {
   cardBtn: { width: "100%", padding: "9px", border: "none", borderRadius: 9, color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer" },
 };
 
-// 신호등 상태 계산
-function getTrafficLight(carId, reservations) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  // 해당 캠핑카의 confirmed 예약만 필터
-  const carReservations = reservations.filter(r =>
-    r.car_id === carId && r.status === "confirmed" && new Date(r.end_date) >= today
-  );
-
-  if (carReservations.length === 0) return { color: "#22c55e", label: "예약 가능", bg: "#dcfce7" };
-
-  // 오늘부터 30일 이내 예약 꽉 찼는지 확인
-  const next30Days = new Date(today);
-  next30Days.setDate(next30Days.getDate() + 30);
-
-  // 오늘 ~ 7일 이내 예약 있으면 빨강
-  const next7Days = new Date(today);
-  next7Days.setDate(next7Days.getDate() + 7);
-
-  const hasNearReservation = carReservations.some(r =>
-    new Date(r.start_date) <= next7Days
-  );
-
-  if (hasNearReservation) return { color: "#ef4444", label: "예약 중", bg: "#fee2e2" };
-  return { color: "#f59e0b", label: "일부 예약", bg: "#fef3c7" };
-}
-
 function Cars() {
   const [campingCars, setCampingCars] = useState([]);
-  const [reservations, setReservations] = useState([]);
   const [carsLoading, setCarsLoading] = useState(true);
   const [selected, setSelected] = useState(null);
   const [hovered, setHovered] = useState(null);
   const [viewMode, setViewMode] = useState("list");
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchCars = async () => {
       setCarsLoading(true);
-
-      // 캠핑카 목록 + 예약 현황 동시에 불러오기
-      const [carsRes, reservRes] = await Promise.all([
-        supabase.from("cars").select("*"),
-        supabase.from("reservations").select("car_id, start_date, end_date, status"),
-      ]);
-
-      if (!carsRes.error && carsRes.data) {
-        setCampingCars(carsRes.data.map(c => ({
+      const { data, error } = await supabase.from("cars").select("*");
+      if (!error && data) {
+        setCampingCars(data.map(c => ({
           ...c,
           features: typeof c.features === "string" ? c.features.split(",").map(f => f.trim()) : c.features || [],
         })));
       }
-      if (!reservRes.error && reservRes.data) {
-        setReservations(reservRes.data);
-      }
       setCarsLoading(false);
     };
-    fetchData();
+    fetchCars();
   }, []);
 
   return (
@@ -91,16 +53,6 @@ function Cars() {
           </button>
         </div>
         <p style={s.pageDesc}>다양한 캠핑카 중 여행에 딱 맞는 차량을 골라보세요. 카드를 클릭하면 바로 예약할 수 있습니다.</p>
-      </div>
-
-      {/* 신호등 범례 */}
-      <div style={{ display: "flex", gap: 14, marginBottom: 16, fontSize: 12 }}>
-        {[{ color: "#22c55e", label: "예약 가능" }, { color: "#f59e0b", label: "일부 예약" }, { color: "#ef4444", label: "예약 중" }].map(({ color, label }) => (
-          <div key={label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-            <span style={{ width: 10, height: 10, borderRadius: "50%", background: color, display: "inline-block" }}/>
-            <span style={{ color: "#6b7280" }}>{label}</span>
-          </div>
-        ))}
       </div>
 
       {viewMode === "list" ? (
@@ -116,40 +68,30 @@ function Cars() {
           </div>
         ) : (
           <div style={s.grid}>
-            {campingCars.map((car) => {
-              const traffic = getTrafficLight(car.id, reservations);
-              return (
-                <div key={car.id}
-                  style={{ ...s.card, transform: hovered === car.id ? "translateY(-5px)" : "none", boxShadow: hovered === car.id ? "0 14px 36px rgba(0,0,0,0.13)" : "0 2px 10px rgba(0,0,0,0.06)" }}
-                  onClick={() => setSelected(car)} onMouseEnter={() => setHovered(car.id)} onMouseLeave={() => setHovered(null)}>
-                  <div style={{ ...s.cardTop, background: car.bg }}>
-                    <span style={{ fontSize: 50, filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.15))" }}>{car.image}</span>
-                    <span style={s.cardBadge}>{car.tag}</span>
-                    <span style={s.cardSeat}>👤 최대 {car.seats}인</span>
-                    {/* 신호등 */}
-                    <span style={{ position: "absolute", top: 11, right: 11, width: 14, height: 14, borderRadius: "50%", background: traffic.color, border: "2px solid #fff", boxShadow: `0 0 6px ${traffic.color}` }}/>
-                  </div>
-                  <div style={s.cardBody}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 5 }}>
-                      <div><h3 style={s.cardName}>{car.name}</h3><span style={s.cardType}>{car.type}</span></div>
-                      <div style={{ textAlign: "right" }}>
-                        <div style={{ fontSize: 10, color: "#9ca3af" }}>1박부터</div>
-                        <div style={{ fontWeight: 800, fontSize: 15, color: car.color }}>₩{Number(car.price).toLocaleString()}</div>
-                      </div>
-                    </div>
-                    <p style={s.cardDesc}>{car.desc}</p>
-                    <div style={{ fontSize: 11, color: "#9ca3af", marginBottom: 8 }}>📍 {car.location}</div>
-                    <div style={s.chips}>{(car.features || []).slice(0, 4).map(f => <span key={f} style={s.chip}>{f}</span>)}</div>
-                    {/* 예약 상태 배지 */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
-                      <span style={{ width: 8, height: 8, borderRadius: "50%", background: traffic.color, display: "inline-block" }}/>
-                      <span style={{ fontSize: 11, color: traffic.color, fontWeight: 600 }}>{traffic.label}</span>
-                    </div>
-                    <button style={{ ...s.cardBtn, background: car.bg }}>예약하기 →</button>
-                  </div>
+            {campingCars.map((car) => (
+              <div key={car.id}
+                style={{ ...s.card, transform: hovered === car.id ? "translateY(-5px)" : "none", boxShadow: hovered === car.id ? "0 14px 36px rgba(0,0,0,0.13)" : "0 2px 10px rgba(0,0,0,0.06)" }}
+                onClick={() => setSelected(car)} onMouseEnter={() => setHovered(car.id)} onMouseLeave={() => setHovered(null)}>
+                <div style={{ ...s.cardTop, background: car.bg }}>
+                  <span style={{ fontSize: 50, filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.15))" }}>{car.image}</span>
+                  <span style={s.cardBadge}>{car.tag}</span>
+                  <span style={s.cardSeat}>👤 최대 {car.seats}인</span>
                 </div>
-              );
-            })}
+                <div style={s.cardBody}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 5 }}>
+                    <div><h3 style={s.cardName}>{car.name}</h3><span style={s.cardType}>{car.type}</span></div>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontSize: 10, color: "#9ca3af" }}>1박부터</div>
+                      <div style={{ fontWeight: 800, fontSize: 15, color: car.color }}>₩{Number(car.price).toLocaleString()}</div>
+                    </div>
+                  </div>
+                  <p style={s.cardDesc}>{car.desc}</p>
+                  <div style={{ fontSize: 11, color: "#9ca3af", marginBottom: 8 }}>📍 {car.location}</div>
+                  <div style={s.chips}>{(car.features || []).slice(0, 4).map(f => <span key={f} style={s.chip}>{f}</span>)}</div>
+                  <button style={{ ...s.cardBtn, background: car.bg }}>예약하기 →</button>
+                </div>
+              </div>
+            ))}
           </div>
         )
       ) : (
