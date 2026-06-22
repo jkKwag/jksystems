@@ -51,7 +51,7 @@ function QnA() {
       {showForm && (
         <div style={s.formCard}>
           <h4 style={{ margin: "0 0 12px", fontSize: 14, fontWeight: 700 }}>새 문의 작성</h4>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10, marginBottom: 10 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 10 }}>
             <input style={{ ...s.inp, width: "100%", boxSizing: "border-box" }} placeholder="작성자 이름" value={form.author} onChange={sf("author")}/>
             <input style={{ ...s.inp, width: "100%", boxSizing: "border-box" }} placeholder="제목" value={form.title} onChange={sf("title")}/>
           </div>
