@@ -4,11 +4,11 @@ CREATE TABLE IF NOT EXISTS admin_users (
   user_id VARCHAR(50) UNIQUE NOT NULL,
   password_hash VARCHAR(60) NOT NULL,
   created_at TIMESTAMPTZ DEFAULT now(),
-  created_by_id VARCHAR(50),
-  created_ip VARCHAR(45),
-  updated_at TIMESTAMPTZ,
-  updated_by_id VARCHAR(50),
-  updated_ip VARCHAR(45)
+  creat_id VARCHAR(50),
+  creat_ip VARCHAR(45),
+  updt_at TIMESTAMPTZ,
+  updt_id VARCHAR(50),
+  updt_ip VARCHAR(45)
 );
 
 -- 초기 관리자 계정 삽입
