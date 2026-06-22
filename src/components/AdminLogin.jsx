@@ -14,7 +14,7 @@ function AdminLogin({ onClose }) {
     const { data, error: dbError } = await supabase
       .from("admin_users")
       .select("password_hash")
-      .eq("username", form.id)
+      .eq("user_id", form.id)
       .single();
     setLoading(false);
     if (dbError || !data) { setError("아이디 또는 비밀번호가 올바르지 않습니다."); return; }
