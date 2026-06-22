@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Cars from "./src/screens/Cars";
@@ -16,6 +16,14 @@ export default function App() {
   const [tab, setTab] = useState("cars");
   const [isAdmin, setIsAdmin] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+
+  useEffect(() => {
+    if (Platform.OS === "web") {
+      const style = document.createElement("style");
+      style.innerHTML = "html,body,#root{height:100%;margin:0;padding:0;overflow:hidden;}";
+      document.head.appendChild(style);
+    }
+  }, []);
 
   const handleLogin = async () => {
     await AsyncStorage.setItem("isAdmin", "true");
@@ -68,8 +76,8 @@ export default function App() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f0f7f0", height: Platform.OS === "web" ? "100vh" : "100%", overflow: "hidden" },
-  header: { background: "linear-gradient(135deg, #2d6a4f, #40916c)", backgroundColor: "#2d6a4f", flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 20, paddingVertical: 14 },
+  container: { flex: 1, backgroundColor: "#f0f7f0" },
+  header: { backgroundColor: "#2d6a4f", flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 20, paddingVertical: 14 },
   headerLeft: { flexDirection: "row", alignItems: "center", gap: 8 },
   headerIcon: { fontSize: 22 },
   headerTitle: { fontSize: 20, fontWeight: "900", color: "#fff", letterSpacing: -1 },
@@ -77,8 +85,8 @@ const s = StyleSheet.create({
   adminBtnActive: { borderColor: "#ff6b6b", backgroundColor: "rgba(255,107,107,0.2)" },
   adminBtnText: { color: "#fff", fontWeight: "700", fontSize: 12 },
   adminBtnTextActive: { color: "#ff6b6b" },
-  content: { flex: 1 },
-  tabBar: { flexDirection: "row", backgroundColor: "#fff", borderTopWidth: 2, borderTopColor: "#d8f3dc", paddingBottom: 4 },
+  content: { flex: 1, overflow: "hidden" },
+  tabBar: { flexDirection: "row", backgroundColor: "#fff", borderTopWidth: 2, borderTopColor: "#d8f3dc", paddingBottom: 4, flexShrink: 0 },
   tabItem: { flex: 1, alignItems: "center", paddingVertical: 8, position: "relative" },
   tabIcon: { fontSize: 20, marginBottom: 2 },
   tabLabel: { fontSize: 11, color: "#95d5b2", fontWeight: "500" },
