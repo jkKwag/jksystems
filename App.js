@@ -23,6 +23,7 @@ export default function App() {
       style.innerHTML = "html,body,#root{height:100%;margin:0;padding:0;overflow:hidden;}";
       document.head.appendChild(style);
     }
+    AsyncStorage.getItem("isAdmin").then(v => { if (v === "true") setIsAdmin(true); });
   }, []);
 
   const handleLogin = async () => {
