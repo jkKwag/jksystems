@@ -24,12 +24,13 @@ const menuItems = [["cars", "🏕", "캠핑카 소개"], ["qna", "💬", "Q&A"],
 export default function App() {
   const [menu, setMenu] = useState("cars");
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const goMenu = (key) => { setMenu(key); setDrawerOpen(false); };
 
   return (
     <div style={s.app}>
-      {menu === "admin" && <AdminLogin onClose={() => setMenu("cars")} />}
+      {menu === "admin" && <AdminLogin onClose={() => setMenu("cars")} onLogin={() => { setIsAdmin(true); setMenu("cars"); }} />}
 
       {/* 헤더 */}
       <header style={s.header}>
@@ -64,11 +65,19 @@ export default function App() {
               </button>
             ))}
             <div style={{ margin: "12px 20px", borderTop: "1px solid #f1f5f9" }}/>
-            <button style={{ ...s.drawerItem, color: "#6b4c9a", fontWeight: 600 }}
-              onClick={() => { setMenu("admin"); setDrawerOpen(false); }}>
-              <span style={{ fontSize: 18 }}>⚙️</span>
-              <span>관리자</span>
-            </button>
+            {isAdmin ? (
+              <button style={{ ...s.drawerItem, color: "#dc2626", fontWeight: 600 }}
+                onClick={() => { setIsAdmin(false); setDrawerOpen(false); }}>
+                <span style={{ fontSize: 18 }}>🔓</span>
+                <span>로그아웃</span>
+              </button>
+            ) : (
+              <button style={{ ...s.drawerItem, color: "#6b4c9a", fontWeight: 600 }}
+                onClick={() => { setMenu("admin"); setDrawerOpen(false); }}>
+                <span style={{ fontSize: 18 }}>⚙️</span>
+                <span>관리자</span>
+              </button>
+            )}
           </div>
         </div>
       )}

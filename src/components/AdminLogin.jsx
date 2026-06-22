@@ -2,7 +2,7 @@ import { useState } from "react";
 import bcrypt from "bcryptjs";
 import supabase from "../lib/supabase";
 
-function AdminLogin({ onClose }) {
+function AdminLogin({ onClose, onLogin }) {
   const [form, setForm] = useState({ id: "", pw: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,7 +19,7 @@ function AdminLogin({ onClose }) {
     setLoading(false);
     if (dbError || !data) { setError("아이디 또는 비밀번호가 올바르지 않습니다."); return; }
     const match = await bcrypt.compare(form.pw, data.password_hash);
-    if (match) { alert("✅ 관리자로 로그인되었습니다."); onClose(); }
+    if (match) { onLogin ? onLogin() : onClose(); }
     else { setError("아이디 또는 비밀번호가 올바르지 않습니다."); }
   };
 
