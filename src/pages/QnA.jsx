@@ -35,7 +35,7 @@ function QnA({ isAdmin }) {
     const text = answerText[id];
     if (!text) return alert("답변 내용을 입력해주세요.");
     const { error } = await supabase.from("qna").update({ answer: text }).eq("id", id);
-    if (error) { alert("답변 등록 중 오류가 발생했습니다."); return; }
+    if (error) { alert("오류: " + JSON.stringify(error)); return; }
     setPosts(posts.map(p => p.id === id ? { ...p, answer: text } : p));
     setAnswerText(prev => ({ ...prev, [id]: "" }));
   };
