@@ -1,14 +1,14 @@
 -- admin_users 테이블 생성
 CREATE TABLE IF NOT EXISTS admin_users (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id TEXT UNIQUE NOT NULL,
-  password_hash TEXT NOT NULL,
+  user_id VARCHAR(50) UNIQUE NOT NULL,
+  password_hash VARCHAR(60) NOT NULL,
   created_at TIMESTAMPTZ DEFAULT now(),
-  created_by TEXT,
-  created_ip TEXT,
+  created_by_id VARCHAR(50),
+  created_ip VARCHAR(45),
   updated_at TIMESTAMPTZ,
-  updated_by TEXT,
-  updated_ip TEXT
+  updated_by_id VARCHAR(50),
+  updated_ip VARCHAR(45)
 );
 
 -- 초기 관리자 계정 삽입
