@@ -3,7 +3,12 @@ CREATE TABLE IF NOT EXISTS admin_users (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id TEXT UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT now()
+  created_at TIMESTAMPTZ DEFAULT now(),
+  created_by TEXT,
+  created_ip TEXT,
+  updated_at TIMESTAMPTZ,
+  updated_by TEXT,
+  updated_ip TEXT
 );
 
 -- 초기 관리자 계정 삽입
