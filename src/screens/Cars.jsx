@@ -59,7 +59,7 @@ export default function Cars() {
                 <View key={f} style={s.chip}><Text style={s.chipText}>{f}</Text></View>
               ))}
             </View>
-            <View style={[s.bookBtn, { backgroundColor: car.bg || "#1d3557" }]}>
+            <View style={[s.bookBtn, { backgroundColor: car.color || "#2d6a4f" }]}>
               <Text style={s.bookBtnText}>예약하기 →</Text>
             </View>
           </View>
