@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, StatusBar, Platform } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Cars from "./src/screens/Cars";
 import QnA from "./src/screens/QnA";
@@ -29,7 +29,7 @@ export default function App() {
   };
 
   return (
-    <SafeAreaView style={s.container}>
+    <View style={s.container}>
       <StatusBar barStyle="light-content" backgroundColor="#2d6a4f" />
 
       {/* 헤더 */}
@@ -63,12 +63,12 @@ export default function App() {
 
       {/* 관리자 로그인 모달 */}
       <AdminLogin visible={showLogin} onClose={() => setShowLogin(false)} onLogin={handleLogin} />
-    </SafeAreaView>
+    </View>
   );
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f0f7f0", ...(Platform.OS === "web" ? { height: "100vh", overflow: "hidden" } : {}) },
+  container: { flex: 1, backgroundColor: "#f0f7f0", height: Platform.OS === "web" ? "100vh" : "100%", overflow: "hidden" },
   header: { background: "linear-gradient(135deg, #2d6a4f, #40916c)", backgroundColor: "#2d6a4f", flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 20, paddingVertical: 14 },
   headerLeft: { flexDirection: "row", alignItems: "center", gap: 8 },
   headerIcon: { fontSize: 22 },
