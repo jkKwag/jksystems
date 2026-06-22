@@ -1,4 +1,6 @@
 import { useState } from "react";
+import bcrypt from "bcryptjs";
+import supabase from "../lib/supabase";
 
 function AdminLogin({ onClose }) {
   const [form, setForm] = useState({ id: "", pw: "" });
@@ -6,14 +8,19 @@ function AdminLogin({ onClose }) {
   const [loading, setLoading] = useState(false);
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!form.id || !form.pw) { setError("아이디와 비밀번호를 입력해주세요."); return; }
     setLoading(true); setError("");
-    setTimeout(() => {
-      setLoading(false);
-      if (form.id === "admin" && form.pw === "1234") { alert("✅ 관리자로 로그인되었습니다."); onClose(); }
-      else { setError("아이디 또는 비밀번호가 올바르지 않습니다."); }
-    }, 800);
+    const { data, error: dbError } = await supabase
+      .from("admin_users")
+      .select("password_hash")
+      .eq("username", form.id)
+      .single();
+    setLoading(false);
+    if (dbError || !data) { setError("아이디 또는 비밀번호가 올바르지 않습니다."); return; }
+    const match = await bcrypt.compare(form.pw, data.password_hash);
+    if (match) { alert("✅ 관리자로 로그인되었습니다."); onClose(); }
+    else { setError("아이디 또는 비밀번호가 올바르지 않습니다."); }
   };
 
   return (
@@ -37,7 +44,6 @@ function AdminLogin({ onClose }) {
           {error && <div style={al.errorBox}>⚠️ {error}</div>}
           <button style={{ ...al.loginBtn, opacity: loading ? 0.7 : 1 }} onClick={handleLogin} disabled={loading}>{loading ? "로그인 중..." : "로그인"}</button>
           <button style={al.cancelBtn} onClick={onClose}>취소</button>
-          <p style={al.hint}>테스트 계정: admin / 1234</p>
         </div>
       </div>
     </div>
