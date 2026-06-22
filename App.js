@@ -30,7 +30,7 @@ export default function App() {
 
   return (
     <SafeAreaView style={s.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      <StatusBar barStyle="light-content" backgroundColor="#2d6a4f" />
 
       {/* 헤더 */}
       <View style={s.header}>
@@ -68,20 +68,20 @@ export default function App() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f1f5f9" },
-  header: { backgroundColor: "#fff", flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 20, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: "#e5e7eb" },
+  container: { flex: 1, backgroundColor: "#f0f7f0" },
+  header: { background: "linear-gradient(135deg, #2d6a4f, #40916c)", backgroundColor: "#2d6a4f", flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 20, paddingVertical: 14 },
   headerLeft: { flexDirection: "row", alignItems: "center", gap: 8 },
   headerIcon: { fontSize: 22 },
-  headerTitle: { fontSize: 20, fontWeight: "900", color: "#1d3557", letterSpacing: -1 },
-  adminBtn: { borderWidth: 1.5, borderColor: "#6b4c9a", borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6 },
-  adminBtnActive: { borderColor: "#dc2626", backgroundColor: "#fef2f2" },
-  adminBtnText: { color: "#6b4c9a", fontWeight: "700", fontSize: 12 },
-  adminBtnTextActive: { color: "#dc2626" },
+  headerTitle: { fontSize: 20, fontWeight: "900", color: "#fff", letterSpacing: -1 },
+  adminBtn: { borderWidth: 1.5, borderColor: "rgba(255,255,255,0.6)", borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6, backgroundColor: "rgba(255,255,255,0.15)" },
+  adminBtnActive: { borderColor: "#ff6b6b", backgroundColor: "rgba(255,107,107,0.2)" },
+  adminBtnText: { color: "#fff", fontWeight: "700", fontSize: 12 },
+  adminBtnTextActive: { color: "#ff6b6b" },
   content: { flex: 1 },
-  tabBar: { flexDirection: "row", backgroundColor: "#fff", borderTopWidth: 1, borderTopColor: "#e5e7eb", paddingBottom: 4 },
+  tabBar: { flexDirection: "row", backgroundColor: "#fff", borderTopWidth: 2, borderTopColor: "#d8f3dc", paddingBottom: 4 },
   tabItem: { flex: 1, alignItems: "center", paddingVertical: 8, position: "relative" },
   tabIcon: { fontSize: 20, marginBottom: 2 },
-  tabLabel: { fontSize: 11, color: "#9ca3af", fontWeight: "500" },
-  tabLabelActive: { color: "#1d3557", fontWeight: "700" },
-  tabIndicator: { position: "absolute", top: 0, left: "25%", right: "25%", height: 2, backgroundColor: "#1d3557", borderRadius: 1 },
+  tabLabel: { fontSize: 11, color: "#95d5b2", fontWeight: "500" },
+  tabLabelActive: { color: "#2d6a4f", fontWeight: "700" },
+  tabIndicator: { position: "absolute", top: 0, left: "25%", right: "25%", height: 2, backgroundColor: "#2d6a4f", borderRadius: 1 },
 });

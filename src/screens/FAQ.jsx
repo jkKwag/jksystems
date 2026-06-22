@@ -31,13 +31,13 @@ export default function FAQ() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f1f5f9" },
+  container: { flex: 1, backgroundColor: "#f0f7f0" },
   content: { padding: 20 },
-  title: { fontSize: 22, fontWeight: "800", color: "#111827", marginBottom: 4 },
-  desc: { fontSize: 13, color: "#6b7280", marginBottom: 20 },
-  card: { backgroundColor: "#fff", borderRadius: 11, marginBottom: 8, overflow: "hidden", borderWidth: 1, borderColor: "#e5e7eb" },
+  title: { fontSize: 22, fontWeight: "800", color: "#1b4332", marginBottom: 4 },
+  desc: { fontSize: 13, color: "#52796f", marginBottom: 20 },
+  card: { backgroundColor: "#fff", borderRadius: 11, marginBottom: 8, overflow: "hidden", borderWidth: 1, borderColor: "#d8f3dc" },
   row: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 15 },
-  question: { fontSize: 14, fontWeight: "600", color: "#111827", flex: 1, marginRight: 10 },
-  arrow: { fontSize: 12, color: "#9ca3af" },
-  answer: { padding: 15, paddingTop: 0, fontSize: 14, color: "#374151", lineHeight: 22, borderTopWidth: 1, borderTopColor: "#f1f5f9" },
+  question: { fontSize: 14, fontWeight: "600", color: "#1b4332", flex: 1, marginRight: 10 },
+  arrow: { fontSize: 12, color: "#74c69d" },
+  answer: { padding: 15, paddingTop: 0, fontSize: 14, color: "#52796f", lineHeight: 22, borderTopWidth: 1, borderTopColor: "#d8f3dc" },
 });
