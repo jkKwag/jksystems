@@ -66,7 +66,6 @@ const al = {
   errorBox: { background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, padding: "10px 14px", fontSize: 13, color: "#dc2626" },
   loginBtn: { padding: "14px", background: "linear-gradient(135deg,#1d3557,#457b9d)", color: "#fff", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: "pointer" },
   cancelBtn: { padding: "11px", background: "#f1f5f9", color: "#6b7280", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: "pointer" },
-  hint: { margin: 0, textAlign: "center", fontSize: 11, color: "#9ca3af" },
 };
 
 export default AdminLogin;

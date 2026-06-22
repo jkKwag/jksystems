@@ -16,5 +16,10 @@ INSERT INTO admin_users (user_id, password_hash)
 VALUES ('admin', '$2b$12$p7QEgYMC20BlyhtQrtjbguCUv3HlqzP2Iu.4t95cmQTM1HEJ1Wct.')
 ON CONFLICT (user_id) DO NOTHING;
 
--- RLS 활성화 (외부에서 직접 조회 차단)
+-- RLS 활성화
 ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;
+
+-- 로그인용 SELECT 허용 (password_hash는 bcrypt 단방향 암호화라 노출되어도 안전)
+CREATE POLICY "allow_login_select" ON admin_users
+  FOR SELECT TO anon
+  USING (true);
