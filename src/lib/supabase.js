@@ -41,6 +41,24 @@ const supabase = {
       const data = await res.json();
       return { data, error: res.ok ? null : data };
     },
+    update: (row) => {
+      const filters = {};
+      const builder = {
+        eq(col, val) { filters[col] = `eq.${val}`; return builder; },
+        then(resolve, reject) {
+          const params = new URLSearchParams(filters);
+          return fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`, {
+            method: "PATCH",
+            headers: HEADERS,
+            body: JSON.stringify(row),
+          }).then(async (res) => {
+            const data = res.ok ? null : await res.json();
+            return { error: data };
+          }).then(resolve, reject);
+        },
+      };
+      return builder;
+    },
   }),
 };
 

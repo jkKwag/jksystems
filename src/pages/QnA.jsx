@@ -15,12 +15,13 @@ const s = {
   solidBtn: { padding: "9px 18px", border: "none", borderRadius: 8, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", width: "100%", background: "#1d3557" },
 };
 
-function QnA() {
+function QnA({ isAdmin }) {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState({ title: "", content: "", author: "" });
   const [open, setOpen] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [answerText, setAnswerText] = useState({});
   const sf = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
   useEffect(() => {
@@ -29,6 +30,15 @@ function QnA() {
       setLoading(false);
     });
   }, []);
+
+  const submitAnswer = async (id) => {
+    const text = answerText[id];
+    if (!text) return alert("답변 내용을 입력해주세요.");
+    const { error } = await supabase.from("qna").update({ answer: text }).eq("id", id);
+    if (error) { alert("답변 등록 중 오류가 발생했습니다."); return; }
+    setPosts(posts.map(p => p.id === id ? { ...p, answer: text } : p));
+    setAnswerText(prev => ({ ...prev, [id]: "" }));
+  };
 
   const submit = async () => {
     if (!form.title || !form.content || !form.author) return alert("모든 항목을 입력해주세요.");
@@ -79,6 +89,17 @@ function QnA() {
                   ? <><span style={{ color: "#2563eb", fontWeight: 800, marginRight: 8 }}>A.</span><span style={{ color: "#374151", lineHeight: 1.7, fontSize: 14 }}>{p.answer}</span></>
                   : <span style={{ color: "#9ca3af", fontStyle: "italic", fontSize: 13 }}>답변 준비 중입니다. 빠른 시일 내에 답변 드리겠습니다.</span>
                 }
+                {isAdmin && !p.answer && (
+                  <div style={{ marginTop: 10 }}>
+                    <textarea
+                      style={{ ...s.inp, width: "100%", boxSizing: "border-box", height: 72, resize: "none", marginBottom: 8 }}
+                      placeholder="답변 내용 입력"
+                      value={answerText[p.id] || ""}
+                      onChange={e => setAnswerText(prev => ({ ...prev, [p.id]: e.target.value }))}
+                    />
+                    <button style={{ ...s.solidBtn }} onClick={() => submitAnswer(p.id)}>답변 등록</button>
+                  </div>
+                )}
               </div>
             )}
           </div>

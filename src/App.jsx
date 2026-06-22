@@ -85,7 +85,7 @@ export default function App() {
       {/* 메인 */}
       <main style={s.main}>
         {menu === "cars" && <Cars />}
-        {menu === "qna" && <QnA />}
+        {menu === "qna" && <QnA isAdmin={isAdmin} />}
         {menu === "faq" && <FAQ />}
       </main>
     </div>
