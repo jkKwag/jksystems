@@ -1,46 +1,60 @@
-# JMeter + Kubernetes localhost 호출 문제 해결
+# JMeter + Kubernetes 호출 문제 해결
 
 ## 증상
-- `curl http://localhost:8080/api` → 정상
-- JMeter HTTP Request (localhost:8080) → 연결 실패
+- 로컬 PC에서 `curl http://localhost:8080/api` → 정상
+- K8s Pod 안의 JMeter에서 `localhost:8080` 호출 → 404 / 연결 실패
 
 ## 원인
 
 ```
-localhost 해석 차이:
-  curl     → 127.0.0.1 (IPv4) ✅ K8s port-forward가 수신
-  JMeter   → ::1       (IPv6) ❌ K8s port-forward가 수신 안 함
+[로컬 PC]
+  curl localhost:8080  →  kubectl port-forward 통해 Spring Boot 접근 ✅
+
+[K8s 내 JMeter Pod]
+  localhost:8080  →  JMeter Pod 자신의 loopback (Spring Boot 없음) ❌
 ```
 
-`kubectl port-forward`는 기본적으로 IPv4(`127.0.0.1`)에만 바인딩하지만,
-JMeter JVM은 `localhost`를 IPv6(`::1`)로 먼저 시도합니다.
+Kubernetes에서 각 Pod은 독립적인 네트워크 네임스페이스를 가집니다.
+`localhost`는 오직 해당 Pod 자신만 가리킵니다.
 
-## 해결 방법 (3가지 중 택1)
+## 해결: Kubernetes Service 이름으로 호출
 
-### 방법 1: JMeter HTTP Request에서 IP 직접 사용 (가장 빠름)
-- Server Name: `localhost` → `127.0.0.1` 로 변경
+### JMeter HTTP Request 설정 변경
 
-### 방법 2: JMeter JVM 옵션에 IPv4 강제 설정
+| 항목 | 기존 (잘못됨) | 수정 |
+|------|-------------|------|
+| Server Name | `localhost` | `spring-boot-service.default.svc.cluster.local` |
+| Port | `8080` | `8080` (동일) |
+| Path | `/api/...` | `/api/...` (동일) |
+
+### Service 이름 확인 방법
 ```bash
-# jmeter 실행 전
-export JVM_ARGS="-Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true"
-./jmeter -t test-plan.jmx
-```
-또는 `jmeter/bin/jmeter` 스크립트 내 `HEAP` 변수 근처에 추가:
-```
-JVM_ARGS="-Djava.net.preferIPv4Stack=true"
+# Spring Boot 서비스 이름 확인
+kubectl get svc -n <namespace>
+
+# JMeter에서 사용할 주소 형식
+http://<서비스명>.<네임스페이스>.svc.cluster.local:<포트>
+
+# 같은 네임스페이스라면 단축 가능
+http://<서비스명>:<포트>
 ```
 
-### 방법 3: kubectl port-forward 시 127.0.0.1 명시
-```bash
-# 기존 (문제 있을 수 있음)
-kubectl port-forward svc/my-service 8080:8080
+### 예시
+```
+Spring Boot Service 이름: api-server
+네임스페이스: production
+포트: 8080
 
-# 수정 (IPv4 명시)
-kubectl port-forward svc/my-service 127.0.0.1:8080:8080
+→ JMeter Server Name: api-server.production.svc.cluster.local
+→ 또는 같은 ns라면:  api-server
 ```
 
-## 권장 순서
-1. JMeter에서 `localhost` → `127.0.0.1` 변경 (즉시 테스트 가능)
-2. 안 되면 `JVM_ARGS` 설정 추가
-3. port-forward도 `127.0.0.1:PORT:PORT` 형식으로 변경
+## JMeter 프로퍼티 파일로 관리 (권장)
+
+`jmeter.properties` 또는 테스트 플랜 User Defined Variables에 설정:
+```
+TARGET_HOST=api-server.production.svc.cluster.local
+TARGET_PORT=8080
+```
+
+HTTP Request에서 `${TARGET_HOST}`, `${TARGET_PORT}` 변수로 참조.
