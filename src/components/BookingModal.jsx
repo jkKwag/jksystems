@@ -30,7 +30,7 @@ export default function BookingModal({ car, onClose }) {
     <Modal visible={true} transparent animationType="slide" onRequestClose={onClose}>
       <View style={s.overlay}>
         <View style={s.sheet}>
-          <View style={[s.header, { backgroundColor: car.bg }]}>
+          <View style={[s.header, { backgroundColor: car.color || "#2d6a4f" }]}>
             <View style={s.headerLeft}>
               <Text style={s.carIcon}>{car.image}</Text>
               <View>
@@ -61,7 +61,7 @@ export default function BookingModal({ car, onClose }) {
                     <Text style={s.totalPrice}>₩{total.toLocaleString()}</Text>
                   </View>
                 </View>
-                <TouchableOpacity style={[s.submitBtn, { backgroundColor: car.bg }]} onPress={onClose}>
+                <TouchableOpacity style={[s.submitBtn, { backgroundColor: car.color || "#2d6a4f" }]} onPress={onClose}>
                   <Text style={s.submitBtnText}>닫기</Text>
                 </TouchableOpacity>
               </View>
@@ -84,7 +84,7 @@ export default function BookingModal({ car, onClose }) {
                   <Text style={s.costText}>{nights > 0 ? `₩${car.price.toLocaleString()} × ${nights}박` : "날짜를 입력하면 요금이 계산됩니다"}</Text>
                   <Text style={[s.costTotal, { color: car.color }]}>{nights > 0 ? `₩${total.toLocaleString()}` : "—"}</Text>
                 </View>
-                <TouchableOpacity style={[s.submitBtn, { backgroundColor: car.bg }]} onPress={submit}>
+                <TouchableOpacity style={[s.submitBtn, { backgroundColor: car.color || "#2d6a4f" }]} onPress={submit}>
                   <Text style={s.submitBtnText}>예약 확정하기 →</Text>
                 </TouchableOpacity>
               </>
