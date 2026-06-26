@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Cars from "./src/screens/Cars";
 import QnA from "./src/screens/QnA";
 import FAQ from "./src/screens/FAQ";
+import Menu from "./src/screens/Menu";
 import AdminLogin from "./src/components/AdminLogin";
 
 const TABS = [
@@ -11,6 +12,14 @@ const TABS = [
   { key: "qna", icon: "💬", label: "Q&A" },
   { key: "faq", icon: "❓", label: "FAQ" },
 ];
+
+const getMenuBizno = () => {
+  if (Platform.OS !== "web") return null;
+  const match = window.location.pathname.match(/^\/menu\/(.+)/);
+  return match ? match[1] : null;
+};
+
+const menuBizno = getMenuBizno();
 
 export default function App() {
   const [tab, setTab] = useState("cars");
@@ -36,6 +45,21 @@ export default function App() {
     await AsyncStorage.removeItem("isAdmin");
     setIsAdmin(false);
   };
+
+  if (menuBizno) {
+    return (
+      <View style={s.container}>
+        <StatusBar barStyle="light-content" backgroundColor="#2d6a4f" />
+        <View style={s.header}>
+          <View style={s.headerLeft}>
+            <Text style={s.headerIcon}>🚐</Text>
+            <Text style={s.headerTitle}>CampRoad</Text>
+          </View>
+        </View>
+        <Menu bizno={menuBizno} />
+      </View>
+    );
+  }
 
   return (
     <View style={s.container}>
