@@ -100,10 +100,7 @@ export default function AiChat({ menuItems = [], onAddToCart }) {
         ]}
       >
         <View style={s.panelHeader}>
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Text style={s.panelTitle}>AI 메뉴 추천</Text>
-            <View style={s.betaBadge}><Text style={s.betaBadgeText}>BETA</Text></View>
-          </View>
+          <Text style={s.panelTitle}>AI 메뉴 추천</Text>
           <TouchableOpacity style={s.xBtn} onPress={() => setOpen(false)}>
             <Text style={s.xBtnText}>✕</Text>
           </TouchableOpacity>
