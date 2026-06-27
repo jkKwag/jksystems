@@ -11,7 +11,7 @@ export default function QnA({ isAdmin }) {
   const [answerText, setAnswerText] = useState({});
 
   useEffect(() => {
-    supabase.from("qna").select("*").then(({ data, error }) => {
+    supabase.from("qna").select("*").order("created_at", { ascending: false }).then(({ data, error }) => {
       if (!error) setPosts(data || []);
       setLoading(false);
     });
