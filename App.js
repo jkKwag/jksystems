@@ -44,6 +44,7 @@ export default function App() {
   const [showDrawer, setShowDrawer] = useState(false);
   const [menuOverlay, setMenuOverlay] = useState(null); // null | "qna" | "faq"
   const [musicOn, setMusicOn] = useState(false);
+  const [splash, setSplash] = useState(!!menuBizno);
   const audioRef = useRef(null);
 
   useEffect(() => {
@@ -52,22 +53,14 @@ export default function App() {
     audio.loop = true;
     audio.volume = 0.4;
     audioRef.current = audio;
-
-    let played = false;
-    const tryPlay = () => {
-      if (played) return;
-      played = true;
-      audio.play().then(() => setMusicOn(true)).catch(() => { played = false; });
-    };
-    document.addEventListener("click", tryPlay);
-    document.addEventListener("touchend", tryPlay);
-    return () => {
-      audio.pause();
-      audioRef.current = null;
-      document.removeEventListener("click", tryPlay);
-      document.removeEventListener("touchend", tryPlay);
-    };
+    return () => { audio.pause(); audioRef.current = null; };
   }, []);
+
+  const startApp = () => {
+    setSplash(false);
+    const audio = audioRef.current;
+    if (audio) audio.play().then(() => setMusicOn(true)).catch(() => {});
+  };
 
   const toggleMusic = () => {
     const audio = audioRef.current;
@@ -92,6 +85,24 @@ export default function App() {
   };
 
   if (menuBizno) {
+    if (splash) {
+      return (
+        <TouchableOpacity style={s.splash} activeOpacity={1} onPress={startApp}>
+          <View style={s.splashLogo}>
+            <View style={s.logoBox}>
+              <Text style={s.logoJK}>JK</Text>
+              <View style={s.logoLine} />
+            </View>
+            <Text style={s.headerTitle}><Text style={s.headerTitleAccent}>Scan</Text>eat</Text>
+          </View>
+          <Text style={s.splashSub}>맛찬들에 오신걸 환영합니다</Text>
+          <View style={s.splashTapBtn}>
+            <Text style={s.splashTapText}>🎵 탭하여 시작</Text>
+          </View>
+        </TouchableOpacity>
+      );
+    }
+
     return (
       <View style={s.container}>
         <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
@@ -191,6 +202,13 @@ const s = StyleSheet.create({
   adminBtnText: { color: "rgba(255,255,255,0.85)", fontWeight: "600", fontSize: 12 },
   adminBtnTextActive: { color: "#f87171" },
   content: { flex: 1, overflow: "hidden" },
+
+  splash: { flex: 1, backgroundColor: "#0f172a", justifyContent: "center", alignItems: "center", gap: 16,
+    ...(Platform.OS === "web" ? { background: "linear-gradient(160deg, #0f172a 0%, #14532d 100%)", minHeight: "100vh" } : {}) },
+  splashLogo: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 12 },
+  splashSub: { fontSize: 15, color: "rgba(255,255,255,0.6)", fontWeight: "500" },
+  splashTapBtn: { marginTop: 40, borderWidth: 1.5, borderColor: "rgba(249,115,22,0.6)", borderRadius: 30, paddingHorizontal: 28, paddingVertical: 14 },
+  splashTapText: { color: "#f97316", fontSize: 16, fontWeight: "800" },
 
   backBtn: { paddingVertical: 6, paddingHorizontal: 4 },
   backBtnText: { color: "#fff", fontSize: 14, fontWeight: "700" },
