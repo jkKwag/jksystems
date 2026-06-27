@@ -370,7 +370,7 @@ const s = StyleSheet.create({
   successTitle: { fontSize: 24, fontWeight: "900", color: "#111", marginBottom: 8 },
   successDesc: { fontSize: 14, color: "#888", textAlign: "center", lineHeight: 24, marginBottom: 24 },
   successBank: { fontSize: 15, fontWeight: "800", color: "#111" },
-  successNote: { fontSize: 12, color: "#bbb" },
+  successNote: { fontSize: 13, fontWeight: "800", color: "#f97316" },
   successBtn: { backgroundColor: "#111", borderRadius: 14, paddingHorizontal: 48, paddingVertical: 14 },
   successBtnText: { color: "#fff", fontSize: 16, fontWeight: "800" },
 
