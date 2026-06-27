@@ -10,7 +10,6 @@ import AdminLogin from "./src/components/AdminLogin";
 
 const TABS = [
   { key: "cars", icon: "🏕", label: "캠핑카" },
-  { key: "supporters", icon: "💝", label: "후원자" },
   { key: "qna", icon: "💬", label: "Q&A" },
   { key: "faq", icon: "❓", label: "FAQ" },
 ];
@@ -111,7 +110,8 @@ export default function App() {
         </View>
 
         <View style={s.content}>
-          {menuOverlay === "qna" ? <QnA isAdmin={false} /> :
+          {menuOverlay === "supporters" ? <Supporters isAdmin={false} /> :
+           menuOverlay === "qna" ? <QnA isAdmin={false} /> :
            menuOverlay === "faq" ? <FAQ /> :
            <Menu bizno={menuBizno} />}
         </View>
@@ -136,6 +136,7 @@ export default function App() {
             <View style={s.drawerPanel}>
               <Text style={s.drawerTitle}>더보기</Text>
               {[
+                { key: "supporters", icon: "💝", label: "후원자", desc: "후원자 명단 보기" },
                 { key: "qna", icon: "💬", label: "Q&A", desc: "자주 묻는 질문 답변" },
                 { key: "faq", icon: "❓", label: "FAQ", desc: "공지 및 안내사항" },
               ].map(item => (
@@ -167,7 +168,6 @@ export default function App() {
 
       <View style={s.content}>
         {tab === "cars" && <Cars />}
-        {tab === "supporters" && <Supporters isAdmin={isAdmin} />}
         {tab === "qna" && <QnA isAdmin={isAdmin} />}
         {tab === "faq" && <FAQ />}
       </View>
