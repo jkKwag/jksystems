@@ -201,7 +201,7 @@ const s = StyleSheet.create({
   logoLine: { width: 20, height: 1.5, backgroundColor: "#f97316", opacity: 0.5 },
   headerTitle: { fontSize: 18, fontWeight: "900", color: "#fff", letterSpacing: -0.5 },
   headerTitleAccent: { color: "#f97316" },
-  headerAiBadge: { fontSize: 11, fontWeight: "700", color: "#f97316", opacity: 0.85 },
+  headerAiBadge: { fontSize: 14, fontWeight: "700", color: "#f97316", opacity: 0.85 },
   adminBtn: { borderWidth: 1.5, borderColor: "rgba(255,255,255,0.3)", borderRadius: 20, paddingHorizontal: 14, paddingVertical: 6, backgroundColor: "rgba(255,255,255,0.1)" },
   adminBtnActive: { borderColor: "#f87171", backgroundColor: "rgba(248,113,113,0.15)" },
   adminBtnText: { color: "rgba(255,255,255,0.85)", fontWeight: "600", fontSize: 12 },
