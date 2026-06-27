@@ -100,7 +100,10 @@ export default function AiChat({ menuItems = [], onAddToCart }) {
         ]}
       >
         <View style={s.panelHeader}>
-          <Text style={s.panelTitle}>💬 AI 메뉴 추천</Text>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Text style={s.panelTitle}>AI 메뉴 추천</Text>
+            <View style={s.betaBadge}><Text style={s.betaBadgeText}>BETA</Text></View>
+          </View>
           <TouchableOpacity style={s.xBtn} onPress={() => setOpen(false)}>
             <Text style={s.xBtnText}>✕</Text>
           </TouchableOpacity>
@@ -166,45 +169,47 @@ export default function AiChat({ menuItems = [], onAddToCart }) {
 
 const s = StyleSheet.create({
   panel: {
-    backgroundColor: "#fff",
+    backgroundColor: "#1a1a1a",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     height: 480,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.14,
+    shadowOpacity: 0.4,
     shadowRadius: 16,
     elevation: 20,
   },
 
-  panelHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 16, borderBottomWidth: 1, borderBottomColor: "#f0f0f0" },
-  panelTitle: { fontSize: 16, fontWeight: "800", color: "#111" },
-  xBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: "#f3f4f6", justifyContent: "center", alignItems: "center" },
-  xBtnText: { fontSize: 13, color: "#555", fontWeight: "700" },
+  panelHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 16, borderBottomWidth: 1, borderBottomColor: "#2a2a2a", backgroundColor: "#111" },
+  panelTitle: { fontSize: 16, fontWeight: "800", color: "#fff" },
+  betaBadge: { backgroundColor: "#f97316", borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, marginLeft: 8 },
+  betaBadgeText: { fontSize: 10, fontWeight: "800", color: "#fff" },
+  xBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: "#2a2a2a", justifyContent: "center", alignItems: "center" },
+  xBtnText: { fontSize: 13, color: "#aaa", fontWeight: "700" },
 
-  msgList: { flex: 1 },
+  msgList: { flex: 1, backgroundColor: "#1a1a1a" },
   msgContent: { padding: 14, paddingBottom: 8, gap: 8 },
 
   bubble: { maxWidth: "80%", borderRadius: 16, padding: 12 },
-  bubbleAi: { backgroundColor: "#f3f4f6", alignSelf: "flex-start", borderBottomLeftRadius: 4 },
-  bubbleUser: { backgroundColor: "#111", alignSelf: "flex-end", borderBottomRightRadius: 4 },
-  bubbleText: { fontSize: 14, color: "#111", lineHeight: 20 },
+  bubbleAi: { backgroundColor: "#2a2a2a", alignSelf: "flex-start", borderBottomLeftRadius: 4 },
+  bubbleUser: { backgroundColor: "#f97316", alignSelf: "flex-end", borderBottomRightRadius: 4 },
+  bubbleText: { fontSize: 14, color: "#eee", lineHeight: 20 },
   bubbleTextUser: { color: "#fff" },
 
-  cartCard: { backgroundColor: "#fff", borderWidth: 1.5, borderColor: "#16a34a", borderRadius: 14, padding: 14, alignSelf: "flex-start", maxWidth: "80%" },
-  cartCardLabel: { fontSize: 10, fontWeight: "800", color: "#16a34a", marginBottom: 4, letterSpacing: 0.5, textTransform: "uppercase" },
-  cartCardName: { fontSize: 15, fontWeight: "800", color: "#111", marginBottom: 2 },
+  cartCard: { backgroundColor: "#2a2a2a", borderWidth: 1.5, borderColor: "#f97316", borderRadius: 14, padding: 14, alignSelf: "flex-start", maxWidth: "80%" },
+  cartCardLabel: { fontSize: 10, fontWeight: "800", color: "#f97316", marginBottom: 4, letterSpacing: 0.5, textTransform: "uppercase" },
+  cartCardName: { fontSize: 15, fontWeight: "800", color: "#fff", marginBottom: 2 },
   cartCardPrice: { fontSize: 13, fontWeight: "700", color: "#f97316", marginBottom: 10 },
   cartCardBtns: { flexDirection: "row", gap: 8 },
-  noBtn: { flex: 1, borderWidth: 1, borderColor: "#e5e7eb", borderRadius: 8, paddingVertical: 8, alignItems: "center" },
-  noBtnText: { fontSize: 13, fontWeight: "700", color: "#888" },
-  yesBtn: { flex: 1, backgroundColor: "#111", borderRadius: 8, paddingVertical: 8, alignItems: "center" },
+  noBtn: { flex: 1, borderWidth: 1, borderColor: "#444", borderRadius: 8, paddingVertical: 8, alignItems: "center" },
+  noBtnText: { fontSize: 13, fontWeight: "700", color: "#aaa" },
+  yesBtn: { flex: 1, backgroundColor: "#f97316", borderRadius: 8, paddingVertical: 8, alignItems: "center" },
   yesBtnText: { fontSize: 13, fontWeight: "700", color: "#fff" },
 
-  inputRow: { flexDirection: "row", padding: 12, gap: 8, borderTopWidth: 1, borderTopColor: "#f0f0f0" },
-  input: { flex: 1, backgroundColor: "#f3f4f6", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 10, fontSize: 14, color: "#111" },
-  sendBtn: { backgroundColor: "#111", borderRadius: 22, paddingHorizontal: 16, justifyContent: "center" },
-  sendBtnOff: { backgroundColor: "#e5e7eb" },
+  inputRow: { flexDirection: "row", padding: 12, gap: 8, borderTopWidth: 1, borderTopColor: "#2a2a2a", backgroundColor: "#111" },
+  input: { flex: 1, backgroundColor: "#2a2a2a", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 10, fontSize: 14, color: "#eee" },
+  sendBtn: { backgroundColor: "#f97316", borderRadius: 22, paddingHorizontal: 16, justifyContent: "center" },
+  sendBtnOff: { backgroundColor: "#333" },
   sendBtnText: { color: "#fff", fontWeight: "700", fontSize: 13 },
 
   fab: { height: 48, borderRadius: 24, backgroundColor: "#f97316", justifyContent: "center", alignItems: "center", paddingHorizontal: 20, shadowColor: "#f97316", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.45, shadowRadius: 10, elevation: 8 },
