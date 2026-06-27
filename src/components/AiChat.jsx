@@ -158,7 +158,7 @@ export default function AiChat({ menuItems = [], onAddToCart }) {
         style={[s.fab, fixedBase, { bottom: 76, right: 20, zIndex: 200 }]}
         onPress={() => setOpen(true)}
       >
-        <Text style={s.fabText}>💬</Text>
+        <Text style={s.fabText}>AI</Text>
       </TouchableOpacity>
     </>
   );
@@ -207,6 +207,6 @@ const s = StyleSheet.create({
   sendBtnOff: { backgroundColor: "#e5e7eb" },
   sendBtnText: { color: "#fff", fontWeight: "700", fontSize: 13 },
 
-  fab: { width: 52, height: 52, borderRadius: 26, backgroundColor: "#111", justifyContent: "center", alignItems: "center", shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.22, shadowRadius: 8, elevation: 8 },
-  fabText: { fontSize: 22 },
+  fab: { width: 56, height: 56, borderRadius: 28, backgroundColor: "#f97316", justifyContent: "center", alignItems: "center", shadowColor: "#f97316", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.5, shadowRadius: 10, elevation: 8 },
+  fabText: { fontSize: 17, fontWeight: "900", color: "#fff", letterSpacing: -0.5 },
 });
