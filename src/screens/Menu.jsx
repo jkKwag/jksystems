@@ -110,6 +110,65 @@ function FireworkBurst({ cx, cy, delay, colorSet }) {
   );
 }
 
+const FALL_COLORS = ["#f97316", "#16a34a", "#2563eb", "#dc2626", "#7c3aed", "#fbbf24", "#06b6d4", "#ec4899", "#f43f5e", "#a29bfe"];
+
+function FallingConfetti() {
+  const particles = useRef(
+    Array.from({ length: 80 }, () => ({
+      x: Math.random() * 100,
+      drift: (Math.random() - 0.5) * 160,
+      size: 5 + Math.random() * 8,
+      color: FALL_COLORS[Math.floor(Math.random() * FALL_COLORS.length)],
+      isCircle: Math.random() > 0.5,
+      y: new Animated.Value(0),
+      rot: new Animated.Value(0),
+      opacity: new Animated.Value(0),
+      delay: Math.random() * 1200,
+      duration: 1800 + Math.random() * 1200,
+    }))
+  ).current;
+
+  useEffect(() => {
+    const anims = particles.map(p =>
+      Animated.sequence([
+        Animated.delay(p.delay),
+        Animated.parallel([
+          Animated.timing(p.y, { toValue: 1, duration: p.duration, useNativeDriver: true }),
+          Animated.timing(p.rot, { toValue: 1, duration: p.duration, useNativeDriver: true }),
+          Animated.sequence([
+            Animated.timing(p.opacity, { toValue: 1, duration: 80, useNativeDriver: true }),
+            Animated.timing(p.opacity, { toValue: 0.9, duration: p.duration * 0.6, useNativeDriver: true }),
+            Animated.timing(p.opacity, { toValue: 0, duration: p.duration * 0.4, useNativeDriver: true }),
+          ]),
+        ]),
+      ])
+    );
+    Animated.parallel(anims).start();
+  }, []);
+
+  return (
+    <>
+      {particles.map((p, i) => (
+        <Animated.View key={`fall-${i}`} style={{
+          position: "absolute",
+          left: `${p.x}%`,
+          top: 0,
+          width: p.size,
+          height: p.isCircle ? p.size : p.size * 1.6,
+          borderRadius: p.isCircle ? p.size / 2 : 2,
+          backgroundColor: p.color,
+          opacity: p.opacity,
+          transform: [
+            { translateY: p.y.interpolate({ inputRange: [0, 1], outputRange: [-20, 950] }) },
+            { translateX: p.y.interpolate({ inputRange: [0, 1], outputRange: [0, p.drift] }) },
+            { rotate: p.rot.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "720deg"] }) },
+          ],
+        }} />
+      ))}
+    </>
+  );
+}
+
 function ConfettiOverlay({ onDone }) {
   useEffect(() => {
     const timer = setTimeout(onDone, 2900);
@@ -125,6 +184,7 @@ function ConfettiOverlay({ onDone }) {
         { zIndex: 9999 },
       ]}
     >
+      <FallingConfetti />
       {BURST_CONFIGS.map((b, i) => (
         <FireworkBurst key={i} {...b} />
       ))}
