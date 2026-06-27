@@ -16,20 +16,12 @@ export default function AiChat({ menuItems = [], onAddToCart }) {
   const scrollRef = useRef(null);
 
   useEffect(() => {
-    if (Platform.OS !== "web") return;
-    try {
-      if (!localStorage.getItem("scaneat_ai_tooltip_seen")) {
-        setShowTooltip(true);
-        Animated.timing(tooltipOpacity, { toValue: 1, duration: 300, useNativeDriver: true }).start();
-        const t = setTimeout(() => {
-          Animated.timing(tooltipOpacity, { toValue: 0, duration: 400, useNativeDriver: true }).start(() => {
-            setShowTooltip(false);
-            localStorage.setItem("scaneat_ai_tooltip_seen", "1");
-          });
-        }, 3000);
-        return () => clearTimeout(t);
-      }
-    } catch {}
+    setShowTooltip(true);
+    Animated.timing(tooltipOpacity, { toValue: 1, duration: 300, useNativeDriver: true }).start();
+    const t = setTimeout(() => {
+      Animated.timing(tooltipOpacity, { toValue: 0, duration: 400, useNativeDriver: true }).start(() => setShowTooltip(false));
+    }, 3000);
+    return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {
