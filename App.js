@@ -60,7 +60,9 @@ export default function App() {
             <Text style={s.headerTitle}>CampRoad</Text>
           </View>
         </View>
-        <Menu bizno={menuBizno} />
+        <View style={s.content}>
+          <Menu bizno={menuBizno} />
+        </View>
       </View>
     );
   }
