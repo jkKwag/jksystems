@@ -92,7 +92,7 @@ export default function Menu({ bizno }) {
       </View>
 
       {/* 메뉴 리스트 */}
-      <ScrollView style={s.list} contentContainerStyle={[s.listContent, cartCount > 0 && { paddingBottom: 72 }]}>
+      <ScrollView style={s.list} contentContainerStyle={s.listContent}>
         {filtered.map(item => {
           const qty = cart[item.id]?.quantity || 0;
           return (
@@ -195,7 +195,7 @@ export default function Menu({ bizno }) {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f5f5f5", flexDirection: "column" },
+  container: { flex: 1, backgroundColor: "#f5f5f5", flexDirection: "column", overflow: "hidden" },
 
   shopBanner: { backgroundColor: "#fff", padding: 16, borderBottomWidth: 1, borderBottomColor: "#f0f0f0", flexShrink: 0 },
   shopName: { fontSize: 19, fontWeight: "900", color: "#111", marginBottom: 6 },
@@ -241,7 +241,7 @@ const s = StyleSheet.create({
   callBtnText: { color: "#555", fontSize: 14, fontWeight: "700" },
 
   /* 장바구니 바 */
-  cartBar: { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#111", flexDirection: "row", alignItems: "center", paddingHorizontal: 18, paddingVertical: 14, gap: 10 },
+  cartBar: { flexShrink: 0, backgroundColor: "#111", flexDirection: "row", alignItems: "center", paddingHorizontal: 18, paddingVertical: 14, gap: 10 },
   cartBadge: { backgroundColor: "#f97316", borderRadius: 12, paddingHorizontal: 8, paddingVertical: 2 },
   cartBadgeText: { color: "#fff", fontSize: 12, fontWeight: "800" },
   cartBarText: { flex: 1, color: "#fff", fontSize: 15, fontWeight: "700" },
