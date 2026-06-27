@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Platform, Dimensions } from "react-native";
-
-const WIN_H = Platform.OS === "web" ? Dimensions.get("window").height : null;
+import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Cars from "./src/screens/Cars";
 import QnA from "./src/screens/QnA";
@@ -100,7 +98,7 @@ export default function App() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f8fafc", ...(WIN_H ? { height: WIN_H } : {}) },
+  container: { flex: 1, backgroundColor: "#f8fafc" },
   header: { backgroundColor: "#0f172a", flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 20, paddingVertical: 15 },
   headerLeft: { flexDirection: "row", alignItems: "center", gap: 9 },
   headerIcon: { fontSize: 22 },
