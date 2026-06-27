@@ -104,7 +104,7 @@ export default function Supporters({ isAdmin }) {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f8fafc" },
+  container: { flex: 1, backgroundColor: "#f8fafc", overflow: "hidden" },
   content: { padding: 16, paddingBottom: 40 },
 
   summaryCard: { backgroundColor: "#111", borderRadius: 16, padding: 20, flexDirection: "row", alignItems: "center", marginBottom: 20 },

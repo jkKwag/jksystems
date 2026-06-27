@@ -100,7 +100,7 @@ export default function QnA({ isAdmin }) {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f0f7f0" },
+  container: { flex: 1, backgroundColor: "#f0f7f0", overflow: "hidden" },
   content: { padding: 20 },
   title: { fontSize: 22, fontWeight: "800", color: "#1b4332", marginBottom: 4 },
   desc: { fontSize: 13, color: "#52796f", marginBottom: 16 },
