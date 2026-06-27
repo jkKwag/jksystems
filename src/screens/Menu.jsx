@@ -1,40 +1,118 @@
 import { useState, useRef, useEffect } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Linking, Modal, Platform, Animated } from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Linking, Modal, Platform, Animated, Easing } from "react-native";
 
-const CONFETTI_COLORS = ["#f97316", "#16a34a", "#2563eb", "#dc2626", "#7c3aed", "#fbbf24", "#06b6d4", "#ec4899", "#f43f5e"];
+const BURST_COLORS = [
+  ["#ff4757", "#ffa502", "#ff6348"],
+  ["#2ed573", "#7bed9f", "#ffffff"],
+  ["#1e90ff", "#70a1ff", "#ecf0f1"],
+  ["#ff6b81", "#ff4757", "#fff9ae"],
+  ["#ffa502", "#ffd700", "#ffffff"],
+  ["#a29bfe", "#6c5ce7", "#fd79a8"],
+  ["#00cec9", "#55efc4", "#ffffff"],
+];
 
-function ConfettiOverlay({ onDone }) {
+const BURST_CONFIGS = [
+  { cx: 0.2,  cy: 0.22, delay: 0,    colorSet: 0 },
+  { cx: 0.8,  cy: 0.18, delay: 260,  colorSet: 1 },
+  { cx: 0.5,  cy: 0.12, delay: 550,  colorSet: 2 },
+  { cx: 0.28, cy: 0.52, delay: 140,  colorSet: 3 },
+  { cx: 0.75, cy: 0.44, delay: 420,  colorSet: 4 },
+  { cx: 0.12, cy: 0.6,  delay: 730,  colorSet: 5 },
+  { cx: 0.88, cy: 0.5,  delay: 310,  colorSet: 6 },
+  { cx: 0.55, cy: 0.38, delay: 970,  colorSet: 0 },
+  { cx: 0.38, cy: 0.28, delay: 1160, colorSet: 2 },
+  { cx: 0.65, cy: 0.2,  delay: 1380, colorSet: 4 },
+];
+
+const PARTICLE_COUNT = 22;
+
+function FireworkBurst({ cx, cy, delay, colorSet }) {
+  const colors = BURST_COLORS[colorSet];
+
   const particles = useRef(
-    Array.from({ length: 70 }, () => ({
-      x: Math.random() * 100,
-      drift: (Math.random() - 0.5) * 180,
-      size: 6 + Math.random() * 9,
-      color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
-      y: new Animated.Value(0),
-      rot: new Animated.Value(0),
-      opacity: new Animated.Value(0),
-      delay: Math.random() * 700,
-      duration: 1800 + Math.random() * 1200,
-    }))
+    Array.from({ length: PARTICLE_COUNT }, (_, i) => {
+      const angle = (i / PARTICLE_COUNT) * 2 * Math.PI + (Math.random() * 0.3 - 0.15);
+      const dist = 90 + Math.random() * 100;
+      const isCircle = Math.random() > 0.4;
+      const size = isCircle ? 5 + Math.random() * 6 : 4 + Math.random() * 5;
+      return {
+        angle, dist, isCircle, size,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        tx: new Animated.Value(0),
+        ty: new Animated.Value(0),
+        opacity: new Animated.Value(0),
+        scale: new Animated.Value(1),
+      };
+    })
   ).current;
 
+  const flashScale = useRef(new Animated.Value(0)).current;
+  const flashOpacity = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
-    const anims = particles.map(p =>
-      Animated.sequence([
-        Animated.delay(p.delay),
+    const dur = 950;
+    const gravity = 100;
+
+    const particleAnims = particles.map(p => {
+      const tx = Math.cos(p.angle) * p.dist;
+      const ty = Math.sin(p.angle) * p.dist + gravity;
+      return Animated.sequence([
+        Animated.delay(delay),
         Animated.parallel([
-          Animated.timing(p.y, { toValue: 1, duration: p.duration, useNativeDriver: true }),
-          Animated.timing(p.rot, { toValue: 1, duration: p.duration, useNativeDriver: true }),
+          Animated.timing(p.tx, { toValue: tx, duration: dur, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+          Animated.timing(p.ty, { toValue: ty, duration: dur, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+          Animated.timing(p.scale, { toValue: 0.1, duration: dur, easing: Easing.in(Easing.quad), useNativeDriver: true }),
           Animated.sequence([
-            Animated.timing(p.opacity, { toValue: 1, duration: 100, useNativeDriver: true }),
-            Animated.timing(p.opacity, { toValue: 1, duration: p.duration * 0.65, useNativeDriver: true }),
-            Animated.timing(p.opacity, { toValue: 0, duration: p.duration * 0.35, useNativeDriver: true }),
+            Animated.timing(p.opacity, { toValue: 1, duration: 60, useNativeDriver: true }),
+            Animated.timing(p.opacity, { toValue: 0.85, duration: dur * 0.55, useNativeDriver: true }),
+            Animated.timing(p.opacity, { toValue: 0, duration: dur * 0.45, useNativeDriver: true }),
           ]),
         ]),
-      ])
-    );
-    Animated.parallel(anims).start();
-    const timer = setTimeout(onDone, 2800);
+      ]);
+    });
+
+    const flashAnim = Animated.sequence([
+      Animated.delay(delay),
+      Animated.parallel([
+        Animated.timing(flashScale, { toValue: 6, duration: 300, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+        Animated.sequence([
+          Animated.timing(flashOpacity, { toValue: 1, duration: 60, useNativeDriver: true }),
+          Animated.timing(flashOpacity, { toValue: 0, duration: 240, useNativeDriver: true }),
+        ]),
+      ]),
+    ]);
+
+    Animated.parallel([flashAnim, ...particleAnims]).start();
+  }, []);
+
+  return (
+    <View style={{ position: "absolute", left: `${cx * 100}%`, top: `${cy * 100}%` }}>
+      <Animated.View style={{
+        position: "absolute",
+        width: 28, height: 28, borderRadius: 14,
+        backgroundColor: colors[0],
+        transform: [{ scale: flashScale }],
+        opacity: flashOpacity,
+        marginLeft: -14, marginTop: -14,
+      }} />
+      {particles.map((p, i) => (
+        <Animated.View key={i} style={{
+          position: "absolute",
+          width: p.size, height: p.size,
+          borderRadius: p.isCircle ? p.size / 2 : 1,
+          backgroundColor: p.color,
+          transform: [{ translateX: p.tx }, { translateY: p.ty }, { scale: p.scale }],
+          opacity: p.opacity,
+          marginLeft: -p.size / 2, marginTop: -p.size / 2,
+        }} />
+      ))}
+    </View>
+  );
+}
+
+function ConfettiOverlay({ onDone }) {
+  useEffect(() => {
+    const timer = setTimeout(onDone, 2900);
     return () => clearTimeout(timer);
   }, []);
 
@@ -47,25 +125,8 @@ function ConfettiOverlay({ onDone }) {
         { zIndex: 9999 },
       ]}
     >
-      {particles.map((p, i) => (
-        <Animated.View
-          key={i}
-          style={{
-            position: "absolute",
-            left: `${p.x}%`,
-            top: 0,
-            width: p.size,
-            height: p.size * 1.6,
-            backgroundColor: p.color,
-            borderRadius: 2,
-            opacity: p.opacity,
-            transform: [
-              { translateY: p.y.interpolate({ inputRange: [0, 1], outputRange: [-30, 900] }) },
-              { translateX: p.y.interpolate({ inputRange: [0, 1], outputRange: [0, p.drift] }) },
-              { rotate: p.rot.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "720deg"] }) },
-            ],
-          }}
-        />
+      {BURST_CONFIGS.map((b, i) => (
+        <FireworkBurst key={i} {...b} />
       ))}
     </View>
   );
