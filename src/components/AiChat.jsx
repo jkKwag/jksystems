@@ -10,8 +10,27 @@ export default function AiChat({ menuItems = [], onAddToCart }) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [pendingItem, setPendingItem] = useState(null);
+  const [showTooltip, setShowTooltip] = useState(false);
   const panelY = useRef(new Animated.Value(500)).current;
+  const tooltipOpacity = useRef(new Animated.Value(0)).current;
   const scrollRef = useRef(null);
+
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+    try {
+      if (!localStorage.getItem("scaneat_ai_tooltip_seen")) {
+        setShowTooltip(true);
+        Animated.timing(tooltipOpacity, { toValue: 1, duration: 300, useNativeDriver: true }).start();
+        const t = setTimeout(() => {
+          Animated.timing(tooltipOpacity, { toValue: 0, duration: 400, useNativeDriver: true }).start(() => {
+            setShowTooltip(false);
+            localStorage.setItem("scaneat_ai_tooltip_seen", "1");
+          });
+        }, 3000);
+        return () => clearTimeout(t);
+      }
+    } catch {}
+  }, []);
 
   useEffect(() => {
     Animated.spring(panelY, {
@@ -157,11 +176,22 @@ export default function AiChat({ menuItems = [], onAddToCart }) {
         </View>
       </Animated.View>
 
+      {showTooltip && (
+        <Animated.View style={[
+          s.tooltip,
+          fixedBase,
+          { bottom: 132, right: 20, zIndex: 201, opacity: tooltipOpacity },
+        ]}>
+          <Text style={s.tooltipText}>AI에게 메뉴 추천받아보세요! 👆</Text>
+          <View style={s.tooltipArrow} />
+        </Animated.View>
+      )}
+
       <TouchableOpacity
         style={[s.fab, fixedBase, { bottom: 76, right: 20, zIndex: 200 }]}
         onPress={() => setOpen(true)}
       >
-        <Text style={s.fabText}>✦ AI 추천</Text>
+        <Text style={s.fabText}>✦ AI 주문</Text>
       </TouchableOpacity>
     </>
   );
@@ -210,6 +240,10 @@ const s = StyleSheet.create({
   sendBtn: { backgroundColor: "#f97316", borderRadius: 22, paddingHorizontal: 16, justifyContent: "center" },
   sendBtnOff: { backgroundColor: "#e5e7eb" },
   sendBtnText: { color: "#fff", fontWeight: "700", fontSize: 13 },
+
+  tooltip: { backgroundColor: "#0f172a", borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 8, elevation: 8 },
+  tooltipText: { color: "#fff", fontSize: 13, fontWeight: "700", whiteSpace: "nowrap" },
+  tooltipArrow: { position: "absolute", bottom: -6, right: 22, width: 0, height: 0, borderLeftWidth: 6, borderRightWidth: 6, borderTopWidth: 6, borderLeftColor: "transparent", borderRightColor: "transparent", borderTopColor: "#0f172a" },
 
   fab: { height: 48, borderRadius: 24, backgroundColor: "#f97316", justifyContent: "center", alignItems: "center", paddingHorizontal: 20, shadowColor: "#f97316", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.45, shadowRadius: 10, elevation: 8 },
   fabText: { fontSize: 14, fontWeight: "800", color: "#fff" },
