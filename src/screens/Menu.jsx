@@ -320,7 +320,7 @@ export default function Menu({ bizno }) {
           );
         })}
         <View style={s.callBar}>
-          <TouchableOpacity style={s.callBtn} onPress={() => Linking.openURL("tel:010-0000-0000")}>
+          <TouchableOpacity style={s.callBtn} onPress={() => Linking.openURL("tel:01096947499")}>
             <Text style={s.callBtnText}>📞 전화 문의</Text>
           </TouchableOpacity>
         </View>
