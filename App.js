@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Platform, Modal } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Cars from "./src/screens/Cars";
+import Supporters from "./src/screens/Supporters";
 import QnA from "./src/screens/QnA";
 import FAQ from "./src/screens/FAQ";
 import Menu from "./src/screens/Menu";
@@ -9,6 +10,7 @@ import AdminLogin from "./src/components/AdminLogin";
 
 const TABS = [
   { key: "cars", icon: "🏕", label: "캠핑카" },
+  { key: "supporters", icon: "💝", label: "후원자" },
   { key: "qna", icon: "💬", label: "Q&A" },
   { key: "faq", icon: "❓", label: "FAQ" },
 ];
@@ -165,6 +167,7 @@ export default function App() {
 
       <View style={s.content}>
         {tab === "cars" && <Cars />}
+        {tab === "supporters" && <Supporters isAdmin={isAdmin} />}
         {tab === "qna" && <QnA isAdmin={isAdmin} />}
         {tab === "faq" && <FAQ />}
       </View>
