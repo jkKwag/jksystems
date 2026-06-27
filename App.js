@@ -31,7 +31,7 @@ const Logo = () => (
       <Text style={s.logoJK}>JK</Text>
       <View style={s.logoLine} />
     </View>
-    <Text style={s.headerTitle}>JK <Text style={s.headerTitleAccent}>Scan</Text>eat</Text>
+    <Text style={s.headerTitle}><Text style={s.headerTitleAccent}>Scan</Text>eat</Text>
   </View>
 );
 
