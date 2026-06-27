@@ -22,6 +22,7 @@ function buildSelect(table, cols) {
 
   const builder = {
     eq(col, val) { filters[col] = `eq.${val}`; return builder; },
+    order(col, { ascending = true } = {}) { filters["order"] = `${col}.${ascending ? "asc" : "desc"}`; return builder; },
     single() { isSingle = true; return run(); },
     then(resolve, reject) { return run().then(resolve, reject); },
   };
