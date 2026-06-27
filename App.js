@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Platform } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Platform, Modal } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Cars from "./src/screens/Cars";
 import QnA from "./src/screens/QnA";
@@ -39,6 +39,8 @@ export default function App() {
   const [tab, setTab] = useState("cars");
   const [isAdmin, setIsAdmin] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+  const [showDrawer, setShowDrawer] = useState(false);
+  const [menuOverlay, setMenuOverlay] = useState(null); // null | "qna" | "faq"
 
   useEffect(() => {
     AsyncStorage.getItem("isAdmin").then(v => { if (v === "true") setIsAdmin(true); });
@@ -60,11 +62,44 @@ export default function App() {
       <View style={s.container}>
         <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
         <View style={[s.header, HEADER_GRADIENT]}>
-          <Logo />
+          {menuOverlay ? (
+            <TouchableOpacity style={s.backBtn} onPress={() => setMenuOverlay(null)}>
+              <Text style={s.backBtnText}>← 메뉴로</Text>
+            </TouchableOpacity>
+          ) : (
+            <Logo />
+          )}
+          <TouchableOpacity style={s.hamburger} onPress={() => setShowDrawer(true)}>
+            <View style={s.hLine} /><View style={s.hLine} /><View style={s.hLine} />
+          </TouchableOpacity>
         </View>
+
         <View style={s.content}>
-          <Menu bizno={menuBizno} />
+          {menuOverlay === "qna" ? <QnA isAdmin={false} /> :
+           menuOverlay === "faq" ? <FAQ /> :
+           <Menu bizno={menuBizno} />}
         </View>
+
+        <Modal visible={showDrawer} transparent animationType="fade" onRequestClose={() => setShowDrawer(false)}>
+          <View style={s.drawerOverlay}>
+            <TouchableOpacity style={s.drawerBg} activeOpacity={1} onPress={() => setShowDrawer(false)} />
+            <View style={s.drawerPanel}>
+              <Text style={s.drawerTitle}>더보기</Text>
+              {[
+                { key: "qna", icon: "💬", label: "Q&A", desc: "자주 묻는 질문 답변" },
+                { key: "faq", icon: "❓", label: "FAQ", desc: "공지 및 안내사항" },
+              ].map(item => (
+                <TouchableOpacity key={item.key} style={s.drawerItem} onPress={() => { setMenuOverlay(item.key); setShowDrawer(false); }}>
+                  <Text style={s.drawerItemIcon}>{item.icon}</Text>
+                  <View>
+                    <Text style={s.drawerItemLabel}>{item.label}</Text>
+                    <Text style={s.drawerItemDesc}>{item.desc}</Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        </Modal>
       </View>
     );
   }
@@ -115,6 +150,21 @@ const s = StyleSheet.create({
   adminBtnText: { color: "rgba(255,255,255,0.85)", fontWeight: "600", fontSize: 12 },
   adminBtnTextActive: { color: "#f87171" },
   content: { flex: 1, overflow: "hidden" },
+
+  backBtn: { paddingVertical: 6, paddingHorizontal: 4 },
+  backBtnText: { color: "#fff", fontSize: 14, fontWeight: "700" },
+
+  hamburger: { padding: 8, gap: 5, justifyContent: "center" },
+  hLine: { width: 22, height: 2, backgroundColor: "#fff", borderRadius: 2 },
+
+  drawerOverlay: { flex: 1, flexDirection: "row", justifyContent: "flex-end" },
+  drawerBg: { flex: 1, backgroundColor: "rgba(0,0,0,0.45)" },
+  drawerPanel: { width: 240, backgroundColor: "#fff", paddingTop: 60, paddingHorizontal: 20, paddingBottom: 40 },
+  drawerTitle: { fontSize: 13, fontWeight: "800", color: "#aaa", letterSpacing: 1.5, marginBottom: 20, textTransform: "uppercase" },
+  drawerItem: { flexDirection: "row", alignItems: "center", gap: 14, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: "#f0f0f0" },
+  drawerItemIcon: { fontSize: 24 },
+  drawerItemLabel: { fontSize: 15, fontWeight: "800", color: "#111", marginBottom: 2 },
+  drawerItemDesc: { fontSize: 12, color: "#999" },
   tabBar: { flexDirection: "row", backgroundColor: "#fff", flexShrink: 0, shadowColor: "#0f172a", shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.06, shadowRadius: 12, elevation: 10, paddingBottom: 4 },
   tabItem: { flex: 1, alignItems: "center", paddingVertical: 10, position: "relative" },
   tabIcon: { fontSize: 20, marginBottom: 2, opacity: 0.4 },
