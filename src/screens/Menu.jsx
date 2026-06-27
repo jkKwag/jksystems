@@ -1,5 +1,75 @@
-import { useState } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Linking, Modal, Platform } from "react-native";
+import { useState, useRef, useEffect } from "react";
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Linking, Modal, Platform, Animated } from "react-native";
+
+const CONFETTI_COLORS = ["#f97316", "#16a34a", "#2563eb", "#dc2626", "#7c3aed", "#fbbf24", "#06b6d4", "#ec4899", "#f43f5e"];
+
+function ConfettiOverlay({ onDone }) {
+  const particles = useRef(
+    Array.from({ length: 70 }, () => ({
+      x: Math.random() * 100,
+      drift: (Math.random() - 0.5) * 180,
+      size: 6 + Math.random() * 9,
+      color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+      y: new Animated.Value(0),
+      rot: new Animated.Value(0),
+      opacity: new Animated.Value(0),
+      delay: Math.random() * 700,
+      duration: 1800 + Math.random() * 1200,
+    }))
+  ).current;
+
+  useEffect(() => {
+    const anims = particles.map(p =>
+      Animated.sequence([
+        Animated.delay(p.delay),
+        Animated.parallel([
+          Animated.timing(p.y, { toValue: 1, duration: p.duration, useNativeDriver: true }),
+          Animated.timing(p.rot, { toValue: 1, duration: p.duration, useNativeDriver: true }),
+          Animated.sequence([
+            Animated.timing(p.opacity, { toValue: 1, duration: 100, useNativeDriver: true }),
+            Animated.timing(p.opacity, { toValue: 1, duration: p.duration * 0.65, useNativeDriver: true }),
+            Animated.timing(p.opacity, { toValue: 0, duration: p.duration * 0.35, useNativeDriver: true }),
+          ]),
+        ]),
+      ])
+    );
+    Animated.parallel(anims).start();
+    const timer = setTimeout(onDone, 2800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <View
+      pointerEvents="none"
+      style={[
+        StyleSheet.absoluteFillObject,
+        Platform.OS === "web" && { position: "fixed" },
+        { zIndex: 9999 },
+      ]}
+    >
+      {particles.map((p, i) => (
+        <Animated.View
+          key={i}
+          style={{
+            position: "absolute",
+            left: `${p.x}%`,
+            top: 0,
+            width: p.size,
+            height: p.size * 1.6,
+            backgroundColor: p.color,
+            borderRadius: 2,
+            opacity: p.opacity,
+            transform: [
+              { translateY: p.y.interpolate({ inputRange: [0, 1], outputRange: [-30, 900] }) },
+              { translateX: p.y.interpolate({ inputRange: [0, 1], outputRange: [0, p.drift] }) },
+              { rotate: p.rot.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "720deg"] }) },
+            ],
+          }}
+        />
+      ))}
+    </View>
+  );
+}
 
 const CATEGORIES = ["전체", "고기류", "면·국밥", "피자", "음료"];
 
@@ -32,6 +102,8 @@ export default function Menu({ bizno }) {
   const [activeCat, setActiveCat] = useState("전체");
   const [cart, setCart] = useState(() => loadCart(bizno));
   const [showCart, setShowCart] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [showOrderDone, setShowOrderDone] = useState(false);
 
   const filtered = activeCat === "전체" ? DUMMY_ITEMS : DUMMY_ITEMS.filter(i => i.category === activeCat);
   const cartItems = Object.values(cart);
@@ -142,6 +214,26 @@ export default function Menu({ bizno }) {
         </TouchableOpacity>
       )}
 
+      {/* 폭죽 애니메이션 */}
+      {showConfetti && (
+        <ConfettiOverlay onDone={() => { setShowConfetti(false); setShowOrderDone(true); }} />
+      )}
+
+      {/* 주문 완료 팝업 */}
+      <Modal visible={showOrderDone} transparent animationType="fade" onRequestClose={() => setShowOrderDone(false)}>
+        <View style={s.overlay}>
+          <TouchableOpacity style={s.overlayBg} activeOpacity={1} onPress={() => setShowOrderDone(false)} />
+          <View style={s.successSheet}>
+            <Text style={s.successEmoji}>🎉</Text>
+            <Text style={s.successTitle}>주문 완료!</Text>
+            <Text style={s.successDesc}>주문이 성공적으로 접수되었습니다{"\n"}잠시 후 준비해드리겠습니다</Text>
+            <TouchableOpacity style={s.successBtn} onPress={() => setShowOrderDone(false)}>
+              <Text style={s.successBtnText}>확인</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       {/* 장바구니 팝업 */}
       <Modal visible={showCart} transparent animationType="slide" onRequestClose={() => setShowCart(false)}>
         <View style={s.overlay}>
@@ -183,7 +275,11 @@ export default function Menu({ bizno }) {
                 <Text style={s.totalLabel}>총 {cartCount}개</Text>
                 <Text style={s.totalPrice}>₩{cartTotal.toLocaleString()}</Text>
               </View>
-              <TouchableOpacity style={s.orderBtn} onPress={() => { setShowCart(false); clearCart(); }}>
+              <TouchableOpacity style={s.orderBtn} onPress={() => {
+                setShowCart(false);
+                clearCart();
+                setTimeout(() => setShowConfetti(true), 300);
+              }}>
                 <Text style={s.orderBtnText}>주문하기 ({cartCount}개) →</Text>
               </TouchableOpacity>
             </View>
@@ -263,6 +359,13 @@ const s = StyleSheet.create({
   cartItemInfo: { flex: 1 },
   cartItemName: { fontSize: 14, fontWeight: "700", color: "#111", marginBottom: 4 },
   cartItemPrice: { fontSize: 13, fontWeight: "800", color: "#f97316" },
+
+  successSheet: { backgroundColor: "#fff", borderRadius: 24, padding: 32, alignItems: "center", margin: 32 },
+  successEmoji: { fontSize: 60, marginBottom: 12 },
+  successTitle: { fontSize: 24, fontWeight: "900", color: "#111", marginBottom: 8 },
+  successDesc: { fontSize: 14, color: "#888", textAlign: "center", lineHeight: 22, marginBottom: 24 },
+  successBtn: { backgroundColor: "#111", borderRadius: 14, paddingHorizontal: 48, paddingVertical: 14 },
+  successBtnText: { color: "#fff", fontSize: 16, fontWeight: "800" },
 
   sheetFooter: { padding: 16, borderTopWidth: 1, borderTopColor: "#f0f0f0" },
   totalRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
