@@ -11,9 +11,54 @@ export default function AiChat({ menuItems = [], onAddToCart }) {
   const [loading, setLoading] = useState(false);
   const [pendingItem, setPendingItem] = useState(null);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [listening, setListening] = useState(false);
   const panelY = useRef(new Animated.Value(500)).current;
   const tooltipOpacity = useRef(new Animated.Value(0)).current;
+  const micPulse = useRef(new Animated.Value(1)).current;
+  const recognitionRef = useRef(null);
   const scrollRef = useRef(null);
+
+  const startVoice = () => {
+    if (Platform.OS !== "web") return;
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { alert("이 브라우저는 음성인식을 지원하지 않습니다."); return; }
+
+    if (listening) {
+      recognitionRef.current?.stop();
+      return;
+    }
+
+    const rec = new SR();
+    rec.lang = "ko-KR";
+    rec.interimResults = false;
+    rec.maxAlternatives = 1;
+    recognitionRef.current = rec;
+
+    rec.onstart = () => {
+      setListening(true);
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(micPulse, { toValue: 1.3, duration: 500, useNativeDriver: true }),
+          Animated.timing(micPulse, { toValue: 1, duration: 500, useNativeDriver: true }),
+        ])
+      ).start();
+    };
+    rec.onresult = (e) => {
+      const transcript = e.results[0][0].transcript;
+      setInput(transcript);
+    };
+    rec.onend = () => {
+      setListening(false);
+      micPulse.stopAnimation();
+      Animated.timing(micPulse, { toValue: 1, duration: 100, useNativeDriver: true }).start();
+    };
+    rec.onerror = () => {
+      setListening(false);
+      micPulse.stopAnimation();
+      Animated.timing(micPulse, { toValue: 1, duration: 100, useNativeDriver: true }).start();
+    };
+    rec.start();
+  };
 
   useEffect(() => {
     setShowTooltip(true);
@@ -149,10 +194,15 @@ export default function AiChat({ menuItems = [], onAddToCart }) {
         </ScrollView>
 
         <View style={s.inputRow}>
+          <Animated.View style={{ transform: [{ scale: micPulse }] }}>
+            <TouchableOpacity style={[s.micBtn, listening && s.micBtnOn]} onPress={startVoice}>
+              <Text style={s.micBtnText}>{listening ? "🔴" : "🎤"}</Text>
+            </TouchableOpacity>
+          </Animated.View>
           <TextInput
             style={s.input}
-            placeholder="메시지를 입력하세요..."
-            placeholderTextColor="#aaa"
+            placeholder={listening ? "듣고 있어요..." : "메시지를 입력하세요..."}
+            placeholderTextColor={listening ? "#f97316" : "#aaa"}
             value={input}
             onChangeText={setInput}
             onSubmitEditing={send}
@@ -227,7 +277,10 @@ const s = StyleSheet.create({
   yesBtn: { flex: 1, backgroundColor: "#f97316", borderRadius: 8, paddingVertical: 8, alignItems: "center" },
   yesBtnText: { fontSize: 13, fontWeight: "700", color: "#fff" },
 
-  inputRow: { flexDirection: "row", padding: 12, gap: 8, borderTopWidth: 1, borderTopColor: "#f0f0f0", backgroundColor: "#fff" },
+  inputRow: { flexDirection: "row", padding: 12, gap: 8, borderTopWidth: 1, borderTopColor: "#f0f0f0", backgroundColor: "#fff", alignItems: "center" },
+  micBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: "#f3f4f6", justifyContent: "center", alignItems: "center" },
+  micBtnOn: { backgroundColor: "#fff0f0" },
+  micBtnText: { fontSize: 16 },
   input: { flex: 1, backgroundColor: "#f3f4f6", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 10, fontSize: 14, color: "#111" },
   sendBtn: { backgroundColor: "#f97316", borderRadius: 22, paddingHorizontal: 16, justifyContent: "center" },
   sendBtnOff: { backgroundColor: "#e5e7eb" },
