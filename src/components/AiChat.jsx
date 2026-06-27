@@ -29,7 +29,7 @@ export default function AiChat({ menuItems = [], onAddToCart }) {
     }
 
     const rec = new SR();
-    rec.lang = "ko-KR";
+    rec.lang = navigator.language || "ko-KR";
     rec.interimResults = false;
     rec.maxAlternatives = 1;
     recognitionRef.current = rec;
