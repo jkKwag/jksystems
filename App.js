@@ -25,6 +25,8 @@ const getMenuBizno = () => {
 
 const menuBizno = getMenuBizno();
 
+const MUSIC_URL = "https://raw.githubusercontent.com/jkKwag/jksystems/main/assets/bgmusic.m4a";
+
 const Logo = () => (
   <View style={s.headerLeft}>
     <View style={s.logoBox}>
@@ -41,6 +43,38 @@ export default function App() {
   const [showLogin, setShowLogin] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
   const [menuOverlay, setMenuOverlay] = useState(null); // null | "qna" | "faq"
+  const [musicOn, setMusicOn] = useState(false);
+  const audioRef = useState(() => {
+    if (Platform.OS === "web" && menuBizno && MUSIC_URL) {
+      const a = new window.Audio(MUSIC_URL);
+      a.loop = true;
+      a.volume = 0.4;
+      return a;
+    }
+    return null;
+  })[0];
+
+  useEffect(() => {
+    if (!audioRef) return;
+    const play = () => {
+      audioRef.play().then(() => setMusicOn(true)).catch(() => {});
+      document.removeEventListener("click", play);
+      document.removeEventListener("touchstart", play);
+    };
+    document.addEventListener("click", play, { once: true });
+    document.addEventListener("touchstart", play, { once: true });
+    return () => {
+      audioRef.pause();
+      document.removeEventListener("click", play);
+      document.removeEventListener("touchstart", play);
+    };
+  }, [audioRef]);
+
+  const toggleMusic = () => {
+    if (!audioRef) return;
+    if (musicOn) { audioRef.pause(); setMusicOn(false); }
+    else { audioRef.play().then(() => setMusicOn(true)).catch(() => {}); }
+  };
 
   useEffect(() => {
     AsyncStorage.getItem("isAdmin").then(v => { if (v === "true") setIsAdmin(true); });
@@ -69,9 +103,16 @@ export default function App() {
           ) : (
             <Logo />
           )}
-          <TouchableOpacity style={s.hamburger} onPress={() => setShowDrawer(true)}>
-            <View style={s.hLine} /><View style={s.hLine} /><View style={s.hLine} />
-          </TouchableOpacity>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            {MUSIC_URL ? (
+              <TouchableOpacity onPress={toggleMusic} style={s.musicBtn}>
+                <Text style={s.musicBtnText}>{musicOn ? "🔊" : "🔇"}</Text>
+              </TouchableOpacity>
+            ) : null}
+            <TouchableOpacity style={s.hamburger} onPress={() => setShowDrawer(true)}>
+              <View style={s.hLine} /><View style={s.hLine} /><View style={s.hLine} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={s.content}>
@@ -154,6 +195,8 @@ const s = StyleSheet.create({
   backBtn: { paddingVertical: 6, paddingHorizontal: 4 },
   backBtnText: { color: "#fff", fontSize: 14, fontWeight: "700" },
 
+  musicBtn: { width: 34, height: 34, borderRadius: 17, backgroundColor: "rgba(255,255,255,0.15)", justifyContent: "center", alignItems: "center" },
+  musicBtnText: { fontSize: 16 },
   hamburger: { padding: 8, gap: 5, justifyContent: "center" },
   hLine: { width: 22, height: 2, backgroundColor: "#fff", borderRadius: 2 },
 
