@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Linking, Modal, Platform, Animated, Easing } from "react-native";
 import AiChat from "../components/AiChat";
 
+const KAKAO_JS_KEY = "YOUR_KAKAO_JS_KEY"; // developers.kakao.com 에서 발급
+
 const BURST_COLORS = [
   ["#ff4757", "#ffa502", "#ff6348"],
   ["#2ed573", "#7bed9f", "#ffffff"],
@@ -222,6 +224,30 @@ const loadCart = (bizno) => {
 
 export default function Menu({ bizno, tableNo }) {
   const [activeCat, setActiveCat] = useState("전체");
+
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+    if (window.Kakao && !window.Kakao.isInitialized()) {
+      window.Kakao.init(KAKAO_JS_KEY);
+    }
+  }, []);
+
+  const shareKakao = () => {
+    if (Platform.OS !== "web" || !window.Kakao?.isInitialized()) return;
+    window.Kakao.Share.sendDefault({
+      objectType: "feed",
+      content: {
+        title: "🍽 맛찬들",
+        description: "AI 메뉴 추천과 함께 맛있는 식사를 즐겨보세요!",
+        imageUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=800&h=400&fit=crop",
+        link: {
+          mobileWebUrl: window.location.href,
+          webUrl: window.location.href,
+        },
+      },
+      buttons: [{ title: "메뉴 보기", link: { mobileWebUrl: window.location.href, webUrl: window.location.href } }],
+    });
+  };
   const [cart, setCart] = useState(() => loadCart(bizno));
   const [showCart, setShowCart] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -270,6 +296,9 @@ export default function Menu({ bizno, tableNo }) {
               <Text style={s.tableBadgeText}>{tableNo.toUpperCase()}</Text>
             </View>
           )}
+          <TouchableOpacity onPress={shareKakao} style={s.kakaoBtn}>
+            <Text style={s.kakaoBtnText}>💬</Text>
+          </TouchableOpacity>
         </View>
         <View style={s.shopMeta}>
           <Text style={s.shopRating}><Text style={s.star}>★</Text> 4.8</Text>
@@ -437,6 +466,8 @@ const s = StyleSheet.create({
   shopAiBadge: { fontSize: 14, fontWeight: "700", color: "#f97316" },
   tableBadge: { backgroundColor: "#f97316", borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
   tableBadgeText: { color: "#fff", fontSize: 13, fontWeight: "900", letterSpacing: 1 },
+  kakaoBtn: { marginLeft: "auto", width: 34, height: 34, borderRadius: 17, backgroundColor: "#FEE500", justifyContent: "center", alignItems: "center" },
+  kakaoBtnText: { fontSize: 17 },
   shopMeta: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 },
   shopRating: { fontSize: 13, fontWeight: "700", color: "#111" },
   star: { color: "#f97316" },
