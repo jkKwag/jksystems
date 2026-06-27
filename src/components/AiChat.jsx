@@ -177,8 +177,8 @@ const s = StyleSheet.create({
     elevation: 20,
   },
 
-  panelHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 16, borderBottomWidth: 1, borderBottomColor: "#2a2a2a", backgroundColor: "#111" },
-  panelTitle: { fontSize: 16, fontWeight: "800", color: "#fff" },
+  panelHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 16, borderBottomWidth: 1, borderBottomColor: "#1e293b", backgroundColor: "#0f172a" },
+  panelTitle: { fontSize: 16, fontWeight: "900", color: "#f97316" },
   betaBadge: { backgroundColor: "#f97316", borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, marginLeft: 8 },
   betaBadgeText: { fontSize: 10, fontWeight: "800", color: "#fff" },
   xBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: "#2a2a2a", justifyContent: "center", alignItems: "center" },
