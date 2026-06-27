@@ -297,7 +297,7 @@ export default function Menu({ bizno, tableNo }) {
             </View>
           )}
           <TouchableOpacity onPress={shareKakao} style={s.kakaoBtn}>
-            <Text style={s.kakaoBtnText}>💬</Text>
+            <Image source={{ uri: "https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" }} style={s.kakaoImg} />
           </TouchableOpacity>
         </View>
         <View style={s.shopMeta}>
@@ -466,8 +466,8 @@ const s = StyleSheet.create({
   shopAiBadge: { fontSize: 14, fontWeight: "700", color: "#f97316" },
   tableBadge: { backgroundColor: "#f97316", borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
   tableBadgeText: { color: "#fff", fontSize: 13, fontWeight: "900", letterSpacing: 1 },
-  kakaoBtn: { marginLeft: "auto", width: 34, height: 34, borderRadius: 17, backgroundColor: "#FEE500", justifyContent: "center", alignItems: "center" },
-  kakaoBtnText: { fontSize: 17 },
+  kakaoBtn: { marginLeft: "auto" },
+  kakaoImg: { width: 40, height: 40, borderRadius: 12 },
   shopMeta: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 },
   shopRating: { fontSize: 13, fontWeight: "700", color: "#111" },
   star: { color: "#f97316" },
