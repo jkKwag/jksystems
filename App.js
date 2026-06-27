@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Platform } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Platform, Dimensions } from "react-native";
+
+const WIN_H = Platform.OS === "web" ? Dimensions.get("window").height : null;
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Cars from "./src/screens/Cars";
 import QnA from "./src/screens/QnA";
@@ -31,11 +33,6 @@ export default function App() {
   const [showLogin, setShowLogin] = useState(false);
 
   useEffect(() => {
-    if (Platform.OS === "web") {
-      const style = document.createElement("style");
-      style.innerHTML = "html,body,#root{height:100%;margin:0;padding:0;overflow:hidden;}";
-      document.head.appendChild(style);
-    }
     AsyncStorage.getItem("isAdmin").then(v => { if (v === "true") setIsAdmin(true); });
   }, []);
 
@@ -103,7 +100,7 @@ export default function App() {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f8fafc" },
+  container: { flex: 1, backgroundColor: "#f8fafc", ...(WIN_H ? { height: WIN_H } : {}) },
   header: { backgroundColor: "#0f172a", flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 20, paddingVertical: 15 },
   headerLeft: { flexDirection: "row", alignItems: "center", gap: 9 },
   headerIcon: { fontSize: 22 },
