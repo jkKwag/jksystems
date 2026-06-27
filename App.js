@@ -53,7 +53,6 @@ export default function App() {
   const [showDrawer, setShowDrawer] = useState(false);
   const [menuOverlay, setMenuOverlay] = useState(null); // null | "qna" | "faq"
   const [musicOn, setMusicOn] = useState(false);
-  const [splash, setSplash] = useState(!!menuBizno);
   const audioRef = useRef(null);
 
   useEffect(() => {
@@ -62,14 +61,22 @@ export default function App() {
     audio.loop = true;
     audio.volume = 0.4;
     audioRef.current = audio;
-    return () => { audio.pause(); audioRef.current = null; };
-  }, []);
 
-  const startApp = () => {
-    setSplash(false);
-    const audio = audioRef.current;
-    if (audio) audio.play().then(() => setMusicOn(true)).catch(() => {});
-  };
+    const playOnce = () => {
+      audio.play().then(() => setMusicOn(true)).catch(() => {});
+      window.removeEventListener("click", playOnce);
+      window.removeEventListener("touchend", playOnce);
+    };
+    window.addEventListener("click", playOnce);
+    window.addEventListener("touchend", playOnce);
+
+    return () => {
+      audio.pause();
+      audioRef.current = null;
+      window.removeEventListener("click", playOnce);
+      window.removeEventListener("touchend", playOnce);
+    };
+  }, []);
 
   const toggleMusic = () => {
     const audio = audioRef.current;
@@ -127,20 +134,6 @@ export default function App() {
             </View>
           )}
         </View>
-
-        {/* 환영 팝업 */}
-        <Modal visible={splash} transparent animationType="fade">
-          <View style={s.welcomeOverlay}>
-            <View style={s.welcomeBox}>
-              <Text style={s.welcomeEmoji}>🍽</Text>
-              <Text style={s.welcomeTitle}>맛찬들</Text>
-              <Text style={s.welcomeSub}>어서오세요!{"\n"}맛있는 식사 즐겨보세요 😊</Text>
-              <TouchableOpacity style={s.welcomeBtn} onPress={startApp}>
-                <Text style={s.welcomeBtnText}>🎵 입장하기</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
 
         <Modal visible={showDrawer} transparent animationType="fade" onRequestClose={() => setShowDrawer(false)}>
           <View style={s.drawerOverlay}>
@@ -215,14 +208,6 @@ const s = StyleSheet.create({
   content: { flex: 1, overflow: "hidden" },
 
   overlayScreen: { backgroundColor: "#f8fafc", zIndex: 10 },
-
-  welcomeOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.55)", justifyContent: "center", alignItems: "center", padding: 32 },
-  welcomeBox: { backgroundColor: "#fff", borderRadius: 24, padding: 32, alignItems: "center", width: "100%" },
-  welcomeEmoji: { fontSize: 52, marginBottom: 8 },
-  welcomeTitle: { fontSize: 26, fontWeight: "900", color: "#111", marginBottom: 8 },
-  welcomeSub: { fontSize: 14, color: "#888", textAlign: "center", lineHeight: 22, marginBottom: 28 },
-  welcomeBtn: { backgroundColor: "#111", borderRadius: 14, paddingHorizontal: 40, paddingVertical: 14 },
-  welcomeBtnText: { color: "#fff", fontSize: 16, fontWeight: "800" },
 
   backBtn: { paddingVertical: 6, paddingHorizontal: 4 },
   backBtnText: { color: "#fff", fontSize: 14, fontWeight: "700" },
