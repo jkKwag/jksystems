@@ -85,24 +85,6 @@ export default function App() {
   };
 
   if (menuBizno) {
-    if (splash) {
-      return (
-        <TouchableOpacity style={s.splash} activeOpacity={1} onPress={startApp}>
-          <View style={s.splashLogo}>
-            <View style={s.logoBox}>
-              <Text style={s.logoJK}>JK</Text>
-              <View style={s.logoLine} />
-            </View>
-            <Text style={s.headerTitle}><Text style={s.headerTitleAccent}>Scan</Text>eat</Text>
-          </View>
-          <Text style={s.splashSub}>맛찬들에 오신걸 환영합니다</Text>
-          <View style={s.splashTapBtn}>
-            <Text style={s.splashTapText}>🎵 탭하여 시작</Text>
-          </View>
-        </TouchableOpacity>
-      );
-    }
-
     return (
       <View style={s.container}>
         <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
@@ -131,6 +113,20 @@ export default function App() {
            menuOverlay === "faq" ? <FAQ /> :
            <Menu bizno={menuBizno} />}
         </View>
+
+        {/* 환영 팝업 */}
+        <Modal visible={splash} transparent animationType="fade">
+          <View style={s.welcomeOverlay}>
+            <View style={s.welcomeBox}>
+              <Text style={s.welcomeEmoji}>🍽</Text>
+              <Text style={s.welcomeTitle}>맛찬들</Text>
+              <Text style={s.welcomeSub}>어서오세요!{"\n"}맛있는 식사 즐겨보세요 😊</Text>
+              <TouchableOpacity style={s.welcomeBtn} onPress={startApp}>
+                <Text style={s.welcomeBtnText}>🎵 입장하기</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
 
         <Modal visible={showDrawer} transparent animationType="fade" onRequestClose={() => setShowDrawer(false)}>
           <View style={s.drawerOverlay}>
@@ -203,12 +199,13 @@ const s = StyleSheet.create({
   adminBtnTextActive: { color: "#f87171" },
   content: { flex: 1, overflow: "hidden" },
 
-  splash: { flex: 1, backgroundColor: "#0f172a", justifyContent: "center", alignItems: "center", gap: 16,
-    ...(Platform.OS === "web" ? { background: "linear-gradient(160deg, #0f172a 0%, #14532d 100%)", minHeight: "100vh" } : {}) },
-  splashLogo: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 12 },
-  splashSub: { fontSize: 15, color: "rgba(255,255,255,0.6)", fontWeight: "500" },
-  splashTapBtn: { marginTop: 40, borderWidth: 1.5, borderColor: "rgba(249,115,22,0.6)", borderRadius: 30, paddingHorizontal: 28, paddingVertical: 14 },
-  splashTapText: { color: "#f97316", fontSize: 16, fontWeight: "800" },
+  welcomeOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.55)", justifyContent: "center", alignItems: "center", padding: 32 },
+  welcomeBox: { backgroundColor: "#fff", borderRadius: 24, padding: 32, alignItems: "center", width: "100%" },
+  welcomeEmoji: { fontSize: 52, marginBottom: 8 },
+  welcomeTitle: { fontSize: 26, fontWeight: "900", color: "#111", marginBottom: 8 },
+  welcomeSub: { fontSize: 14, color: "#888", textAlign: "center", lineHeight: 22, marginBottom: 28 },
+  welcomeBtn: { backgroundColor: "#111", borderRadius: 14, paddingHorizontal: 40, paddingVertical: 14 },
+  welcomeBtnText: { color: "#fff", fontSize: 16, fontWeight: "800" },
 
   backBtn: { paddingVertical: 6, paddingHorizontal: 4 },
   backBtnText: { color: "#fff", fontSize: 14, fontWeight: "700" },
