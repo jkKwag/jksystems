@@ -224,11 +224,16 @@ export default function Menu({ bizno }) {
         <View style={s.overlay}>
           <TouchableOpacity style={s.overlayBg} activeOpacity={1} onPress={() => setShowOrderDone(false)} />
           <View style={s.successSheet}>
-            <Text style={s.successEmoji}>🎉</Text>
-            <Text style={s.successTitle}>주문 완료!</Text>
-            <Text style={s.successDesc}>주문이 성공적으로 접수되었습니다{"\n"}잠시 후 준비해드리겠습니다</Text>
+            <Text style={s.successEmoji}>🚀</Text>
+            <Text style={s.successTitle}>결제 기능 준비중!</Text>
+            <Text style={s.successDesc}>
+              {"응원하고 싶다면 후원금으로\n100원 입금하시오\n\n"}
+              <Text style={s.successBank}>국민은행 813002-04-052391{"\n"}곽종근</Text>
+              {"\n\n"}
+              <Text style={s.successNote}>(초과 입금 시 전액 환불)</Text>
+            </Text>
             <TouchableOpacity style={s.successBtn} onPress={() => setShowOrderDone(false)}>
-              <Text style={s.successBtnText}>확인</Text>
+              <Text style={s.successBtnText}>닫기</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -363,7 +368,9 @@ const s = StyleSheet.create({
   successSheet: { backgroundColor: "#fff", borderRadius: 24, padding: 32, alignItems: "center", margin: 32 },
   successEmoji: { fontSize: 60, marginBottom: 12 },
   successTitle: { fontSize: 24, fontWeight: "900", color: "#111", marginBottom: 8 },
-  successDesc: { fontSize: 14, color: "#888", textAlign: "center", lineHeight: 22, marginBottom: 24 },
+  successDesc: { fontSize: 14, color: "#888", textAlign: "center", lineHeight: 24, marginBottom: 24 },
+  successBank: { fontSize: 15, fontWeight: "800", color: "#111" },
+  successNote: { fontSize: 12, color: "#bbb" },
   successBtn: { backgroundColor: "#111", borderRadius: 14, paddingHorizontal: 48, paddingVertical: 14 },
   successBtnText: { color: "#fff", fontSize: 16, fontWeight: "800" },
 
