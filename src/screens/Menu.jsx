@@ -264,6 +264,7 @@ export default function Menu({ bizno, tableNo }) {
       <View style={s.shopBanner}>
         <View style={s.shopNameRow}>
           <Text style={s.shopName}>🍽 맛찬들</Text>
+          <Text style={s.shopAiBadge}>[AI✨]</Text>
           {tableNo && (
             <View style={s.tableBadge}>
               <Text style={s.tableBadgeText}>{tableNo.toUpperCase()}</Text>
@@ -433,6 +434,7 @@ const s = StyleSheet.create({
   shopBanner: { backgroundColor: "#fff", padding: 16, borderBottomWidth: 1, borderBottomColor: "#f0f0f0", flexShrink: 0 },
   shopNameRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 6 },
   shopName: { fontSize: 19, fontWeight: "900", color: "#111" },
+  shopAiBadge: { fontSize: 14, fontWeight: "700", color: "#f97316" },
   tableBadge: { backgroundColor: "#f97316", borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
   tableBadgeText: { color: "#fff", fontSize: 13, fontWeight: "900", letterSpacing: 1 },
   shopMeta: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 },
