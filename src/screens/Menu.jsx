@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Linking } from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Linking, Platform } from "react-native";
 
 const CATEGORIES = ["전체", "고기류", "면·국밥", "피자", "음료"];
 
@@ -57,7 +57,7 @@ export default function Menu({ bizno }) {
 
   return (
     <View style={s.container}>
-      {/* 가게 정보 */}
+      {/* 카테고리 탭 고정 */}
       <View style={s.shopBanner}>
         <Text style={s.shopName}>🏕 캠프로드 식당</Text>
         <View style={s.shopMeta}>
@@ -72,17 +72,16 @@ export default function Menu({ bizno }) {
         <Text style={s.bizno}>사업자 {bizno}</Text>
       </View>
 
-      {/* 카테고리 탭 */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.catBar} contentContainerStyle={s.catContent}>
+      <View style={s.catBar}>
         {CATEGORIES.map(cat => (
           <TouchableOpacity key={cat} style={s.catItem} onPress={() => setActiveCat(cat)}>
             <Text style={[s.catText, activeCat === cat && s.catTextActive]}>{cat}</Text>
             {activeCat === cat && <View style={s.catIndicator} />}
           </TouchableOpacity>
         ))}
-      </ScrollView>
+      </View>
 
-      {/* 메뉴 리스트 */}
+      {/* 전체 스크롤 */}
       <ScrollView style={s.list} contentContainerStyle={s.listContent}>
         {filtered.map(item => (
           <View key={item.id} style={s.card}>
@@ -93,10 +92,8 @@ export default function Menu({ bizno }) {
               )}
             </View>
             <View style={s.info}>
-              <View>
-                <Text style={s.name}>{item.name}</Text>
-                <Text style={s.desc} numberOfLines={2}>{item.desc}</Text>
-              </View>
+              <Text style={s.name}>{item.name}</Text>
+              <Text style={s.desc} numberOfLines={2}>{item.desc}</Text>
               <View style={s.cardBottom}>
                 <Text style={s.price}>₩{item.price.toLocaleString()}</Text>
                 <TouchableOpacity style={s.addBtn}>
@@ -106,22 +103,21 @@ export default function Menu({ bizno }) {
             </View>
           </View>
         ))}
-      </ScrollView>
 
-      {/* 전화 주문 */}
-      <View style={s.orderBar}>
-        <TouchableOpacity style={s.orderBtn} onPress={() => Linking.openURL("tel:010-0000-0000")}>
-          <Text style={s.orderBtnText}>📞 전화 주문하기</Text>
-        </TouchableOpacity>
-      </View>
+        <View style={s.orderBar}>
+          <TouchableOpacity style={s.orderBtn} onPress={() => Linking.openURL("tel:010-0000-0000")}>
+            <Text style={s.orderBtnText}>📞 전화 주문하기</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </View>
   );
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f5f5f5" },
+  container: { flex: 1, backgroundColor: "#f5f5f5", flexDirection: "column" },
 
-  shopBanner: { backgroundColor: "#fff", padding: 16, borderBottomWidth: 1, borderBottomColor: "#f0f0f0" },
+  shopBanner: { backgroundColor: "#fff", padding: 16, borderBottomWidth: 1, borderBottomColor: "#f0f0f0", flexShrink: 0 },
   shopName: { fontSize: 19, fontWeight: "900", color: "#111", marginBottom: 6 },
   shopMeta: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 },
   shopRating: { fontSize: 13, fontWeight: "700", color: "#111" },
@@ -132,15 +128,14 @@ const s = StyleSheet.create({
   shopTagText: { fontSize: 11, fontWeight: "600", color: "#555" },
   bizno: { fontSize: 11, color: "#bbb" },
 
-  catBar: { backgroundColor: "#fff", borderBottomWidth: 1, borderBottomColor: "#f0f0f0", flexShrink: 0 },
-  catContent: { paddingHorizontal: 16, flexDirection: "row" },
+  catBar: { backgroundColor: "#fff", borderBottomWidth: 1, borderBottomColor: "#f0f0f0", flexShrink: 0, flexDirection: "row", paddingHorizontal: 4 },
   catItem: { paddingHorizontal: 12, paddingVertical: 11, position: "relative" },
   catText: { fontSize: 13, fontWeight: "700", color: "#bbb" },
   catTextActive: { color: "#111" },
   catIndicator: { position: "absolute", bottom: 0, left: 0, right: 0, height: 2, backgroundColor: "#111" },
 
   list: { flex: 1 },
-  listContent: { paddingVertical: 8 },
+  listContent: { paddingTop: 8, paddingBottom: 20 },
 
   card: { backgroundColor: "#fff", flexDirection: "row", padding: 16, gap: 14, borderBottomWidth: 1, borderBottomColor: "#f5f5f5" },
   imgWrap: { position: "relative" },
@@ -155,7 +150,7 @@ const s = StyleSheet.create({
   addBtn: { width: 32, height: 32, backgroundColor: "#111", borderRadius: 16, justifyContent: "center", alignItems: "center" },
   addBtnText: { color: "#fff", fontSize: 20, fontWeight: "300", lineHeight: 22 },
 
-  orderBar: { backgroundColor: "#fff", padding: 12, paddingHorizontal: 18, borderTopWidth: 1, borderTopColor: "#f0f0f0" },
+  orderBar: { backgroundColor: "#fff", padding: 12, paddingHorizontal: 18, borderTopWidth: 1, borderTopColor: "#f0f0f0", marginTop: 8 },
   orderBtn: { backgroundColor: "#111", borderRadius: 14, padding: 15, alignItems: "center" },
   orderBtnText: { color: "#fff", fontSize: 15, fontWeight: "800" },
 });
