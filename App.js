@@ -13,6 +13,10 @@ const TABS = [
   { key: "faq", icon: "❓", label: "FAQ" },
 ];
 
+const HEADER_GRADIENT = Platform.OS === "web"
+  ? { background: "linear-gradient(135deg, #0f172a 0%, #14532d 100%)" }
+  : {};
+
 const getMenuBizno = () => {
   if (Platform.OS !== "web") return null;
   const match = window.location.pathname.match(/^\/menu\/(.+)/);
@@ -49,8 +53,8 @@ export default function App() {
   if (menuBizno) {
     return (
       <View style={s.container}>
-        <StatusBar barStyle="light-content" backgroundColor="#2d6a4f" />
-        <View style={s.header}>
+        <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
+        <View style={[s.header, HEADER_GRADIENT]}>
           <View style={s.headerLeft}>
             <Text style={s.headerIcon}>🚐</Text>
             <Text style={s.headerTitle}>CampRoad</Text>
@@ -63,10 +67,9 @@ export default function App() {
 
   return (
     <View style={s.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#2d6a4f" />
+      <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
 
-      {/* 헤더 */}
-      <View style={s.header}>
+      <View style={[s.header, HEADER_GRADIENT]}>
         <View style={s.headerLeft}>
           <Text style={s.headerIcon}>🚐</Text>
           <Text style={s.headerTitle}>CampRoad</Text>
@@ -76,45 +79,43 @@ export default function App() {
         </TouchableOpacity>
       </View>
 
-      {/* 콘텐츠 */}
       <View style={s.content}>
         {tab === "cars" && <Cars />}
         {tab === "qna" && <QnA isAdmin={isAdmin} />}
         {tab === "faq" && <FAQ />}
       </View>
 
-      {/* 하단 탭 */}
       <View style={s.tabBar}>
         {TABS.map(({ key, icon, label }) => (
           <TouchableOpacity key={key} style={s.tabItem} onPress={() => setTab(key)}>
-            <Text style={s.tabIcon}>{icon}</Text>
+            <Text style={[s.tabIcon, tab === key && s.tabIconActive]}>{icon}</Text>
             <Text style={[s.tabLabel, tab === key && s.tabLabelActive]}>{label}</Text>
             {tab === key && <View style={s.tabIndicator} />}
           </TouchableOpacity>
         ))}
       </View>
 
-      {/* 관리자 로그인 모달 */}
       <AdminLogin visible={showLogin} onClose={() => setShowLogin(false)} onLogin={handleLogin} />
     </View>
   );
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f0f7f0" },
-  header: { backgroundColor: "#2d6a4f", flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 20, paddingVertical: 14 },
-  headerLeft: { flexDirection: "row", alignItems: "center", gap: 8 },
+  container: { flex: 1, backgroundColor: "#f8fafc" },
+  header: { backgroundColor: "#0f172a", flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 20, paddingVertical: 15 },
+  headerLeft: { flexDirection: "row", alignItems: "center", gap: 9 },
   headerIcon: { fontSize: 22 },
-  headerTitle: { fontSize: 20, fontWeight: "900", color: "#fff", letterSpacing: -1 },
-  adminBtn: { borderWidth: 1.5, borderColor: "rgba(255,255,255,0.6)", borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6, backgroundColor: "rgba(255,255,255,0.15)" },
-  adminBtnActive: { borderColor: "#ff6b6b", backgroundColor: "rgba(255,107,107,0.2)" },
-  adminBtnText: { color: "#fff", fontWeight: "700", fontSize: 12 },
-  adminBtnTextActive: { color: "#ff6b6b" },
+  headerTitle: { fontSize: 20, fontWeight: "900", color: "#fff", letterSpacing: -0.5 },
+  adminBtn: { borderWidth: 1.5, borderColor: "rgba(255,255,255,0.3)", borderRadius: 20, paddingHorizontal: 14, paddingVertical: 6, backgroundColor: "rgba(255,255,255,0.1)" },
+  adminBtnActive: { borderColor: "#f87171", backgroundColor: "rgba(248,113,113,0.15)" },
+  adminBtnText: { color: "rgba(255,255,255,0.85)", fontWeight: "600", fontSize: 12 },
+  adminBtnTextActive: { color: "#f87171" },
   content: { flex: 1, overflow: "hidden" },
-  tabBar: { flexDirection: "row", backgroundColor: "#fff", borderTopWidth: 2, borderTopColor: "#d8f3dc", paddingBottom: 4, flexShrink: 0 },
-  tabItem: { flex: 1, alignItems: "center", paddingVertical: 8, position: "relative" },
-  tabIcon: { fontSize: 20, marginBottom: 2 },
-  tabLabel: { fontSize: 11, color: "#95d5b2", fontWeight: "500" },
-  tabLabelActive: { color: "#2d6a4f", fontWeight: "700" },
-  tabIndicator: { position: "absolute", top: 0, left: "25%", right: "25%", height: 2, backgroundColor: "#2d6a4f", borderRadius: 1 },
+  tabBar: { flexDirection: "row", backgroundColor: "#fff", flexShrink: 0, shadowColor: "#0f172a", shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.06, shadowRadius: 12, elevation: 10, paddingBottom: 4 },
+  tabItem: { flex: 1, alignItems: "center", paddingVertical: 10, position: "relative" },
+  tabIcon: { fontSize: 20, marginBottom: 2, opacity: 0.4 },
+  tabIconActive: { opacity: 1 },
+  tabLabel: { fontSize: 11, color: "#94a3b8", fontWeight: "500" },
+  tabLabelActive: { color: "#16a34a", fontWeight: "700" },
+  tabIndicator: { position: "absolute", top: 0, left: "30%", right: "30%", height: 3, backgroundColor: "#16a34a", borderRadius: 2 },
 });
