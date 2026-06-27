@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Linking, Modal, Platform, Animated, Easing } from "react-native";
+import AiChat from "../components/AiChat";
 
 const BURST_COLORS = [
   ["#ff4757", "#ffa502", "#ff6348"],
@@ -366,6 +367,9 @@ export default function Menu({ bizno, tableNo }) {
           </View>
         </View>
       </Modal>
+
+      {/* AI 채팅 */}
+      <AiChat menuItems={DUMMY_ITEMS} onAddToCart={addToCart} />
 
       {/* 장바구니 팝업 */}
       <Modal visible={showCart} transparent animationType="slide" onRequestClose={() => setShowCart(false)}>
