@@ -110,10 +110,14 @@ export default function App() {
         </View>
 
         <View style={s.content}>
-          {menuOverlay === "supporters" ? <Supporters isAdmin={false} /> :
-           menuOverlay === "qna" ? <QnA isAdmin={false} /> :
-           menuOverlay === "faq" ? <FAQ /> :
-           <Menu bizno={menuBizno} />}
+          <Menu bizno={menuBizno} />
+          {menuOverlay && (
+            <View style={[StyleSheet.absoluteFillObject, s.overlayScreen]}>
+              {menuOverlay === "supporters" && <Supporters isAdmin={false} />}
+              {menuOverlay === "qna" && <QnA isAdmin={false} />}
+              {menuOverlay === "faq" && <FAQ />}
+            </View>
+          )}
         </View>
 
         {/* 환영 팝업 */}
@@ -201,6 +205,8 @@ const s = StyleSheet.create({
   adminBtnText: { color: "rgba(255,255,255,0.85)", fontWeight: "600", fontSize: 12 },
   adminBtnTextActive: { color: "#f87171" },
   content: { flex: 1, overflow: "hidden" },
+
+  overlayScreen: { backgroundColor: "#f8fafc", zIndex: 10 },
 
   welcomeOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.55)", justifyContent: "center", alignItems: "center", padding: 32 },
   welcomeBox: { backgroundColor: "#fff", borderRadius: 24, padding: 32, alignItems: "center", width: "100%" },
