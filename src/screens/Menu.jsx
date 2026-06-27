@@ -92,7 +92,7 @@ export default function Menu({ bizno }) {
       </View>
 
       {/* 메뉴 리스트 */}
-      <ScrollView style={s.list} contentContainerStyle={s.listContent}>
+      <ScrollView style={s.list} contentContainerStyle={[s.listContent, cartCount > 0 && { paddingBottom: 64 }]}>
         {filtered.map(item => {
           const qty = cart[item.id]?.quantity || 0;
           return (
@@ -135,7 +135,7 @@ export default function Menu({ bizno }) {
 
       {/* 장바구니 바 */}
       {cartCount > 0 && (
-        <TouchableOpacity style={s.cartBar} onPress={() => setShowCart(true)}>
+        <TouchableOpacity style={[s.cartBar, Platform.OS === "web" && s.cartBarWeb]} onPress={() => setShowCart(true)}>
           <View style={s.cartBadge}><Text style={s.cartBadgeText}>{cartCount}</Text></View>
           <Text style={s.cartBarText}>장바구니 보기</Text>
           <Text style={s.cartBarTotal}>₩{cartTotal.toLocaleString()}</Text>
@@ -242,6 +242,7 @@ const s = StyleSheet.create({
 
   /* 장바구니 바 */
   cartBar: { flexShrink: 0, backgroundColor: "#111", flexDirection: "row", alignItems: "center", paddingHorizontal: 18, paddingVertical: 14, gap: 10 },
+  cartBarWeb: { position: "fixed", bottom: 0, left: 0, right: 0 },
   cartBadge: { backgroundColor: "#f97316", borderRadius: 12, paddingHorizontal: 8, paddingVertical: 2 },
   cartBadgeText: { color: "#fff", fontSize: 12, fontWeight: "800" },
   cartBarText: { flex: 1, color: "#fff", fontSize: 15, fontWeight: "700" },
