@@ -59,7 +59,7 @@ export default function Menu({ bizno }) {
     <View style={s.container}>
       {/* 카테고리 탭 고정 */}
       <View style={s.shopBanner}>
-        <Text style={s.shopName}>🏕 캠프로드 식당</Text>
+        <Text style={s.shopName}>🍽 맛찬들</Text>
         <View style={s.shopMeta}>
           <Text style={s.shopRating}><Text style={s.star}>★</Text> 4.8</Text>
           <Text style={s.shopInfo}>리뷰 142개 · 캠핑식당</Text>

@@ -25,6 +25,16 @@ const getMenuBizno = () => {
 
 const menuBizno = getMenuBizno();
 
+const Logo = () => (
+  <View style={s.headerLeft}>
+    <View style={s.logoBox}>
+      <Text style={s.logoJK}>JK</Text>
+      <View style={s.logoLine} />
+    </View>
+    <Text style={s.headerTitle}>JK <Text style={s.headerTitleAccent}>Scan</Text>eat</Text>
+  </View>
+);
+
 export default function App() {
   const [tab, setTab] = useState("cars");
   const [isAdmin, setIsAdmin] = useState(false);
@@ -50,10 +60,7 @@ export default function App() {
       <View style={s.container}>
         <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
         <View style={[s.header, HEADER_GRADIENT]}>
-          <View style={s.headerLeft}>
-            <Text style={s.headerIcon}>🚐</Text>
-            <Text style={s.headerTitle}>CampRoad</Text>
-          </View>
+          <Logo />
         </View>
         <View style={s.content}>
           <Menu bizno={menuBizno} />
@@ -67,10 +74,7 @@ export default function App() {
       <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
 
       <View style={[s.header, HEADER_GRADIENT]}>
-        <View style={s.headerLeft}>
-          <Text style={s.headerIcon}>🚐</Text>
-          <Text style={s.headerTitle}>CampRoad</Text>
-        </View>
+        <Logo />
         <TouchableOpacity style={[s.adminBtn, isAdmin && s.adminBtnActive]} onPress={isAdmin ? handleLogout : () => setShowLogin(true)}>
           <Text style={[s.adminBtnText, isAdmin && s.adminBtnTextActive]}>{isAdmin ? "🔓 로그아웃" : "⚙️ 관리자"}</Text>
         </TouchableOpacity>
@@ -99,10 +103,13 @@ export default function App() {
 
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f8fafc" },
-  header: { backgroundColor: "#0f172a", flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 20, paddingVertical: 15 },
-  headerLeft: { flexDirection: "row", alignItems: "center", gap: 9 },
-  headerIcon: { fontSize: 22 },
-  headerTitle: { fontSize: 20, fontWeight: "900", color: "#fff", letterSpacing: -0.5 },
+  header: { backgroundColor: "#0f172a", flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 16, paddingVertical: 12 },
+  headerLeft: { flexDirection: "row", alignItems: "center", gap: 10 },
+  logoBox: { width: 36, height: 36, borderRadius: 10, backgroundColor: "#0f172a", borderWidth: 1.5, borderColor: "#f97316", justifyContent: "center", alignItems: "center", gap: 2 },
+  logoJK: { fontSize: 13, fontWeight: "900", color: "#f97316", letterSpacing: -1 },
+  logoLine: { width: 20, height: 1.5, backgroundColor: "#f97316", opacity: 0.5 },
+  headerTitle: { fontSize: 18, fontWeight: "900", color: "#fff", letterSpacing: -0.5 },
+  headerTitleAccent: { color: "#f97316" },
   adminBtn: { borderWidth: 1.5, borderColor: "rgba(255,255,255,0.3)", borderRadius: 20, paddingHorizontal: 14, paddingVertical: 6, backgroundColor: "rgba(255,255,255,0.1)" },
   adminBtnActive: { borderColor: "#f87171", backgroundColor: "rgba(248,113,113,0.15)" },
   adminBtnText: { color: "rgba(255,255,255,0.85)", fontWeight: "600", fontSize: 12 },
