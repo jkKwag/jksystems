@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>테이블 QR 코드</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, 'Noto Sans KR', sans-serif; background: #f5f5f5; display: flex; justify-content: center; padding: 40px 20px; }
+  .page { display: flex; gap: 32px; flex-wrap: wrap; justify-content: center; }
+
+  .card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 32px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    width: 280px;
+  }
+
+  .logo { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .logo-box {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: #0f172a; border: 1.5px solid #f97316;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  }
+  .logo-jk { font-size: 11px; font-weight: 900; color: #f97316; letter-spacing: -1px; }
+  .logo-line { width: 18px; height: 1.5px; background: #f97316; opacity: 0.5; }
+  .logo-text { font-size: 16px; font-weight: 900; color: #111; letter-spacing: -0.5px; }
+  .logo-text span { color: #f97316; }
+
+  .shop-name { font-size: 15px; font-weight: 700; color: #555; }
+
+  .qr-wrap {
+    background: #fff;
+    border: 2px solid #f0f0f0;
+    border-radius: 12px;
+    padding: 12px;
+  }
+  .qr-wrap img { display: block; width: 200px; height: 200px; }
+
+  .table-badge {
+    background: #111;
+    color: #fff;
+    font-size: 22px;
+    font-weight: 900;
+    padding: 8px 28px;
+    border-radius: 30px;
+    letter-spacing: 2px;
+  }
+
+  .desc { font-size: 12px; color: #aaa; text-align: center; line-height: 1.6; }
+  .url { font-size: 10px; color: #ccc; word-break: break-all; text-align: center; margin-top: -8px; }
+
+  @media print {
+    body { background: white; padding: 0; }
+    .page { gap: 20px; }
+    .card { box-shadow: none; border: 1px solid #eee; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- 테이블 T001 -->
+  <div class="card">
+    <div class="logo">
+      <div class="logo-box">
+        <div class="logo-jk">JK</div>
+        <div class="logo-line"></div>
+      </div>
+      <div class="logo-text"><span>Scan</span>eat</div>
+    </div>
+    <div class="shop-name">🍽 맛찬들</div>
+    <div class="qr-wrap">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https%3A%2F%2Fjksystems.vercel.app%2Fmenu%2F2122544531%3Ftable%3Dt001" alt="QR T001" />
+    </div>
+    <div class="table-badge">T001</div>
+    <div class="desc">QR코드를 스캔하면<br>메뉴를 바로 확인할 수 있어요</div>
+    <div class="url">jksystems.vercel.app/menu/2122544531?table=t001</div>
+  </div>
+
+  <!-- 테이블 T002 -->
+  <div class="card">
+    <div class="logo">
+      <div class="logo-box">
+        <div class="logo-jk">JK</div>
+        <div class="logo-line"></div>
+      </div>
+      <div class="logo-text"><span>Scan</span>eat</div>
+    </div>
+    <div class="shop-name">🍽 맛찬들</div>
+    <div class="qr-wrap">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https%3A%2F%2Fjksystems.vercel.app%2Fmenu%2F2122544531%3Ftable%3Dt002" alt="QR T002" />
+    </div>
+    <div class="table-badge">T002</div>
+    <div class="desc">QR코드를 스캔하면<br>메뉴를 바로 확인할 수 있어요</div>
+    <div class="url">jksystems.vercel.app/menu/2122544531?table=t002</div>
+  </div>
+
+</div>
+</body>
+</html>
