@@ -219,7 +219,7 @@ const loadCart = (bizno) => {
   return {};
 };
 
-export default function Menu({ bizno }) {
+export default function Menu({ bizno, tableNo }) {
   const [activeCat, setActiveCat] = useState("전체");
   const [cart, setCart] = useState(() => loadCart(bizno));
   const [showCart, setShowCart] = useState(false);
@@ -261,7 +261,14 @@ export default function Menu({ bizno }) {
     <View style={s.container}>
       {/* 가게 정보 */}
       <View style={s.shopBanner}>
-        <Text style={s.shopName}>🍽 맛찬들</Text>
+        <View style={s.shopNameRow}>
+          <Text style={s.shopName}>🍽 맛찬들</Text>
+          {tableNo && (
+            <View style={s.tableBadge}>
+              <Text style={s.tableBadgeText}>{tableNo.toUpperCase()}</Text>
+            </View>
+          )}
+        </View>
         <View style={s.shopMeta}>
           <Text style={s.shopRating}><Text style={s.star}>★</Text> 4.8</Text>
           <Text style={s.shopInfo}>리뷰 142개 · 캠핑식당</Text>
@@ -420,7 +427,10 @@ const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f5f5f5", flexDirection: "column", overflow: "hidden" },
 
   shopBanner: { backgroundColor: "#fff", padding: 16, borderBottomWidth: 1, borderBottomColor: "#f0f0f0", flexShrink: 0 },
-  shopName: { fontSize: 19, fontWeight: "900", color: "#111", marginBottom: 6 },
+  shopNameRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 6 },
+  shopName: { fontSize: 19, fontWeight: "900", color: "#111" },
+  tableBadge: { backgroundColor: "#f97316", borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
+  tableBadgeText: { color: "#fff", fontSize: 13, fontWeight: "900", letterSpacing: 1 },
   shopMeta: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 },
   shopRating: { fontSize: 13, fontWeight: "700", color: "#111" },
   star: { color: "#f97316" },

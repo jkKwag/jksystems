@@ -24,7 +24,15 @@ const getMenuBizno = () => {
   return match ? match[1] : null;
 };
 
+const getTableNo = () => {
+  if (Platform.OS !== "web") return null;
+  try {
+    return new URLSearchParams(window.location.search).get("table") || null;
+  } catch { return null; }
+};
+
 const menuBizno = getMenuBizno();
+const tableNo = getTableNo();
 
 const MUSIC_URL = "https://raw.githubusercontent.com/jkKwag/jksystems/main/assets/bgmusic.m4a";
 
@@ -110,7 +118,7 @@ export default function App() {
         </View>
 
         <View style={s.content}>
-          <Menu bizno={menuBizno} />
+          <Menu bizno={menuBizno} tableNo={tableNo} />
           {menuOverlay && (
             <View style={[StyleSheet.absoluteFillObject, s.overlayScreen]}>
               {menuOverlay === "supporters" && <Supporters isAdmin={false} />}
