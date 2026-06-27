@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Platform, Modal } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Cars from "./src/screens/Cars";
@@ -44,36 +44,36 @@ export default function App() {
   const [showDrawer, setShowDrawer] = useState(false);
   const [menuOverlay, setMenuOverlay] = useState(null); // null | "qna" | "faq"
   const [musicOn, setMusicOn] = useState(false);
-  const audioRef = useState(() => {
-    if (Platform.OS === "web" && menuBizno && MUSIC_URL) {
-      const a = new window.Audio(MUSIC_URL);
-      a.loop = true;
-      a.volume = 0.4;
-      return a;
-    }
-    return null;
-  })[0];
+  const audioRef = useRef(null);
 
   useEffect(() => {
-    if (!audioRef) return;
-    const play = () => {
-      audioRef.play().then(() => setMusicOn(true)).catch(() => {});
-      document.removeEventListener("click", play);
-      document.removeEventListener("touchstart", play);
+    if (Platform.OS !== "web" || !menuBizno || !MUSIC_URL) return;
+    const audio = new window.Audio(MUSIC_URL);
+    audio.loop = true;
+    audio.volume = 0.4;
+    audioRef.current = audio;
+
+    let played = false;
+    const tryPlay = () => {
+      if (played) return;
+      played = true;
+      audio.play().then(() => setMusicOn(true)).catch(() => { played = false; });
     };
-    document.addEventListener("click", play, { once: true });
-    document.addEventListener("touchstart", play, { once: true });
+    document.addEventListener("click", tryPlay);
+    document.addEventListener("touchend", tryPlay);
     return () => {
-      audioRef.pause();
-      document.removeEventListener("click", play);
-      document.removeEventListener("touchstart", play);
+      audio.pause();
+      audioRef.current = null;
+      document.removeEventListener("click", tryPlay);
+      document.removeEventListener("touchend", tryPlay);
     };
-  }, [audioRef]);
+  }, []);
 
   const toggleMusic = () => {
-    if (!audioRef) return;
-    if (musicOn) { audioRef.pause(); setMusicOn(false); }
-    else { audioRef.play().then(() => setMusicOn(true)).catch(() => {}); }
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (musicOn) { audio.pause(); setMusicOn(false); }
+    else { audio.play().then(() => setMusicOn(true)).catch(() => {}); }
   };
 
   useEffect(() => {
