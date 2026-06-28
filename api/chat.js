@@ -7,7 +7,7 @@ module.exports = async function handler(req, res) {
   if (!apiKey) return res.status(500).json({ error: "API 키가 설정되지 않았습니다." });
 
   const menuList = menuContext
-    .map(m => `[ID:${m.id}] ${m.name} (${m.category}) ₩${m.price.toLocaleString()} - ${m.desc}`)
+    .map(m => `[ID:${m.id}] ${m.name} (${m.category}) ₩${m.price.toLocaleString()} - ${m.desc}${m.image ? ` [IMAGE:${m.image}]` : ""}`)
     .join("\n");
 
   const cartList = cartContext.length > 0
@@ -26,6 +26,8 @@ ${cartList}
 1. 손님이 원하는 맵기, 종류, 분위기 등을 파악해서 딱 맞는 메뉴를 추천해.
 2. 메뉴를 추천할 때 반드시 아래 형식을 포함해:
    %%ITEM%%{"id":메뉴ID,"name":"메뉴이름","price":가격}%%END%%
+   이미지가 있으면 반드시 아래 형식도 포함해:
+   %%IMAGE%%이미지URL%%END%%
 3. 추천 후 "장바구니에 담을까요?"라고 물어봐.
 4. 손님이 말하는 언어로 자연스럽게 응대해 (한국어→한국어, 영어→영어, 일본어→일본어 등).
 5. 친근하고 간결하게 대화해. 한 번에 메뉴 하나만 추천해.

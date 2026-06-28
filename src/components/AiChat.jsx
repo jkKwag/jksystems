@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Animated, Platform, ActivityIndicator } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Animated, Platform, ActivityIndicator, Image } from "react-native";
 
 const WELCOME = "안녕하세요! 맛찬들 AI 메뉴 추천 도우미예요 😊\n어떤 음식이 드시고 싶으세요?";
 
@@ -111,6 +111,9 @@ export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, on
         } catch {}
       }
 
+      const imageMatch = raw.match(/%+IMAGE%+(https?:\/\/[^\s%]+)%+END%+/);
+      const imageUrl = imageMatch ? imageMatch[1] : null;
+
       const hasOrder = /%+ORDER%+/.test(raw);
       const removeMatch = raw.match(/%+REMOVE%+(\{.*?\})%+END%+/s);
       if (removeMatch) {
@@ -121,10 +124,11 @@ export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, on
       }
       const cleanText = raw
         .replace(/%+ITEM%+.*?%+END%+/gs, "")
+        .replace(/%+IMAGE%+.*?%+END%+/gs, "")
         .replace(/%+REMOVE%+.*?%+END%+/gs, "")
         .replace(/%+ORDER%+/g, "")
         .trim();
-      setDisplayMsgs(prev => [...prev, { role: "assistant", text: cleanText }]);
+      setDisplayMsgs(prev => [...prev, { role: "assistant", text: cleanText, imageUrl }]);
       setApiHistory(prev => [...prev, { role: "assistant", content: cleanText }]);
       if (found) setPendingItem(found);
       if (hasOrder && cartItems.length > 0) onOrder?.();
@@ -181,6 +185,9 @@ export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, on
         <ScrollView ref={scrollRef} style={s.msgList} contentContainerStyle={s.msgContent}>
           {displayMsgs.map((msg, i) => (
             <View key={i} style={[s.bubble, msg.role === "user" ? s.bubbleUser : s.bubbleAi]}>
+              {msg.imageUrl && (
+                <Image source={{ uri: msg.imageUrl }} style={s.msgImage} resizeMode="cover" />
+              )}
               <Text style={[s.bubbleText, msg.role === "user" && s.bubbleTextUser]}>{msg.text}</Text>
             </View>
           ))}
@@ -274,6 +281,7 @@ const s = StyleSheet.create({
   msgList: { flex: 1, backgroundColor: "#fff" },
   msgContent: { padding: 14, paddingBottom: 8, gap: 8 },
 
+  msgImage: { width: "100%", height: 160, borderRadius: 10, marginBottom: 8 },
   bubble: { maxWidth: "80%", borderRadius: 16, padding: 12 },
   bubbleAi: { backgroundColor: "#f3f4f6", alignSelf: "flex-start", borderBottomLeftRadius: 4 },
   bubbleUser: { backgroundColor: "#f97316", alignSelf: "flex-end", borderBottomRightRadius: 4 },
