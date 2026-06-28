@@ -127,7 +127,7 @@ export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, on
         .replace(/%+REMOVE%+.*?%+END%+/gs, "")
         .replace(/%+ORDER%+/g, "")
         .trim();
-      setDisplayMsgs(prev => [...prev, { role: "assistant", text: cleanText, imageUrl }]);
+      setDisplayMsgs(prev => [...prev, { role: "assistant", text: cleanText, imageUrl, itemName: found?.name || null }]);
       setApiHistory(prev => [...prev, { role: "assistant", content: cleanText }]);
       if (found) setPendingItem(found);
       if (hasOrder && cartItems.length > 0) onOrder?.();
@@ -186,6 +186,9 @@ export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, on
             <View key={i} style={[s.bubble, msg.role === "user" ? s.bubbleUser : s.bubbleAi]}>
               {msg.imageUrl && (
                 <Image source={{ uri: msg.imageUrl }} style={s.msgImage} resizeMode="cover" />
+              )}
+              {msg.itemName && (
+                <Text style={s.msgItemName}>{msg.itemName}</Text>
               )}
               <Text style={[s.bubbleText, msg.role === "user" && s.bubbleTextUser]}>{msg.text}</Text>
             </View>
@@ -280,7 +283,8 @@ const s = StyleSheet.create({
   msgList: { flex: 1, backgroundColor: "#fff" },
   msgContent: { padding: 14, paddingBottom: 8, gap: 8 },
 
-  msgImage: { width: "100%", height: 160, borderRadius: 10, marginBottom: 8 },
+  msgImage: { width: "100%", height: 160, borderRadius: 10, marginBottom: 6 },
+  msgItemName: { fontSize: 15, fontWeight: "700", color: "#111", marginBottom: 4 },
   bubble: { maxWidth: "80%", borderRadius: 16, padding: 12 },
   bubbleAi: { backgroundColor: "#f3f4f6", alignSelf: "flex-start", borderBottomLeftRadius: 4 },
   bubbleUser: { backgroundColor: "#f97316", alignSelf: "flex-end", borderBottomRightRadius: 4 },
