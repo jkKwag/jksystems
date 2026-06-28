@@ -403,6 +403,7 @@ export default function Menu({ bizno, tableNo }) {
         menuItems={DUMMY_ITEMS}
         cartItems={cartItems}
         onAddToCart={addToCart}
+        onRemoveFromCart={removeFromCart}
         onOrder={() => {
           setShowCart(false);
           clearCart();

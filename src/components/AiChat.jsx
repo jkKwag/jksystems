@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Animat
 
 const WELCOME = "안녕하세요! 맛찬들 AI 메뉴 추천 도우미예요 😊\n어떤 음식이 드시고 싶으세요?";
 
-export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, onOrder }) {
+export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, onRemoveFromCart, onOrder }) {
   const [open, setOpen] = useState(false);
   const [displayMsgs, setDisplayMsgs] = useState([{ role: "assistant", text: WELCOME }]);
   const [apiHistory, setApiHistory] = useState([]);
@@ -112,7 +112,18 @@ export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, on
       }
 
       const hasOrder = /%+ORDER%+/.test(raw);
-      const cleanText = raw.replace(/%+ITEM%+.*?%+END%+/gs, "").replace(/%+ORDER%+/g, "").trim();
+      const removeMatch = raw.match(/%+REMOVE%+(\{.*?\})%+END%+/s);
+      if (removeMatch) {
+        try {
+          const parsed = JSON.parse(removeMatch[1]);
+          onRemoveFromCart?.(parsed.id);
+        } catch {}
+      }
+      const cleanText = raw
+        .replace(/%+ITEM%+.*?%+END%+/gs, "")
+        .replace(/%+REMOVE%+.*?%+END%+/gs, "")
+        .replace(/%+ORDER%+/g, "")
+        .trim();
       setDisplayMsgs(prev => [...prev, { role: "assistant", text: cleanText }]);
       setApiHistory(prev => [...prev, { role: "assistant", content: cleanText }]);
       if (found) setPendingItem(found);
