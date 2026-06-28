@@ -102,7 +102,7 @@ export default function AiChat({ menuItems = [], onAddToCart }) {
       const data = await resp.json();
       const raw = data.text || "죄송합니다, 오류가 발생했습니다.";
 
-      const itemMatch = raw.match(/%%ITEM%%(\{.*?\})%%END%%/s);
+      const itemMatch = raw.match(/%+ITEM%+(\{.*?\})%+END%+/s);
       let found = null;
       if (itemMatch) {
         try {
@@ -111,7 +111,7 @@ export default function AiChat({ menuItems = [], onAddToCart }) {
         } catch {}
       }
 
-      const cleanText = raw.replace(/%%ITEM%%.*?%%END%%/gs, "").trim();
+      const cleanText = raw.replace(/%+ITEM%+.*?%+END%+/gs, "").trim();
       setDisplayMsgs(prev => [...prev, { role: "assistant", text: cleanText }]);
       setApiHistory(prev => [...prev, { role: "assistant", content: cleanText }]);
       if (found) setPendingItem(found);
