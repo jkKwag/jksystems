@@ -111,8 +111,7 @@ export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, on
         } catch {}
       }
 
-      const imageMatch = raw.match(/%+IMAGE%+(https?:\/\/[^\s%]+)%+END%+/);
-      const imageUrl = imageMatch ? imageMatch[1] : null;
+      const imageUrl = found?.image || null;
 
       const hasOrder = /%+ORDER%+/.test(raw);
       const removeMatch = raw.match(/%+REMOVE%+(\{.*?\})%+END%+/s);
@@ -124,7 +123,7 @@ export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, on
       }
       const cleanText = raw
         .replace(/%+ITEM%+.*?%+END%+/gs, "")
-        .replace(/%+IMAGE%+.*?%+END%+/gs, "")
+
         .replace(/%+REMOVE%+.*?%+END%+/gs, "")
         .replace(/%+ORDER%+/g, "")
         .trim();
