@@ -34,7 +34,7 @@ const getTableNo = () => {
 const menuBizno = getMenuBizno();
 const tableNo = getTableNo();
 
-const MUSIC_URL = "https://raw.githubusercontent.com/jkKwag/jksystems/main/assets/bgmusic.m4a";
+const MUSIC_URL = "https://raw.githubusercontent.com/jkKwag/jksystems/main/assets/bgmusic.mp3";
 
 const Logo = () => (
   <View style={s.headerLeft}>
