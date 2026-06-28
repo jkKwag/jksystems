@@ -399,7 +399,16 @@ export default function Menu({ bizno, tableNo }) {
       </Modal>
 
       {/* AI 채팅 */}
-      <AiChat menuItems={DUMMY_ITEMS} cartItems={cartItems} onAddToCart={addToCart} />
+      <AiChat
+        menuItems={DUMMY_ITEMS}
+        cartItems={cartItems}
+        onAddToCart={addToCart}
+        onOrder={() => {
+          setShowCart(false);
+          clearCart();
+          setTimeout(() => setShowConfetti(true), 300);
+        }}
+      />
 
       {/* 장바구니 팝업 */}
       <Modal visible={showCart} transparent animationType="slide" onRequestClose={() => setShowCart(false)}>
