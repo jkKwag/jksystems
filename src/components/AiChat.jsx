@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Animat
 
 const WELCOME = "안녕하세요! 맛찬들 AI 메뉴 추천 도우미예요 😊\n어떤 음식이 드시고 싶으세요?";
 
-export default function AiChat({ menuItems = [], onAddToCart }) {
+export default function AiChat({ menuItems = [], cartItems = [], onAddToCart }) {
   const [open, setOpen] = useState(false);
   const [displayMsgs, setDisplayMsgs] = useState([{ role: "assistant", text: WELCOME }]);
   const [apiHistory, setApiHistory] = useState([]);
@@ -97,7 +97,7 @@ export default function AiChat({ menuItems = [], onAddToCart }) {
       const resp = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: nextHistory, menuContext: menuItems }),
+        body: JSON.stringify({ messages: nextHistory, menuContext: menuItems, cartContext: cartItems }),
       });
       const data = await resp.json();
       const raw = data.text || "죄송합니다, 오류가 발생했습니다.";

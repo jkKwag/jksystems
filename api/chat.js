@@ -1,7 +1,7 @@
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
 
-  const { messages = [], menuContext = [] } = req.body || {};
+  const { messages = [], menuContext = [], cartContext = [] } = req.body || {};
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) return res.status(500).json({ error: "API 키가 설정되지 않았습니다." });
@@ -10,10 +10,17 @@ module.exports = async function handler(req, res) {
     .map(m => `[ID:${m.id}] ${m.name} (${m.category}) ₩${m.price.toLocaleString()} - ${m.desc}`)
     .join("\n");
 
+  const cartList = cartContext.length > 0
+    ? cartContext.map(c => `- ${c.item.name} x${c.quantity} (₩${(c.item.price * c.quantity).toLocaleString()})`).join("\n")
+    : "비어있음";
+
   const systemPrompt = `너는 이 식당의 AI 직원이야. 메뉴를 보고 손님 취향에 맞게 추천하고 주문까지 도와줘. 한국어와 영어 모두 응대 가능해.
 
 현재 메뉴 목록:
 ${menuList}
+
+현재 장바구니:
+${cartList}
 
 중요 규칙:
 1. 손님이 원하는 맵기, 종류, 분위기 등을 파악해서 딱 맞는 메뉴를 추천해.
