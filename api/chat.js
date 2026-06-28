@@ -2,7 +2,7 @@ module.exports = async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
 
   const { messages = [], menuContext = [] } = req.body || {};
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) return res.status(500).json({ error: "API 키가 설정되지 않았습니다." });
 
@@ -10,7 +10,7 @@ module.exports = async function handler(req, res) {
     .map(m => `[ID:${m.id}] ${m.name} (${m.category}) ₩${m.price.toLocaleString()} - ${m.desc}`)
     .join("\n");
 
-  const system = `너는 이 식당의 AI 직원이야. 메뉴를 보고 손님 취향에 맞게 추천하고 주문까지 도와줘. 한국어와 영어 모두 응대 가능해.
+  const systemPrompt = `너는 이 식당의 AI 직원이야. 메뉴를 보고 손님 취향에 맞게 추천하고 주문까지 도와줘. 한국어와 영어 모두 응대 가능해.
 
 현재 메뉴 목록:
 ${menuList}
@@ -24,21 +24,25 @@ ${menuList}
 5. 친근하고 간결하게 대화해. 한 번에 메뉴 하나만 추천해.
 6. 메뉴에 없는 음식을 물어보면 솔직하게 없다고 말하고 비슷한 메뉴를 제안해.`;
 
+  // Anthropic role "assistant" → Gemini role "model"
+  const contents = messages.map(m => ({
+    role: m.role === "assistant" ? "model" : "user",
+    parts: [{ text: m.content }],
+  }));
+
   try {
-    const resp = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 512,
-        system,
-        messages,
-      }),
-    });
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemPrompt }] },
+          contents,
+          generationConfig: { maxOutputTokens: 512 },
+        }),
+      }
+    );
 
     if (!resp.ok) {
       const err = await resp.json();
@@ -46,7 +50,8 @@ ${menuList}
     }
 
     const data = await resp.json();
-    return res.status(200).json({ text: data.content?.[0]?.text || "" });
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    return res.status(200).json({ text });
   } catch {
     return res.status(500).json({ error: "서버 오류가 발생했습니다." });
   }
