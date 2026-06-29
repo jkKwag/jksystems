@@ -244,7 +244,7 @@ export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, on
         <Animated.View style={[
           s.tooltip,
           fixedBase,
-          { bottom: 132, right: 20, zIndex: 201, opacity: tooltipOpacity },
+          { bottom: 216, right: 20, zIndex: 201, opacity: tooltipOpacity },
         ]}>
           <Text style={s.tooltipText}>AI에게 메뉴 추천받아보세요! 👆</Text>
           <View style={s.tooltipArrow} />
@@ -252,7 +252,7 @@ export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, on
       )}
 
       <TouchableOpacity
-        style={[s.fab, fixedBase, { bottom: 76, right: 20, zIndex: 200 }]}
+        style={[s.fab, fixedBase, { bottom: 160, right: 20, zIndex: 200 }]}
         onPress={() => setOpen(true)}
       >
         <Text style={s.fabText}>✦ AI 주문</Text>
