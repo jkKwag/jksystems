@@ -201,8 +201,8 @@ const DUMMY_ITEMS = [
   { id: 1, category: "고기류", name: "캠프 직화 삼겹살", desc: "국내산 생삼겹살 200g, 쌈채소·된장 포함", price: 18000, badge: "인기", image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=180&h=180&fit=crop" },
   { id: 2, category: "고기류", name: "허브 치킨 구이", desc: "허브 마리네이드 반마리, 감자·옥수수 곁들임", price: 16000, badge: null, image: "https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=180&h=180&fit=crop" },
   { id: 3, category: "면", name: "야생 버섯 칼국수", desc: "직접 뽑은 수제면에 진한 사골 육수", price: 12000, badge: "베스트", image: "https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=180&h=180&fit=crop" },
-  { id: 4, category: "기타", name: "캠프파이어 피자", desc: "화덕에서 구운 나폴리 스타일, 모짜렐라 듬뿍", price: 22000, badge: null, image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=180&h=180&fit=crop" },
-  { id: 5, category: "기타", name: "그린 샐러드 볼", desc: "제철 채소와 수제 드레싱, 견과류 토핑", price: 10000, badge: null, image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=180&h=180&fit=crop" },
+  { id: 4, category: "사이드", name: "캠프파이어 피자", desc: "화덕에서 구운 나폴리 스타일, 모짜렐라 듬뿍", price: 22000, badge: null, image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=180&h=180&fit=crop" },
+  { id: 5, category: "사이드", name: "그린 샐러드 볼", desc: "제철 채소와 수제 드레싱, 견과류 토핑", price: 10000, badge: null, image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=180&h=180&fit=crop" },
   { id: 6, category: "음료", name: "캠프 아메리카노", desc: "직접 로스팅한 원두, 더치커피 선택 가능", price: 5000, badge: null, image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=180&h=180&fit=crop" },
 ];
 
