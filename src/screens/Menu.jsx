@@ -196,19 +196,6 @@ function ConfettiOverlay({ onDone }) {
   );
 }
 
-
-const DUMMY_ITEMS = [
-  { id: 1, category: "고기류", name: "캠프 직화 삼겹살", desc: "국내산 생삼겹살 200g, 쌈채소·된장 포함", price: 18000, badge: "인기", image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=180&h=180&fit=crop" },
-  { id: 2, category: "고기류", name: "허브 치킨 구이", desc: "허브 마리네이드 반마리, 감자·옥수수 곁들임", price: 16000, badge: null, image: "https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=180&h=180&fit=crop" },
-  { id: 7, category: "밥류", name: "돌솥 비빔밥", desc: "제철 나물과 고추장, 달걀 반숙 토핑", price: 13000, badge: "추천", image: "https://images.unsplash.com/photo-1553163147-622ab57be1c7?w=180&h=180&fit=crop" },
-  { id: 8, category: "밥류", name: "김치찌개 정식", desc: "묵은지 김치찌개에 공기밥·반찬 3종 포함", price: 11000, badge: null, image: "https://source.unsplash.com/SRDxyGr8QLQ/180x180" },
-  { id: 9, category: "밥류", name: "제육볶음 정식", desc: "매콤한 제육볶음에 공기밥·된장국 포함", price: 12000, badge: null, image: "https://source.unsplash.com/fIJdNHDnM3c/180x180" },
-  { id: 3, category: "면류", name: "야생 버섯 칼국수", desc: "직접 뽑은 수제면에 진한 사골 육수", price: 12000, badge: "베스트", image: "https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=180&h=180&fit=crop" },
-  { id: 4, category: "사이드", name: "캠프파이어 피자", desc: "화덕에서 구운 나폴리 스타일, 모짜렐라 듬뿍", price: 22000, badge: null, image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=180&h=180&fit=crop" },
-  { id: 5, category: "사이드", name: "그린 샐러드 볼", desc: "제철 채소와 수제 드레싱, 견과류 토핑", price: 10000, badge: null, image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=180&h=180&fit=crop" },
-  { id: 6, category: "음료", name: "캠프 아메리카노", desc: "직접 로스팅한 원두, 더치커피 선택 가능", price: 5000, badge: null, image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=180&h=180&fit=crop" },
-];
-
 const saveCart = (bizno, cart) => {
   if (Platform.OS === "web") {
     try { localStorage.setItem(`scaneat_cart_${bizno}`, JSON.stringify(cart)); } catch {}
@@ -228,6 +215,7 @@ const loadCart = (bizno) => {
 export default function Menu({ bizno, tableNo }) {
   const [activeCat, setActiveCat] = useState("전체");
   const [categories, setCategories] = useState(["전체"]);
+  const [menuItems, setMenuItems] = useState([]);
   const [bizInfo, setBizInfo] = useState(null);
   const [imgErrors, setImgErrors] = useState({});
 
@@ -255,15 +243,40 @@ export default function Menu({ bizno, tableNo }) {
 
   useEffect(() => {
     if (!bizno) return;
-    supabase
+
+    const catFetch = supabase
       .from("tb_biz_cat")
-      .select("biz_cat_nm,sort_ord")
+      .select("biz_cat_cd,biz_cat_nm,sort_ord")
       .eq("biz_reg_no", bizno)
       .eq("use_yn", "Y")
-      .order("sort_ord", { ascending: true })
-      .then(({ data }) => {
-        if (data?.length) setCategories(["전체", ...data.map(c => c.biz_cat_nm)]);
-      });
+      .order("sort_ord", { ascending: true });
+
+    const menuFetch = supabase
+      .from("tb_menu")
+      .select("menu_cd,biz_cat_cd,menu_nm,menu_desc,price,img_url,badge,sort_ord")
+      .eq("biz_reg_no", bizno)
+      .eq("use_yn", "Y")
+      .order("sort_ord", { ascending: true });
+
+    Promise.all([catFetch, menuFetch]).then(([catRes, menuRes]) => {
+      const cats = catRes.data || [];
+      const menus = menuRes.data || [];
+
+      const catMap = {};
+      cats.forEach(c => { catMap[c.biz_cat_cd] = c.biz_cat_nm; });
+
+      if (cats.length) setCategories(["전체", ...cats.map(c => c.biz_cat_nm)]);
+
+      setMenuItems(menus.map(m => ({
+        id: m.menu_cd,
+        category: catMap[m.biz_cat_cd] || "",
+        name: m.menu_nm,
+        desc: m.menu_desc || "",
+        price: m.price,
+        badge: m.badge || null,
+        image: m.img_url || null,
+      })));
+    });
   }, [bizno]);
 
   useEffect(() => {
@@ -289,12 +302,13 @@ export default function Menu({ bizno, tableNo }) {
       buttons: [{ title: "메뉴 보기", link: { mobileWebUrl: window.location.href, webUrl: window.location.href } }],
     });
   };
+
   const [cart, setCart] = useState(() => loadCart(bizno));
   const [showCart, setShowCart] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [showOrderDone, setShowOrderDone] = useState(false);
 
-  const filtered = activeCat === "전체" ? DUMMY_ITEMS : DUMMY_ITEMS.filter(i => i.category === activeCat);
+  const filtered = activeCat === "전체" ? menuItems : menuItems.filter(i => i.category === activeCat);
   const cartItems = Object.values(cart);
   const cartCount = cartItems.reduce((sum, i) => sum + i.quantity, 0);
   const cartTotal = cartItems.reduce((sum, i) => sum + i.item.price * i.quantity, 0);
@@ -458,7 +472,7 @@ export default function Menu({ bizno, tableNo }) {
 
       {/* AI 채팅 */}
       <AiChat
-        menuItems={DUMMY_ITEMS}
+        menuItems={menuItems}
         cartItems={cartItems}
         onAddToCart={addToCart}
         onRemoveFromCart={removeFromCart}
@@ -531,11 +545,11 @@ const s = StyleSheet.create({
   shopBanner: { backgroundColor: "#fff", padding: 16, borderBottomWidth: 1, borderBottomColor: "#f0f0f0", flexShrink: 0 },
   shopNameRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 6 },
   shopName: { fontSize: 19, fontWeight: "900", color: "#111" },
-  shopAiBadge: { fontSize: 14, fontWeight: "700", color: "#f97316" },
+  shopAiBadge: { fontSize: 11, color: "#f97316", fontWeight: "800" },
   tableBadge: { backgroundColor: "#f97316", borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
   tableBadgeText: { color: "#fff", fontSize: 13, fontWeight: "900", letterSpacing: 1 },
   kakaoBtn: { marginLeft: "auto" },
-  kakaoImg: { width: 40, height: 40, borderRadius: 12 },
+  kakaoImg: { width: 32, height: 32 },
   shopMeta: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 },
   shopRating: { fontSize: 13, fontWeight: "700", color: "#111" },
   star: { color: "#f97316" },
@@ -543,7 +557,7 @@ const s = StyleSheet.create({
   shopTags: { flexDirection: "row", gap: 6, marginBottom: 8 },
   shopTag: { borderWidth: 1, borderColor: "#e5e7eb", borderRadius: 20, paddingHorizontal: 11, paddingVertical: 4 },
   shopTagText: { fontSize: 11, fontWeight: "600", color: "#555" },
-  bizAddr: { fontSize: 11, color: "#bbb", marginTop: 4 },
+  bizAddr: { fontSize: 12, color: "#888", marginTop: 2 },
 
   catBar: { backgroundColor: "#fff", borderBottomWidth: 1, borderBottomColor: "#f0f0f0", flexShrink: 0, flexDirection: "row", paddingHorizontal: 4 },
   catItem: { paddingHorizontal: 12, paddingVertical: 11, position: "relative" },
@@ -557,8 +571,8 @@ const s = StyleSheet.create({
   card: { backgroundColor: "#fff", flexDirection: "row", padding: 16, gap: 14, borderBottomWidth: 1, borderBottomColor: "#f5f5f5" },
   imgWrap: { position: "relative" },
   img: { width: 90, height: 90, borderRadius: 12, backgroundColor: "#eee" },
-  noImg: { justifyContent: "center", alignItems: "center", backgroundColor: "#e5e7eb" },
-  noImgText: { fontSize: 10, fontWeight: "700", color: "#9ca3af", letterSpacing: 0.5 },
+  noImg: { backgroundColor: "#f3f4f6", justifyContent: "center", alignItems: "center" },
+  noImgText: { fontSize: 10, color: "#bbb", fontWeight: "600" },
   badge: { position: "absolute", top: 6, left: 6, backgroundColor: "#f97316", borderRadius: 6, paddingHorizontal: 7, paddingVertical: 2 },
   badgeText: { color: "#fff", fontSize: 9, fontWeight: "800" },
   info: { flex: 1 },
