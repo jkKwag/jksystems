@@ -229,6 +229,7 @@ export default function Menu({ bizno, tableNo }) {
   const [activeCat, setActiveCat] = useState("전체");
   const [categories, setCategories] = useState(["전체"]);
   const [bizInfo, setBizInfo] = useState(null);
+  const [imgErrors, setImgErrors] = useState({});
 
   useEffect(() => {
     if (!bizno) return;
@@ -373,7 +374,17 @@ export default function Menu({ bizno, tableNo }) {
           return (
             <View key={item.id} style={s.card}>
               <View style={s.imgWrap}>
-                <Image source={{ uri: item.image }} style={s.img} />
+                {imgErrors[item.id] || !item.image ? (
+                  <View style={[s.img, s.noImg]}>
+                    <Text style={s.noImgText}>NO IMAGE</Text>
+                  </View>
+                ) : (
+                  <Image
+                    source={{ uri: item.image }}
+                    style={s.img}
+                    onError={() => setImgErrors(prev => ({ ...prev, [item.id]: true }))}
+                  />
+                )}
                 {item.badge && <View style={s.badge}><Text style={s.badgeText}>{item.badge}</Text></View>}
               </View>
               <View style={s.info}>
@@ -546,6 +557,8 @@ const s = StyleSheet.create({
   card: { backgroundColor: "#fff", flexDirection: "row", padding: 16, gap: 14, borderBottomWidth: 1, borderBottomColor: "#f5f5f5" },
   imgWrap: { position: "relative" },
   img: { width: 90, height: 90, borderRadius: 12, backgroundColor: "#eee" },
+  noImg: { justifyContent: "center", alignItems: "center", backgroundColor: "#e5e7eb" },
+  noImgText: { fontSize: 10, fontWeight: "700", color: "#9ca3af", letterSpacing: 0.5 },
   badge: { position: "absolute", top: 6, left: 6, backgroundColor: "#f97316", borderRadius: 6, paddingHorizontal: 7, paddingVertical: 2 },
   badgeText: { color: "#fff", fontSize: 9, fontWeight: "800" },
   info: { flex: 1 },
