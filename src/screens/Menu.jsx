@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Linking, Modal, Platform, Animated, Easing } from "react-native";
 import AiChat from "../components/AiChat";
+import MenuDetail from "./MenuDetail";
 import supabase from "../lib/supabase";
 
 const KAKAO_JS_KEY = "YOUR_KAKAO_JS_KEY"; // developers.kakao.com 에서 발급
@@ -307,6 +308,7 @@ export default function Menu({ bizno, tableNo }) {
   const [showCart, setShowCart] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [showOrderDone, setShowOrderDone] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const filtered = activeCat === "전체" ? menuItems : menuItems.filter(i => i.category === activeCat);
   const cartItems = Object.values(cart);
@@ -386,7 +388,7 @@ export default function Menu({ bizno, tableNo }) {
         {filtered.map(item => {
           const qty = cart[item.id]?.quantity || 0;
           return (
-            <View key={item.id} style={s.card}>
+            <TouchableOpacity key={item.id} style={s.card} activeOpacity={0.85} onPress={() => setSelectedItem(item)}>
               <View style={s.imgWrap}>
                 {imgErrors[item.id] || !item.image ? (
                   <View style={[s.img, s.noImg]}>
@@ -407,7 +409,7 @@ export default function Menu({ bizno, tableNo }) {
                 <View style={s.cardBottom}>
                   <Text style={s.price}>₩{item.price.toLocaleString()}</Text>
                   {qty === 0 ? (
-                    <TouchableOpacity style={s.addBtn} onPress={() => addToCart(item)}>
+                    <TouchableOpacity style={s.addBtn} onPress={() => setSelectedItem(item)}>
                       <Text style={s.addBtnText}>+</Text>
                     </TouchableOpacity>
                   ) : (
@@ -423,7 +425,7 @@ export default function Menu({ bizno, tableNo }) {
                   )}
                 </View>
               </View>
-            </View>
+            </TouchableOpacity>
           );
         })}
         <View style={s.callBar}>
@@ -469,6 +471,20 @@ export default function Menu({ bizno, tableNo }) {
           </View>
         </View>
       </Modal>
+
+      {/* 메뉴 상세 오버레이 */}
+      {selectedItem && (
+        <View style={[StyleSheet.absoluteFillObject, { zIndex: 50 }]}>
+          <MenuDetail
+            item={selectedItem}
+            onClose={() => setSelectedItem(null)}
+            onAddToCart={(itemWithOptions) => {
+              addToCart(itemWithOptions);
+              setSelectedItem(null);
+            }}
+          />
+        </View>
+      )}
 
       {/* AI 채팅 */}
       <AiChat
