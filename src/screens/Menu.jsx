@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Linking, Modal, Platform, Animated, Easing } from "react-native";
 import AiChat from "../components/AiChat";
+import supabase from "../lib/supabase";
 
 const KAKAO_JS_KEY = "YOUR_KAKAO_JS_KEY"; // developers.kakao.com 에서 발급
 
@@ -224,6 +225,17 @@ const loadCart = (bizno) => {
 
 export default function Menu({ bizno, tableNo }) {
   const [activeCat, setActiveCat] = useState("전체");
+  const [bizInfo, setBizInfo] = useState(null);
+
+  useEffect(() => {
+    if (!bizno) return;
+    supabase
+      .from("TB_BIZ")
+      .select("biz_nm,biz_reg_no,tel_no,TB_IND_CLS(ind_nm)")
+      .eq("biz_reg_no", bizno)
+      .single()
+      .then(({ data }) => { if (data) setBizInfo(data); });
+  }, [bizno]);
 
   useEffect(() => {
     if (Platform.OS !== "web") return;
@@ -289,7 +301,7 @@ export default function Menu({ bizno, tableNo }) {
       {/* 가게 정보 */}
       <View style={s.shopBanner}>
         <View style={s.shopNameRow}>
-          <Text style={s.shopName}>🍽 맛찬들</Text>
+          <Text style={s.shopName}>🍽 {bizInfo?.biz_nm || bizno}</Text>
           <Text style={s.shopAiBadge}>[AI✨]</Text>
           {tableNo && (
             <View style={s.tableBadge}>
@@ -302,14 +314,17 @@ export default function Menu({ bizno, tableNo }) {
         </View>
         <View style={s.shopMeta}>
           <Text style={s.shopRating}><Text style={s.star}>★</Text> 4.8</Text>
-          <Text style={s.shopInfo}>리뷰 142개 · 캠핑식당</Text>
+          <Text style={s.shopInfo}>리뷰 142개 · {bizInfo?.TB_IND_CLS?.ind_nm || ""}</Text>
         </View>
         <View style={s.shopTags}>
           {["야외석", "단체예약", "포장가능"].map(t => (
             <View key={t} style={s.shopTag}><Text style={s.shopTagText}>{t}</Text></View>
           ))}
         </View>
-        <Text style={s.bizno}>사업자 {bizno}</Text>
+        <View style={s.bizMetaRow}>
+          <Text style={s.bizno}>사업자 {bizInfo?.biz_reg_no || bizno}</Text>
+          {bizInfo?.tel_no && <Text style={s.bizTel}>· {bizInfo.tel_no}</Text>}
+        </View>
       </View>
 
       {/* 카테고리 탭 */}
@@ -485,7 +500,9 @@ const s = StyleSheet.create({
   shopTags: { flexDirection: "row", gap: 6, marginBottom: 8 },
   shopTag: { borderWidth: 1, borderColor: "#e5e7eb", borderRadius: 20, paddingHorizontal: 11, paddingVertical: 4 },
   shopTagText: { fontSize: 11, fontWeight: "600", color: "#555" },
+  bizMetaRow: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 2 },
   bizno: { fontSize: 11, color: "#bbb" },
+  bizTel: { fontSize: 11, color: "#bbb" },
 
   catBar: { backgroundColor: "#fff", borderBottomWidth: 1, borderBottomColor: "#f0f0f0", flexShrink: 0, flexDirection: "row", paddingHorizontal: 4 },
   catItem: { paddingHorizontal: 12, paddingVertical: 11, position: "relative" },
