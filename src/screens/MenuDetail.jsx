@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
-  View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Platform,
+  View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Platform, Animated,
 } from "react-native";
 
 // 더미 옵션 데이터 (추후 DB 연동)
@@ -92,11 +92,21 @@ function CheckGroup({ label, required, choices, selected, onToggle }) {
 }
 
 export default function MenuDetail({ item, onClose, onAddToCart }) {
-  const [spice,    setSpice]    = useState("s2");     // 기본: 보통맛
-  const [size,     setSize]     = useState("sz1");    // 기본: 1인분
+  const [spice,    setSpice]    = useState("s2");
+  const [size,     setSize]     = useState("sz1");
   const [extras,   setExtras]   = useState([]);
   const [quantity, setQuantity] = useState(1);
   const [imgError, setImgError] = useState(false);
+
+  const slideAnim = useRef(new Animated.Value(600)).current;
+  useEffect(() => {
+    Animated.spring(slideAnim, {
+      toValue: 0,
+      tension: 60,
+      friction: 12,
+      useNativeDriver: true,
+    }).start();
+  }, []);
 
   // 총 가격 계산
   const sizePrice  = DUMMY_OPTIONS.size.choices.find(c => c.id === size)?.price || 0;
@@ -128,7 +138,7 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
   };
 
   return (
-    <View style={s.container}>
+    <Animated.View style={[s.container, { transform: [{ translateY: slideAnim }] }]}>
       {/* 헤더 */}
       <View style={[s.header, Platform.OS === "web" && { background: "linear-gradient(135deg, #0f172a 0%, #14532d 100%)" }]}>
         <TouchableOpacity style={s.backBtn} onPress={onClose}>
@@ -229,7 +239,7 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
           <Text style={s.cartBtnText}>🛒 장바구니 담기</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </Animated.View>
   );
 }
 
