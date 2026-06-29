@@ -132,7 +132,7 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
       {/* 헤더 */}
       <View style={[s.header, Platform.OS === "web" && { background: "linear-gradient(135deg, #0f172a 0%, #14532d 100%)" }]}>
         <TouchableOpacity style={s.backBtn} onPress={onClose}>
-          <Text style={s.backBtnText}>← 뒤로</Text>
+          <Text style={s.backBtnText}>← 메뉴로</Text>
         </TouchableOpacity>
         <Text style={s.headerTitle} numberOfLines={1}>{item?.name || "메뉴 상세"}</Text>
         <View style={{ width: 60 }} />
@@ -215,8 +215,8 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
           </View>
         </View>
 
-        {/* 하단 여백 (바 높이만큼) */}
-        <View style={{ height: 90 }} />
+        {/* 하단 여백 (MenuDetail 바 + 장바구니 바 높이) */}
+        <View style={{ height: 180 }} />
       </ScrollView>
 
       {/* 하단 담기 바 */}
