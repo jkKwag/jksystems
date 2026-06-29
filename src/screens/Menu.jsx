@@ -231,7 +231,7 @@ export default function Menu({ bizno, tableNo }) {
     if (!bizno) return;
     supabase
       .from("tb_biz")
-      .select("biz_nm,biz_reg_no,tel_no,ind_cd,addr")
+      .select("biz_nm,biz_reg_no,tel_no,ind_cd,addr,addr_dtl")
       .eq("biz_reg_no", bizno)
       .single()
       .then(({ data, error }) => {
@@ -333,7 +333,11 @@ export default function Menu({ bizno, tableNo }) {
             <View key={t} style={s.shopTag}><Text style={s.shopTagText}>{t}</Text></View>
           ))}
         </View>
-        {bizInfo?.addr && <Text style={s.bizAddr}>{bizInfo.addr}</Text>}
+        {bizInfo?.addr && (
+          <Text style={s.bizAddr}>
+            {bizInfo.addr}{bizInfo.addr_dtl ? ` ${bizInfo.addr_dtl}` : ""}
+          </Text>
+        )}
       </View>
 
       {/* 카테고리 탭 */}
