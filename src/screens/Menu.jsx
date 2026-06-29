@@ -252,7 +252,7 @@ export default function Menu({ bizno, tableNo }) {
       .order("sort_ord", { ascending: true });
 
     const menuFetch = supabase
-      .from("tb_menu")
+      .from("tb_biz_menu")
       .select("menu_cd,biz_cat_cd,menu_nm,menu_desc,price,img_url,badge,sort_ord")
       .eq("biz_reg_no", bizno)
       .eq("use_yn", "Y")
