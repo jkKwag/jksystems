@@ -196,7 +196,6 @@ function ConfettiOverlay({ onDone }) {
   );
 }
 
-const CATEGORIES = ["전체", "고기류", "면·국밥", "피자", "음료"];
 
 const DUMMY_ITEMS = [
   { id: 1, category: "고기류", name: "캠프 직화 삼겹살", desc: "국내산 생삼겹살 200g, 쌈채소·된장 포함", price: 18000, badge: "인기", image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=180&h=180&fit=crop" },
@@ -225,6 +224,7 @@ const loadCart = (bizno) => {
 
 export default function Menu({ bizno, tableNo }) {
   const [activeCat, setActiveCat] = useState("전체");
+  const [categories, setCategories] = useState(["전체"]);
   const [bizInfo, setBizInfo] = useState(null);
 
   useEffect(() => {
@@ -246,6 +246,19 @@ export default function Menu({ bizno, tableNo }) {
             if (cls) setBizInfo(prev => ({ ...prev, ind_nm: cls.ind_nm }));
             else console.warn("[TB_IND_CLS] fetch 실패", clsErr);
           });
+      });
+  }, [bizno]);
+
+  useEffect(() => {
+    if (!bizno) return;
+    supabase
+      .from("tb_biz_cat")
+      .select("biz_cat_nm,sort_ord")
+      .eq("biz_reg_no", bizno)
+      .eq("use_yn", "Y")
+      .order("sort_ord", { ascending: true })
+      .then(({ data }) => {
+        if (data?.length) setCategories(["전체", ...data.map(c => c.biz_cat_nm)]);
       });
   }, [bizno]);
 
@@ -342,7 +355,7 @@ export default function Menu({ bizno, tableNo }) {
 
       {/* 카테고리 탭 */}
       <View style={s.catBar}>
-        {CATEGORIES.map(cat => (
+        {categories.map(cat => (
           <TouchableOpacity key={cat} style={s.catItem} onPress={() => setActiveCat(cat)}>
             <Text style={[s.catText, activeCat === cat && s.catTextActive]}>{cat}</Text>
             {activeCat === cat && <View style={s.catIndicator} />}
