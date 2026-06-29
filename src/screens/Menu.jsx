@@ -431,7 +431,7 @@ export default function Menu({ bizno, tableNo }) {
             style={[s.callBtn, !bizInfo?.tel_no && s.callBtnDisabled]}
             onPress={() => bizInfo?.tel_no && Linking.openURL(`tel:${bizInfo.tel_no}`)}
           >
-            <Text style={s.callBtnText}>📞 {bizInfo?.tel_no || "전화번호 없음"}</Text>
+            <Text style={s.callBtnText}>📞 전화 문의</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
