@@ -1,6 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Linking, Modal, Platform, Animated, Easing } from "react-native";
 import AiChat from "../components/AiChat";
+import supabase from "../lib/supabase";
+
+const KAKAO_JS_KEY = "YOUR_KAKAO_JS_KEY"; // developers.kakao.com 에서 발급
 
 const BURST_COLORS = [
   ["#ff4757", "#ffa502", "#ff6348"],
@@ -193,17 +196,6 @@ function ConfettiOverlay({ onDone }) {
   );
 }
 
-const CATEGORIES = ["전체", "고기류", "면·국밥", "피자", "음료"];
-
-const DUMMY_ITEMS = [
-  { id: 1, category: "고기류", name: "캠프 직화 삼겹살", desc: "국내산 생삼겹살 200g, 쌈채소·된장 포함", price: 18000, badge: "인기", image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=180&h=180&fit=crop" },
-  { id: 2, category: "고기류", name: "허브 치킨 구이", desc: "허브 마리네이드 반마리, 감자·옥수수 곁들임", price: 16000, badge: null, image: "https://images.unsplash.com/photo-1527477396000-e27163b481c2?w=180&h=180&fit=crop" },
-  { id: 3, category: "면·국밥", name: "야생 버섯 칼국수", desc: "직접 뽑은 수제면에 진한 사골 육수", price: 12000, badge: "베스트", image: "https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=180&h=180&fit=crop" },
-  { id: 4, category: "피자", name: "캠프파이어 피자", desc: "화덕에서 구운 나폴리 스타일, 모짜렐라 듬뿍", price: 22000, badge: null, image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=180&h=180&fit=crop" },
-  { id: 5, category: "면·국밥", name: "그린 샐러드 볼", desc: "제철 채소와 수제 드레싱, 견과류 토핑", price: 10000, badge: null, image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=180&h=180&fit=crop" },
-  { id: 6, category: "음료", name: "캠프 아메리카노", desc: "직접 로스팅한 원두, 더치커피 선택 가능", price: 5000, badge: null, image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=180&h=180&fit=crop" },
-];
-
 const saveCart = (bizno, cart) => {
   if (Platform.OS === "web") {
     try { localStorage.setItem(`scaneat_cart_${bizno}`, JSON.stringify(cart)); } catch {}
@@ -222,12 +214,101 @@ const loadCart = (bizno) => {
 
 export default function Menu({ bizno, tableNo }) {
   const [activeCat, setActiveCat] = useState("전체");
+  const [categories, setCategories] = useState(["전체"]);
+  const [menuItems, setMenuItems] = useState([]);
+  const [bizInfo, setBizInfo] = useState(null);
+  const [imgErrors, setImgErrors] = useState({});
+
+  useEffect(() => {
+    if (!bizno) return;
+    supabase
+      .from("tb_biz")
+      .select("biz_nm,biz_reg_no,tel_no,ind_cd,addr,addr_dtl")
+      .eq("biz_reg_no", bizno)
+      .single()
+      .then(({ data, error }) => {
+        if (!data) { console.warn("[TB_BIZ] fetch 실패", error); return; }
+        setBizInfo(data);
+        supabase
+          .from("tb_ind_cls")
+          .select("ind_nm")
+          .eq("ind_cd", data.ind_cd)
+          .single()
+          .then(({ data: cls, error: clsErr }) => {
+            if (cls) setBizInfo(prev => ({ ...prev, ind_nm: cls.ind_nm }));
+            else console.warn("[TB_IND_CLS] fetch 실패", clsErr);
+          });
+      });
+  }, [bizno]);
+
+  useEffect(() => {
+    if (!bizno) return;
+
+    const catFetch = supabase
+      .from("tb_biz_cat")
+      .select("biz_cat_cd,biz_cat_nm,sort_ord")
+      .eq("biz_reg_no", bizno)
+      .eq("use_yn", "Y")
+      .order("sort_ord", { ascending: true });
+
+    const menuFetch = supabase
+      .from("tb_menu")
+      .select("menu_cd,biz_cat_cd,menu_nm,menu_desc,price,img_url,badge,sort_ord")
+      .eq("biz_reg_no", bizno)
+      .eq("use_yn", "Y")
+      .order("sort_ord", { ascending: true });
+
+    Promise.all([catFetch, menuFetch]).then(([catRes, menuRes]) => {
+      const cats = catRes.data || [];
+      const menus = menuRes.data || [];
+
+      const catMap = {};
+      cats.forEach(c => { catMap[c.biz_cat_cd] = c.biz_cat_nm; });
+
+      if (cats.length) setCategories(["전체", ...cats.map(c => c.biz_cat_nm)]);
+
+      setMenuItems(menus.map(m => ({
+        id: m.menu_cd,
+        category: catMap[m.biz_cat_cd] || "",
+        name: m.menu_nm,
+        desc: m.menu_desc || "",
+        price: m.price,
+        badge: m.badge || null,
+        image: m.img_url || null,
+      })));
+    });
+  }, [bizno]);
+
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+    if (window.Kakao && !window.Kakao.isInitialized()) {
+      window.Kakao.init(KAKAO_JS_KEY);
+    }
+  }, []);
+
+  const shareKakao = () => {
+    if (Platform.OS !== "web" || !window.Kakao?.isInitialized()) return;
+    window.Kakao.Share.sendDefault({
+      objectType: "feed",
+      content: {
+        title: "🍽 맛찬들",
+        description: "AI 메뉴 추천과 함께 맛있는 식사를 즐겨보세요!",
+        imageUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=800&h=400&fit=crop",
+        link: {
+          mobileWebUrl: window.location.href,
+          webUrl: window.location.href,
+        },
+      },
+      buttons: [{ title: "메뉴 보기", link: { mobileWebUrl: window.location.href, webUrl: window.location.href } }],
+    });
+  };
+
   const [cart, setCart] = useState(() => loadCart(bizno));
   const [showCart, setShowCart] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [showOrderDone, setShowOrderDone] = useState(false);
 
-  const filtered = activeCat === "전체" ? DUMMY_ITEMS : DUMMY_ITEMS.filter(i => i.category === activeCat);
+  const filtered = activeCat === "전체" ? menuItems : menuItems.filter(i => i.category === activeCat);
   const cartItems = Object.values(cart);
   const cartCount = cartItems.reduce((sum, i) => sum + i.quantity, 0);
   const cartTotal = cartItems.reduce((sum, i) => sum + i.item.price * i.quantity, 0);
@@ -263,28 +344,36 @@ export default function Menu({ bizno, tableNo }) {
       {/* 가게 정보 */}
       <View style={s.shopBanner}>
         <View style={s.shopNameRow}>
-          <Text style={s.shopName}>🍽 맛찬들</Text>
+          <Text style={s.shopName}>🍽 {bizInfo?.biz_nm || ""}</Text>
+          <Text style={s.shopAiBadge}>[AI✨]</Text>
           {tableNo && (
             <View style={s.tableBadge}>
               <Text style={s.tableBadgeText}>{tableNo.toUpperCase()}</Text>
             </View>
           )}
+          <TouchableOpacity onPress={shareKakao} style={s.kakaoBtn}>
+            <Image source={{ uri: "https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" }} style={s.kakaoImg} />
+          </TouchableOpacity>
         </View>
         <View style={s.shopMeta}>
           <Text style={s.shopRating}><Text style={s.star}>★</Text> 4.8</Text>
-          <Text style={s.shopInfo}>리뷰 142개 · 캠핑식당</Text>
+          <Text style={s.shopInfo}>리뷰 142개 · {bizInfo?.ind_nm || ""}</Text>
         </View>
         <View style={s.shopTags}>
           {["야외석", "단체예약", "포장가능"].map(t => (
             <View key={t} style={s.shopTag}><Text style={s.shopTagText}>{t}</Text></View>
           ))}
         </View>
-        <Text style={s.bizno}>사업자 {bizno}</Text>
+        {bizInfo?.addr && (
+          <Text style={s.bizAddr}>
+            {bizInfo.addr}{bizInfo.addr_dtl ? ` ${bizInfo.addr_dtl}` : ""}
+          </Text>
+        )}
       </View>
 
       {/* 카테고리 탭 */}
       <View style={s.catBar}>
-        {CATEGORIES.map(cat => (
+        {categories.map(cat => (
           <TouchableOpacity key={cat} style={s.catItem} onPress={() => setActiveCat(cat)}>
             <Text style={[s.catText, activeCat === cat && s.catTextActive]}>{cat}</Text>
             {activeCat === cat && <View style={s.catIndicator} />}
@@ -299,7 +388,17 @@ export default function Menu({ bizno, tableNo }) {
           return (
             <View key={item.id} style={s.card}>
               <View style={s.imgWrap}>
-                <Image source={{ uri: item.image }} style={s.img} />
+                {imgErrors[item.id] || !item.image ? (
+                  <View style={[s.img, s.noImg]}>
+                    <Text style={s.noImgText}>NO IMAGE</Text>
+                  </View>
+                ) : (
+                  <Image
+                    source={{ uri: item.image }}
+                    style={s.img}
+                    onError={() => setImgErrors(prev => ({ ...prev, [item.id]: true }))}
+                  />
+                )}
                 {item.badge && <View style={s.badge}><Text style={s.badgeText}>{item.badge}</Text></View>}
               </View>
               <View style={s.info}>
@@ -328,8 +427,11 @@ export default function Menu({ bizno, tableNo }) {
           );
         })}
         <View style={s.callBar}>
-          <TouchableOpacity style={s.callBtn} onPress={() => Linking.openURL("tel:01096947499")}>
-            <Text style={s.callBtnText}>📞 전화 문의</Text>
+          <TouchableOpacity
+            style={[s.callBtn, !bizInfo?.tel_no && s.callBtnDisabled]}
+            onPress={() => bizInfo?.tel_no && Linking.openURL(`tel:${bizInfo.tel_no}`)}
+          >
+            <Text style={s.callBtnText}>📞 {bizInfo?.tel_no || "전화번호 없음"}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -369,7 +471,17 @@ export default function Menu({ bizno, tableNo }) {
       </Modal>
 
       {/* AI 채팅 */}
-      <AiChat menuItems={DUMMY_ITEMS} onAddToCart={addToCart} />
+      <AiChat
+        menuItems={menuItems}
+        cartItems={cartItems}
+        onAddToCart={addToCart}
+        onRemoveFromCart={removeFromCart}
+        onOrder={() => {
+          setShowCart(false);
+          clearCart();
+          setTimeout(() => setShowConfetti(true), 300);
+        }}
+      />
 
       {/* 장바구니 팝업 */}
       <Modal visible={showCart} transparent animationType="slide" onRequestClose={() => setShowCart(false)}>
@@ -433,8 +545,11 @@ const s = StyleSheet.create({
   shopBanner: { backgroundColor: "#fff", padding: 16, borderBottomWidth: 1, borderBottomColor: "#f0f0f0", flexShrink: 0 },
   shopNameRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 6 },
   shopName: { fontSize: 19, fontWeight: "900", color: "#111" },
+  shopAiBadge: { fontSize: 11, color: "#f97316", fontWeight: "800" },
   tableBadge: { backgroundColor: "#f97316", borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
   tableBadgeText: { color: "#fff", fontSize: 13, fontWeight: "900", letterSpacing: 1 },
+  kakaoBtn: { marginLeft: "auto" },
+  kakaoImg: { width: 32, height: 32 },
   shopMeta: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 },
   shopRating: { fontSize: 13, fontWeight: "700", color: "#111" },
   star: { color: "#f97316" },
@@ -442,7 +557,7 @@ const s = StyleSheet.create({
   shopTags: { flexDirection: "row", gap: 6, marginBottom: 8 },
   shopTag: { borderWidth: 1, borderColor: "#e5e7eb", borderRadius: 20, paddingHorizontal: 11, paddingVertical: 4 },
   shopTagText: { fontSize: 11, fontWeight: "600", color: "#555" },
-  bizno: { fontSize: 11, color: "#bbb" },
+  bizAddr: { fontSize: 12, color: "#888", marginTop: 2 },
 
   catBar: { backgroundColor: "#fff", borderBottomWidth: 1, borderBottomColor: "#f0f0f0", flexShrink: 0, flexDirection: "row", paddingHorizontal: 4 },
   catItem: { paddingHorizontal: 12, paddingVertical: 11, position: "relative" },
@@ -456,6 +571,8 @@ const s = StyleSheet.create({
   card: { backgroundColor: "#fff", flexDirection: "row", padding: 16, gap: 14, borderBottomWidth: 1, borderBottomColor: "#f5f5f5" },
   imgWrap: { position: "relative" },
   img: { width: 90, height: 90, borderRadius: 12, backgroundColor: "#eee" },
+  noImg: { backgroundColor: "#f3f4f6", justifyContent: "center", alignItems: "center" },
+  noImgText: { fontSize: 10, color: "#bbb", fontWeight: "600" },
   badge: { position: "absolute", top: 6, left: 6, backgroundColor: "#f97316", borderRadius: 6, paddingHorizontal: 7, paddingVertical: 2 },
   badgeText: { color: "#fff", fontSize: 9, fontWeight: "800" },
   info: { flex: 1 },
@@ -474,6 +591,7 @@ const s = StyleSheet.create({
 
   callBar: { padding: 16 },
   callBtn: { borderWidth: 1.5, borderColor: "#e5e7eb", borderRadius: 12, padding: 13, alignItems: "center" },
+  callBtnDisabled: { opacity: 0.4 },
   callBtnText: { color: "#555", fontSize: 14, fontWeight: "700" },
 
   /* 장바구니 바 */
