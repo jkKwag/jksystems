@@ -291,7 +291,7 @@ const s = StyleSheet.create({
   bubbleText: { fontSize: 14, color: "#222", lineHeight: 20 },
   bubbleTextUser: { color: "#fff" },
 
-  cartCard: { backgroundColor: "#fff", borderWidth: 1.5, borderColor: "#f97316", borderRadius: 14, padding: 14, alignSelf: "flex-start", maxWidth: "80%" },
+  cartCard: { backgroundColor: "#fff", borderWidth: 1.5, borderColor: "#f97316", borderRadius: 14, padding: 14, alignSelf: "stretch" },
   cartCardLabel: { fontSize: 10, fontWeight: "800", color: "#f97316", marginBottom: 4, letterSpacing: 0.5, textTransform: "uppercase" },
   cartCardName: { fontSize: 15, fontWeight: "800", color: "#111", marginBottom: 2 },
   cartCardPrice: { fontSize: 13, fontWeight: "700", color: "#f97316", marginBottom: 10 },
