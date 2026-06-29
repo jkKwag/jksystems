@@ -231,7 +231,7 @@ export default function Menu({ bizno, tableNo }) {
     if (!bizno) return;
     supabase
       .from("tb_biz")
-      .select("biz_nm,biz_reg_no,tel_no,ind_cd")
+      .select("biz_nm,biz_reg_no,tel_no,ind_cd,addr")
       .eq("biz_reg_no", bizno)
       .single()
       .then(({ data, error }) => {
@@ -333,10 +333,7 @@ export default function Menu({ bizno, tableNo }) {
             <View key={t} style={s.shopTag}><Text style={s.shopTagText}>{t}</Text></View>
           ))}
         </View>
-        <View style={s.bizMetaRow}>
-          <Text style={s.bizno}>사업자 {bizInfo?.biz_reg_no || bizno}</Text>
-          {bizInfo?.tel_no && <Text style={s.bizTel}>· {bizInfo.tel_no}</Text>}
-        </View>
+        {bizInfo?.addr && <Text style={s.bizAddr}>{bizInfo.addr}</Text>}
       </View>
 
       {/* 카테고리 탭 */}
@@ -515,9 +512,7 @@ const s = StyleSheet.create({
   shopTags: { flexDirection: "row", gap: 6, marginBottom: 8 },
   shopTag: { borderWidth: 1, borderColor: "#e5e7eb", borderRadius: 20, paddingHorizontal: 11, paddingVertical: 4 },
   shopTagText: { fontSize: 11, fontWeight: "600", color: "#555" },
-  bizMetaRow: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 2 },
-  bizno: { fontSize: 11, color: "#bbb" },
-  bizTel: { fontSize: 11, color: "#bbb" },
+  bizAddr: { fontSize: 11, color: "#bbb", marginTop: 4 },
 
   catBar: { backgroundColor: "#fff", borderBottomWidth: 1, borderBottomColor: "#f0f0f0", flexShrink: 0, flexDirection: "row", paddingHorizontal: 4 },
   catItem: { paddingHorizontal: 12, paddingVertical: 11, position: "relative" },
