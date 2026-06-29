@@ -230,20 +230,21 @@ export default function Menu({ bizno, tableNo }) {
   useEffect(() => {
     if (!bizno) return;
     supabase
-      .from("TB_BIZ")
+      .from("tb_biz")
       .select("biz_nm,biz_reg_no,tel_no,ind_cd")
       .eq("biz_reg_no", bizno)
       .single()
-      .then(({ data }) => {
-        if (!data) return;
+      .then(({ data, error }) => {
+        if (!data) { console.warn("[TB_BIZ] fetch 실패", error); return; }
         setBizInfo(data);
         supabase
-          .from("TB_IND_CLS")
+          .from("tb_ind_cls")
           .select("ind_nm")
           .eq("ind_cd", data.ind_cd)
           .single()
-          .then(({ data: cls }) => {
+          .then(({ data: cls, error: clsErr }) => {
             if (cls) setBizInfo(prev => ({ ...prev, ind_nm: cls.ind_nm }));
+            else console.warn("[TB_IND_CLS] fetch 실패", clsErr);
           });
       });
   }, [bizno]);
