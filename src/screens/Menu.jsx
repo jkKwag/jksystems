@@ -231,10 +231,21 @@ export default function Menu({ bizno, tableNo }) {
     if (!bizno) return;
     supabase
       .from("TB_BIZ")
-      .select("biz_nm,biz_reg_no,tel_no,TB_IND_CLS(ind_nm)")
+      .select("biz_nm,biz_reg_no,tel_no,ind_cd")
       .eq("biz_reg_no", bizno)
       .single()
-      .then(({ data }) => { if (data) setBizInfo(data); });
+      .then(({ data }) => {
+        if (!data) return;
+        setBizInfo(data);
+        supabase
+          .from("TB_IND_CLS")
+          .select("ind_nm")
+          .eq("ind_cd", data.ind_cd)
+          .single()
+          .then(({ data: cls }) => {
+            if (cls) setBizInfo(prev => ({ ...prev, ind_nm: cls.ind_nm }));
+          });
+      });
   }, [bizno]);
 
   useEffect(() => {
@@ -301,7 +312,7 @@ export default function Menu({ bizno, tableNo }) {
       {/* 가게 정보 */}
       <View style={s.shopBanner}>
         <View style={s.shopNameRow}>
-          <Text style={s.shopName}>🍽 {bizInfo?.biz_nm || bizno}</Text>
+          <Text style={s.shopName}>🍽 {bizInfo?.biz_nm || ""}</Text>
           <Text style={s.shopAiBadge}>[AI✨]</Text>
           {tableNo && (
             <View style={s.tableBadge}>
@@ -314,7 +325,7 @@ export default function Menu({ bizno, tableNo }) {
         </View>
         <View style={s.shopMeta}>
           <Text style={s.shopRating}><Text style={s.star}>★</Text> 4.8</Text>
-          <Text style={s.shopInfo}>리뷰 142개 · {bizInfo?.TB_IND_CLS?.ind_nm || ""}</Text>
+          <Text style={s.shopInfo}>리뷰 142개 · {bizInfo?.ind_nm || ""}</Text>
         </View>
         <View style={s.shopTags}>
           {["야외석", "단체예약", "포장가능"].map(t => (
@@ -373,8 +384,11 @@ export default function Menu({ bizno, tableNo }) {
           );
         })}
         <View style={s.callBar}>
-          <TouchableOpacity style={s.callBtn} onPress={() => Linking.openURL("tel:01096947499")}>
-            <Text style={s.callBtnText}>📞 전화 문의</Text>
+          <TouchableOpacity
+            style={[s.callBtn, !bizInfo?.tel_no && s.callBtnDisabled]}
+            onPress={() => bizInfo?.tel_no && Linking.openURL(`tel:${bizInfo.tel_no}`)}
+          >
+            <Text style={s.callBtnText}>📞 {bizInfo?.tel_no || "전화번호 없음"}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -534,6 +548,7 @@ const s = StyleSheet.create({
 
   callBar: { padding: 16 },
   callBtn: { borderWidth: 1.5, borderColor: "#e5e7eb", borderRadius: 12, padding: 13, alignItems: "center" },
+  callBtnDisabled: { opacity: 0.4 },
   callBtnText: { color: "#555", fontSize: 14, fontWeight: "700" },
 
   /* 장바구니 바 */
