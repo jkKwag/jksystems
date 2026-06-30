@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Animated, Platform, ActivityIndicator, Image } from "react-native";
 
 const WELCOME = "안녕하세요! 맛찬들 AI 메뉴 추천 도우미예요 😊\n어떤 음식이 드시고 싶으세요?";
+const CONFIRM_ADD_RE = /담아|찜|넣어/;
 
 export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, onRemoveFromCart, onOrder }) {
   const [open, setOpen] = useState(false);
@@ -85,6 +86,14 @@ export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, on
   const send = async () => {
     const text = input.trim();
     if (!text || loading) return;
+
+    if (pendingItem && CONFIRM_ADD_RE.test(text)) {
+      setDisplayMsgs(prev => [...prev, { role: "user", text }]);
+      setApiHistory(prev => [...prev, { role: "user", content: text }]);
+      setInput("");
+      confirmCart();
+      return;
+    }
 
     const nextHistory = [...apiHistory, { role: "user", content: text }];
     setDisplayMsgs(prev => [...prev, { role: "user", text }]);
