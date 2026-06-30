@@ -31,21 +31,10 @@ const getTableNo = () => {
   } catch { return null; }
 };
 
-const getOwnerToken = () => {
-  if (Platform.OS !== "web") return null;
-  try {
-    return new URLSearchParams(window.location.search).get("owner");
-  } catch { return null; }
-};
-
 const menuBizno = getMenuBizno();
 const tableNo = getTableNo();
-const ownerToken = getOwnerToken();
 
 const MUSIC_URL = "https://raw.githubusercontent.com/jkKwag/jksystems/main/assets/bgmusic.mp3";
-const ADMIN_MUSIC_URL = "https://raw.githubusercontent.com/jkKwag/jksystems/main/assets/bgmusic_admin.m4a";
-const OWNER_TOKEN = "BXrl0zQlR04";
-const OWNER_STORAGE_KEY = "myPhoneMusic";
 
 const Logo = () => (
   <View style={s.headerLeft}>
@@ -60,7 +49,6 @@ const Logo = () => (
 export default function App() {
   const [tab, setTab] = useState("cars");
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isMyPhone, setIsMyPhone] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
   const [menuOverlay, setMenuOverlay] = useState(null); // null | "qna" | "faq"
@@ -68,24 +56,8 @@ export default function App() {
   const audioRef = useRef(null);
 
   useEffect(() => {
-    AsyncStorage.getItem("isAdmin").then(v => { if (v === "true") setIsAdmin(true); });
-  }, []);
-
-  useEffect(() => {
-    if (Platform.OS !== "web") return;
-    if (ownerToken && ownerToken === OWNER_TOKEN) {
-      AsyncStorage.setItem(OWNER_STORAGE_KEY, "true");
-      setIsMyPhone(true);
-    } else {
-      AsyncStorage.getItem(OWNER_STORAGE_KEY).then(v => { if (v === "true") setIsMyPhone(true); });
-    }
-  }, []);
-
-  useEffect(() => {
-    const url = isMyPhone ? ADMIN_MUSIC_URL : MUSIC_URL;
-    if (Platform.OS !== "web" || !menuBizno || !url) return;
-    const wasPlaying = musicOn;
-    const audio = new window.Audio(url);
+    if (Platform.OS !== "web" || !menuBizno || !MUSIC_URL) return;
+    const audio = new window.Audio(MUSIC_URL);
     audio.loop = true;
     audio.volume = 0.4;
     audioRef.current = audio;
@@ -95,13 +67,8 @@ export default function App() {
       window.removeEventListener("click", playOnce);
       window.removeEventListener("touchend", playOnce);
     };
-
-    if (wasPlaying) {
-      audio.play().then(() => setMusicOn(true)).catch(() => {});
-    } else {
-      window.addEventListener("click", playOnce);
-      window.addEventListener("touchend", playOnce);
-    }
+    window.addEventListener("click", playOnce);
+    window.addEventListener("touchend", playOnce);
 
     return () => {
       audio.pause();
@@ -109,7 +76,7 @@ export default function App() {
       window.removeEventListener("click", playOnce);
       window.removeEventListener("touchend", playOnce);
     };
-  }, [isMyPhone]);
+  }, []);
 
   const toggleMusic = () => {
     const audio = audioRef.current;
@@ -117,6 +84,10 @@ export default function App() {
     if (musicOn) { audio.pause(); setMusicOn(false); }
     else { audio.play().then(() => setMusicOn(true)).catch(() => {}); }
   };
+
+  useEffect(() => {
+    AsyncStorage.getItem("isAdmin").then(v => { if (v === "true") setIsAdmin(true); });
+  }, []);
 
   const handleLogin = async () => {
     await AsyncStorage.setItem("isAdmin", "true");
