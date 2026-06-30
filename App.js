@@ -35,6 +35,7 @@ const menuBizno = getMenuBizno();
 const tableNo = getTableNo();
 
 const MUSIC_URL = "https://raw.githubusercontent.com/jkKwag/jksystems/main/assets/bgmusic.mp3";
+const ADMIN_MUSIC_URL = "https://raw.githubusercontent.com/jkKwag/jksystems/main/assets/bgmusic_admin.m4a";
 
 const Logo = () => (
   <View style={s.headerLeft}>
@@ -56,8 +57,14 @@ export default function App() {
   const audioRef = useRef(null);
 
   useEffect(() => {
-    if (Platform.OS !== "web" || !menuBizno || !MUSIC_URL) return;
-    const audio = new window.Audio(MUSIC_URL);
+    AsyncStorage.getItem("isAdmin").then(v => { if (v === "true") setIsAdmin(true); });
+  }, []);
+
+  useEffect(() => {
+    const url = isAdmin ? ADMIN_MUSIC_URL : MUSIC_URL;
+    if (Platform.OS !== "web" || !menuBizno || !url) return;
+    const wasPlaying = musicOn;
+    const audio = new window.Audio(url);
     audio.loop = true;
     audio.volume = 0.4;
     audioRef.current = audio;
@@ -67,8 +74,13 @@ export default function App() {
       window.removeEventListener("click", playOnce);
       window.removeEventListener("touchend", playOnce);
     };
-    window.addEventListener("click", playOnce);
-    window.addEventListener("touchend", playOnce);
+
+    if (wasPlaying) {
+      audio.play().then(() => setMusicOn(true)).catch(() => {});
+    } else {
+      window.addEventListener("click", playOnce);
+      window.addEventListener("touchend", playOnce);
+    }
 
     return () => {
       audio.pause();
@@ -76,7 +88,7 @@ export default function App() {
       window.removeEventListener("click", playOnce);
       window.removeEventListener("touchend", playOnce);
     };
-  }, []);
+  }, [isAdmin]);
 
   const toggleMusic = () => {
     const audio = audioRef.current;
@@ -84,10 +96,6 @@ export default function App() {
     if (musicOn) { audio.pause(); setMusicOn(false); }
     else { audio.play().then(() => setMusicOn(true)).catch(() => {}); }
   };
-
-  useEffect(() => {
-    AsyncStorage.getItem("isAdmin").then(v => { if (v === "true") setIsAdmin(true); });
-  }, []);
 
   const handleLogin = async () => {
     await AsyncStorage.setItem("isAdmin", "true");
