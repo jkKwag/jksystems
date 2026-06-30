@@ -213,10 +213,9 @@ const loadCart = (bizno) => {
   return {};
 };
 
-const formatOptions = (options) => {
-  if (!options) return null;
-  const parts = [options.spice, options.size, ...(options.extras || [])].filter(Boolean);
-  return parts.length ? parts.join(" · ") : null;
+const formatOptions = (labels) => {
+  if (!labels || !labels.length) return null;
+  return labels.join(" · ");
 };
 
 export default function Menu({ bizno, tableNo }) {
@@ -347,6 +346,7 @@ export default function Menu({ bizno, tableNo }) {
   const editCartItem = (item, quantity) => {
     setEditingCartId(item.id);
     setSelectedItem({ ...item, price: item.basePrice ?? item.price, quantity });
+    setShowCart(false);
   };
 
   const removeFromCart = (itemId) => {
@@ -550,8 +550,8 @@ export default function Menu({ bizno, tableNo }) {
                   <Image source={{ uri: item.image }} style={s.cartItemImg} />
                   <View style={s.cartItemInfo}>
                     <Text style={s.cartItemName}>{item.name}</Text>
-                    {formatOptions(item.options) && (
-                      <Text style={s.cartItemOptions} numberOfLines={1}>{formatOptions(item.options)}</Text>
+                    {formatOptions(item.optionLabels) && (
+                      <Text style={s.cartItemOptions} numberOfLines={1}>{formatOptions(item.optionLabels)}</Text>
                     )}
                     {item.optionPrice > 0 && (
                       <Text style={s.cartItemBreakdown}>

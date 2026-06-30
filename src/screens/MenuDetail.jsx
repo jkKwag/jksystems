@@ -2,36 +2,29 @@ import { useState, useRef, useEffect } from "react";
 import {
   View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Platform, Animated,
 } from "react-native";
+import supabase from "../lib/supabase";
 
-// 더미 옵션 데이터 (추후 DB 연동)
-const DUMMY_OPTIONS = {
-  spice: {
-    label: "맵기 선택",
-    required: true,
-    choices: [
-      { id: "s1", name: "순한맛" },
-      { id: "s2", name: "보통맛" },
-      { id: "s3", name: "매운맛" },
-    ],
-  },
-  size: {
-    label: "사이즈",
-    required: true,
-    choices: [
-      { id: "sz1", name: "1인분", price: 0 },
-      { id: "sz2", name: "2인분", price: 8000 },
-    ],
-  },
-  extras: {
-    label: "추가 옵션",
-    required: false,
-    choices: [
-      { id: "e1", name: "공기밥 추가", price: 1000 },
-      { id: "e2", name: "치즈 추가",   price: 2000 },
-      { id: "e3", name: "음료 추가",   price: 2500 },
-    ],
-  },
-};
+const sortByOrd = (arr) => [...arr].sort((a, b) => (a.sort_ord ?? 999) - (b.sort_ord ?? 999));
+
+// tb_biz_menu_opt_grp / tb_biz_menu_opt_choice 조회 → 화면에서 쓰기 쉬운 형태로 변환
+async function fetchOptionGroups(menuCd) {
+  const { data, error } = await supabase
+    .from("tb_biz_menu_opt_grp")
+    .select("opt_grp_cd,opt_grp_nm,opt_type,required_yn,sort_ord,tb_biz_menu_opt_choice(choice_cd,choice_nm,add_price,sort_ord,use_yn)")
+    .eq("menu_cd", menuCd)
+    .eq("use_yn", "Y");
+
+  if (error || !data) return [];
+
+  return sortByOrd(data).map(g => ({
+    id: g.opt_grp_cd,
+    label: g.opt_grp_nm,
+    type: g.opt_type === "C" ? "C" : "R",
+    required: g.required_yn === "Y",
+    choices: sortByOrd((g.tb_biz_menu_opt_choice || []).filter(c => c.use_yn !== "N"))
+      .map(c => ({ id: c.choice_cd, name: c.choice_nm, price: c.add_price || 0 })),
+  }));
+}
 
 function RadioGroup({ label, required, choices, selected, onSelect }) {
   return (
@@ -92,11 +85,31 @@ function CheckGroup({ label, required, choices, selected, onToggle }) {
 }
 
 export default function MenuDetail({ item, onClose, onAddToCart }) {
-  const [spice,    setSpice]    = useState(item?.optionIds?.spice || "s2");
-  const [size,     setSize]     = useState(item?.optionIds?.size || "sz1");
-  const [extras,   setExtras]   = useState(item?.optionIds?.extras || []);
-  const [quantity, setQuantity] = useState(item?.quantity || 1);
-  const [imgError, setImgError] = useState(false);
+  const [optionGroups, setOptionGroups] = useState(null); // null = 로딩중
+  const [selections,   setSelections]   = useState({});   // { [opt_grp_cd]: choiceId | choiceId[] }
+  const [quantity,     setQuantity]     = useState(item?.quantity || 1);
+  const [imgError,     setImgError]     = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setOptionGroups(null);
+    if (!item?.id) { setOptionGroups([]); return; }
+
+    fetchOptionGroups(item.id).then(groups => {
+      if (cancelled) return;
+      setOptionGroups(groups);
+      const initial = {};
+      groups.forEach(g => {
+        const saved = item?.optionIds?.[g.id];
+        initial[g.id] = g.type === "C"
+          ? (Array.isArray(saved) ? saved : [])
+          : (saved || g.choices[0]?.id || null);
+      });
+      setSelections(initial);
+    });
+
+    return () => { cancelled = true; };
+  }, [item?.id]);
 
   // transform(translateY) 기반 슬라이드 애니메이션은 모바일 사파리에서
   // 애니메이션 종료 시 컴포지팅 레이어가 재정리되며 그 직후 첫 터치가
@@ -111,33 +124,56 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
     }).start();
   }, []);
 
-  // 총 가격 계산
-  const sizePrice  = DUMMY_OPTIONS.size.choices.find(c => c.id === size)?.price || 0;
-  const extraPrice = extras.reduce((sum, id) => {
-    const c = DUMMY_OPTIONS.extras.choices.find(x => x.id === id);
-    return sum + (c?.price || 0);
+  const groups = optionGroups || [];
+
+  // 총 가격 계산: 그룹별 선택된 선택지의 add_price 합산
+  const optionPrice = groups.reduce((sum, g) => {
+    const sel = selections[g.id];
+    if (g.type === "C") {
+      return sum + (sel || []).reduce((s, cid) => s + (g.choices.find(c => c.id === cid)?.price || 0), 0);
+    }
+    return sum + (g.choices.find(c => c.id === sel)?.price || 0);
   }, 0);
-  const unitPrice = (item?.price || 0) + sizePrice + extraPrice;
+  const unitPrice = (item?.price || 0) + optionPrice;
   const totalPrice = unitPrice * quantity;
 
-  const toggleExtra = (id) => {
-    setExtras(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    );
+  const selectRadio = (groupId, choiceId) => {
+    setSelections(prev => ({ ...prev, [groupId]: choiceId }));
+  };
+
+  const toggleCheck = (groupId, choiceId) => {
+    setSelections(prev => {
+      const cur = prev[groupId] || [];
+      const next = cur.includes(choiceId) ? cur.filter(x => x !== choiceId) : [...cur, choiceId];
+      return { ...prev, [groupId]: next };
+    });
   };
 
   const handleAddToCart = () => {
-    const selectedSpice  = DUMMY_OPTIONS.spice.choices.find(c => c.id === spice)?.name;
-    const selectedSize   = DUMMY_OPTIONS.size.choices.find(c => c.id === size)?.name;
-    const selectedExtras = extras.map(id => DUMMY_OPTIONS.extras.choices.find(c => c.id === id)?.name);
+    const optionLabels = [];
+    const optionIds = {};
+    groups.forEach(g => {
+      const sel = selections[g.id];
+      optionIds[g.id] = sel;
+      if (g.type === "C") {
+        (sel || []).forEach(cid => {
+          const c = g.choices.find(c => c.id === cid);
+          if (c) optionLabels.push(c.name);
+        });
+      } else {
+        const c = g.choices.find(c => c.id === sel);
+        if (c) optionLabels.push(c.name);
+      }
+    });
+    const hasOptions = groups.length > 0;
 
     onAddToCart?.({
       ...item,
       price: unitPrice,
       basePrice: item?.price || 0,
-      optionPrice: sizePrice + extraPrice,
-      options: { spice: selectedSpice, size: selectedSize, extras: selectedExtras },
-      optionIds: { spice, size, extras },
+      optionPrice,
+      optionLabels: hasOptions ? optionLabels : undefined,
+      optionIds: hasOptions ? optionIds : undefined,
       quantity,
       totalPrice,
     });
@@ -185,32 +221,38 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
           <Text style={s.basePrice}>₩{(item?.price || 0).toLocaleString()}</Text>
         </View>
 
-        <View style={s.divider} />
-
-        {/* 옵션: 맵기 */}
-        <RadioGroup
-          {...DUMMY_OPTIONS.spice}
-          selected={spice}
-          onSelect={setSpice}
-        />
-
-        <View style={s.divider} />
-
-        {/* 옵션: 사이즈 */}
-        <RadioGroup
-          {...DUMMY_OPTIONS.size}
-          selected={size}
-          onSelect={setSize}
-        />
-
-        <View style={s.divider} />
-
-        {/* 옵션: 추가 */}
-        <CheckGroup
-          {...DUMMY_OPTIONS.extras}
-          selected={extras}
-          onToggle={toggleExtra}
-        />
+        {/* 옵션 (DB: tb_biz_menu_opt_grp / tb_biz_menu_opt_choice) */}
+        {optionGroups === null ? (
+          <>
+            <View style={s.divider} />
+            <View style={s.optionBlock}>
+              <Text style={s.optionalText}>옵션을 불러오는 중...</Text>
+            </View>
+          </>
+        ) : (
+          groups.map(g => (
+            <View key={g.id}>
+              <View style={s.divider} />
+              {g.type === "C" ? (
+                <CheckGroup
+                  label={g.label}
+                  required={g.required}
+                  choices={g.choices}
+                  selected={selections[g.id] || []}
+                  onToggle={(cid) => toggleCheck(g.id, cid)}
+                />
+              ) : (
+                <RadioGroup
+                  label={g.label}
+                  required={g.required}
+                  choices={g.choices}
+                  selected={selections[g.id]}
+                  onSelect={(cid) => selectRadio(g.id, cid)}
+                />
+              )}
+            </View>
+          ))
+        )}
 
         <View style={s.divider} />
 
