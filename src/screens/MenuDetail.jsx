@@ -10,7 +10,7 @@ const sortByOrd = (arr) => [...arr].sort((a, b) => (a.sort_ord ?? 999) - (b.sort
 async function fetchOptionGroups(menuCd) {
   const { data, error } = await supabase
     .from("tb_biz_menu_opt_grp")
-    .select("opt_grp_cd,opt_grp_nm,opt_type,required_yn,sort_ord,tb_biz_menu_opt_choice(choice_cd,choice_nm,add_price,sort_ord,use_yn)")
+    .select("opt_grp_cd,opt_grp_nm,opt_type,required_yn,sort_ord,tb_biz_menu_opt_choice(opt_cd,choice_nm,add_price,sort_ord,use_yn)")
     .eq("menu_cd", menuCd)
     .eq("use_yn", "Y");
 
@@ -22,7 +22,7 @@ async function fetchOptionGroups(menuCd) {
     type: g.opt_type === "C" ? "C" : "R",
     required: g.required_yn === "Y",
     choices: sortByOrd((g.tb_biz_menu_opt_choice || []).filter(c => c.use_yn !== "N"))
-      .map(c => ({ id: c.choice_cd, name: c.choice_nm, price: c.add_price || 0 })),
+      .map(c => ({ id: c.opt_cd, name: c.choice_nm, price: c.add_price || 0 })),
   }));
 }
 
