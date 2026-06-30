@@ -10,18 +10,7 @@ const DECLINE_RE = /아니|싫어|빼|괜찮|말고|취소/;
 const CART_INQUIRY_RE = /내역|장바구니.*(확인|보여|목록)|뭐.*담|담은.*거|주문.*내역/;
 const CART_ACTION_RE = /지워|비워|빼|취소|담아|찜|넣어/;
 
-// Gemini가 가끔 메뉴 ID를 따옴표 없이 내보내는 경우(예: {"id":M00004})를
-// 보정해서 JSON.parse가 실패하지 않도록 함
-const safeParseMarker = (jsonStr) => {
-  try {
-    return JSON.parse(jsonStr.replace(/"id"\s*:\s*([A-Za-z0-9_]+)(?=[,}])/, '"id":"$1"'));
-  } catch (e) {
-    console.warn("AI 마커 JSON 파싱 실패:", jsonStr, e);
-    return null;
-  }
-};
-
-export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, onRemoveFromCart, onClearCart, onOrder }) {
+export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, onRemoveFromCart, onClearCart, onRequestCheckout }) {
   const [open, setOpen] = useState(false);
   const [displayMsgs, setDisplayMsgs] = useState([{ role: "assistant", text: WELCOME }]);
   const [apiHistory, setApiHistory] = useState([]);
@@ -134,38 +123,33 @@ export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, on
         body: JSON.stringify({ messages: nextHistory, menuContext: menuItems, cartContext: cartItems }),
       });
       const data = await resp.json();
-      const raw = data.text || "죄송합니다, 오류가 발생했습니다.";
+      const cleanText = data.text || "죄송합니다, 오류가 발생했습니다.";
+      const actions = data.actions || [];
 
-      const itemMatch = raw.match(/%+ITEM%+(\{.*?\})%+END%+/s);
       let found = null;
-      if (itemMatch) {
-        const parsed = safeParseMarker(itemMatch[1]);
-        if (parsed) {
-          found = menuItems.find(m => m.id === parsed.id) || { id: parsed.id, name: parsed.name, price: parsed.price };
+      let hasCheckout = false;
+      for (const action of actions) {
+        if (action.name === "recommend_item") {
+          const { id, name, price } = action.args || {};
+          found = menuItems.find(m => m.id === id) || { id, name, price };
+        } else if (action.name === "remove_item") {
+          if (action.args?.id) onRemoveFromCart?.(action.args.id);
+        } else if (action.name === "clear_cart") {
+          onClearCart?.();
+        } else if (action.name === "request_checkout") {
+          hasCheckout = true;
         }
       }
 
       const imageUrl = found?.image || null;
 
-      const hasOrder = /%+ORDER%+/.test(raw);
-      const hasClear = /%+CLEAR%+/.test(raw);
-      const removeMatches = raw.matchAll(/%+REMOVE%+(\{.*?\})%+END%+/gs);
-      for (const m of removeMatches) {
-        const parsed = safeParseMarker(m[1]);
-        if (parsed) onRemoveFromCart?.(parsed.id);
-      }
-      if (hasClear) onClearCart?.();
-      const cleanText = raw
-        .replace(/%+ITEM%+.*?%+END%+/gs, "")
-
-        .replace(/%+REMOVE%+.*?%+END%+/gs, "")
-        .replace(/%+ORDER%+/g, "")
-        .replace(/%+CLEAR%+/g, "")
-        .trim();
       setDisplayMsgs(prev => [...prev, { role: "assistant", text: cleanText, imageUrl, itemName: found?.name || null }]);
       setApiHistory(prev => [...prev, { role: "assistant", content: cleanText }]);
       if (found) setPendingItem(found);
-      if (hasOrder && cartItems.length > 0) onOrder?.();
+      if (hasCheckout && cartItems.length > 0) {
+        setOpen(false);
+        onRequestCheckout?.();
+      }
     } catch {
       setDisplayMsgs(prev => [...prev, { role: "assistant", text: "죄송합니다, 오류가 발생했습니다." }]);
     } finally {

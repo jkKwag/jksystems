@@ -312,6 +312,7 @@ export default function Menu({ bizno, tableNo }) {
   const [cart, setCart] = useState(() => loadCart(bizno));
   const [showCart, setShowCart] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [checkoutHint, setCheckoutHint] = useState(false);
   const [showOrderDone, setShowOrderDone] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [editingCartId, setEditingCartId] = useState(null);
@@ -376,6 +377,14 @@ export default function Menu({ bizno, tableNo }) {
   const clearCart = () => {
     setCart({});
     saveCart(bizno, {});
+  };
+
+  // AI는 실제 결제를 처리하지 않음 — 장바구니 화면을 열어 손님이 직접
+  // "주문하기" 버튼을 눌러야만 결제가 진행되도록 안내만 함
+  const requestCheckout = () => {
+    setShowCart(true);
+    setCheckoutHint(true);
+    setTimeout(() => setCheckoutHint(false), 3500);
   };
 
   return (
@@ -539,11 +548,7 @@ export default function Menu({ bizno, tableNo }) {
         onAddToCart={addToCart}
         onRemoveFromCart={removeItemCompletely}
         onClearCart={clearCart}
-        onOrder={() => {
-          setShowCart(false);
-          clearCart();
-          setTimeout(() => setShowConfetti(true), 300);
-        }}
+        onRequestCheckout={requestCheckout}
       />
 
       {/* 장바구니 팝업 */}
@@ -558,6 +563,13 @@ export default function Menu({ bizno, tableNo }) {
                 <Text style={s.closeBtnText}>✕</Text>
               </TouchableOpacity>
             </View>
+
+            {/* AI 채팅에서 결제 의사를 밝힌 경우 안내 배너 */}
+            {checkoutHint && (
+              <View style={s.checkoutHint}>
+                <Text style={s.checkoutHintText}>💳 장바구니를 확인하신 후 결제를 진행해 주세요</Text>
+              </View>
+            )}
 
             {/* 아이템 목록 */}
             <ScrollView style={s.sheetList}>
@@ -686,6 +698,9 @@ const s = StyleSheet.create({
   sheetTitle: { fontSize: 17, fontWeight: "900", color: "#111" },
   closeBtn: { width: 32, height: 32, backgroundColor: "#f3f4f6", borderRadius: 16, justifyContent: "center", alignItems: "center" },
   closeBtnText: { fontSize: 13, color: "#555", fontWeight: "700" },
+
+  checkoutHint: { backgroundColor: "#fff7ed", paddingVertical: 10, paddingHorizontal: 18, borderBottomWidth: 1, borderBottomColor: "#f0f0f0" },
+  checkoutHintText: { fontSize: 13, fontWeight: "700", color: "#f97316", textAlign: "center" },
 
   sheetList: { flexShrink: 1 },
   cartItem: { flexDirection: "row", alignItems: "center", padding: 14, gap: 12, borderBottomWidth: 1, borderBottomColor: "#f5f5f5" },
