@@ -213,6 +213,12 @@ const loadCart = (bizno) => {
   return {};
 };
 
+const formatOptions = (options) => {
+  if (!options) return null;
+  const parts = [options.spice, options.size, ...(options.extras || [])].filter(Boolean);
+  return parts.length ? parts.join(" · ") : null;
+};
+
 export default function Menu({ bizno, tableNo }) {
   const [activeCat, setActiveCat] = useState("전체");
   const [categories, setCategories] = useState(["전체"]);
@@ -520,6 +526,9 @@ export default function Menu({ bizno, tableNo }) {
                   <Image source={{ uri: item.image }} style={s.cartItemImg} />
                   <View style={s.cartItemInfo}>
                     <Text style={s.cartItemName}>{item.name}</Text>
+                    {formatOptions(item.options) && (
+                      <Text style={s.cartItemOptions} numberOfLines={1}>{formatOptions(item.options)}</Text>
+                    )}
                     <Text style={s.cartItemPrice}>₩{(item.price * quantity).toLocaleString()}</Text>
                   </View>
                   <View style={s.qtyRow}>
@@ -633,6 +642,7 @@ const s = StyleSheet.create({
   cartItemImg: { width: 56, height: 56, borderRadius: 10, backgroundColor: "#eee" },
   cartItemInfo: { flex: 1 },
   cartItemName: { fontSize: 14, fontWeight: "700", color: "#111", marginBottom: 4 },
+  cartItemOptions: { fontSize: 11, color: "#999", fontWeight: "600", marginBottom: 4 },
   cartItemPrice: { fontSize: 13, fontWeight: "800", color: "#f97316" },
 
   successSheet: { backgroundColor: "#fff", borderRadius: 24, padding: 32, alignItems: "center", margin: 32 },
