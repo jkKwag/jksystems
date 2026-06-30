@@ -98,15 +98,17 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
   const [quantity, setQuantity] = useState(1);
   const [imgError, setImgError] = useState(false);
 
-  const slideAnim = useRef(new Animated.Value(600)).current;
-  const [animDone, setAnimDone] = useState(false);
+  // transform(translateY) 기반 슬라이드 애니메이션은 모바일 사파리에서
+  // 애니메이션 종료 시 컴포지팅 레이어가 재정리되며 그 직후 첫 터치가
+  // 스크롤 제스처로 인식되지 않는 문제가 있어, transform을 전혀 쓰지 않는
+  // opacity 페이드인으로 대체함
+  const fadeAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    Animated.spring(slideAnim, {
-      toValue: 0,
-      tension: 60,
-      friction: 12,
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 220,
       useNativeDriver: true,
-    }).start(() => setAnimDone(true));
+    }).start();
   }, []);
 
   // 총 가격 계산
@@ -138,13 +140,8 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
     onClose?.();
   };
 
-  // 진입 애니메이션이 끝나면 transform을 DOM에서 제거하되, 컴포넌트 타입은
-  // 항상 Animated.View로 유지해 DOM이 재생성(remount)되지 않게 함
-  // (타입을 바꾸면 스크롤 도중 DOM이 통째로 교체되어 제스처가 끊김)
-  const wrapperStyle = animDone ? s.container : [s.container, { transform: [{ translateY: slideAnim }] }];
-
   return (
-    <Animated.View style={wrapperStyle}>
+    <Animated.View style={[s.container, { opacity: fadeAnim }]}>
       {/* 헤더 */}
       <View style={[s.header, Platform.OS === "web" && { background: "linear-gradient(135deg, #0f172a 0%, #14532d 100%)" }]}>
         <TouchableOpacity style={s.backBtn} onPress={onClose}>
