@@ -138,13 +138,13 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
     onClose?.();
   };
 
-  // 진입 애니메이션이 끝나면 transform을 DOM에서 완전히 제거해
-  // 내부 ScrollView의 모멘텀 스크롤이 깨지지 않도록 일반 View로 전환
-  const Wrapper = animDone ? View : Animated.View;
+  // 진입 애니메이션이 끝나면 transform을 DOM에서 제거하되, 컴포넌트 타입은
+  // 항상 Animated.View로 유지해 DOM이 재생성(remount)되지 않게 함
+  // (타입을 바꾸면 스크롤 도중 DOM이 통째로 교체되어 제스처가 끊김)
   const wrapperStyle = animDone ? s.container : [s.container, { transform: [{ translateY: slideAnim }] }];
 
   return (
-    <Wrapper style={wrapperStyle}>
+    <Animated.View style={wrapperStyle}>
       {/* 헤더 */}
       <View style={[s.header, Platform.OS === "web" && { background: "linear-gradient(135deg, #0f172a 0%, #14532d 100%)" }]}>
         <TouchableOpacity style={s.backBtn} onPress={onClose}>
@@ -245,7 +245,7 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
           <Text style={s.cartBtnText}>🛒 장바구니 담기</Text>
         </TouchableOpacity>
       </View>
-    </Wrapper>
+    </Animated.View>
   );
 }
 
