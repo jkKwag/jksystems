@@ -16,11 +16,12 @@ const TOOLS = [
       },
       {
         name: "remove_item",
-        description: "손님이 특정 메뉴를 장바구니에서 빼달라고 요청했을 때 호출한다.",
+        description: "손님이 특정 메뉴를 장바구니에서 빼달라고 요청했을 때 호출한다. 손님이 '하나만 빼줘', '두 개 빼줘'처럼 일부 수량만 줄이려는 경우 quantity를 그 수만큼 채우고, 메뉴 자체를 통째로 빼달라는 경우(수량 언급 없음)에는 quantity를 생략한다.",
         parameters: {
           type: "OBJECT",
           properties: {
             id: { type: "STRING", description: "장바구니에서 제거할 메뉴 ID" },
+            quantity: { type: "NUMBER", description: "줄일 수량. 생략하면 해당 메뉴를 장바구니에서 전부 제거한다." },
           },
           required: ["id"],
         },
@@ -41,7 +42,7 @@ const TOOLS = [
 
 const FALLBACK_TEXT_BY_ACTION = {
   recommend_item: a => `${a.args?.name || "메뉴"}을(를) 추천드려요! 장바구니에 담을까요?`,
-  remove_item: () => "네, 장바구니에서 빼드렸어요!",
+  remove_item: a => (a.args?.quantity > 0 ? `네, ${a.args.quantity}개 빼드렸어요!` : "네, 장바구니에서 빼드렸어요!"),
   clear_cart: () => "장바구니를 비웠어요!",
   request_checkout: () => "장바구니를 확인하신 후 결제를 진행해 주세요!",
 };
@@ -90,6 +91,7 @@ ${cartList}
 
 [메뉴 제거 / 비우기]
 - 손님이 특정 메뉴를 빼달라고 하면 remove_item 함수를 호출해.
+- "하나만 빼줘", "한 개 삭제", "두 개만 빼줘"처럼 일부 수량만 줄이려는 의도면 quantity 인자에 그 숫자를 채워서 호출해 (예: 장바구니에 2개 있는데 "하나만 빼줘"라고 하면 quantity:1로 호출 → 1개만 남음). 수량 언급 없이 그냥 "빼줘", "취소해줘"처럼 메뉴 자체를 통째로 빼달라는 의도면 quantity 없이 호출해 (장바구니에 몇 개가 있든 전부 제거됨).
 - 손님이 장바구니를 전체 비워달라고 하면 clear_cart 함수를 호출해.
 
 [주문 / 결제]

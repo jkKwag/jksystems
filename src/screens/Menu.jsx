@@ -374,6 +374,24 @@ export default function Menu({ bizno, tableNo }) {
     });
   };
 
+  // AI 채팅에서 "하나만 빼줘"/"두 개 빼줘"처럼 수량을 지정한 경우 그만큼만 줄임
+  // (0 이하가 되면 항목 자체를 제거)
+  const decrementCartItem = (itemId, qty) => {
+    setCart(prev => {
+      const cur = prev[itemId];
+      if (!cur) return prev;
+      const next = { ...prev };
+      const newQty = cur.quantity - qty;
+      if (newQty > 0) {
+        next[itemId] = { ...cur, quantity: newQty };
+      } else {
+        delete next[itemId];
+      }
+      saveCart(bizno, next);
+      return next;
+    });
+  };
+
   const clearCart = () => {
     setCart({});
     saveCart(bizno, {});
@@ -547,6 +565,7 @@ export default function Menu({ bizno, tableNo }) {
         cartItems={cartItems}
         onAddToCart={addToCart}
         onRemoveFromCart={removeItemCompletely}
+        onDecrementCart={decrementCartItem}
         onClearCart={clearCart}
         onRequestCheckout={requestCheckout}
       />

@@ -10,7 +10,7 @@ const DECLINE_RE = /아니|싫어|빼|괜찮|말고|취소/;
 const CART_INQUIRY_RE = /내역|장바구니.*(확인|보여|목록)|뭐.*담|담은.*거|주문.*내역/;
 const CART_ACTION_RE = /지워|비워|빼|취소|담아|찜|넣어/;
 
-export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, onRemoveFromCart, onClearCart, onRequestCheckout }) {
+export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, onRemoveFromCart, onDecrementCart, onClearCart, onRequestCheckout }) {
   const [open, setOpen] = useState(false);
   const [displayMsgs, setDisplayMsgs] = useState([{ role: "assistant", text: WELCOME }]);
   const [apiHistory, setApiHistory] = useState([]);
@@ -133,7 +133,11 @@ export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, on
           const { id, name, price } = action.args || {};
           found = menuItems.find(m => m.id === id) || { id, name, price };
         } else if (action.name === "remove_item") {
-          if (action.args?.id) onRemoveFromCart?.(action.args.id);
+          const { id, quantity } = action.args || {};
+          if (id) {
+            if (quantity > 0) onDecrementCart?.(id, quantity);
+            else onRemoveFromCart?.(id);
+          }
         } else if (action.name === "clear_cart") {
           onClearCart?.();
         } else if (action.name === "request_checkout") {
