@@ -527,6 +527,7 @@ export default function Menu({ bizno, tableNo }) {
         cartItems={cartItems}
         onAddToCart={addToCart}
         onRemoveFromCart={removeFromCart}
+        onClearCart={clearCart}
         onOrder={() => {
           setShowCart(false);
           clearCart();
