@@ -43,7 +43,7 @@ COMMENT ON COLUMN tb_biz_menu_opt_grp.upd_ip         IS '수정IP';
 -- TB_BIZ_MENU_OPT_CHOICE : 메뉴 옵션그룹별 선택지 테이블
 -- =====================================================
 CREATE TABLE IF NOT EXISTS tb_biz_menu_opt_choice (
-    choice_cd     VARCHAR(10)     NOT NULL,
+    opt_cd        VARCHAR(10)     NOT NULL,
     opt_grp_cd    VARCHAR(10)     NOT NULL,
     choice_nm     VARCHAR(50)     NOT NULL,
     add_price     INTEGER         NOT NULL    DEFAULT 0,
@@ -57,12 +57,12 @@ CREATE TABLE IF NOT EXISTS tb_biz_menu_opt_choice (
     upd_dt        TIMESTAMP       NULL,
     upd_ip        VARCHAR(50)     NULL,
 
-    CONSTRAINT pk_tb_biz_menu_opt_choice PRIMARY KEY (choice_cd),
+    CONSTRAINT pk_tb_biz_menu_opt_choice PRIMARY KEY (opt_cd),
     CONSTRAINT fk_tb_biz_menu_opt_choice_grp FOREIGN KEY (opt_grp_cd) REFERENCES tb_biz_menu_opt_grp (opt_grp_cd)
 );
 
 COMMENT ON TABLE  tb_biz_menu_opt_choice               IS '메뉴 옵션그룹별 선택지';
-COMMENT ON COLUMN tb_biz_menu_opt_choice.choice_cd    IS '선택지코드';
+COMMENT ON COLUMN tb_biz_menu_opt_choice.opt_cd       IS '옵션코드';
 COMMENT ON COLUMN tb_biz_menu_opt_choice.opt_grp_cd   IS '옵션그룹코드';
 COMMENT ON COLUMN tb_biz_menu_opt_choice.choice_nm    IS '선택지명 (예: 보통맛, 2인분, 치즈 추가)';
 COMMENT ON COLUMN tb_biz_menu_opt_choice.add_price    IS '추가금액 (옵션 선택 시 더해지는 금액, 0=무료)';
@@ -83,21 +83,21 @@ COMMENT ON COLUMN tb_biz_menu_opt_choice.upd_ip       IS '수정IP';
 -- =====================================================
 INSERT INTO tb_biz_menu_opt_grp (opt_grp_cd, menu_cd, opt_grp_nm, opt_type, required_yn, sort_ord, use_yn, reg_usr_id, reg_ip)
 VALUES
-  ('OG00001', 'M00004', '맵기 선택', 'R', 'Y', 10, 'Y', 'SYSTEM', '127.0.0.1'),
-  ('OG00002', 'M00004', '사이즈',     'R', 'Y', 20, 'Y', 'SYSTEM', '127.0.0.1'),
-  ('OG00003', 'M00004', '추가 옵션', 'C', 'N', 30, 'Y', 'SYSTEM', '127.0.0.1')
+  ('OG00000001', 'M00004', '맵기 선택', 'R', 'Y', 10, 'Y', 'SYSTEM', '127.0.0.1'),
+  ('OG00000002', 'M00004', '사이즈',     'R', 'Y', 20, 'Y', 'SYSTEM', '127.0.0.1'),
+  ('OG00000003', 'M00004', '추가 옵션', 'C', 'N', 30, 'Y', 'SYSTEM', '127.0.0.1')
 ON CONFLICT (opt_grp_cd) DO NOTHING;
 
-INSERT INTO tb_biz_menu_opt_choice (choice_cd, opt_grp_cd, choice_nm, add_price, sort_ord, use_yn, reg_usr_id, reg_ip)
+INSERT INTO tb_biz_menu_opt_choice (opt_cd, opt_grp_cd, choice_nm, add_price, sort_ord, use_yn, reg_usr_id, reg_ip)
 VALUES
-  ('OC00001', 'OG00001', '순한맛',     0,    10, 'Y', 'SYSTEM', '127.0.0.1'),
-  ('OC00002', 'OG00001', '보통맛',     0,    20, 'Y', 'SYSTEM', '127.0.0.1'),
-  ('OC00003', 'OG00001', '매운맛',     0,    30, 'Y', 'SYSTEM', '127.0.0.1'),
+  ('OC00000001', 'OG00000001', '순한맛',     0,    10, 'Y', 'SYSTEM', '127.0.0.1'),
+  ('OC00000002', 'OG00000001', '보통맛',     0,    20, 'Y', 'SYSTEM', '127.0.0.1'),
+  ('OC00000003', 'OG00000001', '매운맛',     0,    30, 'Y', 'SYSTEM', '127.0.0.1'),
 
-  ('OC00004', 'OG00002', '1인분',      0,    10, 'Y', 'SYSTEM', '127.0.0.1'),
-  ('OC00005', 'OG00002', '2인분',      8000, 20, 'Y', 'SYSTEM', '127.0.0.1'),
+  ('OC00000004', 'OG00000002', '1인분',      0,    10, 'Y', 'SYSTEM', '127.0.0.1'),
+  ('OC00000005', 'OG00000002', '2인분',      8000, 20, 'Y', 'SYSTEM', '127.0.0.1'),
 
-  ('OC00006', 'OG00003', '공기밥 추가', 1000, 10, 'Y', 'SYSTEM', '127.0.0.1'),
-  ('OC00007', 'OG00003', '치즈 추가',   2000, 20, 'Y', 'SYSTEM', '127.0.0.1'),
-  ('OC00008', 'OG00003', '음료 추가',   2500, 30, 'Y', 'SYSTEM', '127.0.0.1')
-ON CONFLICT (choice_cd) DO NOTHING;
+  ('OC00000006', 'OG00000003', '공기밥 추가', 1000, 10, 'Y', 'SYSTEM', '127.0.0.1'),
+  ('OC00000007', 'OG00000003', '치즈 추가',   2000, 20, 'Y', 'SYSTEM', '127.0.0.1'),
+  ('OC00000008', 'OG00000003', '음료 추가',   2500, 30, 'Y', 'SYSTEM', '127.0.0.1')
+ON CONFLICT (opt_cd) DO NOTHING;
