@@ -315,6 +315,7 @@ export default function Menu({ bizno, tableNo }) {
   const [showConfetti, setShowConfetti] = useState(false);
   const [showOrderDone, setShowOrderDone] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [editingCartId, setEditingCartId] = useState(null);
 
   const filtered = activeCat === "전체" ? menuItems : menuItems.filter(i => i.category === activeCat);
   const cartItems = Object.values(cart);
@@ -331,6 +332,21 @@ export default function Menu({ bizno, tableNo }) {
       saveCart(bizno, next);
       return next;
     });
+  };
+
+  // 이미 담긴 항목의 옵션을 수정한 경우: 기존 수량에 더하지 않고 그대로 교체
+  const updateCartItem = (item) => {
+    const { quantity: newQty = 1, totalPrice, ...storedItem } = item;
+    setCart(prev => {
+      const next = { ...prev, [item.id]: { item: storedItem, quantity: newQty } };
+      saveCart(bizno, next);
+      return next;
+    });
+  };
+
+  const editCartItem = (item, quantity) => {
+    setEditingCartId(item.id);
+    setSelectedItem({ ...item, price: item.basePrice ?? item.price, quantity });
   };
 
   const removeFromCart = (itemId) => {
@@ -487,9 +503,14 @@ export default function Menu({ bizno, tableNo }) {
         <View style={[StyleSheet.absoluteFillObject, { zIndex: 110, overflow: "hidden" }]}>
           <MenuDetail
             item={selectedItem}
-            onClose={() => setSelectedItem(null)}
+            onClose={() => { setSelectedItem(null); setEditingCartId(null); }}
             onAddToCart={(itemWithOptions) => {
-              addToCart(itemWithOptions);
+              if (editingCartId) {
+                updateCartItem(itemWithOptions);
+                setEditingCartId(null);
+              } else {
+                addToCart(itemWithOptions);
+              }
               setSelectedItem(null);
             }}
           />
@@ -538,6 +559,11 @@ export default function Menu({ bizno, tableNo }) {
                       </Text>
                     )}
                     <Text style={s.cartItemPrice}>₩{(item.price * quantity).toLocaleString()}</Text>
+                    {item.optionIds && (
+                      <TouchableOpacity onPress={() => editCartItem(item, quantity)}>
+                        <Text style={s.cartItemEdit}>옵션 변경</Text>
+                      </TouchableOpacity>
+                    )}
                   </View>
                   <View style={s.qtyRow}>
                     <TouchableOpacity style={s.qtyBtn} onPress={() => removeFromCart(item.id)}>
@@ -653,6 +679,7 @@ const s = StyleSheet.create({
   cartItemOptions: { fontSize: 11, color: "#999", fontWeight: "600", marginBottom: 4 },
   cartItemBreakdown: { fontSize: 11, color: "#aaa", fontWeight: "600", marginBottom: 4 },
   cartItemPrice: { fontSize: 13, fontWeight: "800", color: "#f97316" },
+  cartItemEdit: { fontSize: 11, color: "#16a34a", fontWeight: "700", marginTop: 4, textDecorationLine: "underline" },
 
   successSheet: { backgroundColor: "#fff", borderRadius: 24, padding: 32, alignItems: "center", margin: 32 },
   successEmoji: { fontSize: 60, marginBottom: 12 },

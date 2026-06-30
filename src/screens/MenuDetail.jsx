@@ -92,10 +92,10 @@ function CheckGroup({ label, required, choices, selected, onToggle }) {
 }
 
 export default function MenuDetail({ item, onClose, onAddToCart }) {
-  const [spice,    setSpice]    = useState("s2");
-  const [size,     setSize]     = useState("sz1");
-  const [extras,   setExtras]   = useState([]);
-  const [quantity, setQuantity] = useState(1);
+  const [spice,    setSpice]    = useState(item?.optionIds?.spice || "s2");
+  const [size,     setSize]     = useState(item?.optionIds?.size || "sz1");
+  const [extras,   setExtras]   = useState(item?.optionIds?.extras || []);
+  const [quantity, setQuantity] = useState(item?.quantity || 1);
   const [imgError, setImgError] = useState(false);
 
   // transform(translateY) 기반 슬라이드 애니메이션은 모바일 사파리에서
@@ -137,6 +137,7 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
       basePrice: item?.price || 0,
       optionPrice: sizePrice + extraPrice,
       options: { spice: selectedSpice, size: selectedSize, extras: selectedExtras },
+      optionIds: { spice, size, extras },
       quantity,
       totalPrice,
     });
@@ -242,7 +243,7 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
           <Text style={s.totalPrice}>₩{totalPrice.toLocaleString()}</Text>
         </View>
         <TouchableOpacity style={s.cartBtn} onPress={handleAddToCart}>
-          <Text style={s.cartBtnText}>🛒 장바구니 담기</Text>
+          <Text style={s.cartBtnText}>{item?.optionIds ? "✓ 변경사항 저장" : "🛒 장바구니 담기"}</Text>
         </TouchableOpacity>
       </View>
     </Animated.View>
