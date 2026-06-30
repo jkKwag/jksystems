@@ -362,6 +362,17 @@ export default function Menu({ bizno, tableNo }) {
     });
   };
 
+  // AI 채팅에서 "빼줘"는 수량 일부가 아니라 항목 자체를 완전히 삭제하는 의도라
+  // "-" 버튼용 removeFromCart(1개씩 감소)와 분리
+  const removeItemCompletely = (itemId) => {
+    setCart(prev => {
+      const next = { ...prev };
+      delete next[itemId];
+      saveCart(bizno, next);
+      return next;
+    });
+  };
+
   const clearCart = () => {
     setCart({});
     saveCart(bizno, {});
@@ -526,7 +537,7 @@ export default function Menu({ bizno, tableNo }) {
         menuItems={menuItems}
         cartItems={cartItems}
         onAddToCart={addToCart}
-        onRemoveFromCart={removeFromCart}
+        onRemoveFromCart={removeItemCompletely}
         onClearCart={clearCart}
         onOrder={() => {
           setShowCart(false);
