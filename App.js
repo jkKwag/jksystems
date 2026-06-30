@@ -31,11 +31,21 @@ const getTableNo = () => {
   } catch { return null; }
 };
 
+const getOwnerToken = () => {
+  if (Platform.OS !== "web") return null;
+  try {
+    return new URLSearchParams(window.location.search).get("owner");
+  } catch { return null; }
+};
+
 const menuBizno = getMenuBizno();
 const tableNo = getTableNo();
+const ownerToken = getOwnerToken();
 
 const MUSIC_URL = "https://raw.githubusercontent.com/jkKwag/jksystems/main/assets/bgmusic.mp3";
 const ADMIN_MUSIC_URL = "https://raw.githubusercontent.com/jkKwag/jksystems/main/assets/bgmusic_admin.m4a";
+const OWNER_TOKEN = "BXrl0zQlR04";
+const OWNER_STORAGE_KEY = "myPhoneMusic";
 
 const Logo = () => (
   <View style={s.headerLeft}>
@@ -50,6 +60,7 @@ const Logo = () => (
 export default function App() {
   const [tab, setTab] = useState("cars");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isMyPhone, setIsMyPhone] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
   const [menuOverlay, setMenuOverlay] = useState(null); // null | "qna" | "faq"
@@ -61,7 +72,17 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const url = isAdmin ? ADMIN_MUSIC_URL : MUSIC_URL;
+    if (Platform.OS !== "web") return;
+    if (ownerToken && ownerToken === OWNER_TOKEN) {
+      AsyncStorage.setItem(OWNER_STORAGE_KEY, "true");
+      setIsMyPhone(true);
+    } else {
+      AsyncStorage.getItem(OWNER_STORAGE_KEY).then(v => { if (v === "true") setIsMyPhone(true); });
+    }
+  }, []);
+
+  useEffect(() => {
+    const url = isMyPhone ? ADMIN_MUSIC_URL : MUSIC_URL;
     if (Platform.OS !== "web" || !menuBizno || !url) return;
     const wasPlaying = musicOn;
     const audio = new window.Audio(url);
@@ -88,7 +109,7 @@ export default function App() {
       window.removeEventListener("click", playOnce);
       window.removeEventListener("touchend", playOnce);
     };
-  }, [isAdmin]);
+  }, [isMyPhone]);
 
   const toggleMusic = () => {
     const audio = audioRef.current;
