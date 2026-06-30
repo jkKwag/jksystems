@@ -6,24 +6,37 @@ import supabase from "../lib/supabase";
 
 const sortByOrd = (arr) => [...arr].sort((a, b) => (a.sort_ord ?? 999) - (b.sort_ord ?? 999));
 
-// tb_biz_menu_opt_grp / tb_biz_menu_opt_cd 조회 → 화면에서 쓰기 쉬운 형태로 변환
+// tb_biz_menu_opt_cd(메뉴별 선택지) / tb_biz_menu_opt_grp(공통 옵션그룹) 조회
+// → menu_cd가 opt_cd 쪽으로 옮겨졌으므로 opt_cd를 기준으로 조회 후 opt_grp_cd로 묶어서 변환
 async function fetchOptionGroups(menuCd) {
   const { data, error } = await supabase
-    .from("tb_biz_menu_opt_grp")
-    .select("opt_grp_cd,opt_grp_nm,opt_type,required_yn,sort_ord,tb_biz_menu_opt_cd(opt_cd,opt_nm,add_price,sort_ord,use_yn)")
+    .from("tb_biz_menu_opt_cd")
+    .select("opt_cd,opt_nm,add_price,sort_ord,use_yn,opt_grp_cd,tb_biz_menu_opt_grp(opt_grp_nm,opt_type,required_yn,sort_ord,use_yn)")
     .eq("menu_cd", menuCd)
     .eq("use_yn", "Y");
 
   if (error || !data) return [];
 
-  return sortByOrd(data).map(g => ({
-    id: g.opt_grp_cd,
-    label: g.opt_grp_nm,
-    type: g.opt_type === "C" ? "C" : "R",
-    required: g.required_yn === "Y",
-    choices: sortByOrd((g.tb_biz_menu_opt_cd || []).filter(c => c.use_yn !== "N"))
-      .map(c => ({ id: c.opt_cd, name: c.opt_nm, price: c.add_price || 0 })),
-  }));
+  const groupMap = new Map();
+  data.forEach(c => {
+    const g = c.tb_biz_menu_opt_grp;
+    if (!g || g.use_yn !== "Y") return;
+    if (!groupMap.has(c.opt_grp_cd)) {
+      groupMap.set(c.opt_grp_cd, {
+        id: c.opt_grp_cd,
+        label: g.opt_grp_nm,
+        type: g.opt_type === "C" ? "C" : "R",
+        required: g.required_yn === "Y",
+        sort_ord: g.sort_ord,
+        choices: [],
+      });
+    }
+    groupMap.get(c.opt_grp_cd).choices.push({ id: c.opt_cd, name: c.opt_nm, price: c.add_price || 0, sort_ord: c.sort_ord });
+  });
+
+  const groups = sortByOrd(Array.from(groupMap.values()));
+  groups.forEach(g => { g.choices = sortByOrd(g.choices); });
+  return groups;
 }
 
 function RadioGroup({ label, required, choices, selected, onSelect }) {
