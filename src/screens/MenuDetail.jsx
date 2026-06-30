@@ -99,13 +99,14 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
   const [imgError, setImgError] = useState(false);
 
   const slideAnim = useRef(new Animated.Value(600)).current;
+  const [animDone, setAnimDone] = useState(false);
   useEffect(() => {
     Animated.spring(slideAnim, {
       toValue: 0,
       tension: 60,
       friction: 12,
       useNativeDriver: true,
-    }).start();
+    }).start(() => setAnimDone(true));
   }, []);
 
   // 총 가격 계산
@@ -137,8 +138,13 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
     onClose?.();
   };
 
+  // 진입 애니메이션이 끝나면 transform을 DOM에서 완전히 제거해
+  // 내부 ScrollView의 모멘텀 스크롤이 깨지지 않도록 일반 View로 전환
+  const Wrapper = animDone ? View : Animated.View;
+  const wrapperStyle = animDone ? s.container : [s.container, { transform: [{ translateY: slideAnim }] }];
+
   return (
-    <Animated.View style={[s.container, { transform: [{ translateY: slideAnim }] }]}>
+    <Wrapper style={wrapperStyle}>
       {/* 헤더 */}
       <View style={[s.header, Platform.OS === "web" && { background: "linear-gradient(135deg, #0f172a 0%, #14532d 100%)" }]}>
         <TouchableOpacity style={s.backBtn} onPress={onClose}>
@@ -239,7 +245,7 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
           <Text style={s.cartBtnText}>🛒 장바구니 담기</Text>
         </TouchableOpacity>
       </View>
-    </Animated.View>
+    </Wrapper>
   );
 }
 
