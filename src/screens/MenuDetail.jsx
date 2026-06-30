@@ -91,6 +91,10 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
   const [imgError,     setImgError]     = useState(false);
 
   useEffect(() => {
+    if (Platform.OS === "web") window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
     setOptionGroups(null);
     if (!item?.id) { setOptionGroups([]); return; }

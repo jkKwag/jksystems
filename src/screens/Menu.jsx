@@ -500,7 +500,11 @@ export default function Menu({ bizno, tableNo }) {
 
       {/* 메뉴 상세 오버레이 */}
       {selectedItem && (
-        <View style={[StyleSheet.absoluteFillObject, { zIndex: 110, overflow: "hidden" }]}>
+        <View style={[
+          StyleSheet.absoluteFillObject,
+          { zIndex: 110, overflow: "hidden" },
+          Platform.OS === "web" && { position: "fixed", top: 0, left: 0, right: 0, bottom: 0 },
+        ]}>
           <MenuDetail
             item={selectedItem}
             onClose={() => { setSelectedItem(null); setEditingCartId(null); }}
