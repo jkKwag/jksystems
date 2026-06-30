@@ -322,9 +322,12 @@ export default function Menu({ bizno, tableNo }) {
   const cartTotal = cartItems.reduce((sum, i) => sum + i.item.price * i.quantity, 0);
 
   const addToCart = (item) => {
-    const addQty = item.quantity || 1;
+    // item.quantity는 MenuDetail에서 선택한 "담을 개수"일 뿐, 장바구니에
+    // 저장된 뒤에는 의미가 없는 값이라 보관하면 +버튼을 누를 때마다
+    // 그 값만큼 재추가되는 버그가 생김 → 저장 전에 떼어냄
+    const { quantity: addQty = 1, totalPrice, ...storedItem } = item;
     setCart(prev => {
-      const next = { ...prev, [item.id]: { item, quantity: (prev[item.id]?.quantity || 0) + addQty } };
+      const next = { ...prev, [item.id]: { item: storedItem, quantity: (prev[item.id]?.quantity || 0) + addQty } };
       saveCart(bizno, next);
       return next;
     });
@@ -529,6 +532,11 @@ export default function Menu({ bizno, tableNo }) {
                     {formatOptions(item.options) && (
                       <Text style={s.cartItemOptions} numberOfLines={1}>{formatOptions(item.options)}</Text>
                     )}
+                    {item.optionPrice > 0 && (
+                      <Text style={s.cartItemBreakdown}>
+                        기본 ₩{item.basePrice.toLocaleString()} + 옵션 ₩{item.optionPrice.toLocaleString()}
+                      </Text>
+                    )}
                     <Text style={s.cartItemPrice}>₩{(item.price * quantity).toLocaleString()}</Text>
                   </View>
                   <View style={s.qtyRow}>
@@ -643,6 +651,7 @@ const s = StyleSheet.create({
   cartItemInfo: { flex: 1 },
   cartItemName: { fontSize: 14, fontWeight: "700", color: "#111", marginBottom: 4 },
   cartItemOptions: { fontSize: 11, color: "#999", fontWeight: "600", marginBottom: 4 },
+  cartItemBreakdown: { fontSize: 11, color: "#aaa", fontWeight: "600", marginBottom: 4 },
   cartItemPrice: { fontSize: 13, fontWeight: "800", color: "#f97316" },
 
   successSheet: { backgroundColor: "#fff", borderRadius: 24, padding: 32, alignItems: "center", margin: 32 },
