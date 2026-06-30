@@ -39,6 +39,17 @@ const TOOLS = [
   },
 ];
 
+const FALLBACK_TEXT_BY_ACTION = {
+  recommend_item: a => `${a.args?.name || "메뉴"}을(를) 추천드려요! 장바구니에 담을까요?`,
+  remove_item: () => "네, 장바구니에서 빼드렸어요!",
+  clear_cart: () => "장바구니를 비웠어요!",
+  request_checkout: () => "장바구니를 확인하신 후 결제를 진행해 주세요!",
+};
+
+function fallbackText(actions) {
+  return actions.map(a => FALLBACK_TEXT_BY_ACTION[a.name]?.(a) || "").filter(Boolean).join(" ");
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
 
@@ -115,10 +126,15 @@ ${cartList}
 
     const data = await resp.json();
     const parts = data.candidates?.[0]?.content?.parts || [];
-    const text = parts.filter(p => p.text).map(p => p.text).join("");
     const actions = parts
       .filter(p => p.functionCall)
       .map(p => ({ name: p.functionCall.name, args: p.functionCall.args || {} }));
+
+    // Gemini가 함수 호출만 반환하고 동반 텍스트는 비워서 보내는 경우가 있음.
+    // 이때 그대로 두면 프론트엔드가 "오류가 발생했습니다"로 오인 표시하므로
+    // 실제로는 정상 처리된 액션에 맞는 안내 문구를 서버에서 채워줌
+    const text = parts.filter(p => p.text).map(p => p.text).join("")
+      || fallbackText(actions);
 
     return res.status(200).json({ text, actions });
   } catch {
