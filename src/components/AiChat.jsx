@@ -4,6 +4,11 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Animat
 const WELCOME = "안녕하세요! 맛찬들 AI 메뉴 추천 도우미예요 😊\n어떤 음식이 드시고 싶으세요?";
 const CONFIRM_ADD_RE = /담아|찜|넣어|네|넵|예|응|그래|좋아|콜|오케이|ok/i;
 const DECLINE_RE = /아니|싫어|빼|괜찮|말고|취소/;
+// 장바구니 조회는 AI(대화 기록에 영향받아 실제 장바구니와 다르게 답할 수 있음)를
+// 거치지 않고 실제 cartItems를 그대로 보여줘서 불일치 가능성을 원천 차단.
+// "지워/비워/빼/취소/담아" 등 실제 변경 의도가 섞인 메시지는 AI(마커 처리)로 보내야 하므로 제외
+const CART_INQUIRY_RE = /내역|장바구니.*(확인|보여|목록)|뭐.*담|담은.*거|주문.*내역/;
+const CART_ACTION_RE = /지워|비워|빼|취소|담아|찜|넣어/;
 
 // Gemini가 가끔 메뉴 ID를 따옴표 없이 내보내는 경우(예: {"id":M00004})를
 // 보정해서 JSON.parse가 실패하지 않도록 함
@@ -107,6 +112,14 @@ export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, on
       return;
     }
 
+    if (CART_INQUIRY_RE.test(text) && !CART_ACTION_RE.test(text)) {
+      setDisplayMsgs(prev => [...prev, { role: "user", text }]);
+      setApiHistory(prev => [...prev, { role: "user", content: text }]);
+      setInput("");
+      showCartSummary();
+      return;
+    }
+
     const nextHistory = [...apiHistory, { role: "user", content: text }];
     setDisplayMsgs(prev => [...prev, { role: "user", text }]);
     setApiHistory(nextHistory);
@@ -158,6 +171,15 @@ export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, on
     } finally {
       setLoading(false);
     }
+  };
+
+  const showCartSummary = () => {
+    const summaryText = cartItems.length === 0
+      ? "장바구니가 비어있어요."
+      : cartItems.map(c => `- ${c.item.name} x${c.quantity} (₩${(c.item.price * c.quantity).toLocaleString()})`).join("\n")
+        + `\n\n총 ₩${cartItems.reduce((sum, c) => sum + c.item.price * c.quantity, 0).toLocaleString()}`;
+    setDisplayMsgs(prev => [...prev, { role: "assistant", text: summaryText }]);
+    setApiHistory(prev => [...prev, { role: "assistant", content: summaryText }]);
   };
 
   const confirmCart = () => {
