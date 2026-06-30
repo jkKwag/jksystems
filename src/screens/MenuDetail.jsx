@@ -244,7 +244,7 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
 }
 
 const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f5f5f5" },
+  container: { flex: 1, backgroundColor: "#f5f5f5", overflow: "hidden" },
 
   header: {
     backgroundColor: "#0f172a",

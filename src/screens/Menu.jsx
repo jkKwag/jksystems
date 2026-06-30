@@ -474,7 +474,7 @@ export default function Menu({ bizno, tableNo }) {
 
       {/* 메뉴 상세 오버레이 */}
       {selectedItem && (
-        <View style={[StyleSheet.absoluteFillObject, { zIndex: 110 }]}>
+        <View style={[StyleSheet.absoluteFillObject, { zIndex: 110, overflow: "hidden" }]}>
           <MenuDetail
             item={selectedItem}
             onClose={() => setSelectedItem(null)}
