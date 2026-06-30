@@ -409,7 +409,7 @@ export default function Menu({ bizno, tableNo }) {
                 <View style={s.cardBottom}>
                   <Text style={s.price}>₩{item.price.toLocaleString()}</Text>
                   {qty === 0 ? (
-                    <TouchableOpacity style={s.addBtn} onPress={() => setSelectedItem(item)}>
+                    <TouchableOpacity style={s.addBtn} onPress={() => addToCart(item)}>
                       <Text style={s.addBtnText}>+</Text>
                     </TouchableOpacity>
                   ) : (
