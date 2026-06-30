@@ -6,11 +6,11 @@ import supabase from "../lib/supabase";
 
 const sortByOrd = (arr) => [...arr].sort((a, b) => (a.sort_ord ?? 999) - (b.sort_ord ?? 999));
 
-// tb_biz_menu_opt_grp / tb_biz_menu_opt_choice 조회 → 화면에서 쓰기 쉬운 형태로 변환
+// tb_biz_menu_opt_grp / tb_biz_menu_opt_cd 조회 → 화면에서 쓰기 쉬운 형태로 변환
 async function fetchOptionGroups(menuCd) {
   const { data, error } = await supabase
     .from("tb_biz_menu_opt_grp")
-    .select("opt_grp_cd,opt_grp_nm,opt_type,required_yn,sort_ord,tb_biz_menu_opt_choice(opt_cd,opt_nm,add_price,sort_ord,use_yn)")
+    .select("opt_grp_cd,opt_grp_nm,opt_type,required_yn,sort_ord,tb_biz_menu_opt_cd(opt_cd,opt_nm,add_price,sort_ord,use_yn)")
     .eq("menu_cd", menuCd)
     .eq("use_yn", "Y");
 
@@ -21,7 +21,7 @@ async function fetchOptionGroups(menuCd) {
     label: g.opt_grp_nm,
     type: g.opt_type === "C" ? "C" : "R",
     required: g.required_yn === "Y",
-    choices: sortByOrd((g.tb_biz_menu_opt_choice || []).filter(c => c.use_yn !== "N"))
+    choices: sortByOrd((g.tb_biz_menu_opt_cd || []).filter(c => c.use_yn !== "N"))
       .map(c => ({ id: c.opt_cd, name: c.opt_nm, price: c.add_price || 0 })),
   }));
 }
