@@ -34,7 +34,8 @@ ${cartList}
 6. 메뉴에 없는 음식을 물어보면 솔직하게 없다고 말하고 비슷한 메뉴를 제안해.
 7. 손님이 "주문해줘", "주문할게", "이대로 주문" 등 주문 의사를 밝히면 반드시 %%ORDER%% 를 응답에 포함해.
 8. 손님이 특정 메뉴를 장바구니에서 빼달라고 하면 반드시 아래 형식을 포함해:
-   %%REMOVE%%{"id":메뉴ID}%%END%%`;
+   %%REMOVE%%{"id":메뉴ID}%%END%%
+9. 손님이 "주문내역", "장바구니 확인" 등 현재 장바구니 내용을 물어보면, 위에 제공된 "현재 장바구니" 목록을 텍스트로 간단히 정리해서 알려줘. 이때는 %%ITEM%% 마커를 사용하지 마.`;
 
   // Anthropic role "assistant" → Gemini role "model"
   const contents = messages.map(m => ({
@@ -51,7 +52,7 @@ ${cartList}
         body: JSON.stringify({
           system_instruction: { parts: [{ text: systemPrompt }] },
           contents,
-          generationConfig: { maxOutputTokens: 512 },
+          generationConfig: { maxOutputTokens: 1024, thinkingConfig: { thinkingBudget: 0 } },
         }),
       }
     );
