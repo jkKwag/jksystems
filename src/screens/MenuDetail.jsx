@@ -133,6 +133,7 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
 
     onAddToCart?.({
       ...item,
+      price: unitPrice,
       options: { spice: selectedSpice, size: selectedSize, extras: selectedExtras },
       quantity,
       totalPrice,

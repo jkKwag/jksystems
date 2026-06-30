@@ -316,8 +316,9 @@ export default function Menu({ bizno, tableNo }) {
   const cartTotal = cartItems.reduce((sum, i) => sum + i.item.price * i.quantity, 0);
 
   const addToCart = (item) => {
+    const addQty = item.quantity || 1;
     setCart(prev => {
-      const next = { ...prev, [item.id]: { item, quantity: (prev[item.id]?.quantity || 0) + 1 } };
+      const next = { ...prev, [item.id]: { item, quantity: (prev[item.id]?.quantity || 0) + addQty } };
       saveCart(bizno, next);
       return next;
     });
