@@ -19,25 +19,11 @@ export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, on
   const [pendingItem, setPendingItem] = useState(null);
   const [showTooltip, setShowTooltip] = useState(false);
   const [listening, setListening] = useState(false);
-  const [attachedImage, setAttachedImage] = useState(null);
   const panelY = useRef(new Animated.Value(500)).current;
   const tooltipOpacity = useRef(new Animated.Value(0)).current;
   const micPulse = useRef(new Animated.Value(1)).current;
   const recognitionRef = useRef(null);
   const scrollRef = useRef(null);
-  const handleFileSelect = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const dataUrl = ev.target.result;
-      const [header, base64] = dataUrl.split(",");
-      const mimeType = header.match(/:(.*?);/)[1];
-      setAttachedImage({ base64, mimeType, previewUrl: dataUrl });
-    };
-    reader.readAsDataURL(file);
-    e.target.value = "";
-  };
 
   const startVoice = () => {
     if (Platform.OS !== "web") return;
@@ -107,45 +93,34 @@ export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, on
     const text = input.trim();
     if (!text || loading) return;
 
-    const isKwagtest = text.toLowerCase().startsWith("kwagtest");
+    if (pendingItem && CONFIRM_ADD_RE.test(text) && !DECLINE_RE.test(text)) {
+      setDisplayMsgs(prev => [...prev, { role: "user", text }]);
+      setApiHistory(prev => [...prev, { role: "user", content: text }]);
+      setInput("");
+      confirmCart();
+      return;
+    }
 
-    if (!isKwagtest) {
-      if (pendingItem && CONFIRM_ADD_RE.test(text) && !DECLINE_RE.test(text)) {
-        setDisplayMsgs(prev => [...prev, { role: "user", text }]);
-        setApiHistory(prev => [...prev, { role: "user", content: text }]);
-        setInput("");
-        confirmCart();
-        return;
-      }
-
-      if (CART_INQUIRY_RE.test(text) && !CART_ACTION_RE.test(text)) {
-        setDisplayMsgs(prev => [...prev, { role: "user", text }]);
-        setApiHistory(prev => [...prev, { role: "user", content: text }]);
-        setInput("");
-        showCartSummary();
-        return;
-      }
+    if (CART_INQUIRY_RE.test(text) && !CART_ACTION_RE.test(text)) {
+      setDisplayMsgs(prev => [...prev, { role: "user", text }]);
+      setApiHistory(prev => [...prev, { role: "user", content: text }]);
+      setInput("");
+      showCartSummary();
+      return;
     }
 
     const nextHistory = [...apiHistory, { role: "user", content: text }];
-    setDisplayMsgs(prev => [...prev, { role: "user", text, attachedPreviewUrl: attachedImage?.previewUrl || null }]);
+    setDisplayMsgs(prev => [...prev, { role: "user", text }]);
     setApiHistory(nextHistory);
     setInput("");
-    const snapshot = attachedImage;
-    setAttachedImage(null);
     setLoading(true);
     setPendingItem(null);
 
     try {
-      const body = { messages: nextHistory, menuContext: menuItems, cartContext: cartItems };
-      if (snapshot) {
-        body.imageData = snapshot.base64;
-        body.imageMimeType = snapshot.mimeType;
-      }
       const resp = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ messages: nextHistory, menuContext: menuItems, cartContext: cartItems }),
       });
       const data = await resp.json();
       const cleanText = data.text || "죄송합니다, 오류가 발생했습니다.";
@@ -241,9 +216,6 @@ export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, on
         <ScrollView ref={scrollRef} style={s.msgList} contentContainerStyle={s.msgContent}>
           {displayMsgs.map((msg, i) => (
             <View key={i} style={[s.bubble, msg.role === "user" ? s.bubbleUser : s.bubbleAi]}>
-              {msg.attachedPreviewUrl && (
-                <Image source={{ uri: msg.attachedPreviewUrl }} style={s.msgImage} resizeMode="cover" />
-              )}
               {msg.imageUrl && (
                 <Image source={{ uri: msg.imageUrl }} style={s.msgImage} resizeMode="cover" />
               )}
@@ -275,28 +247,12 @@ export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, on
           )}
         </ScrollView>
 
-        {attachedImage && (
-          <View style={s.attachPreviewRow}>
-            <Image source={{ uri: attachedImage.previewUrl }} style={s.attachThumb} resizeMode="cover" />
-            <TouchableOpacity style={s.attachRemove} onPress={() => setAttachedImage(null)}>
-              <Text style={s.attachRemoveText}>✕</Text>
-            </TouchableOpacity>
-          </View>
-        )}
         <View style={s.inputRow}>
           <Animated.View style={{ transform: [{ scale: micPulse }] }}>
             <TouchableOpacity style={[s.micBtn, listening && s.micBtnOn]} onPress={startVoice}>
               <Text style={s.micBtnText}>{listening ? "🔴" : "🎤"}</Text>
             </TouchableOpacity>
           </Animated.View>
-          {Platform.OS === "web" ? (
-            <label style={{ cursor: "pointer", display: "flex" }}>
-              <input type="file" accept="image/*" style={{ display: "none" }} onChange={handleFileSelect} />
-              <View style={[s.micBtn, attachedImage && s.attachBtnOn]}>
-                <Text style={s.micBtnText}>📎</Text>
-              </View>
-            </label>
-          ) : null}
           <TextInput
             style={s.input}
             placeholder={listening ? "듣고 있어요..." : "메시지를 입력하세요..."}
@@ -377,11 +333,6 @@ const s = StyleSheet.create({
   yesBtn: { flex: 1, backgroundColor: "#f97316", borderRadius: 8, paddingVertical: 8, alignItems: "center" },
   yesBtnText: { fontSize: 13, fontWeight: "700", color: "#fff" },
 
-  attachPreviewRow: { flexDirection: "row", alignItems: "center", paddingHorizontal: 12, paddingTop: 8, backgroundColor: "#fff", borderTopWidth: 1, borderTopColor: "#f0f0f0" },
-  attachThumb: { width: 56, height: 56, borderRadius: 8 },
-  attachRemove: { marginLeft: 6, width: 20, height: 20, borderRadius: 10, backgroundColor: "#e5e7eb", justifyContent: "center", alignItems: "center" },
-  attachRemoveText: { fontSize: 10, color: "#555", fontWeight: "700" },
-  attachBtnOn: { backgroundColor: "#fff3e0", borderWidth: 1, borderColor: "#f97316" },
   inputRow: { flexDirection: "row", padding: 12, gap: 8, borderTopWidth: 1, borderTopColor: "#f0f0f0", backgroundColor: "#fff", alignItems: "center" },
   micBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: "#f3f4f6", justifyContent: "center", alignItems: "center" },
   micBtnOn: { backgroundColor: "#fff0f0" },

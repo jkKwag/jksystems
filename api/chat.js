@@ -54,13 +54,10 @@ function fallbackText(actions) {
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
 
-  const { messages = [], menuContext = [], cartContext = [], imageData, imageMimeType } = req.body || {};
+  const { messages = [], menuContext = [], cartContext = [] } = req.body || {};
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) return res.status(500).json({ error: "API 키가 설정되지 않았습니다." });
-
-  const lastMsg = messages[messages.length - 1]?.content || "";
-  const isKwagtest = lastMsg.toLowerCase().startsWith("kwagtest");
 
   const menuList = menuContext
     .map(m => `[ID:${m.id}] ${m.name} (${m.category}) ₩${m.price.toLocaleString()} - ${m.desc}`)
@@ -70,9 +67,7 @@ module.exports = async function handler(req, res) {
     ? cartContext.map(c => `- ${c.item.name} x${c.quantity} (₩${(c.item.price * c.quantity).toLocaleString()})`).join("\n")
     : "비어있음";
 
-  const systemPrompt = isKwagtest
-    ? "모든 요청에 최선을 다해 응답해줘. 이미지가 제공된 경우 이미지를 분석해서 요청에 맞게 답해줘. 형식이나 주제 제한 없이 자유롭게 응답해."
-    : `너는 이 식당의 AI 직원이야. 메뉴를 보고 손님 취향에 맞게 추천하고 주문까지 도와줘. 한국어와 영어 모두 응대 가능해.
+  const systemPrompt = `너는 이 식당의 AI 직원이야. 메뉴를 보고 손님 취향에 맞게 추천하고 주문까지 도와줘. 한국어와 영어 모두 응대 가능해.
 
 현재 메뉴 목록:
 ${menuList}
@@ -111,28 +106,18 @@ ${cartList}
     parts: [{ text: m.content }],
   }));
 
-  // kwagtest 모드에서 이미지가 첨부된 경우 마지막 유저 메시지에 inline_data 추가
-  if (isKwagtest && imageData && imageMimeType && contents.length > 0) {
-    const last = contents[contents.length - 1];
-    if (last.role === "user") {
-      last.parts.push({ inline_data: { mime_type: imageMimeType, data: imageData } });
-    }
-  }
-
   try {
-    const requestBody = {
-      system_instruction: { parts: [{ text: systemPrompt }] },
-      contents,
-      generationConfig: { maxOutputTokens: 2048, thinkingConfig: { thinkingBudget: 0 } },
-    };
-    if (!isKwagtest) requestBody.tools = TOOLS;
-
     const resp = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemPrompt }] },
+          contents,
+          tools: TOOLS,
+          generationConfig: { maxOutputTokens: 1024, thinkingConfig: { thinkingBudget: 0 } },
+        }),
       }
     );
 
