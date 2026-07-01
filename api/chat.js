@@ -37,6 +37,19 @@ const TOOLS = [
         parameters: { type: "OBJECT", properties: {} },
       },
       {
+        name: "modify_reservation",
+        description: "손님이 기존 예약의 내용을 변경하려 할 때 호출한다. 변경할 항목만 인자에 채우고, 변경 없는 항목은 생략한다. 날짜/시간·인원·요청사항만 변경 가능하다.",
+        parameters: {
+          type: "OBJECT",
+          properties: {
+            reserved_at: { type: "STRING", description: "변경할 예약 일시 YYYY-MM-DD HH:MM (변경 없으면 생략)" },
+            party_size: { type: "NUMBER", description: "변경할 인원 수 (변경 없으면 생략)" },
+            req_cont: { type: "STRING", description: "변경할 요청사항 (변경 없으면 생략)" },
+          },
+          required: [],
+        },
+      },
+      {
         name: "request_reservation",
         description: "손님이 테이블 예약을 원할 때 이름·전화번호·인원·희망 일시를 모두 수집한 뒤 호출한다. 정보가 하나라도 빠지면 호출하지 않고 먼저 물어봐야 한다. 요청사항은 선택사항이다.",
         parameters: {
@@ -61,6 +74,7 @@ const FALLBACK_TEXT_BY_ACTION = {
   clear_cart: () => "장바구니를 비웠어요!",
   request_checkout: () => "장바구니를 확인하신 후 결제를 진행해 주세요!",
   request_reservation: () => "예약 정보를 확인해 주세요.",
+  modify_reservation: () => "변경 내용을 확인해 주세요.",
 };
 
 function fallbackText(actions) {
@@ -126,6 +140,11 @@ ${cartList}
 - 이름·전화번호·인원·희망 일시 네 가지가 모이면 마지막으로 "특별히 요청하실 사항이 있으신가요? (없으면 없음이라고 말씀해 주세요)"라고 물어봐. 답변을 받으면 req_cont에 담아 request_reservation 함수를 호출해. 호출 후 텍스트로는 "예약 정보를 확인해 주세요."라고만 말해 (개인정보 동의 화면이 자동으로 뜸).
 - 필수 정보(이름·전화번호·인원·희망 일시)가 하나라도 빠진 상태에서 함수를 호출하면 안 돼.
 - 함수 호출 없이 "예약됐어요"처럼 말로만 답하면 절대 안 돼.
+
+[예약 변경]
+- 손님이 기존 예약 내용을 바꾸려 할 때 modify_reservation 함수를 호출해. 변경하는 항목(날짜/시간·인원·요청사항)만 인자에 채우고, 변경 없는 항목은 생략해.
+- 함수 호출 후 텍스트로는 "변경 내용을 확인해 주세요."라고만 말해 (변경 확인 화면이 자동으로 뜸).
+- 함수 호출 없이 "변경됐어요"처럼 말로만 답하면 절대 안 돼.
 
 [공통 규칙]
 - 위 함수 호출이 필요한 상황에서 함수를 호출하지 않고 "담았다/추가했다/뺐다/지웠다/주문했다/결제했다"처럼 말로만 답하면 절대 안 돼. 실제로는 아무 것도 처리되지 않기 때문이야.`;
