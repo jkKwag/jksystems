@@ -25,8 +25,6 @@ export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, on
   const micPulse = useRef(new Animated.Value(1)).current;
   const recognitionRef = useRef(null);
   const scrollRef = useRef(null);
-  const fileInputRef = useRef(null);
-
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -286,17 +284,19 @@ export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, on
           </View>
         )}
         <View style={s.inputRow}>
-          {Platform.OS === "web" && (
-            <input ref={fileInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleFileSelect} />
-          )}
           <Animated.View style={{ transform: [{ scale: micPulse }] }}>
             <TouchableOpacity style={[s.micBtn, listening && s.micBtnOn]} onPress={startVoice}>
               <Text style={s.micBtnText}>{listening ? "🔴" : "🎤"}</Text>
             </TouchableOpacity>
           </Animated.View>
-          <TouchableOpacity style={[s.micBtn, attachedImage && s.attachBtnOn]} onPress={() => fileInputRef.current?.click()}>
-            <Text style={s.micBtnText}>📎</Text>
-          </TouchableOpacity>
+          {Platform.OS === "web" ? (
+            <label style={{ cursor: "pointer", display: "flex" }}>
+              <input type="file" accept="image/*" style={{ display: "none" }} onChange={handleFileSelect} />
+              <View style={[s.micBtn, attachedImage && s.attachBtnOn]}>
+                <Text style={s.micBtnText}>📎</Text>
+              </View>
+            </label>
+          ) : null}
           <TextInput
             style={s.input}
             placeholder={listening ? "듣고 있어요..." : "메시지를 입력하세요..."}
