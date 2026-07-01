@@ -11,6 +11,7 @@ const DECLINE_RE = /아니|싫어|빼|괜찮|말고|취소/;
 const CART_INQUIRY_RE = /내역|장바구니.*(확인|보여|목록)|뭐.*담|담은.*거|주문.*내역/;
 const CART_ACTION_RE = /지워|비워|빼|취소|담아|찜|넣어/;
 const RSVN_INQUIRY_RE = /예약.*(확인|조회|내역)|내.*예약|예약.*됐|예약.*어떻/;
+const RSVN_CANCEL_RE = /예약.*(취소|철회|삭제)|취소.*예약/;
 
 const generateRsvnNo = () => {
   const d = new Date();
@@ -29,7 +30,8 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
   const [loading, setLoading] = useState(false);
   const [pendingItem, setPendingItem] = useState(null);
   const [pendingReservation, setPendingReservation] = useState(null);
-  const [rsvnStep, setRsvnStep] = useState(null); // null | 'askRsvnNo'
+  const [pendingCancel, setPendingCancel] = useState(null);
+  const [rsvnStep, setRsvnStep] = useState(null); // null | 'askRsvnNo' | 'askCancelRsvnNo'
   const [showTooltip, setShowTooltip] = useState(false);
   const [listening, setListening] = useState(false);
   const panelY = useRef(new Animated.Value(500)).current;
@@ -119,6 +121,21 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
       setApiHistory(prev => [...prev, { role: "user", content: text }]);
       setInput("");
       showCartSummary();
+      return;
+    }
+
+    if (RSVN_CANCEL_RE.test(text) && rsvnStep === null) {
+      setDisplayMsgs(prev => [...prev, { role: "user", text }, { role: "assistant", text: "취소할 예약번호를 입력해 주세요. (예: 260701-48291)" }]);
+      setInput("");
+      setRsvnStep("askCancelRsvnNo");
+      return;
+    }
+
+    if (rsvnStep === "askCancelRsvnNo") {
+      setDisplayMsgs(prev => [...prev, { role: "user", text }]);
+      setInput("");
+      setRsvnStep(null);
+      await lookupForCancel(text.trim());
       return;
     }
 
@@ -214,6 +231,48 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
       return;
     }
     setDisplayMsgs(prev => [...prev, { role: "assistant", text: "예약 내역이에요.", reservations: data }]);
+  };
+
+  const lookupForCancel = async (rsvnNo) => {
+    const { data, error } = await supabase
+      .from("tb_usr_rsvn")
+      .select("*")
+      .eq("biz_reg_no", bizno)
+      .eq("rsvn_no", rsvnNo)
+      .order("reg_dt", { ascending: false });
+
+    if (error || !data) {
+      setDisplayMsgs(prev => [...prev, { role: "assistant", text: "조회 중 오류가 발생했어요. 다시 시도해 주세요." }]);
+      return;
+    }
+    if (data.length === 0) {
+      setDisplayMsgs(prev => [...prev, { role: "assistant", text: "해당 예약번호로 등록된 예약이 없어요." }]);
+      return;
+    }
+    const rsvn = data[0];
+    if (rsvn.status === "cancelled") {
+      setDisplayMsgs(prev => [...prev, { role: "assistant", text: "이미 취소된 예약이에요." }]);
+      return;
+    }
+    setDisplayMsgs(prev => [...prev, { role: "assistant", text: "아래 예약을 취소할까요?" }]);
+    setPendingCancel(rsvn);
+  };
+
+  const cancelReservation = async () => {
+    if (!pendingCancel) return;
+    const now = new Date().toISOString();
+    const { error } = await supabase
+      .from("tb_usr_rsvn")
+      .update({ status: "cancelled", mdf_usr_id: "guest", mdf_dt: now })
+      .eq("rsvn_no", pendingCancel.rsvn_no)
+      .eq("biz_reg_no", bizno);
+
+    const resultText = error
+      ? "취소 처리 중 오류가 발생했어요. 다시 시도해 주세요."
+      : `예약(${pendingCancel.rsvn_no})이 취소됐어요.`;
+    setDisplayMsgs(prev => [...prev, { role: "assistant", text: resultText }]);
+    setApiHistory(prev => [...prev, { role: "assistant", content: resultText }]);
+    setPendingCancel(null);
   };
 
   const showCartSummary = () => {
@@ -336,8 +395,9 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
                       s.rsvnCardStatus,
                       r.status === "approved" && s.rsvnStatusApproved,
                       r.status === "rejected" && s.rsvnStatusRejected,
+                      r.status === "cancelled" && s.rsvnStatusCancelled,
                     ]}>
-                      {r.status === "pending" ? "대기중 ⏳" : r.status === "approved" ? "승인 ✅" : "거절 ❌"}
+                      {r.status === "pending" ? "대기중 ⏳" : r.status === "approved" ? "승인 ✅" : r.status === "cancelled" ? "취소됨 🚫" : "거절 ❌"}
                     </Text>
                   </View>
                   <View style={s.rsvnCardRow}><Text style={s.rsvnCardLabel}>예약번호</Text><Text style={[s.rsvnCardValue, { fontFamily: Platform.OS === "web" ? "monospace" : undefined }]}>{r.rsvn_no}</Text></View>
@@ -405,6 +465,26 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
                 </TouchableOpacity>
                 <TouchableOpacity style={s.yesBtn} onPress={confirmReservation}>
                   <Text style={s.yesBtnText}>{pendingReservation.skipConsent ? "✓ 예약 신청" : "✓ 동의하고 예약"}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+          {pendingCancel && (
+            <View style={s.cancelCard}>
+              <Text style={s.cancelCardTitle}>🚫 예약 취소 확인</Text>
+              <View style={s.consentSummary}>
+                <Text style={s.consentSummaryText}>예약번호: {pendingCancel.rsvn_no}</Text>
+                <Text style={s.consentSummaryText}>{pendingCancel.guest_name} · {pendingCancel.party_size}명</Text>
+                <Text style={s.consentSummaryText}>{pendingCancel.reserved_at}</Text>
+                {!!pendingCancel.req_cont && <Text style={s.consentSummaryText}>요청: {pendingCancel.req_cont}</Text>}
+              </View>
+              <Text style={s.cancelCardWarning}>취소 후에는 되돌릴 수 없습니다.</Text>
+              <View style={s.cartCardBtns}>
+                <TouchableOpacity style={s.noBtn} onPress={() => setPendingCancel(null)}>
+                  <Text style={s.noBtnText}>돌아가기</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={s.cancelBtn} onPress={cancelReservation}>
+                  <Text style={s.yesBtnText}>예약 취소</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -502,10 +582,16 @@ const s = StyleSheet.create({
   rsvnCardStatus: { fontSize: 12, fontWeight: "800", color: "#f97316" },
   rsvnStatusApproved: { color: "#16a34a" },
   rsvnStatusRejected: { color: "#dc2626" },
+  rsvnStatusCancelled: { color: "#6b7280" },
   rsvnCardRow: { flexDirection: "row", paddingVertical: 3, borderBottomWidth: 1, borderBottomColor: "#f3f4f6" },
   rsvnCardLabel: { fontSize: 12, color: "#888", width: 60 },
   rsvnCardValue: { fontSize: 12, fontWeight: "600", color: "#111", flex: 1 },
   rsvnCardValueRed: { color: "#dc2626" },
+
+  cancelCard: { backgroundColor: "#fff5f5", borderWidth: 1.5, borderColor: "#dc2626", borderRadius: 14, padding: 14, alignSelf: "stretch" },
+  cancelCardTitle: { fontSize: 13, fontWeight: "800", color: "#dc2626", marginBottom: 8 },
+  cancelCardWarning: { fontSize: 11, color: "#dc2626", marginBottom: 10 },
+  cancelBtn: { flex: 1, backgroundColor: "#dc2626", borderRadius: 8, paddingVertical: 8, alignItems: "center" },
 
   rsvnNoCard: { backgroundColor: "#0f172a", borderRadius: 12, padding: 14, marginTop: 6, alignSelf: "stretch", alignItems: "center" },
   rsvnNoLabel: { fontSize: 10, fontWeight: "700", color: "rgba(255,255,255,0.55)", letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 },
