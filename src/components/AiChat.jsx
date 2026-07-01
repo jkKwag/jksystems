@@ -314,7 +314,6 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
               {msg.reservations && msg.reservations.map((r, j) => (
                 <View key={j} style={s.rsvnCard}>
                   <View style={s.rsvnCardHeader}>
-                    <Text style={s.rsvnCardDate}>{r.reserved_at}</Text>
                     <Text style={[
                       s.rsvnCardStatus,
                       r.status === "approved" && s.rsvnStatusApproved,
@@ -323,10 +322,14 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
                       {r.status === "pending" ? "대기중 ⏳" : r.status === "approved" ? "승인 ✅" : "거절 ❌"}
                     </Text>
                   </View>
-                  <Text style={s.rsvnCardInfo}>{r.party_size}명</Text>
-                  {!!r.req_cont && <Text style={s.rsvnCardReq}>요청: {r.req_cont}</Text>}
+                  <View style={s.rsvnCardRow}><Text style={s.rsvnCardLabel}>예약일시</Text><Text style={s.rsvnCardValue}>{r.reserved_at}</Text></View>
+                  <View style={s.rsvnCardRow}><Text style={s.rsvnCardLabel}>예약자</Text><Text style={s.rsvnCardValue}>{r.guest_name}</Text></View>
+                  <View style={s.rsvnCardRow}><Text style={s.rsvnCardLabel}>예약인원</Text><Text style={s.rsvnCardValue}>{r.party_size}명</Text></View>
+                  {!!r.req_cont && (
+                    <View style={s.rsvnCardRow}><Text style={s.rsvnCardLabel}>요청사항</Text><Text style={s.rsvnCardValue}>{r.req_cont}</Text></View>
+                  )}
                   {r.status === "rejected" && !!r.reject_rsn && (
-                    <Text style={s.rsvnCardRejectRsn}>사유: {r.reject_rsn}</Text>
+                    <View style={s.rsvnCardRow}><Text style={s.rsvnCardLabel}>거절사유</Text><Text style={[s.rsvnCardValue, s.rsvnCardValueRed]}>{r.reject_rsn}</Text></View>
                   )}
                 </View>
               ))}
@@ -467,14 +470,14 @@ const s = StyleSheet.create({
   yesBtnText: { fontSize: 13, fontWeight: "700", color: "#fff" },
 
   rsvnCard: { backgroundColor: "#fff", borderWidth: 1, borderColor: "#e5e7eb", borderRadius: 12, padding: 12, marginTop: 6, alignSelf: "stretch" },
-  rsvnCardHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 4 },
-  rsvnCardDate: { fontSize: 13, fontWeight: "700", color: "#111" },
-  rsvnCardStatus: { fontSize: 12, fontWeight: "700", color: "#f97316" },
+  rsvnCardHeader: { marginBottom: 8 },
+  rsvnCardStatus: { fontSize: 12, fontWeight: "800", color: "#f97316" },
   rsvnStatusApproved: { color: "#16a34a" },
   rsvnStatusRejected: { color: "#dc2626" },
-  rsvnCardInfo: { fontSize: 12, color: "#555" },
-  rsvnCardReq: { fontSize: 12, color: "#555", marginTop: 2 },
-  rsvnCardRejectRsn: { fontSize: 12, color: "#dc2626", marginTop: 4 },
+  rsvnCardRow: { flexDirection: "row", paddingVertical: 3, borderBottomWidth: 1, borderBottomColor: "#f3f4f6" },
+  rsvnCardLabel: { fontSize: 12, color: "#888", width: 60 },
+  rsvnCardValue: { fontSize: 12, fontWeight: "600", color: "#111", flex: 1 },
+  rsvnCardValueRed: { color: "#dc2626" },
 
   consentCard: { backgroundColor: "#f8faff", borderWidth: 1.5, borderColor: "#3b82f6", borderRadius: 14, padding: 14, alignSelf: "stretch" },
   consentTitle: { fontSize: 13, fontWeight: "800", color: "#1d4ed8", marginBottom: 8 },
