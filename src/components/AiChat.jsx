@@ -173,7 +173,10 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
         } else if (action.name === "request_reservation") {
           const { guest_name, guest_phone, party_size, datetime, req_cont } = action.args || {};
           if (guest_name && guest_phone && party_size && datetime) {
-            setPendingReservation({ guestName: guest_name, guestPhone: guest_phone, partySize: party_size, datetime, reqCont: req_cont || "" });
+            const alreadyConsented = Platform.OS === "web"
+              ? !!localStorage.getItem(`rsvn_cns_${guest_phone}`)
+              : false;
+            setPendingReservation({ guestName: guest_name, guestPhone: guest_phone, partySize: party_size, datetime, reqCont: req_cont || "", skipConsent: alreadyConsented });
           }
         }
       }
@@ -235,13 +238,18 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
     if (!pendingReservation) return;
     const now = new Date().toISOString();
     const rsvnNo = generateRsvnNo();
-    await supabase.from("tb_usr_prv_cns").insert({
-      guest_name: pendingReservation.guestName,
-      guest_phone: pendingReservation.guestPhone,
-      consent_at: now,
-      reg_usr_id: "guest",
-      reg_dt: now,
-    });
+    if (!pendingReservation.skipConsent) {
+      await supabase.from("tb_usr_prv_cns").insert({
+        guest_name: pendingReservation.guestName,
+        guest_phone: pendingReservation.guestPhone,
+        consent_at: now,
+        reg_usr_id: "guest",
+        reg_dt: now,
+      });
+      if (Platform.OS === "web") {
+        localStorage.setItem(`rsvn_cns_${pendingReservation.guestPhone}`, now);
+      }
+    }
     const { error } = await supabase.from("tb_usr_rsvn").insert({
       biz_reg_no: bizno,
       table_no: tableNo,
@@ -368,13 +376,22 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
           )}
           {pendingReservation && (
             <View style={s.consentCard}>
-              <Text style={s.consentTitle}>📋 개인정보 수집·이용 동의</Text>
-              <View style={s.consentBody}>
-                <Text style={s.consentRow}>· 수집항목: 이름, 전화번호</Text>
-                <Text style={s.consentRow}>· 수집목적: 예약 확인 및 승인 안내</Text>
-                <Text style={s.consentRow}>· 보유기간: 예약일로부터 7일 후 삭제</Text>
-                <Text style={s.consentNote}>※ 동의 거부 시 예약 서비스 이용이 제한됩니다.</Text>
-              </View>
+              {pendingReservation.skipConsent ? (
+                <>
+                  <Text style={s.consentTitle}>📅 예약 신청 확인</Text>
+                  <Text style={s.consentNote}>✓ 개인정보 수집·이용에 이미 동의하셨습니다.</Text>
+                </>
+              ) : (
+                <>
+                  <Text style={s.consentTitle}>📋 개인정보 수집·이용 동의</Text>
+                  <View style={s.consentBody}>
+                    <Text style={s.consentRow}>· 수집항목: 이름, 전화번호</Text>
+                    <Text style={s.consentRow}>· 수집목적: 예약 확인 및 승인 안내</Text>
+                    <Text style={s.consentRow}>· 보유기간: 예약일로부터 7일 후 삭제</Text>
+                    <Text style={s.consentNote}>※ 동의 거부 시 예약 서비스 이용이 제한됩니다.</Text>
+                  </View>
+                </>
+              )}
               <View style={s.consentSummary}>
                 <Text style={s.consentSummaryText}>{pendingReservation.guestName} · {pendingReservation.guestPhone}</Text>
                 <Text style={s.consentSummaryText}>{pendingReservation.partySize}명 · {pendingReservation.datetime}</Text>
@@ -384,10 +401,10 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
               </View>
               <View style={s.cartCardBtns}>
                 <TouchableOpacity style={s.noBtn} onPress={() => setPendingReservation(null)}>
-                  <Text style={s.noBtnText}>동의 안함</Text>
+                  <Text style={s.noBtnText}>{pendingReservation.skipConsent ? "취소" : "동의 안함"}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={s.yesBtn} onPress={confirmReservation}>
-                  <Text style={s.yesBtnText}>✓ 동의하고 예약</Text>
+                  <Text style={s.yesBtnText}>{pendingReservation.skipConsent ? "✓ 예약 신청" : "✓ 동의하고 예약"}</Text>
                 </TouchableOpacity>
               </View>
             </View>
