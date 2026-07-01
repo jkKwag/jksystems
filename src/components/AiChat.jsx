@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Animated, Platform, ActivityIndicator, Image } from "react-native";
+import supabase from "../lib/supabase";
 
 const WELCOME = "안녕하세요! 맛찬들 AI 메뉴 추천 도우미예요 😊\n어떤 음식이 드시고 싶으세요?";
 const CONFIRM_ADD_RE = /담아|찜|넣어|네|넵|예|응|그래|좋아|콜|오케이|ok/i;
@@ -10,13 +11,14 @@ const DECLINE_RE = /아니|싫어|빼|괜찮|말고|취소/;
 const CART_INQUIRY_RE = /내역|장바구니.*(확인|보여|목록)|뭐.*담|담은.*거|주문.*내역/;
 const CART_ACTION_RE = /지워|비워|빼|취소|담아|찜|넣어/;
 
-export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, onRemoveFromCart, onDecrementCart, onClearCart, onRequestCheckout }) {
+export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [], onAddToCart, onRemoveFromCart, onDecrementCart, onClearCart, onRequestCheckout }) {
   const [open, setOpen] = useState(false);
   const [displayMsgs, setDisplayMsgs] = useState([{ role: "assistant", text: WELCOME }]);
   const [apiHistory, setApiHistory] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [pendingItem, setPendingItem] = useState(null);
+  const [pendingReservation, setPendingReservation] = useState(null);
   const [showTooltip, setShowTooltip] = useState(false);
   const [listening, setListening] = useState(false);
   const panelY = useRef(new Animated.Value(500)).current;
@@ -142,6 +144,11 @@ export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, on
           onClearCart?.();
         } else if (action.name === "request_checkout") {
           hasCheckout = true;
+        } else if (action.name === "request_reservation") {
+          const { guest_name, guest_phone, party_size, datetime } = action.args || {};
+          if (guest_name && guest_phone && party_size && datetime) {
+            setPendingReservation({ guestName: guest_name, guestPhone: guest_phone, partySize: party_size, datetime });
+          }
         }
       }
 
@@ -177,6 +184,26 @@ export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, on
     setDisplayMsgs(prev => [...prev, { role: "assistant", text: confirmText }]);
     setApiHistory(prev => [...prev, { role: "assistant", content: confirmText }]);
     setPendingItem(null);
+  };
+
+  const confirmReservation = async () => {
+    if (!pendingReservation) return;
+    const { error } = await supabase.from("tb_reservation").insert({
+      biz_reg_no: bizno,
+      table_no: tableNo,
+      guest_name: pendingReservation.guestName,
+      guest_phone: pendingReservation.guestPhone,
+      party_size: pendingReservation.partySize,
+      reserved_at: pendingReservation.datetime,
+      status: "pending",
+      consent_at: new Date().toISOString(),
+    });
+    const resultText = error
+      ? "죄송합니다, 예약 신청 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요."
+      : "예약 신청이 완료됐어요! 사장님 승인 후 확정 안내 드릴게요 😊";
+    setDisplayMsgs(prev => [...prev, { role: "assistant", text: resultText }]);
+    setApiHistory(prev => [...prev, { role: "assistant", content: resultText }]);
+    setPendingReservation(null);
   };
 
   const fixedBase = Platform.OS === "web" ? { position: "fixed" } : {};
@@ -241,6 +268,29 @@ export default function AiChat({ menuItems = [], cartItems = [], onAddToCart, on
                 </TouchableOpacity>
                 <TouchableOpacity style={s.yesBtn} onPress={confirmCart}>
                   <Text style={s.yesBtnText}>🛒 담기</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+          {pendingReservation && (
+            <View style={s.consentCard}>
+              <Text style={s.consentTitle}>📋 개인정보 수집·이용 동의</Text>
+              <View style={s.consentBody}>
+                <Text style={s.consentRow}>· 수집항목: 이름, 전화번호</Text>
+                <Text style={s.consentRow}>· 수집목적: 예약 확인 및 승인 안내</Text>
+                <Text style={s.consentRow}>· 보유기간: 예약일로부터 7일 후 삭제</Text>
+                <Text style={s.consentNote}>※ 동의 거부 시 예약 서비스 이용이 제한됩니다.</Text>
+              </View>
+              <View style={s.consentSummary}>
+                <Text style={s.consentSummaryText}>{pendingReservation.guestName} · {pendingReservation.guestPhone}</Text>
+                <Text style={s.consentSummaryText}>{pendingReservation.partySize}명 · {pendingReservation.datetime}</Text>
+              </View>
+              <View style={s.cartCardBtns}>
+                <TouchableOpacity style={s.noBtn} onPress={() => setPendingReservation(null)}>
+                  <Text style={s.noBtnText}>동의 안함</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={s.yesBtn} onPress={confirmReservation}>
+                  <Text style={s.yesBtnText}>✓ 동의하고 예약</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -332,6 +382,14 @@ const s = StyleSheet.create({
   noBtnText: { fontSize: 13, fontWeight: "700", color: "#888" },
   yesBtn: { flex: 1, backgroundColor: "#f97316", borderRadius: 8, paddingVertical: 8, alignItems: "center" },
   yesBtnText: { fontSize: 13, fontWeight: "700", color: "#fff" },
+
+  consentCard: { backgroundColor: "#f8faff", borderWidth: 1.5, borderColor: "#3b82f6", borderRadius: 14, padding: 14, alignSelf: "stretch" },
+  consentTitle: { fontSize: 13, fontWeight: "800", color: "#1d4ed8", marginBottom: 8 },
+  consentBody: { gap: 3, marginBottom: 10 },
+  consentRow: { fontSize: 12, color: "#374151", lineHeight: 18 },
+  consentNote: { fontSize: 11, color: "#6b7280", marginTop: 4 },
+  consentSummary: { backgroundColor: "#eff6ff", borderRadius: 8, padding: 8, marginBottom: 10, gap: 2 },
+  consentSummaryText: { fontSize: 12, fontWeight: "700", color: "#1e40af" },
 
   inputRow: { flexDirection: "row", padding: 12, gap: 8, borderTopWidth: 1, borderTopColor: "#f0f0f0", backgroundColor: "#fff", alignItems: "center" },
   micBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: "#f3f4f6", justifyContent: "center", alignItems: "center" },

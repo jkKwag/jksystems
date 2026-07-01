@@ -36,6 +36,20 @@ const TOOLS = [
         description: "손님이 주문/결제/계산을 하고 싶다는 의사를 밝혔을 때 호출한다. 이 함수는 실제 결제를 처리하지 않는다 — 결제는 항상 손님이 장바구니 화면에서 직접 버튼을 눌러야만 진행되며, AI는 그 화면으로 안내만 한다.",
         parameters: { type: "OBJECT", properties: {} },
       },
+      {
+        name: "request_reservation",
+        description: "손님이 테이블 예약을 원할 때 이름·전화번호·인원·희망 일시를 모두 수집한 뒤 호출한다. 정보가 하나라도 빠지면 호출하지 않고 먼저 물어봐야 한다.",
+        parameters: {
+          type: "OBJECT",
+          properties: {
+            guest_name: { type: "STRING", description: "손님 이름" },
+            guest_phone: { type: "STRING", description: "손님 전화번호" },
+            party_size: { type: "NUMBER", description: "예약 인원 수" },
+            datetime: { type: "STRING", description: "희망 예약 일시 (예: 2025-08-15 19:00)" },
+          },
+          required: ["guest_name", "guest_phone", "party_size", "datetime"],
+        },
+      },
     ],
   },
 ];
@@ -45,6 +59,7 @@ const FALLBACK_TEXT_BY_ACTION = {
   remove_item: a => (a.args?.quantity > 0 ? `네, ${a.args.quantity}개 빼드렸어요!` : "네, 장바구니에서 빼드렸어요!"),
   clear_cart: () => "장바구니를 비웠어요!",
   request_checkout: () => "장바구니를 확인하신 후 결제를 진행해 주세요!",
+  request_reservation: () => "예약 정보를 확인해 주세요.",
 };
 
 function fallbackText(actions) {
@@ -96,6 +111,12 @@ ${cartList}
 
 [주문 / 결제]
 - 손님이 "주문해줘", "주문할게", "이대로 주문", "계산해줘", "결제할게" 등 주문·결제·계산 의사를 밝히면 request_checkout 함수를 호출해. 너는 실제로 결제를 처리할 수 없으니, 텍스트로는 "장바구니를 확인하신 후 결제를 진행해 주세요!"처럼 장바구니 화면에서 직접 결제를 진행하도록 안내만 해. 절대 "주문이 완료됐어요"처럼 결제가 끝난 것처럼 말하면 안 돼.
+
+[테이블 예약]
+- 손님이 예약을 원하면 이름, 전화번호, 인원, 희망 일시를 순서대로 하나씩 물어봐.
+- 네 가지 정보가 모두 모이면 request_reservation 함수를 호출해. 호출 후 텍스트로는 "예약 정보를 확인해 주세요."라고만 말해 (개인정보 동의 화면이 자동으로 뜸).
+- 정보가 하나라도 빠진 상태에서 함수를 호출하면 안 돼.
+- 함수 호출 없이 "예약됐어요"처럼 말로만 답하면 절대 안 돼.
 
 [공통 규칙]
 - 위 함수 호출이 필요한 상황에서 함수를 호출하지 않고 "담았다/추가했다/뺐다/지웠다/주문했다/결제했다"처럼 말로만 답하면 절대 안 돼. 실제로는 아무 것도 처리되지 않기 때문이야.`;

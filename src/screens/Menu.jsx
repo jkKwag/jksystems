@@ -561,6 +561,8 @@ export default function Menu({ bizno, tableNo }) {
 
       {/* AI 채팅 */}
       <AiChat
+        bizno={bizno}
+        tableNo={tableNo}
         menuItems={menuItems}
         cartItems={cartItems}
         onAddToCart={addToCart}
