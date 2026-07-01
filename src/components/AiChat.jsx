@@ -10,6 +10,7 @@ const DECLINE_RE = /아니|싫어|빼|괜찮|말고|취소/;
 // "지워/비워/빼/취소/담아" 등 실제 변경 의도가 섞인 메시지는 AI(마커 처리)로 보내야 하므로 제외
 const CART_INQUIRY_RE = /내역|장바구니.*(확인|보여|목록)|뭐.*담|담은.*거|주문.*내역/;
 const CART_ACTION_RE = /지워|비워|빼|취소|담아|찜|넣어/;
+const RSVN_INQUIRY_RE = /예약.*(확인|조회|내역)|내.*예약|예약.*됐|예약.*어떻/;
 
 export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [], onAddToCart, onRemoveFromCart, onDecrementCart, onClearCart, onRequestCheckout }) {
   const [open, setOpen] = useState(false);
@@ -19,6 +20,8 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
   const [loading, setLoading] = useState(false);
   const [pendingItem, setPendingItem] = useState(null);
   const [pendingReservation, setPendingReservation] = useState(null);
+  const [rsvnStep, setRsvnStep] = useState(null); // null | 'askName' | 'askPhone'
+  const [rsvnName, setRsvnName] = useState("");
   const [showTooltip, setShowTooltip] = useState(false);
   const [listening, setListening] = useState(false);
   const panelY = useRef(new Animated.Value(500)).current;
@@ -111,6 +114,30 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
       return;
     }
 
+    if (RSVN_INQUIRY_RE.test(text) && rsvnStep === null) {
+      setDisplayMsgs(prev => [...prev, { role: "user", text }, { role: "assistant", text: "예약 조회를 위해 이름을 알려주세요." }]);
+      setInput("");
+      setRsvnStep("askName");
+      return;
+    }
+
+    if (rsvnStep === "askName") {
+      setRsvnName(text);
+      setDisplayMsgs(prev => [...prev, { role: "user", text }, { role: "assistant", text: "전화번호를 알려주세요." }]);
+      setInput("");
+      setRsvnStep("askPhone");
+      return;
+    }
+
+    if (rsvnStep === "askPhone") {
+      setDisplayMsgs(prev => [...prev, { role: "user", text }]);
+      setInput("");
+      setRsvnStep(null);
+      await lookupReservations(rsvnName, text);
+      setRsvnName("");
+      return;
+    }
+
     const nextHistory = [...apiHistory, { role: "user", content: text }];
     setDisplayMsgs(prev => [...prev, { role: "user", text }]);
     setApiHistory(nextHistory);
@@ -166,6 +193,26 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
     } finally {
       setLoading(false);
     }
+  };
+
+  const lookupReservations = async (name, phone) => {
+    const { data, error } = await supabase
+      .from("tb_usr_rsvn")
+      .select("*")
+      .eq("biz_reg_no", bizno)
+      .eq("guest_name", name)
+      .eq("guest_phone", phone)
+      .order("reg_dt", { ascending: false });
+
+    if (error || !data) {
+      setDisplayMsgs(prev => [...prev, { role: "assistant", text: "조회 중 오류가 발생했어요. 다시 시도해 주세요." }]);
+      return;
+    }
+    if (data.length === 0) {
+      setDisplayMsgs(prev => [...prev, { role: "assistant", text: "해당 이름과 전화번호로 등록된 예약이 없어요." }]);
+      return;
+    }
+    setDisplayMsgs(prev => [...prev, { role: "assistant", text: `${data.length}건의 예약 내역이 있어요.`, reservations: data }]);
   };
 
   const showCartSummary = () => {
@@ -254,14 +301,35 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
 
         <ScrollView ref={scrollRef} style={s.msgList} contentContainerStyle={s.msgContent}>
           {displayMsgs.map((msg, i) => (
-            <View key={i} style={[s.bubble, msg.role === "user" ? s.bubbleUser : s.bubbleAi]}>
-              {msg.imageUrl && (
-                <Image source={{ uri: msg.imageUrl }} style={s.msgImage} resizeMode="cover" />
-              )}
-              {msg.itemName && (
-                <Text style={s.msgItemName}>{msg.itemName}</Text>
-              )}
-              <Text style={[s.bubbleText, msg.role === "user" && s.bubbleTextUser]}>{msg.text}</Text>
+            <View key={i}>
+              <View style={[s.bubble, msg.role === "user" ? s.bubbleUser : s.bubbleAi]}>
+                {msg.imageUrl && (
+                  <Image source={{ uri: msg.imageUrl }} style={s.msgImage} resizeMode="cover" />
+                )}
+                {msg.itemName && (
+                  <Text style={s.msgItemName}>{msg.itemName}</Text>
+                )}
+                <Text style={[s.bubbleText, msg.role === "user" && s.bubbleTextUser]}>{msg.text}</Text>
+              </View>
+              {msg.reservations && msg.reservations.map((r, j) => (
+                <View key={j} style={s.rsvnCard}>
+                  <View style={s.rsvnCardHeader}>
+                    <Text style={s.rsvnCardDate}>{r.reserved_at}</Text>
+                    <Text style={[
+                      s.rsvnCardStatus,
+                      r.status === "approved" && s.rsvnStatusApproved,
+                      r.status === "rejected" && s.rsvnStatusRejected,
+                    ]}>
+                      {r.status === "pending" ? "대기중 ⏳" : r.status === "approved" ? "승인 ✅" : "거절 ❌"}
+                    </Text>
+                  </View>
+                  <Text style={s.rsvnCardInfo}>{r.party_size}명</Text>
+                  {!!r.req_cont && <Text style={s.rsvnCardReq}>요청: {r.req_cont}</Text>}
+                  {r.status === "rejected" && !!r.reject_rsn && (
+                    <Text style={s.rsvnCardRejectRsn}>사유: {r.reject_rsn}</Text>
+                  )}
+                </View>
+              ))}
             </View>
           ))}
           {loading && (
@@ -397,6 +465,16 @@ const s = StyleSheet.create({
   noBtnText: { fontSize: 13, fontWeight: "700", color: "#888" },
   yesBtn: { flex: 1, backgroundColor: "#f97316", borderRadius: 8, paddingVertical: 8, alignItems: "center" },
   yesBtnText: { fontSize: 13, fontWeight: "700", color: "#fff" },
+
+  rsvnCard: { backgroundColor: "#fff", borderWidth: 1, borderColor: "#e5e7eb", borderRadius: 12, padding: 12, marginTop: 6, alignSelf: "stretch" },
+  rsvnCardHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 4 },
+  rsvnCardDate: { fontSize: 13, fontWeight: "700", color: "#111" },
+  rsvnCardStatus: { fontSize: 12, fontWeight: "700", color: "#f97316" },
+  rsvnStatusApproved: { color: "#16a34a" },
+  rsvnStatusRejected: { color: "#dc2626" },
+  rsvnCardInfo: { fontSize: 12, color: "#555" },
+  rsvnCardReq: { fontSize: 12, color: "#555", marginTop: 2 },
+  rsvnCardRejectRsn: { fontSize: 12, color: "#dc2626", marginTop: 4 },
 
   consentCard: { backgroundColor: "#f8faff", borderWidth: 1.5, borderColor: "#3b82f6", borderRadius: 14, padding: 14, alignSelf: "stretch" },
   consentTitle: { fontSize: 13, fontWeight: "800", color: "#1d4ed8", marginBottom: 8 },
