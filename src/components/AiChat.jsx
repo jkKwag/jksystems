@@ -145,9 +145,9 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
         } else if (action.name === "request_checkout") {
           hasCheckout = true;
         } else if (action.name === "request_reservation") {
-          const { guest_name, guest_phone, party_size, datetime } = action.args || {};
+          const { guest_name, guest_phone, party_size, datetime, req_cont } = action.args || {};
           if (guest_name && guest_phone && party_size && datetime) {
-            setPendingReservation({ guestName: guest_name, guestPhone: guest_phone, partySize: party_size, datetime });
+            setPendingReservation({ guestName: guest_name, guestPhone: guest_phone, partySize: party_size, datetime, reqCont: req_cont || "" });
           }
         }
       }
@@ -188,15 +188,27 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
 
   const confirmReservation = async () => {
     if (!pendingReservation) return;
-    const { error } = await supabase.from("tb_reservation").insert({
+    const now = new Date().toISOString();
+    const [cnsErr] = await Promise.all([
+      supabase.from("tb_usr_prv_cns").insert({
+        guest_name: pendingReservation.guestName,
+        guest_phone: pendingReservation.guestPhone,
+        consent_at: now,
+        reg_usr_id: "guest",
+        reg_dt: now,
+      }),
+    ]);
+    const { error } = await supabase.from("tb_usr_rsvn").insert({
       biz_reg_no: bizno,
       table_no: tableNo,
       guest_name: pendingReservation.guestName,
       guest_phone: pendingReservation.guestPhone,
       party_size: pendingReservation.partySize,
       reserved_at: pendingReservation.datetime,
+      req_cont: pendingReservation.reqCont || null,
       status: "pending",
-      consent_at: new Date().toISOString(),
+      reg_usr_id: "guest",
+      reg_dt: now,
     });
     const resultText = error
       ? "죄송합니다, 예약 신청 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요."
@@ -284,6 +296,9 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
               <View style={s.consentSummary}>
                 <Text style={s.consentSummaryText}>{pendingReservation.guestName} · {pendingReservation.guestPhone}</Text>
                 <Text style={s.consentSummaryText}>{pendingReservation.partySize}명 · {pendingReservation.datetime}</Text>
+                {!!pendingReservation.reqCont && (
+                  <Text style={s.consentSummaryText}>요청: {pendingReservation.reqCont}</Text>
+                )}
               </View>
               <View style={s.cartCardBtns}>
                 <TouchableOpacity style={s.noBtn} onPress={() => setPendingReservation(null)}>
