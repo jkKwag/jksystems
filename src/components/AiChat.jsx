@@ -255,11 +255,16 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
       reg_usr_id: "guest",
       reg_dt: now,
     });
-    const resultText = error
-      ? "죄송합니다, 예약 신청 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요."
-      : `예약 신청이 완료됐어요! 사장님 승인 후 확정 안내 드릴게요 😊\n예약번호: ${rsvnNo}\n(예약 조회 시 필요하니 메모해 두세요!)`;
-    setDisplayMsgs(prev => [...prev, { role: "assistant", text: resultText }]);
-    setApiHistory(prev => [...prev, { role: "assistant", content: resultText }]);
+    if (error) {
+      console.error("[예약 insert 실패]", JSON.stringify(error));
+      const errDetail = error?.message || error?.details || error?.hint || JSON.stringify(error);
+      setDisplayMsgs(prev => [...prev, { role: "assistant", text: `예약 신청 중 오류가 발생했어요.\n(${errDetail})` }]);
+      setApiHistory(prev => [...prev, { role: "assistant", content: "예약 신청 중 오류가 발생했어요." }]);
+    } else {
+      const successText = "예약 신청이 완료됐어요! 사장님 승인 후 확정 안내 드릴게요 😊";
+      setDisplayMsgs(prev => [...prev, { role: "assistant", text: successText, rsvnNo }]);
+      setApiHistory(prev => [...prev, { role: "assistant", content: `${successText}\n예약번호: ${rsvnNo}` }]);
+    }
     setPendingReservation(null);
   };
 
@@ -309,6 +314,13 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
                 )}
                 <Text style={[s.bubbleText, msg.role === "user" && s.bubbleTextUser]}>{msg.text}</Text>
               </View>
+              {msg.rsvnNo && (
+                <View style={s.rsvnNoCard}>
+                  <Text style={s.rsvnNoLabel}>예약번호</Text>
+                  <Text style={s.rsvnNoValue}>{msg.rsvnNo}</Text>
+                  <Text style={s.rsvnNoHint}>예약 조회 시 필요하니 메모해 두세요!</Text>
+                </View>
+              )}
               {msg.reservations && msg.reservations.map((r, j) => (
                 <View key={j} style={s.rsvnCard}>
                   <View style={s.rsvnCardHeader}>
@@ -477,6 +489,11 @@ const s = StyleSheet.create({
   rsvnCardLabel: { fontSize: 12, color: "#888", width: 60 },
   rsvnCardValue: { fontSize: 12, fontWeight: "600", color: "#111", flex: 1 },
   rsvnCardValueRed: { color: "#dc2626" },
+
+  rsvnNoCard: { backgroundColor: "#0f172a", borderRadius: 12, padding: 14, marginTop: 6, alignSelf: "stretch", alignItems: "center" },
+  rsvnNoLabel: { fontSize: 10, fontWeight: "700", color: "rgba(255,255,255,0.55)", letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 },
+  rsvnNoValue: { fontSize: 22, fontWeight: "900", color: "#f97316", letterSpacing: 2, fontFamily: Platform.OS === "web" ? "monospace" : undefined },
+  rsvnNoHint: { fontSize: 10, color: "rgba(255,255,255,0.45)", marginTop: 6 },
 
   consentCard: { backgroundColor: "#f8faff", borderWidth: 1.5, borderColor: "#3b82f6", borderRadius: 14, padding: 14, alignSelf: "stretch" },
   consentTitle: { fontSize: 13, fontWeight: "800", color: "#1d4ed8", marginBottom: 8 },
