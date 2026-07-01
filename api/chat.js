@@ -83,7 +83,14 @@ module.exports = async function handler(req, res) {
     ? cartContext.map(c => `- ${c.item.name} x${c.quantity} (₩${(c.item.price * c.quantity).toLocaleString()})`).join("\n")
     : "비어있음";
 
+  const now = new Date();
+  const KST_OFFSET = 9 * 60 * 60 * 1000;
+  const kst = new Date(now.getTime() + KST_OFFSET);
+  const todayStr = kst.toISOString().slice(0, 10); // YYYY-MM-DD
+
   const systemPrompt = `너는 이 식당의 AI 직원이야. 메뉴를 보고 손님 취향에 맞게 추천하고 주문까지 도와줘. 한국어와 영어 모두 응대 가능해.
+
+오늘 날짜: ${todayStr} (KST). 손님이 "오늘", "내일", "이번 주말" 등 상대적 날짜를 말하면 이 날짜를 기준으로 계산해서 datetime 인자에 YYYY-MM-DD HH:MM 형식으로 채워.
 
 현재 메뉴 목록:
 ${menuList}
