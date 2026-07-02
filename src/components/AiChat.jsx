@@ -719,7 +719,7 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
         style={[s.fab, fixedBase, { bottom: 160, right: 20, zIndex: 200 }]}
         onPress={() => setOpen(true)}
       >
-        <Text style={s.fabText}>✦ AI 주문</Text>
+        <Text style={s.fabText}>✦ AI도움</Text>
       </TouchableOpacity>
     </>
   );

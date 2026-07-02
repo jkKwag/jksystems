@@ -287,6 +287,14 @@ export default function Menu({ bizno, tableNo }) {
 
   const [cart, setCart] = useState(() => loadCart(bizno));
   const [showCart, setShowCart] = useState(false);
+  const aiToastOpacity = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.sequence([
+      Animated.timing(aiToastOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
+      Animated.delay(2200),
+      Animated.timing(aiToastOpacity, { toValue: 0, duration: 400, useNativeDriver: true }),
+    ]).start();
+  }, []);
   const [showConfetti, setShowConfetti] = useState(false);
   const [checkoutHint, setCheckoutHint] = useState(false);
   const [showOrderDone, setShowOrderDone] = useState(false);
@@ -620,6 +628,10 @@ export default function Menu({ bizno, tableNo }) {
           </View>
         </View>
       </Modal>
+
+      <Animated.View style={[s.aiToast, { opacity: aiToastOpacity }]} pointerEvents="none">
+        <Text style={s.aiToastText}>✦ AI도움으로 주문 및 예약가능합니다</Text>
+      </Animated.View>
     </View>
   );
 }
@@ -635,6 +647,9 @@ const s = StyleSheet.create({
   tableBadgeText: { color: "#fff", fontSize: 13, fontWeight: "900", letterSpacing: 1 },
   scanListBtn: { marginLeft: "auto", borderWidth: 1.5, borderColor: "#16a34a", borderRadius: 16, paddingHorizontal: 10, paddingVertical: 4, backgroundColor: "#f0fdf4" },
   scanListBtnText: { fontSize: 11, fontWeight: "700", color: "#16a34a" },
+
+  aiToast: { position: "absolute", bottom: 220, alignSelf: "center", backgroundColor: "#0f172a", borderRadius: 24, paddingHorizontal: 18, paddingVertical: 10, shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 10 },
+  aiToastText: { color: "#fff", fontSize: 13, fontWeight: "700" },
   shopMeta: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 },
   shopRating: { fontSize: 13, fontWeight: "700", color: "#111" },
   star: { color: "#f97316" },
