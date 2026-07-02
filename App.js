@@ -43,6 +43,7 @@ const Logo = () => (
 export default function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [visitHistory, setVisitHistory] = useState([]);
+  const [visitCountMap, setVisitCountMap] = useState({});
   const [visitLoaded, setVisitLoaded] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
@@ -93,13 +94,20 @@ export default function App() {
         .from("tb_usr_prv_cns")
         .select("biz_reg_no")
         .eq("uuid", uuid);
-      const bizNos = [...new Set((cnsData || []).map(r => r.biz_reg_no).filter(Boolean))];
+      const countMap = {};
+      (cnsData || []).forEach(r => {
+        if (r.biz_reg_no) countMap[r.biz_reg_no] = (countMap[r.biz_reg_no] || 0) + 1;
+      });
+      const bizNos = Object.keys(countMap);
       if (bizNos.length > 0) {
         const { data: bizData } = await supabase
           .from("tb_biz")
           .select("biz_reg_no,biz_nm,addr")
           .in("biz_reg_no", bizNos);
-        if (bizData) setVisitHistory(bizData);
+        if (bizData) {
+          setVisitHistory(bizData);
+          setVisitCountMap(countMap);
+        }
       }
       setVisitLoaded(true);
     })();
@@ -210,7 +218,10 @@ export default function App() {
                   <Text style={s.visitCardName}>{biz.biz_nm}</Text>
                   {!!biz.addr && <Text style={s.visitCardAddr} numberOfLines={1}>{biz.addr}</Text>}
                 </View>
-                <Text style={s.visitCardArrow}>→</Text>
+                <View style={{ alignItems: "flex-end", gap: 4 }}>
+                  <Text style={s.visitCardCount}>{visitCountMap[biz.biz_reg_no] || 0}회</Text>
+                  <Text style={s.visitCardArrow}>→</Text>
+                </View>
               </View>
             </TouchableOpacity>
           ))
@@ -270,4 +281,5 @@ adminBtn: { borderWidth: 1.5, borderColor: "rgba(255,255,255,0.3)", borderRadius
   visitCardName: { fontSize: 15, fontWeight: "800", color: "#0f172a", marginBottom: 2 },
   visitCardAddr: { fontSize: 12, color: "#94a3b8" },
   visitCardArrow: { fontSize: 16, color: "#16a34a", fontWeight: "700" },
+  visitCardCount: { fontSize: 12, fontWeight: "800", color: "#f97316", backgroundColor: "#fff7ed", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20 },
 });
