@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Animated, Platform, ActivityIndicator, Image } from "react-native";
 import supabase from "../lib/supabase";
 
-const WELCOME = "안녕하세요! 맛찬들 AI 메뉴 추천 도우미예요 😊\n어떤 음식이 드시고 싶으세요?";
+const WELCOME = "안녕하세요! Scaneat AI 메뉴 추천 도우미예요 😊\n어떤 음식이 드시고 싶으세요?";
 const CONFIRM_ADD_RE = /담아|찜|넣어|네|넵|예|응|그래|좋아|콜|오케이|ok/i;
 const DECLINE_RE = /아니|싫어|빼|괜찮|말고|취소/;
 // 장바구니 조회는 AI(대화 기록에 영향받아 실제 장바구니와 다르게 답할 수 있음)를
@@ -461,7 +461,7 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
         <View style={[s.panelHeader, Platform.OS === "web" && { background: "linear-gradient(135deg, #f97316 0%, #0f172a 100%)" }]}>
           <View>
             <Text style={s.panelTitle}>✦ AI 메뉴 추천</Text>
-            <Text style={s.panelSub}>맛찬들 도우미</Text>
+            <Text style={s.panelSub}>Scaneat 도우미</Text>
           </View>
           <TouchableOpacity style={s.xBtn} onPress={() => setOpen(false)}>
             <Text style={s.xBtnText}>✕</Text>
@@ -777,7 +777,7 @@ const s = StyleSheet.create({
   micBtnOn: { backgroundColor: "#fff0f0" },
   micBtnText: { fontSize: 16 },
   input: { flex: 1, backgroundColor: "#f3f4f6", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 10, fontSize: 14, color: "#111" },
-  sendBtn: { backgroundColor: "#f97316", borderRadius: 22, paddingHorizontal: 16, justifyContent: "center" },
+  sendBtn: { backgroundColor: "#f97316", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 10, justifyContent: "center" },
   sendBtnOff: { backgroundColor: "#e5e7eb" },
   sendBtnText: { color: "#fff", fontWeight: "700", fontSize: 13 },
 

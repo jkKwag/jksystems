@@ -297,7 +297,7 @@ export default function Menu({ bizno, tableNo }) {
     window.Kakao.Share.sendDefault({
       objectType: "feed",
       content: {
-        title: "🍽 맛찬들",
+        title: "🍽 Scaneat",
         description: "AI 메뉴 추천과 함께 맛있는 식사를 즐겨보세요!",
         imageUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=800&h=400&fit=crop",
         link: {
