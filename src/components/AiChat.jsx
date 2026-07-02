@@ -489,17 +489,18 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
               )}
               {msg.reservations && msg.reservations.map((r, j) => (
                 <View key={j} style={s.rsvnCard}>
-                  <View style={s.rsvnCardHeader}>
+                  <View style={s.rsvnCardTopRow}>
+                    <Text style={s.rsvnCardNo}>{r.rsvn_no}</Text>
                     <Text style={[
-                      s.rsvnCardStatus,
-                      r.status === "approved" && s.rsvnStatusApproved,
-                      r.status === "rejected" && s.rsvnStatusRejected,
-                      r.status === "cancelled" && s.rsvnStatusCancelled,
+                      s.rsvnCardBadge,
+                      r.status === "approved" && s.rsvnBadgeApproved,
+                      r.status === "rejected" && s.rsvnBadgeRejected,
+                      r.status === "cancelled" && s.rsvnBadgeCancelled,
                     ]}>
                       {r.status === "pending" ? "대기중 ⏳" : r.status === "approved" ? "승인 ✅" : r.status === "cancelled" ? "취소됨 🚫" : "거절 ❌"}
                     </Text>
                   </View>
-                  <View style={s.rsvnCardRow}><Text style={s.rsvnCardLabel}>예약번호</Text><Text style={[s.rsvnCardValue, { fontFamily: Platform.OS === "web" ? "monospace" : undefined }]}>{r.rsvn_no}</Text></View>
+                  <View style={s.rsvnCardDivider} />
                   <View style={s.rsvnCardRow}><Text style={s.rsvnCardLabel}>예약일시</Text><Text style={s.rsvnCardValue}>{r.reserved_at}</Text></View>
                   <View style={s.rsvnCardRow}><Text style={s.rsvnCardLabel}>예약자</Text><Text style={s.rsvnCardValue}>{r.guest_name}</Text></View>
                   <View style={s.rsvnCardRow}><Text style={s.rsvnCardLabel}>예약인원</Text><Text style={s.rsvnCardValue}>{r.party_size}명</Text></View>
@@ -734,16 +735,18 @@ const s = StyleSheet.create({
   yesBtn: { flex: 1, backgroundColor: "#f97316", borderRadius: 8, paddingVertical: 8, alignItems: "center" },
   yesBtnText: { fontSize: 13, fontWeight: "700", color: "#fff" },
 
-  rsvnCard: { backgroundColor: "#fff", borderWidth: 1, borderColor: "#e5e7eb", borderRadius: 12, padding: 12, marginTop: 6, alignSelf: "stretch" },
-  rsvnCardHeader: { marginBottom: 8 },
-  rsvnCardStatus: { fontSize: 12, fontWeight: "800", color: "#f97316" },
-  rsvnStatusApproved: { color: "#16a34a" },
-  rsvnStatusRejected: { color: "#dc2626" },
-  rsvnStatusCancelled: { color: "#6b7280" },
-  rsvnCardRow: { flexDirection: "row", paddingVertical: 3, borderBottomWidth: 1, borderBottomColor: "#f3f4f6" },
-  rsvnCardLabel: { fontSize: 12, color: "#888", width: 60 },
-  rsvnCardValue: { fontSize: 12, fontWeight: "600", color: "#111", flex: 1 },
-  rsvnCardValueRed: { color: "#dc2626" },
+  rsvnCard: { backgroundColor: "#0f172a", borderRadius: 14, padding: 14, marginTop: 6, alignSelf: "stretch" },
+  rsvnCardTopRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 10 },
+  rsvnCardNo: { fontSize: 17, fontWeight: "900", color: "#f97316", fontFamily: Platform.OS === "web" ? "monospace" : undefined, letterSpacing: 1.5 },
+  rsvnCardBadge: { fontSize: 10, fontWeight: "700", color: "#f97316", backgroundColor: "rgba(249,115,22,0.15)", paddingHorizontal: 8, paddingVertical: 3, borderRadius: 20 },
+  rsvnBadgeApproved: { color: "#4ade80", backgroundColor: "rgba(74,222,128,0.15)" },
+  rsvnBadgeRejected: { color: "#f87171", backgroundColor: "rgba(248,113,113,0.15)" },
+  rsvnBadgeCancelled: { color: "#9ca3af", backgroundColor: "rgba(156,163,175,0.15)" },
+  rsvnCardDivider: { height: 1, backgroundColor: "rgba(255,255,255,0.08)", marginBottom: 8 },
+  rsvnCardRow: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 4 },
+  rsvnCardLabel: { fontSize: 11, color: "rgba(255,255,255,0.4)" },
+  rsvnCardValue: { fontSize: 12, fontWeight: "600", color: "rgba(255,255,255,0.85)", flex: 1, textAlign: "right" },
+  rsvnCardValueRed: { color: "#f87171" },
 
   changeCard: { backgroundColor: "#fffbeb", borderWidth: 1.5, borderColor: "#f59e0b", borderRadius: 14, padding: 14, alignSelf: "stretch" },
   changeCardTitle: { fontSize: 13, fontWeight: "800", color: "#b45309", marginBottom: 8 },
