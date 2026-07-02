@@ -397,7 +397,14 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
     const now = new Date().toISOString();
     const rsvnNo = generateRsvnNo();
     if (!pendingReservation.skipConsent) {
+      let scaneatUuid = Platform.OS === "web" ? localStorage.getItem("scaneat_uuid") : null;
+      if (!scaneatUuid && Platform.OS === "web") {
+        scaneatUuid = crypto.randomUUID();
+        localStorage.setItem("scaneat_uuid", scaneatUuid);
+      }
       await supabase.from("tb_usr_prv_cns").insert({
+        uuid: scaneatUuid,
+        biz_reg_no: bizno,
         guest_name: pendingReservation.guestName,
         guest_phone: pendingReservation.guestPhone,
         consent_at: now,

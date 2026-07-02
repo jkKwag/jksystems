@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Platform, Modal } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Platform, Modal, ScrollView } from "react-native";
+import supabase from "./src/lib/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Cars from "./src/screens/Cars";
 import Supporters from "./src/screens/Supporters";
@@ -49,6 +50,7 @@ const Logo = () => (
 export default function App() {
   const [tab, setTab] = useState("cars");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [visitHistory, setVisitHistory] = useState([]);
   const [showLogin, setShowLogin] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
   const [menuOverlay, setMenuOverlay] = useState(null); // null | "qna" | "faq"
@@ -87,6 +89,26 @@ export default function App() {
 
   useEffect(() => {
     AsyncStorage.getItem("isAdmin").then(v => { if (v === "true") setIsAdmin(true); });
+  }, []);
+
+  useEffect(() => {
+    if (Platform.OS !== "web" || menuBizno) return;
+    const uuid = localStorage.getItem("scaneat_uuid");
+    if (!uuid) return;
+    (async () => {
+      const { data: cnsData } = await supabase
+        .from("tb_usr_prv_cns")
+        .select("biz_reg_no")
+        .eq("uuid", uuid);
+      if (!cnsData || cnsData.length === 0) return;
+      const bizNos = [...new Set(cnsData.map(r => r.biz_reg_no).filter(Boolean))];
+      if (bizNos.length === 0) return;
+      const { data: bizData } = await supabase
+        .from("tb_biz")
+        .select("biz_reg_no,biz_nm,addr")
+        .in("biz_reg_no", bizNos);
+      if (bizData) setVisitHistory(bizData);
+    })();
   }, []);
 
   const handleLogin = async () => {
@@ -171,6 +193,25 @@ export default function App() {
         </TouchableOpacity>
       </View>
 
+      {visitHistory.length > 0 && (
+        <View style={s.visitSection}>
+          <Text style={s.visitTitle}>🍽 방문한 식당</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.visitList}>
+            {visitHistory.map(biz => (
+              <TouchableOpacity
+                key={biz.biz_reg_no}
+                style={s.visitCard}
+                onPress={() => { if (Platform.OS === "web") window.location.href = `/menu/${biz.biz_reg_no}`; }}
+              >
+                <Text style={s.visitCardName} numberOfLines={1}>{biz.biz_nm}</Text>
+                {!!biz.addr && <Text style={s.visitCardAddr} numberOfLines={1}>{biz.addr}</Text>}
+                <Text style={s.visitCardLink}>메뉴 보기 →</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      )}
+
       <View style={s.content}>
         {tab === "cars" && <Cars />}
         {tab === "qna" && <QnA isAdmin={isAdmin} />}
@@ -232,4 +273,12 @@ adminBtn: { borderWidth: 1.5, borderColor: "rgba(255,255,255,0.3)", borderRadius
   tabLabel: { fontSize: 11, color: "#94a3b8", fontWeight: "500" },
   tabLabelActive: { color: "#16a34a", fontWeight: "700" },
   tabIndicator: { position: "absolute", top: 0, left: "30%", right: "30%", height: 3, backgroundColor: "#16a34a", borderRadius: 2 },
+
+  visitSection: { backgroundColor: "#fff", paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: "#e2e8f0" },
+  visitTitle: { fontSize: 12, fontWeight: "700", color: "#64748b", letterSpacing: 0.5, paddingHorizontal: 16, marginBottom: 10, textTransform: "uppercase" },
+  visitList: { paddingHorizontal: 16, gap: 10 },
+  visitCard: { width: 160, backgroundColor: "#f1f5f9", borderRadius: 12, padding: 12, borderWidth: 1, borderColor: "#e2e8f0" },
+  visitCardName: { fontSize: 13, fontWeight: "800", color: "#0f172a", marginBottom: 2 },
+  visitCardAddr: { fontSize: 11, color: "#94a3b8", marginBottom: 6 },
+  visitCardLink: { fontSize: 11, fontWeight: "700", color: "#16a34a" },
 });
