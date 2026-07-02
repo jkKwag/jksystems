@@ -105,7 +105,7 @@ export default function App() {
           .select("biz_reg_no,biz_nm,addr")
           .in("biz_reg_no", bizNos);
         if (bizData) {
-          setVisitHistory(bizData);
+          setVisitHistory([...bizData].sort((a, b) => (countMap[b.biz_reg_no] || 0) - (countMap[a.biz_reg_no] || 0)));
           setVisitCountMap(countMap);
         }
       }
