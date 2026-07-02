@@ -45,8 +45,6 @@ export default function App() {
   const [visitHistory, setVisitHistory] = useState([]);
   const [visitCountMap, setVisitCountMap] = useState({});   // { biz_reg_no: { order: N, rsvn: M } }
   const [visitLoaded, setVisitLoaded] = useState(false);
-  const [toastMsg, setToastMsg] = useState(null);
-  const toastOpacity = useRef(new Animated.Value(0)).current;
   const badgeAnim = useRef(new Animated.Value(0)).current;
   const [showLogin, setShowLogin] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
@@ -123,19 +121,6 @@ export default function App() {
   useEffect(() => {
     if (!visitLoaded || visitHistory.length === 0) return;
     Animated.spring(badgeAnim, { toValue: 1, tension: 80, friction: 6, useNativeDriver: true }).start();
-    const totalOrder = Object.values(visitCountMap).reduce((s, c) => s + (c.order || 0), 0);
-    const totalRsvn = Object.values(visitCountMap).reduce((s, c) => s + (c.rsvn || 0), 0);
-    const parts = [];
-    if (totalOrder > 0) parts.push(`주문 ${totalOrder}회`);
-    if (totalRsvn > 0) parts.push(`예약 ${totalRsvn}회`);
-    if (parts.length === 0) return;
-    setToastMsg(parts.join(" · "));
-    toastOpacity.setValue(0);
-    Animated.sequence([
-      Animated.timing(toastOpacity, { toValue: 1, duration: 300, useNativeDriver: true }),
-      Animated.delay(2400),
-      Animated.timing(toastOpacity, { toValue: 0, duration: 300, useNativeDriver: true }),
-    ]).start(() => setToastMsg(null));
   }, [visitLoaded, visitHistory.length]);
 
   const handleLogin = async () => {
@@ -260,12 +245,6 @@ export default function App() {
         )}
       </ScrollView>
 
-      {toastMsg && (
-        <Animated.View style={[s.toast, { opacity: toastOpacity }]} pointerEvents="none">
-          <Text style={s.toastText}>📊 총 {toastMsg}</Text>
-        </Animated.View>
-      )}
-
       <AdminLogin visible={showLogin} onClose={() => setShowLogin(false)} onLogin={handleLogin} />
     </View>
   );
@@ -322,6 +301,4 @@ adminBtn: { borderWidth: 1.5, borderColor: "rgba(255,255,255,0.3)", borderRadius
   visitCardCount: { fontSize: 12, fontWeight: "800", color: "#f97316", backgroundColor: "#fff7ed", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20 },
   visitCardCountRsvn: { color: "#3b82f6", backgroundColor: "#eff6ff" },
 
-  toast: { position: "absolute", bottom: 40, alignSelf: "center", backgroundColor: "#0f172a", borderRadius: 24, paddingHorizontal: 20, paddingVertical: 10, shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 10 },
-  toastText: { color: "#fff", fontSize: 14, fontWeight: "700" },
 });
