@@ -104,8 +104,8 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
   }, [open]);
 
   useEffect(() => {
-    if (open) setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 120);
-  }, [displayMsgs, open]);
+    if (open) setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 150);
+  }, [displayMsgs, open, pendingReservation, pendingItem, pendingChange, pendingCancel]);
 
   const send = async () => {
     const text = input.trim();
@@ -240,6 +240,7 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
           hasCheckout = true;
         } else if (action.name === "request_reservation") {
           const { guest_name, guest_phone, party_size, datetime, req_cont } = action.args || {};
+          console.log("[request_reservation]", { guest_name, guest_phone, party_size, datetime });
           if (guest_name && guest_phone && party_size && datetime) {
             setPendingReservation({ guestName: guest_name, guestPhone: guest_phone, partySize: party_size, datetime, reqCont: req_cont || "" });
           }
