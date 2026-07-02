@@ -30,6 +30,7 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [pendingItem, setPendingItem] = useState(null);
+  const [pendingCheckout, setPendingCheckout] = useState(false);
   const [pendingReservation, setPendingReservation] = useState(null);
   const [pendingCancel, setPendingCancel] = useState(null);
   const [pendingChangeRsvn, setPendingChangeRsvn] = useState(null);
@@ -105,7 +106,7 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
 
   useEffect(() => {
     if (open) setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 150);
-  }, [displayMsgs, open, pendingReservation, pendingItem, pendingChange, pendingCancel]);
+  }, [displayMsgs, open, pendingReservation, pendingItem, pendingChange, pendingCancel, pendingCheckout]);
 
   const send = async () => {
     const text = input.trim();
@@ -238,7 +239,8 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
           onClearCart?.();
         } else if (action.name === "request_checkout") {
           hasCheckout = true;
-        } else if (action.name === "request_reservation") {
+        }
+ else if (action.name === "request_reservation") {
           const { guest_name, guest_phone, party_size, datetime, req_cont } = action.args || {};
           console.log("[request_reservation]", { guest_name, guest_phone, party_size, datetime });
           if (guest_name && guest_phone && party_size && datetime) {
@@ -253,8 +255,7 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
       setApiHistory(prev => [...prev, { role: "assistant", content: cleanText }]);
       if (found) setPendingItem(found);
       if (hasCheckout && cartItems.length > 0) {
-        setOpen(false);
-        onRequestCheckout?.();
+        setPendingCheckout(true);
       }
     } catch {
       setDisplayMsgs(prev => [...prev, { role: "assistant", text: "죄송합니다, 오류가 발생했습니다." }]);
@@ -379,6 +380,25 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
         + `\n\n총 ₩${cartItems.reduce((sum, c) => sum + c.item.price * c.quantity, 0).toLocaleString()}`;
     setDisplayMsgs(prev => [...prev, { role: "assistant", text: summaryText }]);
     setApiHistory(prev => [...prev, { role: "assistant", content: summaryText }]);
+  };
+
+  const confirmCheckout = async () => {
+    const now = new Date().toISOString();
+    let scaneatUuid = Platform.OS === "web" ? localStorage.getItem("scaneat_uuid") : null;
+    if (!scaneatUuid && Platform.OS === "web") {
+      scaneatUuid = crypto.randomUUID();
+      localStorage.setItem("scaneat_uuid", scaneatUuid);
+    }
+    await supabase.from("tb_usr_prv_cns").insert({
+      uuid: scaneatUuid,
+      biz_reg_no: bizno,
+      consent_at: now,
+      reg_usr_id: "guest",
+      reg_dt: now,
+    });
+    setPendingCheckout(false);
+    setOpen(false);
+    onRequestCheckout?.();
   };
 
   const confirmCart = () => {
@@ -530,6 +550,25 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
                 </TouchableOpacity>
                 <TouchableOpacity style={s.yesBtn} onPress={confirmCart}>
                   <Text style={s.yesBtnText}>🛒 담기</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+          {pendingCheckout && (
+            <View style={s.consentCard}>
+              <Text style={s.consentTitle}>📋 개인정보 수집·이용 동의</Text>
+              <View style={s.consentBody}>
+                <Text style={s.consentRow}>· 수집항목: 주문 정보 (메뉴, 수량), 테이블 번호</Text>
+                <Text style={s.consentRow}>· 수집목적: 주문 처리 및 결제</Text>
+                <Text style={s.consentRow}>· 보유기간: 주문 완료 후 3개월</Text>
+                <Text style={s.consentNote}>※ 동의 거부 시 주문 서비스 이용이 제한됩니다.</Text>
+              </View>
+              <View style={s.cartCardBtns}>
+                <TouchableOpacity style={s.noBtn} onPress={() => setPendingCheckout(false)}>
+                  <Text style={s.noBtnText}>동의 안함</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={s.yesBtn} onPress={confirmCheckout}>
+                  <Text style={s.yesBtnText}>✓ 동의하고 결제</Text>
                 </TouchableOpacity>
               </View>
             </View>
