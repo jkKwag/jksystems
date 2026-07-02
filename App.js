@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Platform, Modal, ScrollView } from "react-native";
 import supabase from "./src/lib/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Cars from "./src/screens/Cars";
 import Supporters from "./src/screens/Supporters";
 import QnA from "./src/screens/QnA";
 import FAQ from "./src/screens/FAQ";
@@ -10,7 +9,6 @@ import Menu from "./src/screens/Menu";
 import AdminLogin from "./src/components/AdminLogin";
 
 const TABS = [
-  { key: "cars", icon: "🏕", label: "캠핑카" },
   { key: "qna", icon: "💬", label: "Q&A" },
   { key: "faq", icon: "❓", label: "FAQ" },
 ];
@@ -48,7 +46,7 @@ const Logo = () => (
 );
 
 export default function App() {
-  const [tab, setTab] = useState("cars");
+  const [tab, setTab] = useState("qna");
   const [isAdmin, setIsAdmin] = useState(false);
   const [visitHistory, setVisitHistory] = useState([]);
   const [showLogin, setShowLogin] = useState(false);
@@ -213,7 +211,6 @@ export default function App() {
       )}
 
       <View style={s.content}>
-        {tab === "cars" && <Cars />}
         {tab === "qna" && <QnA isAdmin={isAdmin} />}
         {tab === "faq" && <FAQ />}
       </View>
