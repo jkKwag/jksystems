@@ -206,7 +206,7 @@ export default function App() {
       </View>
 
       <ScrollView style={s.content} contentContainerStyle={s.visitPage}>
-        <Text style={s.visitPageTitle}>스캔 목록</Text>
+        <Text style={s.visitPageTitle}>내 스캔 목록</Text>
         {!visitLoaded ? (
           <Text style={s.visitEmptyText}>불러오는 중...</Text>
         ) : visitHistory.length === 0 ? (
