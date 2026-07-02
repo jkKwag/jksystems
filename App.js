@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Platform, Modal, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Platform, Modal, ScrollView, Animated } from "react-native";
 import supabase from "./src/lib/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Supporters from "./src/screens/Supporters";
@@ -43,8 +43,9 @@ const Logo = () => (
 export default function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [visitHistory, setVisitHistory] = useState([]);
-  const [visitCountMap, setVisitCountMap] = useState({});
+  const [visitCountMap, setVisitCountMap] = useState({});   // { biz_reg_no: { order: N, rsvn: M } }
   const [visitLoaded, setVisitLoaded] = useState(false);
+  const badgeAnim = useRef(new Animated.Value(0)).current;
   const [showLogin, setShowLogin] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
   const [menuOverlay, setMenuOverlay] = useState(null); // null | "qna" | "faq"
@@ -92,11 +93,14 @@ export default function App() {
       if (!uuid) { setVisitLoaded(true); return; }
       const { data: cnsData } = await supabase
         .from("tb_usr_prv_cns")
-        .select("biz_reg_no")
+        .select("biz_reg_no,guest_name")
         .eq("uuid", uuid);
       const countMap = {};
       (cnsData || []).forEach(r => {
-        if (r.biz_reg_no) countMap[r.biz_reg_no] = (countMap[r.biz_reg_no] || 0) + 1;
+        if (!r.biz_reg_no) return;
+        if (!countMap[r.biz_reg_no]) countMap[r.biz_reg_no] = { order: 0, rsvn: 0 };
+        if (r.guest_name) countMap[r.biz_reg_no].rsvn += 1;
+        else countMap[r.biz_reg_no].order += 1;
       });
       const bizNos = Object.keys(countMap);
       if (bizNos.length > 0) {
@@ -105,13 +109,19 @@ export default function App() {
           .select("biz_reg_no,biz_nm,addr")
           .in("biz_reg_no", bizNos);
         if (bizData) {
-          setVisitHistory([...bizData].sort((a, b) => (countMap[b.biz_reg_no] || 0) - (countMap[a.biz_reg_no] || 0)));
+          const total = (k) => (countMap[k]?.order || 0) + (countMap[k]?.rsvn || 0);
+          setVisitHistory([...bizData].sort((a, b) => total(b.biz_reg_no) - total(a.biz_reg_no)));
           setVisitCountMap(countMap);
         }
       }
       setVisitLoaded(true);
     })();
   }, []);
+
+  useEffect(() => {
+    if (!visitLoaded || visitHistory.length === 0) return;
+    Animated.spring(badgeAnim, { toValue: 1, tension: 80, friction: 6, useNativeDriver: true }).start();
+  }, [visitLoaded, visitHistory.length]);
 
   const handleLogin = async () => {
     await AsyncStorage.setItem("isAdmin", "true");
@@ -219,7 +229,14 @@ export default function App() {
                   {!!biz.addr && <Text style={s.visitCardAddr} numberOfLines={1}>{biz.addr}</Text>}
                 </View>
                 <View style={{ alignItems: "flex-end", gap: 4 }}>
-                  <Text style={s.visitCardCount}>{visitCountMap[biz.biz_reg_no] || 0}회</Text>
+                  <Animated.View style={{ flexDirection: "row", gap: 4, transform: [{ scale: badgeAnim }] }}>
+                    {(visitCountMap[biz.biz_reg_no]?.order || 0) > 0 && (
+                      <Text style={s.visitCardCount}>주문 {visitCountMap[biz.biz_reg_no].order}회</Text>
+                    )}
+                    {(visitCountMap[biz.biz_reg_no]?.rsvn || 0) > 0 && (
+                      <Text style={[s.visitCardCount, s.visitCardCountRsvn]}>예약 {visitCountMap[biz.biz_reg_no].rsvn}회</Text>
+                    )}
+                  </Animated.View>
                   <Text style={s.visitCardArrow}>→</Text>
                 </View>
               </View>
@@ -282,4 +299,5 @@ adminBtn: { borderWidth: 1.5, borderColor: "rgba(255,255,255,0.3)", borderRadius
   visitCardAddr: { fontSize: 12, color: "#94a3b8" },
   visitCardArrow: { fontSize: 16, color: "#16a34a", fontWeight: "700" },
   visitCardCount: { fontSize: 12, fontWeight: "800", color: "#f97316", backgroundColor: "#fff7ed", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20 },
+  visitCardCountRsvn: { color: "#3b82f6", backgroundColor: "#eff6ff" },
 });
