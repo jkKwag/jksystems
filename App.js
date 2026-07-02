@@ -8,11 +8,6 @@ import FAQ from "./src/screens/FAQ";
 import Menu from "./src/screens/Menu";
 import AdminLogin from "./src/components/AdminLogin";
 
-const TABS = [
-  { key: "qna", icon: "💬", label: "Q&A" },
-  { key: "faq", icon: "❓", label: "FAQ" },
-];
-
 const HEADER_GRADIENT = Platform.OS === "web"
   ? { background: "linear-gradient(135deg, #0f172a 0%, #14532d 100%)" }
   : {};
@@ -46,9 +41,9 @@ const Logo = () => (
 );
 
 export default function App() {
-  const [tab, setTab] = useState("qna");
   const [isAdmin, setIsAdmin] = useState(false);
   const [visitHistory, setVisitHistory] = useState([]);
+  const [visitLoaded, setVisitLoaded] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
   const [menuOverlay, setMenuOverlay] = useState(null); // null | "qna" | "faq"
@@ -91,21 +86,22 @@ export default function App() {
 
   useEffect(() => {
     if (Platform.OS !== "web" || menuBizno) return;
-    const uuid = localStorage.getItem("scaneat_uuid");
-    if (!uuid) return;
     (async () => {
+      const uuid = localStorage.getItem("scaneat_uuid");
+      if (!uuid) { setVisitLoaded(true); return; }
       const { data: cnsData } = await supabase
         .from("tb_usr_prv_cns")
         .select("biz_reg_no")
         .eq("uuid", uuid);
-      if (!cnsData || cnsData.length === 0) return;
-      const bizNos = [...new Set(cnsData.map(r => r.biz_reg_no).filter(Boolean))];
-      if (bizNos.length === 0) return;
-      const { data: bizData } = await supabase
-        .from("tb_biz")
-        .select("biz_reg_no,biz_nm,addr")
-        .in("biz_reg_no", bizNos);
-      if (bizData) setVisitHistory(bizData);
+      const bizNos = [...new Set((cnsData || []).map(r => r.biz_reg_no).filter(Boolean))];
+      if (bizNos.length > 0) {
+        const { data: bizData } = await supabase
+          .from("tb_biz")
+          .select("biz_reg_no,biz_nm,addr")
+          .in("biz_reg_no", bizNos);
+        if (bizData) setVisitHistory(bizData);
+      }
+      setVisitLoaded(true);
     })();
   }, []);
 
@@ -191,39 +187,35 @@ export default function App() {
         </TouchableOpacity>
       </View>
 
-      {visitHistory.length > 0 && (
-        <View style={s.visitSection}>
-          <Text style={s.visitTitle}>🍽 방문한 식당</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.visitList}>
-            {visitHistory.map(biz => (
-              <TouchableOpacity
-                key={biz.biz_reg_no}
-                style={s.visitCard}
-                onPress={() => { if (Platform.OS === "web") window.location.href = `/menu/${biz.biz_reg_no}`; }}
-              >
-                <Text style={s.visitCardName} numberOfLines={1}>{biz.biz_nm}</Text>
-                {!!biz.addr && <Text style={s.visitCardAddr} numberOfLines={1}>{biz.addr}</Text>}
-                <Text style={s.visitCardLink}>메뉴 보기 →</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-      )}
-
-      <View style={s.content}>
-        {tab === "qna" && <QnA isAdmin={isAdmin} />}
-        {tab === "faq" && <FAQ />}
-      </View>
-
-      <View style={s.tabBar}>
-        {TABS.map(({ key, icon, label }) => (
-          <TouchableOpacity key={key} style={s.tabItem} onPress={() => setTab(key)}>
-            <Text style={[s.tabIcon, tab === key && s.tabIconActive]}>{icon}</Text>
-            <Text style={[s.tabLabel, tab === key && s.tabLabelActive]}>{label}</Text>
-            {tab === key && <View style={s.tabIndicator} />}
-          </TouchableOpacity>
-        ))}
-      </View>
+      <ScrollView style={s.content} contentContainerStyle={s.visitPage}>
+        <Text style={s.visitPageTitle}>방문한 식당</Text>
+        {!visitLoaded ? (
+          <Text style={s.visitEmptyText}>불러오는 중...</Text>
+        ) : visitHistory.length === 0 ? (
+          <View style={s.visitEmptyBox}>
+            <Text style={s.visitEmptyIcon}>🍽</Text>
+            <Text style={s.visitEmptyText}>방문 기록이 없습니다</Text>
+            <Text style={s.visitEmptyDesc}>식당에서 QR 코드를 스캔하고{"\n"}예약하면 여기에 기록됩니다.</Text>
+          </View>
+        ) : (
+          visitHistory.map(biz => (
+            <TouchableOpacity
+              key={biz.biz_reg_no}
+              style={s.visitCard}
+              onPress={() => { if (Platform.OS === "web") window.location.href = `/menu/${biz.biz_reg_no}`; }}
+            >
+              <View style={s.visitCardInner}>
+                <View style={s.visitCardIcon}><Text style={s.visitCardIconText}>🍴</Text></View>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.visitCardName}>{biz.biz_nm}</Text>
+                  {!!biz.addr && <Text style={s.visitCardAddr} numberOfLines={1}>{biz.addr}</Text>}
+                </View>
+                <Text style={s.visitCardArrow}>→</Text>
+              </View>
+            </TouchableOpacity>
+          ))
+        )}
+      </ScrollView>
 
       <AdminLogin visible={showLogin} onClose={() => setShowLogin(false)} onLogin={handleLogin} />
     </View>
@@ -263,19 +255,19 @@ adminBtn: { borderWidth: 1.5, borderColor: "rgba(255,255,255,0.3)", borderRadius
   drawerItemIcon: { fontSize: 24 },
   drawerItemLabel: { fontSize: 15, fontWeight: "800", color: "#111", marginBottom: 2 },
   drawerItemDesc: { fontSize: 12, color: "#999" },
-  tabBar: { flexDirection: "row", backgroundColor: "#fff", flexShrink: 0, shadowColor: "#0f172a", shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.06, shadowRadius: 12, elevation: 10, paddingBottom: 4 },
-  tabItem: { flex: 1, alignItems: "center", paddingVertical: 10, position: "relative" },
-  tabIcon: { fontSize: 20, marginBottom: 2, opacity: 0.4 },
-  tabIconActive: { opacity: 1 },
-  tabLabel: { fontSize: 11, color: "#94a3b8", fontWeight: "500" },
-  tabLabelActive: { color: "#16a34a", fontWeight: "700" },
-  tabIndicator: { position: "absolute", top: 0, left: "30%", right: "30%", height: 3, backgroundColor: "#16a34a", borderRadius: 2 },
+  visitPage: { padding: 20, paddingBottom: 40 },
+  visitPageTitle: { fontSize: 20, fontWeight: "900", color: "#0f172a", marginBottom: 16 },
 
-  visitSection: { backgroundColor: "#fff", paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: "#e2e8f0" },
-  visitTitle: { fontSize: 12, fontWeight: "700", color: "#64748b", letterSpacing: 0.5, paddingHorizontal: 16, marginBottom: 10, textTransform: "uppercase" },
-  visitList: { paddingHorizontal: 16, gap: 10 },
-  visitCard: { width: 160, backgroundColor: "#f1f5f9", borderRadius: 12, padding: 12, borderWidth: 1, borderColor: "#e2e8f0" },
-  visitCardName: { fontSize: 13, fontWeight: "800", color: "#0f172a", marginBottom: 2 },
-  visitCardAddr: { fontSize: 11, color: "#94a3b8", marginBottom: 6 },
-  visitCardLink: { fontSize: 11, fontWeight: "700", color: "#16a34a" },
+  visitEmptyBox: { alignItems: "center", paddingTop: 60 },
+  visitEmptyIcon: { fontSize: 48, marginBottom: 12 },
+  visitEmptyText: { fontSize: 15, fontWeight: "700", color: "#94a3b8", marginBottom: 6 },
+  visitEmptyDesc: { fontSize: 13, color: "#cbd5e1", textAlign: "center", lineHeight: 20 },
+
+  visitCard: { backgroundColor: "#fff", borderRadius: 14, marginBottom: 10, borderWidth: 1, borderColor: "#e2e8f0", overflow: "hidden" },
+  visitCardInner: { flexDirection: "row", alignItems: "center", padding: 14, gap: 12 },
+  visitCardIcon: { width: 42, height: 42, borderRadius: 12, backgroundColor: "#f0fdf4", justifyContent: "center", alignItems: "center" },
+  visitCardIconText: { fontSize: 20 },
+  visitCardName: { fontSize: 15, fontWeight: "800", color: "#0f172a", marginBottom: 2 },
+  visitCardAddr: { fontSize: 12, color: "#94a3b8" },
+  visitCardArrow: { fontSize: 16, color: "#16a34a", fontWeight: "700" },
 });
