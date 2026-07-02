@@ -394,7 +394,7 @@ export default function Menu({ bizno, tableNo }) {
             </View>
           )}
           <TouchableOpacity onPress={() => { if (Platform.OS === "web") window.location.href = "/"; }} style={s.scanListBtn}>
-            <Text style={s.scanListBtnText}>스캔 목록</Text>
+            <Text style={s.scanListBtnText}>내 스캔 목록</Text>
           </TouchableOpacity>
         </View>
         <View style={s.shopMeta}>
