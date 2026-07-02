@@ -4,7 +4,6 @@ import AiChat from "../components/AiChat";
 import MenuDetail from "./MenuDetail";
 import supabase from "../lib/supabase";
 
-const KAKAO_JS_KEY = "YOUR_KAKAO_JS_KEY"; // developers.kakao.com 에서 발급
 
 const BURST_COLORS = [
   ["#ff4757", "#ffa502", "#ff6348"],
@@ -285,29 +284,6 @@ export default function Menu({ bizno, tableNo }) {
     });
   }, [bizno]);
 
-  useEffect(() => {
-    if (Platform.OS !== "web") return;
-    if (window.Kakao && !window.Kakao.isInitialized()) {
-      window.Kakao.init(KAKAO_JS_KEY);
-    }
-  }, []);
-
-  const shareKakao = () => {
-    if (Platform.OS !== "web" || !window.Kakao?.isInitialized()) return;
-    window.Kakao.Share.sendDefault({
-      objectType: "feed",
-      content: {
-        title: "🍽 Scaneat",
-        description: "AI 메뉴 추천과 함께 맛있는 식사를 즐겨보세요!",
-        imageUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=800&h=400&fit=crop",
-        link: {
-          mobileWebUrl: window.location.href,
-          webUrl: window.location.href,
-        },
-      },
-      buttons: [{ title: "메뉴 보기", link: { mobileWebUrl: window.location.href, webUrl: window.location.href } }],
-    });
-  };
 
   const [cart, setCart] = useState(() => loadCart(bizno));
   const [showCart, setShowCart] = useState(false);
@@ -417,8 +393,8 @@ export default function Menu({ bizno, tableNo }) {
               <Text style={s.tableBadgeText}>{tableNo.toUpperCase()}</Text>
             </View>
           )}
-          <TouchableOpacity onPress={shareKakao} style={s.kakaoBtn}>
-            <Image source={{ uri: "https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png" }} style={s.kakaoImg} />
+          <TouchableOpacity onPress={() => { if (Platform.OS === "web") window.location.href = "/"; }} style={s.scanListBtn}>
+            <Text style={s.scanListBtnText}>스캔 목록</Text>
           </TouchableOpacity>
         </View>
         <View style={s.shopMeta}>
@@ -657,8 +633,8 @@ const s = StyleSheet.create({
   shopAiBadge: { fontSize: 11, color: "#f97316", fontWeight: "800" },
   tableBadge: { backgroundColor: "#f97316", borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
   tableBadgeText: { color: "#fff", fontSize: 13, fontWeight: "900", letterSpacing: 1 },
-  kakaoBtn: { marginLeft: "auto" },
-  kakaoImg: { width: 32, height: 32 },
+  scanListBtn: { marginLeft: "auto", borderWidth: 1, borderColor: "#e2e8f0", borderRadius: 16, paddingHorizontal: 10, paddingVertical: 4 },
+  scanListBtnText: { fontSize: 11, fontWeight: "700", color: "#64748b" },
   shopMeta: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 },
   shopRating: { fontSize: 13, fontWeight: "700", color: "#111" },
   star: { color: "#f97316" },
