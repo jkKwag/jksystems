@@ -7,6 +7,7 @@ import QnA from "./src/screens/QnA";
 import FAQ from "./src/screens/FAQ";
 import Menu from "./src/screens/Menu";
 import AdminLogin from "./src/components/AdminLogin";
+import QrScanner from "./src/components/QrScanner";
 
 const HEADER_GRADIENT = Platform.OS === "web"
   ? { background: "linear-gradient(135deg, #0f172a 0%, #14532d 100%)" }
@@ -45,6 +46,7 @@ export default function App() {
   const [visitHistory, setVisitHistory] = useState([]);
   const [visitCountMap, setVisitCountMap] = useState({});   // { biz_reg_no: { order: N, rsvn: M } }
   const [visitLoaded, setVisitLoaded] = useState(false);
+  const [showQrScanner, setShowQrScanner] = useState(false);
   const badgeAnim = useRef(new Animated.Value(0)).current;
   const [showLogin, setShowLogin] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
@@ -122,6 +124,18 @@ export default function App() {
     if (!visitLoaded || visitHistory.length === 0) return;
     Animated.spring(badgeAnim, { toValue: 1, tension: 80, friction: 6, useNativeDriver: true }).start();
   }, [visitLoaded, visitHistory.length]);
+
+  const handleQrScan = (result) => {
+    setShowQrScanner(false);
+    try {
+      const url = new URL(result);
+      const match = url.pathname.match(/^\/menu\/(.+)/);
+      if (match) window.location.href = `/menu/${match[1]}`;
+    } catch {
+      const match = result.match(/\/menu\/(.+)/);
+      if (match) window.location.href = `/menu/${match[1]}`;
+    }
+  };
 
   const handleLogin = async () => {
     await AsyncStorage.setItem("isAdmin", "true");
@@ -245,6 +259,14 @@ export default function App() {
         )}
       </ScrollView>
 
+      {Platform.OS === "web" && (
+        <TouchableOpacity style={s.qrFab} onPress={() => setShowQrScanner(true)}>
+          <Text style={s.qrFabIcon}>⬛</Text>
+          <Text style={s.qrFabText}>QR 스캔</Text>
+        </TouchableOpacity>
+      )}
+
+      <QrScanner visible={showQrScanner} onScan={handleQrScan} onClose={() => setShowQrScanner(false)} />
       <AdminLogin visible={showLogin} onClose={() => setShowLogin(false)} onLogin={handleLogin} />
     </View>
   );
@@ -300,5 +322,9 @@ adminBtn: { borderWidth: 1.5, borderColor: "rgba(255,255,255,0.3)", borderRadius
   visitCardArrow: { fontSize: 16, color: "#16a34a", fontWeight: "700" },
   visitCardCount: { fontSize: 12, fontWeight: "800", color: "#f97316", backgroundColor: "#fff7ed", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20 },
   visitCardCountRsvn: { color: "#3b82f6", backgroundColor: "#eff6ff" },
+
+  qrFab: { position: "absolute", bottom: 28, alignSelf: "center", flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: "#0f172a", borderRadius: 28, paddingHorizontal: 24, paddingVertical: 14, shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 10, elevation: 10 },
+  qrFabIcon: { fontSize: 18 },
+  qrFabText: { fontSize: 15, fontWeight: "800", color: "#fff" },
 
 });

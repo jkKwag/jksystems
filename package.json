@@ -11,6 +11,7 @@
     "bcryptjs": "^3.0.3",
     "expo": "~56.0.12",
     "expo-status-bar": "~56.0.4",
+    "jsqr": "^1.4.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.85.3",
