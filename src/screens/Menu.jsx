@@ -115,7 +115,7 @@ function FireworkBurst({ cx, cy, delay, colorSet }) {
   );
 }
 
-const FALL_COLORS = ["#f97316", "#16a34a", "#2563eb", "#dc2626", "#7c3aed", "#fbbf24", "#06b6d4", "#ec4899", "#f43f5e", "#a29bfe"];
+const FALL_COLORS = ["#f97316", "#16a34a", "#0f172a", "#dc2626", "#7c3aed", "#fbbf24", "#06b6d4", "#ec4899", "#f43f5e", "#a29bfe"];
 
 function FallingConfetti() {
   const particles = useRef(
@@ -661,7 +661,7 @@ const s = StyleSheet.create({
   scanListBtn: { marginLeft: "auto", borderWidth: 1.5, borderColor: "#16a34a", borderRadius: 16, paddingHorizontal: 10, paddingVertical: 4, backgroundColor: "#f0fdf4" },
   scanListBtnText: { fontSize: 11, fontWeight: "700", color: "#16a34a" },
 
-  chatFab: { height: 48, borderRadius: 24, backgroundColor: "#2563eb", justifyContent: "center", alignItems: "center", paddingHorizontal: 20, shadowColor: "#2563eb", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.4, shadowRadius: 10, elevation: 8 },
+  chatFab: { height: 48, borderRadius: 24, backgroundColor: "#0f172a", justifyContent: "center", alignItems: "center", paddingHorizontal: 20, shadowColor: "#0f172a", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.4, shadowRadius: 10, elevation: 8 },
   chatFabText: { fontSize: 14, fontWeight: "800", color: "#fff" },
 
   aiToast: { position: "absolute", bottom: 220, alignSelf: "center", backgroundColor: "#0f172a", borderRadius: 24, paddingHorizontal: 18, paddingVertical: 10, shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 10 },
