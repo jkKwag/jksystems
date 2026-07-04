@@ -550,7 +550,7 @@ export default function Menu({ bizno, tableNo }) {
         style={[s.chatFab, Platform.OS === "web" && { position: "fixed", bottom: 160, right: 130, zIndex: 200 }]}
         onPress={() => setShowChatRoom(true)}
       >
-        <Text style={s.chatFabText}>💬 채팅</Text>
+        <Text style={s.chatFabText}>💬 공유채팅</Text>
       </TouchableOpacity>
 
       {/* 채팅방 */}
