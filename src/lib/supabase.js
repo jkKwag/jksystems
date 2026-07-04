@@ -65,3 +65,35 @@ const supabase = {
 };
 
 export default supabase;
+
+const WS_URL = SUPABASE_URL.replace("https://", "wss://") + "/realtime/v1/websocket?apikey=" + SUPABASE_KEY + "&vsn=1.0.0";
+
+export function subscribeInserts(table, filter, onInsert) {
+  if (typeof WebSocket === "undefined") return () => {};
+  const ws = new WebSocket(WS_URL);
+  let heartbeat = null;
+  let ref = 0;
+  ws.onopen = () => {
+    ws.send(JSON.stringify({
+      topic: `realtime:public:${table}`,
+      event: "phx_join",
+      payload: {
+        config: {
+          broadcast: { self: false },
+          postgres_changes: [{ event: "INSERT", schema: "public", table, filter }],
+        },
+      },
+      ref: String(++ref),
+    }));
+    heartbeat = setInterval(() => {
+      if (ws.readyState === 1) ws.send(JSON.stringify({ topic: "phoenix", event: "heartbeat", payload: {}, ref: String(++ref) }));
+    }, 29000);
+  };
+  ws.onmessage = (e) => {
+    try {
+      const msg = JSON.parse(e.data);
+      if (msg.event === "postgres_changes" && msg.payload?.data?.type === "INSERT") onInsert(msg.payload.data.record);
+    } catch {}
+  };
+  return () => { clearInterval(heartbeat); ws.close(); };
+}

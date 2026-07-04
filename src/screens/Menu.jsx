@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Linking, Modal, Platform, Animated, Easing } from "react-native";
 import AiChat from "../components/AiChat";
+import ChatRoom from "../components/ChatRoom";
 import MenuDetail from "./MenuDetail";
 import supabase from "../lib/supabase";
 
@@ -300,6 +301,7 @@ export default function Menu({ bizno, tableNo }) {
   const [showOrderDone, setShowOrderDone] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [editingCartId, setEditingCartId] = useState(null);
+  const [showChatRoom, setShowChatRoom] = useState(false);
 
   const filtered = activeCat === "전체" ? menuItems : menuItems.filter(i => i.category === activeCat);
   const cartItems = Object.values(cart);
@@ -543,6 +545,17 @@ export default function Menu({ bizno, tableNo }) {
         </View>
       )}
 
+      {/* 채팅방 FAB */}
+      <TouchableOpacity
+        style={[s.chatFab, Platform.OS === "web" && { position: "fixed", bottom: 160, right: 130, zIndex: 200 }]}
+        onPress={() => setShowChatRoom(true)}
+      >
+        <Text style={s.chatFabText}>💬 채팅</Text>
+      </TouchableOpacity>
+
+      {/* 채팅방 */}
+      <ChatRoom visible={showChatRoom} bizno={bizno} onClose={() => setShowChatRoom(false)} />
+
       {/* AI 채팅 */}
       <AiChat
         bizno={bizno}
@@ -647,6 +660,9 @@ const s = StyleSheet.create({
   tableBadgeText: { color: "#fff", fontSize: 13, fontWeight: "900", letterSpacing: 1 },
   scanListBtn: { marginLeft: "auto", borderWidth: 1.5, borderColor: "#16a34a", borderRadius: 16, paddingHorizontal: 10, paddingVertical: 4, backgroundColor: "#f0fdf4" },
   scanListBtnText: { fontSize: 11, fontWeight: "700", color: "#16a34a" },
+
+  chatFab: { height: 48, borderRadius: 24, backgroundColor: "#2563eb", justifyContent: "center", alignItems: "center", paddingHorizontal: 20, shadowColor: "#2563eb", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.4, shadowRadius: 10, elevation: 8 },
+  chatFabText: { fontSize: 14, fontWeight: "800", color: "#fff" },
 
   aiToast: { position: "absolute", bottom: 220, alignSelf: "center", backgroundColor: "#0f172a", borderRadius: 24, paddingHorizontal: 18, paddingVertical: 10, shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 10 },
   aiToastText: { color: "#fff", fontSize: 13, fontWeight: "700" },
