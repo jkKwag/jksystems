@@ -17,15 +17,6 @@ export default function ChatRoom({ visible, bizno, onClose }) {
 
   useEffect(() => {
     Animated.spring(panelY, { toValue: visible ? 0 : 600, useNativeDriver: true, tension: 65, friction: 11 }).start();
-    if (!visible) {
-      unsubRef.current?.();
-      setStep("enter");
-      setMessages([]);
-      setRsvnNo("");
-      setNickname("");
-      setError("");
-      setInput("");
-    }
   }, [visible]);
 
   useEffect(() => {
