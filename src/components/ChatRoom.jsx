@@ -50,6 +50,7 @@ export default function ChatRoom({ visible, bizno, onClose }) {
     if (data && data.length > 0) {
       lastIdRef.current = Math.max(...data.map(m => m.id));
       setMessages(prev => [...prev, ...data]);
+      playNotification();
     }
   };
 
