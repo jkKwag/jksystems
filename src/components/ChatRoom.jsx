@@ -17,12 +17,29 @@ export default function ChatRoom({ visible, bizno, onClose }) {
   const rsvnNoRef = useRef("");
   const myUuid = useRef(null);
 
+  const playNotification = () => {
+    if (typeof AudioContext === "undefined" && typeof webkitAudioContext === "undefined") return;
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.12);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.25);
+  };
+
   const startRealtime = (no) => {
     unsubRef.current?.();
     unsubRef.current = subscribeInserts("tb_usr_chat_msg", `rsvn_no=eq.${no}`, (record) => {
       if (record.uuid === myUuid.current) return; // 내가 보낸 메시지는 낙관적 추가로 이미 표시됨
       lastIdRef.current = record.id;
       setMessages(prev => [...prev, record]);
+      playNotification();
     });
   };
 
