@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Platform, Animated } from "react-native";
-import supabase from "../lib/supabase";
+import supabase, { subscribeInserts } from "../lib/supabase";
 
 export default function ChatRoom({ visible, bizno, onClose }) {
   const [step, setStep] = useState("enter"); // "enter" | "chat"
@@ -12,20 +12,21 @@ export default function ChatRoom({ visible, bizno, onClose }) {
   const [error, setError] = useState("");
   const scrollRef = useRef(null);
   const panelY = useRef(new Animated.Value(600)).current;
-  const pollRef = useRef(null);
+  const unsubRef = useRef(null);
   const lastIdRef = useRef(0);
   const rsvnNoRef = useRef("");
   const myUuid = useRef(null);
 
-  useEffect(() => {
-    Animated.spring(panelY, { toValue: visible ? 0 : 600, useNativeDriver: true, tension: 65, friction: 11 }).start();
-  }, [visible]);
+  const startRealtime = (no) => {
+    unsubRef.current?.();
+    unsubRef.current = subscribeInserts("tb_usr_chat_msg", `rsvn_no=eq.${no}`, (record) => {
+      if (record.uuid === myUuid.current) return; // 내가 보낸 메시지는 낙관적 추가로 이미 표시됨
+      lastIdRef.current = record.id;
+      setMessages(prev => [...prev, record]);
+    });
+  };
 
-  useEffect(() => {
-    return () => { clearInterval(pollRef.current); };
-  }, []);
-
-  const pollMessages = async () => {
+  const fetchMissed = async () => {
     const no = rsvnNoRef.current;
     if (!no) return;
     const { data } = await supabase.from("tb_usr_chat_msg").select("*").eq("rsvn_no", no).gt("id", lastIdRef.current).order("reg_dt", { ascending: true });
@@ -34,6 +35,21 @@ export default function ChatRoom({ visible, bizno, onClose }) {
       setMessages(prev => [...prev, ...data]);
     }
   };
+
+  useEffect(() => {
+    Animated.spring(panelY, { toValue: visible ? 0 : 600, useNativeDriver: true, tension: 65, friction: 11 }).start();
+    if (step !== "chat" || !rsvnNoRef.current) return;
+    if (visible) {
+      fetchMissed();       // 닫혀있는 동안 쌓인 메시지 즉시 조회
+      startRealtime(rsvnNoRef.current);
+    } else {
+      unsubRef.current?.(); // 패널 닫으면 WebSocket 구독 해제
+    }
+  }, [visible]);
+
+  useEffect(() => {
+    return () => { unsubRef.current?.(); };
+  }, []);
 
   useEffect(() => {
     if (messages.length > 0) setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 80);
@@ -63,8 +79,7 @@ export default function ChatRoom({ visible, bizno, onClose }) {
     setMessages(loaded);
     setStep("chat");
     setJoining(false);
-    clearInterval(pollRef.current);
-    pollRef.current = setInterval(pollMessages, 2000);
+    startRealtime(no);
   };
 
   const sendMsg = async () => {
@@ -81,9 +96,9 @@ export default function ChatRoom({ visible, bizno, onClose }) {
       reg_usr_id: "guest",
       reg_dt: now,
     };
+    setMessages(prev => [...prev, newMsg]); // 낙관적 추가 (내 메시지 즉시 표시)
     setInput("");
     await supabase.from("tb_usr_chat_msg").insert(newMsg);
-    await pollMessages();
   };
 
   const fixedBase = Platform.OS === "web" ? { position: "fixed" } : {};
