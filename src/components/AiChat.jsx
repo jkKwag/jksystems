@@ -384,11 +384,7 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
 
   const confirmCheckout = async () => {
     const now = new Date().toISOString();
-    let scaneatUuid = Platform.OS === "web" ? localStorage.getItem("scaneat_uuid") : null;
-    if (!scaneatUuid && Platform.OS === "web") {
-      scaneatUuid = crypto.randomUUID();
-      localStorage.setItem("scaneat_uuid", scaneatUuid);
-    }
+    const scaneatUuid = Platform.OS === "web" ? localStorage.getItem("scaneat_uuid") : null;
     await supabase.from("tb_usr_prv_cns").insert({
       uuid: scaneatUuid,
       biz_reg_no: bizno,
@@ -414,11 +410,7 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
     if (!pendingReservation) return;
     const now = new Date().toISOString();
     const rsvnNo = generateRsvnNo();
-    let scaneatUuid = Platform.OS === "web" ? localStorage.getItem("scaneat_uuid") : null;
-    if (!scaneatUuid && Platform.OS === "web") {
-      scaneatUuid = crypto.randomUUID();
-      localStorage.setItem("scaneat_uuid", scaneatUuid);
-    }
+    const scaneatUuid = Platform.OS === "web" ? localStorage.getItem("scaneat_uuid") : null;
     await supabase.from("tb_usr_prv_cns").insert({
       uuid: scaneatUuid,
       biz_reg_no: bizno,

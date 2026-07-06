@@ -78,12 +78,7 @@ export default function ChatRoom({ visible, bizno, onClose }) {
     if (!no) { setError("예약번호를 입력해주세요."); return; }
     setJoining(true);
     setError("");
-    let uuid = Platform.OS === "web" ? localStorage.getItem("scaneat_uuid") : null;
-    if (!uuid && Platform.OS === "web") {
-      uuid = crypto.randomUUID();
-      localStorage.setItem("scaneat_uuid", uuid);
-    }
-    myUuid.current = uuid;
+    myUuid.current = Platform.OS === "web" ? localStorage.getItem("scaneat_uuid") : null;
     const { data } = await supabase.from("tb_usr_rsvn").select("rsvn_no").eq("rsvn_no", no).eq("biz_reg_no", bizno).single();
     if (!data) {
       setError("예약번호를 찾을 수 없어요.");

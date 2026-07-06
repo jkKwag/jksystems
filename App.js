@@ -95,10 +95,10 @@ export default function App() {
     (async () => {
       const uuid = localStorage.getItem("scaneat_uuid");
       if (!uuid) { setVisitLoaded(true); return; }
-      const { data: cnsData } = await supabase
-        .from("tb_usr_prv_cns")
-        .select("biz_reg_no,guest_name")
-        .eq("uuid", uuid);
+      const [{ data: scanData }, { data: cnsData }] = await Promise.all([
+        supabase.from("tb_usr_scan_log").select("biz_reg_no").eq("uuid", uuid),
+        supabase.from("tb_usr_prv_cns").select("biz_reg_no,guest_name").eq("uuid", uuid),
+      ]);
       const countMap = {};
       (cnsData || []).forEach(r => {
         if (!r.biz_reg_no) return;
@@ -106,7 +106,7 @@ export default function App() {
         if (r.guest_name) countMap[r.biz_reg_no].rsvn += 1;
         else countMap[r.biz_reg_no].order += 1;
       });
-      const bizNos = Object.keys(countMap);
+      const bizNos = [...new Set((scanData || []).map(r => r.biz_reg_no))];
       if (bizNos.length > 0) {
         const { data: bizData } = await supabase
           .from("tb_biz")
