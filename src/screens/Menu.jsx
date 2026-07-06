@@ -326,6 +326,7 @@ export default function Menu({ bizno, tableNo }) {
   const [selectedItem, setSelectedItem] = useState(null);
   const [editingCartId, setEditingCartId] = useState(null);
   const [showChatRoom, setShowChatRoom] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   const filtered = activeCat === "전체" ? menuItems : menuItems.filter(i => i.category === activeCat);
   const cartItems = Object.values(cart);
@@ -602,7 +603,7 @@ export default function Menu({ bizno, tableNo }) {
             <View style={s.sheetHeader}>
               <Text style={s.sheetTitle}>🛒 장바구니</Text>
               <View style={{ flexDirection: "row", gap: 8 }}>
-                <TouchableOpacity onPress={() => { if (window.confirm("장바구니를 모두 비우시겠어요?")) clearCart(); }} style={s.trashBtn}>
+                <TouchableOpacity onPress={() => setShowClearConfirm(true)} style={s.trashBtn}>
                   <Text style={s.trashBtnText}>🗑️</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => setShowCart(false)} style={s.closeBtn}>
@@ -665,6 +666,25 @@ export default function Menu({ bizno, tableNo }) {
                 setTimeout(() => setShowConfetti(true), 300);
               }}>
                 <Text style={s.orderBtnText}>주문하기 ({cartCount}개) →</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* 장바구니 전체 삭제 확인 */}
+      <Modal visible={showClearConfirm} transparent animationType="fade" onRequestClose={() => setShowClearConfirm(false)}>
+        <View style={s.confirmOverlay}>
+          <View style={s.confirmBox}>
+            <Text style={s.confirmEmoji}>🗑️</Text>
+            <Text style={s.confirmTitle}>장바구니 비우기</Text>
+            <Text style={s.confirmMsg}>장바구니를 모두 비우시겠어요?</Text>
+            <View style={s.confirmBtns}>
+              <TouchableOpacity style={s.confirmCancelBtn} onPress={() => setShowClearConfirm(false)}>
+                <Text style={s.confirmCancelText}>취소</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={s.confirmOkBtn} onPress={() => { clearCart(); setShowClearConfirm(false); }}>
+                <Text style={s.confirmOkText}>비우기</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -757,6 +777,17 @@ const s = StyleSheet.create({
   closeBtnText: { fontSize: 13, color: "#555", fontWeight: "700" },
   trashBtn: { width: 32, height: 32, backgroundColor: "#fff1f2", borderRadius: 16, justifyContent: "center", alignItems: "center" },
   trashBtnText: { fontSize: 15 },
+
+  confirmOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center" },
+  confirmBox: { backgroundColor: "#fff", borderRadius: 20, padding: 28, alignItems: "center", width: 280, shadowColor: "#000", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 20, elevation: 20 },
+  confirmEmoji: { fontSize: 36, marginBottom: 12 },
+  confirmTitle: { fontSize: 17, fontWeight: "900", color: "#111", marginBottom: 6 },
+  confirmMsg: { fontSize: 14, color: "#888", marginBottom: 24, textAlign: "center" },
+  confirmBtns: { flexDirection: "row", gap: 10, width: "100%" },
+  confirmCancelBtn: { flex: 1, borderWidth: 1.5, borderColor: "#e5e7eb", borderRadius: 12, paddingVertical: 12, alignItems: "center" },
+  confirmCancelText: { fontSize: 14, fontWeight: "700", color: "#888" },
+  confirmOkBtn: { flex: 1, backgroundColor: "#ef4444", borderRadius: 12, paddingVertical: 12, alignItems: "center" },
+  confirmOkText: { fontSize: 14, fontWeight: "800", color: "#fff" },
 
   checkoutHint: { backgroundColor: "#fff7ed", paddingVertical: 10, paddingHorizontal: 18, borderBottomWidth: 1, borderBottomColor: "#f0f0f0" },
   checkoutHintText: { fontSize: 13, fontWeight: "700", color: "#f97316", textAlign: "center" },
