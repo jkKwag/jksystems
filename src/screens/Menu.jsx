@@ -601,9 +601,14 @@ export default function Menu({ bizno, tableNo }) {
             {/* 팝업 헤더 */}
             <View style={s.sheetHeader}>
               <Text style={s.sheetTitle}>🛒 장바구니</Text>
-              <TouchableOpacity onPress={() => setShowCart(false)} style={s.closeBtn}>
-                <Text style={s.closeBtnText}>✕</Text>
-              </TouchableOpacity>
+              <View style={{ flexDirection: "row", gap: 8 }}>
+                <TouchableOpacity onPress={() => { clearCart(); }} style={s.trashBtn}>
+                  <Text style={s.trashBtnText}>🗑️</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setShowCart(false)} style={s.closeBtn}>
+                  <Text style={s.closeBtnText}>✕</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             {/* AI 채팅에서 결제 의사를 밝힌 경우 안내 배너 */}
@@ -750,6 +755,8 @@ const s = StyleSheet.create({
   sheetTitle: { fontSize: 17, fontWeight: "900", color: "#111" },
   closeBtn: { width: 32, height: 32, backgroundColor: "#f3f4f6", borderRadius: 16, justifyContent: "center", alignItems: "center" },
   closeBtnText: { fontSize: 13, color: "#555", fontWeight: "700" },
+  trashBtn: { width: 32, height: 32, backgroundColor: "#fff1f2", borderRadius: 16, justifyContent: "center", alignItems: "center" },
+  trashBtnText: { fontSize: 15 },
 
   checkoutHint: { backgroundColor: "#fff7ed", paddingVertical: 10, paddingHorizontal: 18, borderBottomWidth: 1, borderBottomColor: "#f0f0f0" },
   checkoutHintText: { fontSize: 13, fontWeight: "700", color: "#f97316", textAlign: "center" },
