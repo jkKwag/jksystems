@@ -246,11 +246,17 @@ export default function App() {
                 </View>
                 <View style={{ alignItems: "flex-end", gap: 4 }}>
                   <Animated.View style={{ flexDirection: "row", gap: 4, transform: [{ scale: badgeAnim }] }}>
-                    {(visitCountMap[biz.biz_reg_no]?.order || 0) > 0 && (
-                      <Text style={s.visitCardCount}>주문 {visitCountMap[biz.biz_reg_no].order}회</Text>
-                    )}
-                    {(visitCountMap[biz.biz_reg_no]?.rsvn || 0) > 0 && (
-                      <Text style={[s.visitCardCount, s.visitCardCountRsvn]}>예약 {visitCountMap[biz.biz_reg_no].rsvn}회</Text>
+                    {(visitCountMap[biz.biz_reg_no]?.order || 0) === 0 && (visitCountMap[biz.biz_reg_no]?.rsvn || 0) === 0 ? (
+                      <Text style={s.visitCardCountNone}>주문/예약 없음</Text>
+                    ) : (
+                      <>
+                        {(visitCountMap[biz.biz_reg_no]?.order || 0) > 0 && (
+                          <Text style={s.visitCardCount}>주문 {visitCountMap[biz.biz_reg_no].order}회</Text>
+                        )}
+                        {(visitCountMap[biz.biz_reg_no]?.rsvn || 0) > 0 && (
+                          <Text style={[s.visitCardCount, s.visitCardCountRsvn]}>예약 {visitCountMap[biz.biz_reg_no].rsvn}회</Text>
+                        )}
+                      </>
                     )}
                   </Animated.View>
                   <Text style={s.visitCardArrow}>→</Text>
@@ -324,6 +330,7 @@ adminBtn: { borderWidth: 1.5, borderColor: "rgba(255,255,255,0.3)", borderRadius
   visitCardArrow: { fontSize: 16, color: "#16a34a", fontWeight: "700" },
   visitCardCount: { fontSize: 12, fontWeight: "800", color: "#f97316", backgroundColor: "#fff7ed", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20 },
   visitCardCountRsvn: { color: "#3b82f6", backgroundColor: "#eff6ff" },
+  visitCardCountNone: { fontSize: 12, fontWeight: "600", color: "#94a3b8", backgroundColor: "#f1f5f9", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20 },
 
   qrFab: { position: "absolute", bottom: 28, alignSelf: "center", flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: "#0f172a", borderRadius: 28, paddingHorizontal: 24, paddingVertical: 14, shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 10, elevation: 10 },
   qrFabText: { fontSize: 15, fontWeight: "800", color: "#fff" },
