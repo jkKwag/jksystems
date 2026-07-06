@@ -602,7 +602,7 @@ export default function Menu({ bizno, tableNo }) {
             <View style={s.sheetHeader}>
               <Text style={s.sheetTitle}>🛒 장바구니</Text>
               <View style={{ flexDirection: "row", gap: 8 }}>
-                <TouchableOpacity onPress={() => { clearCart(); }} style={s.trashBtn}>
+                <TouchableOpacity onPress={() => { if (window.confirm("장바구니를 모두 비우시겠어요?")) clearCart(); }} style={s.trashBtn}>
                   <Text style={s.trashBtnText}>🗑️</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => setShowCart(false)} style={s.closeBtn}>
