@@ -288,24 +288,26 @@ export default function Menu({ bizno, tableNo }) {
 
   useEffect(() => {
     if (Platform.OS !== "web" || !bizno) return;
-    let uuid = localStorage.getItem("scaneat_uuid");
-    if (!uuid) {
-      uuid = crypto.randomUUID();
-      localStorage.setItem("scaneat_uuid", uuid);
-    }
-    const now = new Date().toISOString();
-    const src = new URLSearchParams(window.location.search).get("src");
-    const { data: existing } = await supabase.from("tb_usr_scan_log").select("id").eq("uuid", uuid).eq("biz_reg_no", bizno).single();
-    if (!existing) {
-      supabase.from("tb_usr_scan_log").insert({
-        uuid,
-        biz_reg_no: bizno,
-        vst_dt: now,
-        vst_typ_cd: src === "qr" ? "qr" : "url",
-        reg_usr_id: "guest",
-        reg_dt: now,
-      });
-    }
+    (async () => {
+      let uuid = localStorage.getItem("scaneat_uuid");
+      if (!uuid) {
+        uuid = crypto.randomUUID();
+        localStorage.setItem("scaneat_uuid", uuid);
+      }
+      const now = new Date().toISOString();
+      const src = new URLSearchParams(window.location.search).get("src");
+      const { data: existing } = await supabase.from("tb_usr_scan_log").select("id").eq("uuid", uuid).eq("biz_reg_no", bizno).single();
+      if (!existing) {
+        supabase.from("tb_usr_scan_log").insert({
+          uuid,
+          biz_reg_no: bizno,
+          vst_dt: now,
+          vst_typ_cd: src === "qr" ? "qr" : "url",
+          reg_usr_id: "guest",
+          reg_dt: now,
+        });
+      }
+    })();
   }, [bizno]);
 
   const [cart, setCart] = useState(() => loadCart(bizno));
