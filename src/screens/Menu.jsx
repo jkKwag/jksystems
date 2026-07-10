@@ -704,7 +704,12 @@ export default function Menu({ bizno, tableNo }) {
           <View style={s.paySheet}>
             {/* 헤더 */}
             <View style={s.payHeader}>
-              <Text style={s.payHeaderTitle}>결제하기</Text>
+              <View style={s.payHeaderLeft}>
+                <View style={s.tossLogo}>
+                  <Text style={s.tossLogoText}>toss</Text>
+                </View>
+                <Text style={s.payHeaderTitle}>결제하기</Text>
+              </View>
               <TouchableOpacity onPress={() => setShowPayment(false)} style={s.closeBtn}>
                 <Text style={s.closeBtnText}>✕</Text>
               </TouchableOpacity>
@@ -878,6 +883,9 @@ const s = StyleSheet.create({
   /* 결제 모달 */
   paySheet: { backgroundColor: "#f8fafc", borderTopLeftRadius: 24, borderTopRightRadius: 24, maxHeight: "85%", overflow: "hidden" },
   payHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 20, backgroundColor: "#fff", borderBottomWidth: 1, borderBottomColor: "#f0f0f0" },
+  payHeaderLeft: { flexDirection: "row", alignItems: "center", gap: 10 },
+  tossLogo: { backgroundColor: "#0064FF", borderRadius: 8, paddingHorizontal: 9, paddingVertical: 4 },
+  tossLogoText: { color: "#fff", fontSize: 13, fontWeight: "900", letterSpacing: -0.5 },
   payHeaderTitle: { fontSize: 18, fontWeight: "900", color: "#111" },
 
   paySection: { backgroundColor: "#fff", borderRadius: 16, padding: 16, gap: 10 },
