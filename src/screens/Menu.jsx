@@ -5,6 +5,8 @@ import ChatRoom from "../components/ChatRoom";
 import MenuDetail from "./MenuDetail";
 import supabase from "../lib/supabase";
 
+const TOSS_CLIENT_KEY = "test_ck_YOUR_KEY_HERE"; // 발급 후 교체
+
 
 const BURST_COLORS = [
   ["#ff4757", "#ffa502", "#ff6348"],
@@ -328,7 +330,6 @@ export default function Menu({ bizno, tableNo }) {
   const [showChatRoom, setShowChatRoom] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
-  const [payMethod, setPayMethod] = useState("card");
 
   const filtered = activeCat === "전체" ? menuItems : menuItems.filter(i => i.category === activeCat);
   const cartItems = Object.values(cart);
@@ -709,8 +710,8 @@ export default function Menu({ bizno, tableNo }) {
               </TouchableOpacity>
             </View>
 
-            <ScrollView style={{ flexShrink: 1 }} contentContainerStyle={{ padding: 20, gap: 16 }}>
-              {/* 주문 요약 */}
+            {/* 주문 요약 */}
+            <ScrollView style={{ flexShrink: 1 }} contentContainerStyle={{ padding: 20 }}>
               <View style={s.paySection}>
                 <Text style={s.paySectionTitle}>주문 내역</Text>
                 {cartItems.map(({ item, quantity }) => (
@@ -727,27 +728,7 @@ export default function Menu({ bizno, tableNo }) {
                 </View>
               </View>
 
-              {/* 결제 수단 */}
-              <View style={s.paySection}>
-                <Text style={s.paySectionTitle}>결제 수단</Text>
-                <View style={s.payMethodGrid}>
-                  {[
-                    { key: "card", label: "신용카드", icon: "💳" },
-                    { key: "kakao", label: "카카오페이", icon: "💛" },
-                    { key: "naver", label: "네이버페이", icon: "🟢" },
-                  ].map(m => (
-                    <TouchableOpacity
-                      key={m.key}
-                      style={[s.payMethodBtn, payMethod === m.key && s.payMethodBtnActive]}
-                      onPress={() => setPayMethod(m.key)}
-                    >
-                      <Text style={s.payMethodIcon}>{m.icon}</Text>
-                      <Text style={[s.payMethodLabel, payMethod === m.key && s.payMethodLabelActive]}>{m.label}</Text>
-                      {payMethod === m.key && <View style={s.payMethodCheck}><Text style={{ color: "#fff", fontSize: 10, fontWeight: "900" }}>✓</Text></View>}
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
+              <Text style={s.payTossNote}>결제 수단 선택은 토스페이먼츠 화면에서 진행됩니다</Text>
             </ScrollView>
 
             {/* 결제 버튼 */}
@@ -756,7 +737,17 @@ export default function Menu({ bizno, tableNo }) {
                 <Text style={s.payAmtLabel}>최종 결제금액</Text>
                 <Text style={s.payAmtValue}>₩{cartTotal.toLocaleString()}</Text>
               </View>
-              <TouchableOpacity style={s.payBtn} onPress={() => {
+              <TouchableOpacity style={s.payBtn} onPress={async () => {
+                // TODO: TOSS_CLIENT_KEY 발급 후 아래 주석 해제
+                // const toss = await loadTossPayments(TOSS_CLIENT_KEY);
+                // await toss.requestPayment({
+                //   method: "CARD",
+                //   amount: { currency: "KRW", value: cartTotal },
+                //   orderId: `order-${Date.now()}`,
+                //   orderName: cartItems.map(i => i.item.name).join(", "),
+                //   successUrl: window.location.origin + "/payment/success",
+                //   failUrl: window.location.origin + "/payment/fail",
+                // });
                 setShowPayment(false);
                 clearCart();
                 setTimeout(() => setShowConfetti(true), 300);
@@ -898,13 +889,7 @@ const s = StyleSheet.create({
   payDivider: { height: 1, backgroundColor: "#f1f5f9", marginVertical: 4 },
   payTotalAmt: { fontSize: 18, fontWeight: "900", color: "#0f172a" },
 
-  payMethodGrid: { flexDirection: "row", gap: 10 },
-  payMethodBtn: { flex: 1, backgroundColor: "#f1f5f9", borderRadius: 14, padding: 14, alignItems: "center", gap: 6, borderWidth: 2, borderColor: "transparent", position: "relative" },
-  payMethodBtnActive: { backgroundColor: "#eff6ff", borderColor: "#0f172a" },
-  payMethodIcon: { fontSize: 22 },
-  payMethodLabel: { fontSize: 11, fontWeight: "700", color: "#64748b", textAlign: "center" },
-  payMethodLabelActive: { color: "#0f172a" },
-  payMethodCheck: { position: "absolute", top: 6, right: 6, width: 16, height: 16, borderRadius: 8, backgroundColor: "#0f172a", justifyContent: "center", alignItems: "center" },
+  payTossNote: { fontSize: 12, color: "#94a3b8", textAlign: "center", marginTop: 16, fontWeight: "600" },
 
   payFooter: { backgroundColor: "#fff", padding: 16, borderTopWidth: 1, borderTopColor: "#f0f0f0", gap: 12 },
   payAmtRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
