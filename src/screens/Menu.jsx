@@ -327,6 +327,8 @@ export default function Menu({ bizno, tableNo }) {
   const [editingCartId, setEditingCartId] = useState(null);
   const [showChatRoom, setShowChatRoom] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
+  const [payMethod, setPayMethod] = useState("card");
 
   const filtered = activeCat === "전체" ? menuItems : menuItems.filter(i => i.category === activeCat);
   const cartItems = Object.values(cart);
@@ -662,8 +664,7 @@ export default function Menu({ bizno, tableNo }) {
               </View>
               <TouchableOpacity style={s.orderBtn} onPress={() => {
                 setShowCart(false);
-                clearCart();
-                setTimeout(() => setShowConfetti(true), 300);
+                setTimeout(() => setShowPayment(true), 300);
               }}>
                 <Text style={s.orderBtnText}>주문하기 ({cartCount}개) →</Text>
               </TouchableOpacity>
@@ -694,6 +695,78 @@ export default function Menu({ bizno, tableNo }) {
       <Animated.View style={[s.aiToast, { opacity: aiToastOpacity }]} pointerEvents="none">
         <Text style={s.aiToastText}>✦ AI도움으로 주문 및 예약가능합니다</Text>
       </Animated.View>
+
+      {/* 결제 모달 */}
+      <Modal visible={showPayment} transparent animationType="slide" onRequestClose={() => setShowPayment(false)}>
+        <View style={s.overlay}>
+          <TouchableOpacity style={s.overlayBg} activeOpacity={1} onPress={() => setShowPayment(false)} />
+          <View style={s.paySheet}>
+            {/* 헤더 */}
+            <View style={s.payHeader}>
+              <Text style={s.payHeaderTitle}>결제하기</Text>
+              <TouchableOpacity onPress={() => setShowPayment(false)} style={s.closeBtn}>
+                <Text style={s.closeBtnText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={{ flexShrink: 1 }} contentContainerStyle={{ padding: 20, gap: 16 }}>
+              {/* 주문 요약 */}
+              <View style={s.paySection}>
+                <Text style={s.paySectionTitle}>주문 내역</Text>
+                {cartItems.map(({ item, quantity }) => (
+                  <View key={item.id} style={s.payOrderRow}>
+                    <Text style={s.payOrderName} numberOfLines={1}>{item.name}</Text>
+                    <Text style={s.payOrderQty}>x{quantity}</Text>
+                    <Text style={s.payOrderPrice}>₩{(item.price * quantity).toLocaleString()}</Text>
+                  </View>
+                ))}
+                <View style={s.payDivider} />
+                <View style={s.payOrderRow}>
+                  <Text style={[s.payOrderName, { fontWeight: "900", color: "#111" }]}>합계</Text>
+                  <Text style={s.payTotalAmt}>₩{cartTotal.toLocaleString()}</Text>
+                </View>
+              </View>
+
+              {/* 결제 수단 */}
+              <View style={s.paySection}>
+                <Text style={s.paySectionTitle}>결제 수단</Text>
+                <View style={s.payMethodGrid}>
+                  {[
+                    { key: "card", label: "신용카드", icon: "💳" },
+                    { key: "kakao", label: "카카오페이", icon: "💛" },
+                    { key: "naver", label: "네이버페이", icon: "🟢" },
+                  ].map(m => (
+                    <TouchableOpacity
+                      key={m.key}
+                      style={[s.payMethodBtn, payMethod === m.key && s.payMethodBtnActive]}
+                      onPress={() => setPayMethod(m.key)}
+                    >
+                      <Text style={s.payMethodIcon}>{m.icon}</Text>
+                      <Text style={[s.payMethodLabel, payMethod === m.key && s.payMethodLabelActive]}>{m.label}</Text>
+                      {payMethod === m.key && <View style={s.payMethodCheck}><Text style={{ color: "#fff", fontSize: 10, fontWeight: "900" }}>✓</Text></View>}
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            </ScrollView>
+
+            {/* 결제 버튼 */}
+            <View style={s.payFooter}>
+              <View style={s.payAmtRow}>
+                <Text style={s.payAmtLabel}>최종 결제금액</Text>
+                <Text style={s.payAmtValue}>₩{cartTotal.toLocaleString()}</Text>
+              </View>
+              <TouchableOpacity style={s.payBtn} onPress={() => {
+                setShowPayment(false);
+                clearCart();
+                setTimeout(() => setShowConfetti(true), 300);
+              }}>
+                <Text style={s.payBtnText}>₩{cartTotal.toLocaleString()} 결제하기</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -810,6 +883,35 @@ const s = StyleSheet.create({
   successNote: { fontSize: 13, fontWeight: "800", color: "#f97316" },
   successBtn: { backgroundColor: "#111", borderRadius: 14, paddingHorizontal: 48, paddingVertical: 14 },
   successBtnText: { color: "#fff", fontSize: 16, fontWeight: "800" },
+
+  /* 결제 모달 */
+  paySheet: { backgroundColor: "#f8fafc", borderTopLeftRadius: 24, borderTopRightRadius: 24, maxHeight: "85%", overflow: "hidden" },
+  payHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 20, backgroundColor: "#fff", borderBottomWidth: 1, borderBottomColor: "#f0f0f0" },
+  payHeaderTitle: { fontSize: 18, fontWeight: "900", color: "#111" },
+
+  paySection: { backgroundColor: "#fff", borderRadius: 16, padding: 16, gap: 10 },
+  paySectionTitle: { fontSize: 13, fontWeight: "800", color: "#94a3b8", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 },
+  payOrderRow: { flexDirection: "row", alignItems: "center", gap: 4 },
+  payOrderName: { flex: 1, fontSize: 14, fontWeight: "700", color: "#374151" },
+  payOrderQty: { fontSize: 13, color: "#94a3b8", fontWeight: "600", marginHorizontal: 4 },
+  payOrderPrice: { fontSize: 14, fontWeight: "700", color: "#374151" },
+  payDivider: { height: 1, backgroundColor: "#f1f5f9", marginVertical: 4 },
+  payTotalAmt: { fontSize: 18, fontWeight: "900", color: "#0f172a" },
+
+  payMethodGrid: { flexDirection: "row", gap: 10 },
+  payMethodBtn: { flex: 1, backgroundColor: "#f1f5f9", borderRadius: 14, padding: 14, alignItems: "center", gap: 6, borderWidth: 2, borderColor: "transparent", position: "relative" },
+  payMethodBtnActive: { backgroundColor: "#eff6ff", borderColor: "#0f172a" },
+  payMethodIcon: { fontSize: 22 },
+  payMethodLabel: { fontSize: 11, fontWeight: "700", color: "#64748b", textAlign: "center" },
+  payMethodLabelActive: { color: "#0f172a" },
+  payMethodCheck: { position: "absolute", top: 6, right: 6, width: 16, height: 16, borderRadius: 8, backgroundColor: "#0f172a", justifyContent: "center", alignItems: "center" },
+
+  payFooter: { backgroundColor: "#fff", padding: 16, borderTopWidth: 1, borderTopColor: "#f0f0f0", gap: 12 },
+  payAmtRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  payAmtLabel: { fontSize: 14, color: "#64748b", fontWeight: "600" },
+  payAmtValue: { fontSize: 20, fontWeight: "900", color: "#0f172a" },
+  payBtn: { backgroundColor: "#0f172a", borderRadius: 16, paddingVertical: 16, alignItems: "center" },
+  payBtnText: { color: "#fff", fontSize: 16, fontWeight: "900", letterSpacing: 0.3 },
 
   sheetFooter: { padding: 16, borderTopWidth: 1, borderTopColor: "#f0f0f0" },
   totalRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
