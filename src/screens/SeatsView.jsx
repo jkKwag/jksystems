@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Modal, Image, Platform, TextInput } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Modal, Image, Platform } from "react-native";
+import { Calendar } from "react-native-calendars";
 
 const MOCK_SEATS = [
   { id: 1, name: "A-1", capacity: 2, desc: "창가 2인석 · 조용한 분위기", image: "https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=400&h=220&fit=crop" },
@@ -21,6 +22,9 @@ export default function SeatsView({ visible, onClose }) {
   const [rsvnDate, setRsvnDate] = useState("");
   const [rsvnTime, setRsvnTime] = useState("");
   const [rsvnPeople, setRsvnPeople] = useState(2);
+  const [showCalendar, setShowCalendar] = useState(false);
+
+  const today = new Date().toISOString().split("T")[0];
 
   if (!visible) return null;
 
@@ -80,14 +84,40 @@ export default function SeatsView({ visible, onClose }) {
                   {/* 날짜 */}
                   <View style={s.rsvnField}>
                     <Text style={s.rsvnLabel}>📅 날짜</Text>
-                    <TextInput
-                      style={s.rsvnInput}
-                      placeholder="예: 2025-07-20"
-                      placeholderTextColor="#64748b"
-                      value={rsvnDate}
-                      onChangeText={setRsvnDate}
-                    />
+                    <TouchableOpacity style={s.rsvnInput} onPress={() => setShowCalendar(true)}>
+                      <Text style={rsvnDate ? s.rsvnDateText : s.rsvnDatePlaceholder}>
+                        {rsvnDate || "날짜를 선택하세요"}
+                      </Text>
+                    </TouchableOpacity>
                   </View>
+
+                  {/* 달력 모달 */}
+                  {showCalendar && (
+                    <Modal visible transparent animationType="fade" onRequestClose={() => setShowCalendar(false)}>
+                      <TouchableOpacity style={s.calOverlay} activeOpacity={1} onPress={() => setShowCalendar(false)}>
+                        <View style={s.calBox}>
+                          <Calendar
+                            minDate={today}
+                            onDayPress={day => { setRsvnDate(day.dateString); setShowCalendar(false); }}
+                            markedDates={rsvnDate ? { [rsvnDate]: { selected: true, selectedColor: "#f97316" } } : {}}
+                            theme={{
+                              backgroundColor: "#1e293b",
+                              calendarBackground: "#1e293b",
+                              textSectionTitleColor: "#94a3b8",
+                              selectedDayBackgroundColor: "#f97316",
+                              selectedDayTextColor: "#fff",
+                              todayTextColor: "#f97316",
+                              dayTextColor: "#e2e8f0",
+                              textDisabledColor: "#475569",
+                              arrowColor: "#f97316",
+                              monthTextColor: "#fff",
+                              indicatorColor: "#f97316",
+                            }}
+                          />
+                        </View>
+                      </TouchableOpacity>
+                    </Modal>
+                  )}
 
                   {/* 시간 슬롯 */}
                   <View style={s.rsvnField}>
@@ -212,7 +242,12 @@ const s = StyleSheet.create({
   rsvnTitle: { fontSize: 14, fontWeight: "900", color: "#fff", marginBottom: 2 },
   rsvnField: { gap: 8 },
   rsvnLabel: { fontSize: 12, fontWeight: "700", color: "#94a3b8" },
-  rsvnInput: { backgroundColor: "#1e293b", borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: "#fff", borderWidth: 1, borderColor: "#334155" },
+  rsvnInput: { backgroundColor: "#1e293b", borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, borderWidth: 1, borderColor: "#334155", justifyContent: "center" },
+  rsvnDateText: { fontSize: 14, color: "#fff" },
+  rsvnDatePlaceholder: { fontSize: 14, color: "#64748b" },
+
+  calOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.7)", justifyContent: "center", alignItems: "center", padding: 20 },
+  calBox: { width: "100%", maxWidth: 360, borderRadius: 16, overflow: "hidden", backgroundColor: "#1e293b" },
 
   timeScroll: { flexGrow: 0 },
   timeSlot: { backgroundColor: "#1e293b", borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8, marginRight: 8, borderWidth: 1, borderColor: "#334155" },
