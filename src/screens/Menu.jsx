@@ -745,9 +745,10 @@ export default function Menu({ bizno, tableNo }) {
               <TouchableOpacity style={s.payBtn} onPress={async () => {
                 try {
                   if (!TOSS_CLIENT_KEY) { alert("토스 클라이언트 키가 없습니다 (EXPO_PUBLIC_TOSS_CLIENT_KEY)"); return; }
-                  const { loadTossPayments } = await import("@tosspayments/tosspayments-sdk");
-                  const toss = await loadTossPayments(TOSS_CLIENT_KEY);
-                  await toss.requestPayment({
+                  const { loadTossPayments, ANONYMOUS } = await import("@tosspayments/tosspayments-sdk");
+                  const tossPayments = await loadTossPayments(TOSS_CLIENT_KEY);
+                  const payment = tossPayments.payment({ customerKey: ANONYMOUS });
+                  await payment.requestPayment({
                     method: "CARD",
                     amount: { currency: "KRW", value: cartTotal },
                     orderId: `scaneat-${Date.now()}`,
