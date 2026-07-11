@@ -327,6 +327,15 @@ export default function Menu({ bizno, tableNo }) {
   const [showOrderDone, setShowOrderDone] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [editingCartId, setEditingCartId] = useState(null);
+  const aiToastOpacity = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.sequence([
+      Animated.timing(aiToastOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
+      Animated.delay(3000),
+      Animated.timing(aiToastOpacity, { toValue: 0, duration: 400, useNativeDriver: true }),
+    ]).start();
+  }, []);
+
   const [showChatRoom, setShowChatRoom] = useState(false);
   const [showSeats, setShowSeats] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
@@ -707,9 +716,12 @@ export default function Menu({ bizno, tableNo }) {
         </View>
       </Modal>
 
-      <View style={s.aiToast} pointerEvents="none">
+      <Animated.View
+        pointerEvents="none"
+        style={[s.aiToast, { opacity: aiToastOpacity }, Platform.OS === "web" && { position: "fixed" }]}
+      >
         <Text style={s.aiToastText}>✦ AI도움으로 주문 및 예약 가능합니다</Text>
-      </View>
+      </Animated.View>
 
       {/* 결제 모달 */}
       <Modal visible={showPayment} transparent animationType="slide" onRequestClose={() => setShowPayment(false)}>
