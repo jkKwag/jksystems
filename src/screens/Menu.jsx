@@ -802,6 +802,9 @@ export default function Menu({ bizno, tableNo }) {
                 }
               }}>
                 <Text style={s.payBtnText}>₩{cartTotal.toLocaleString()} 결제하기</Text>
+                <View style={s.payOrderTypeBadge}>
+                  <Text style={s.payOrderTypeText}>{orderType === "포장주문" ? "📦 포장주문" : "🍽️ 매장주문"}</Text>
+                </View>
               </TouchableOpacity>
             </View>
           </View>
@@ -955,8 +958,10 @@ const s = StyleSheet.create({
   payAmtRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   payAmtLabel: { fontSize: 14, color: "#64748b", fontWeight: "600" },
   payAmtValue: { fontSize: 20, fontWeight: "900", color: "#0f172a" },
-  payBtn: { backgroundColor: "#0f172a", borderRadius: 16, paddingVertical: 16, alignItems: "center" },
+  payBtn: { backgroundColor: "#0f172a", borderRadius: 16, paddingVertical: 16, alignItems: "center", gap: 4 },
   payBtnText: { color: "#fff", fontSize: 16, fontWeight: "900", letterSpacing: 0.3 },
+  payOrderTypeBadge: { backgroundColor: "rgba(255,255,255,0.15)", borderRadius: 10, paddingHorizontal: 10, paddingVertical: 2 },
+  payOrderTypeText: { color: "#fff", fontSize: 11, fontWeight: "700" },
 
   sheetFooter: { padding: 16, borderTopWidth: 1, borderTopColor: "#f0f0f0" },
   totalRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
