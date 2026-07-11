@@ -322,14 +322,6 @@ export default function Menu({ bizno, tableNo }) {
     return {};
   });
   const [showCart, setShowCart] = useState(false);
-  const aiToastOpacity = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    Animated.sequence([
-      Animated.timing(aiToastOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
-      Animated.delay(2200),
-      Animated.timing(aiToastOpacity, { toValue: 0, duration: 400, useNativeDriver: true }),
-    ]).start();
-  }, []);
   const [showConfetti, setShowConfetti] = useState(false);
   const [checkoutHint, setCheckoutHint] = useState(false);
   const [showOrderDone, setShowOrderDone] = useState(false);
@@ -715,9 +707,9 @@ export default function Menu({ bizno, tableNo }) {
         </View>
       </Modal>
 
-      <Animated.View style={[s.aiToast, { opacity: aiToastOpacity }]} pointerEvents="none">
+      <View style={s.aiToast} pointerEvents="none">
         <Text style={s.aiToastText}>✦ AI도움으로 주문 및 예약 가능합니다</Text>
-      </Animated.View>
+      </View>
 
       {/* 결제 모달 */}
       <Modal visible={showPayment} transparent animationType="slide" onRequestClose={() => setShowPayment(false)}>
@@ -812,7 +804,7 @@ const s = StyleSheet.create({
   chatFab: { height: 48, borderRadius: 24, backgroundColor: "#0f172a", justifyContent: "center", alignItems: "center", paddingHorizontal: 20, shadowColor: "#0f172a", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.4, shadowRadius: 10, elevation: 8 },
   chatFabText: { fontSize: 14, fontWeight: "800", color: "#fff" },
 
-  aiToast: { position: "absolute", bottom: 220, alignSelf: "center", backgroundColor: "#0f172a", borderRadius: 24, paddingHorizontal: 18, paddingVertical: 10, shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 10 },
+  aiToast: { position: "absolute", bottom: 216, right: 20, backgroundColor: "#0f172a", borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8, shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 10 },
   aiToastText: { color: "#fff", fontSize: 13, fontWeight: "700" },
   shopMeta: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 },
   shopRating: { fontSize: 13, fontWeight: "700", color: "#111" },
