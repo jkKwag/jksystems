@@ -4,6 +4,8 @@
   "framework": null,
   "installCommand": "npm install --legacy-peer-deps",
   "rewrites": [
-    { "source": "/menu/:bizno", "destination": "/index.html" }
+    { "source": "/menu/:bizno", "destination": "/index.html" },
+    { "source": "/payment/success", "destination": "/index.html" },
+    { "source": "/payment/fail", "destination": "/index.html" }
   ]
 }
