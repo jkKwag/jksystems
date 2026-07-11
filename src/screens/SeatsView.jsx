@@ -177,7 +177,7 @@ export default function SeatsView({ visible, onClose }) {
                         <TouchableOpacity
                           key={t}
                           style={[s.timeSlot, rsvnTime === t && s.timeSlotActive]}
-                          onPress={() => setRsvnTime(t)}
+                          onPress={() => setRsvnTime(prev => prev === t ? "" : t)}
                         >
                           <Text style={[s.timeSlotText, rsvnTime === t && s.timeSlotTextActive]}>{t}</Text>
                         </TouchableOpacity>
