@@ -451,15 +451,21 @@ export default function Menu({ bizno, tableNo }) {
           <Text style={s.shopInfo}>리뷰 142개 · {bizInfo?.ind_nm || ""}</Text>
         </View>
         <View style={s.shopTags}>
-          {[
-            { label: "매장주문", icon: "🍽️" },
-            { label: "포장주문", icon: "📦" },
-          ].map(t => (
-            <TouchableOpacity key={t.label} style={[s.shopTag, orderType === t.label && s.shopTagActive]} onPress={() => setOrderType(t.label)}>
-              <Text style={s.shopTagIcon}>{t.icon}</Text>
-              <Text style={[s.shopTagText, orderType === t.label && s.shopTagTextActive]}>{t.label}</Text>
-            </TouchableOpacity>
-          ))}
+          <View style={s.orderTypeGroup}>
+            {[
+              { label: "매장주문", icon: "🍽️" },
+              { label: "포장주문", icon: "📦" },
+            ].map((t, i) => (
+              <TouchableOpacity
+                key={t.label}
+                style={[s.orderTypeBtn, orderType === t.label && s.orderTypeBtnActive, i === 0 && s.orderTypeBtnLeft, i === 1 && s.orderTypeBtnRight]}
+                onPress={() => setOrderType(t.label)}
+              >
+                <Text style={s.shopTagIcon}>{t.icon}</Text>
+                <Text style={[s.shopTagText, orderType === t.label && s.shopTagTextActive]}>{t.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
           <TouchableOpacity style={s.seatBtn} onPress={() => setShowSeats(true)}>
             <Text style={s.seatBtnText}>🪑 테이블 예약</Text>
           </TouchableOpacity>
@@ -835,8 +841,13 @@ const s = StyleSheet.create({
   shopRating: { fontSize: 13, fontWeight: "700", color: "#111" },
   star: { color: "#f97316" },
   shopInfo: { fontSize: 12, color: "#888" },
-  shopTags: { flexDirection: "row", gap: 6, marginBottom: 8, flexWrap: "wrap", alignItems: "center" },
+  shopTags: { flexDirection: "row", gap: 8, marginBottom: 8, flexWrap: "wrap", alignItems: "center" },
   shopTag: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: "#f1f5f9", borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5 },
+  orderTypeGroup: { flexDirection: "row", backgroundColor: "#f1f5f9", borderRadius: 20, overflow: "hidden" },
+  orderTypeBtn: { flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 10, paddingVertical: 5 },
+  orderTypeBtnLeft: { borderRightWidth: 1, borderRightColor: "#e2e8f0" },
+  orderTypeBtnRight: {},
+  orderTypeBtnActive: { backgroundColor: "#0f172a" },
   shopTagActive: { backgroundColor: "#0f172a" },
   shopTagIcon: { fontSize: 12 },
   shopTagText: { fontSize: 11, fontWeight: "700", color: "#475569" },
