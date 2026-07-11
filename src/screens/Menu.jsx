@@ -632,7 +632,12 @@ export default function Menu({ bizno, tableNo }) {
           <View style={s.sheet}>
             {/* 팝업 헤더 */}
             <View style={s.sheetHeader}>
-              <Text style={s.sheetTitle}>🛒 장바구니</Text>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                <Text style={s.sheetTitle}>🛒 장바구니</Text>
+                <View style={s.cartOrderTypeBadge}>
+                  <Text style={s.cartOrderTypeText}>{orderType === "포장주문" ? "📦 포장주문" : "🍽️ 매장주문"}</Text>
+                </View>
+              </View>
               <View style={{ flexDirection: "row", gap: 8 }}>
                 <TouchableOpacity onPress={() => setShowClearConfirm(true)} style={s.trashBtn}>
                   <Text style={s.trashBtnText}>🗑️</Text>
@@ -878,7 +883,7 @@ const s = StyleSheet.create({
   cartBadgeText: { color: "#fff", fontSize: 12, fontWeight: "800" },
   cartBarCenter: { flex: 1, flexDirection: "row", alignItems: "center", gap: 8 },
   cartBarText: { color: "#fff", fontSize: 15, fontWeight: "700" },
-  cartOrderTypeBadge: { backgroundColor: "rgba(255,255,255,0.15)", borderRadius: 10, paddingHorizontal: 8, paddingVertical: 2 },
+  cartOrderTypeBadge: { backgroundColor: "#0f172a", borderRadius: 10, paddingHorizontal: 8, paddingVertical: 3 },
   cartOrderTypeText: { color: "#fff", fontSize: 11, fontWeight: "700" },
   cartBarTotal: { color: "#f97316", fontSize: 15, fontWeight: "900" },
 
