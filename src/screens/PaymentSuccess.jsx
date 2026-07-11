@@ -17,6 +17,7 @@ export default function PaymentSuccess() {
 
   if (Platform.OS === "web" && bizno) {
     try { localStorage.removeItem(`scaneat_cart_${bizno}`); } catch {}
+    try { sessionStorage.removeItem(`scaneat_pending_cart_${bizno}`); } catch {}
   }
 
   return (

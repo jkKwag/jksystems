@@ -312,7 +312,14 @@ export default function Menu({ bizno, tableNo }) {
     })();
   }, [bizno]);
 
-  const [cart, setCart] = useState({});
+  const [cart, setCart] = useState(() => {
+    if (Platform.OS !== "web") return {};
+    try {
+      const pending = sessionStorage.getItem(`scaneat_pending_cart_${bizno}`);
+      if (pending) { sessionStorage.removeItem(`scaneat_pending_cart_${bizno}`); return JSON.parse(pending); }
+    } catch {}
+    return {};
+  });
   const [showCart, setShowCart] = useState(false);
   const aiToastOpacity = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -745,6 +752,7 @@ export default function Menu({ bizno, tableNo }) {
               <TouchableOpacity style={s.payBtn} onPress={async () => {
                 try {
                   if (!TOSS_CLIENT_KEY) { alert("토스 클라이언트 키가 없습니다 (EXPO_PUBLIC_TOSS_CLIENT_KEY)"); return; }
+                  try { sessionStorage.setItem(`scaneat_pending_cart_${bizno}`, JSON.stringify(cart)); } catch {}
                   const { loadTossPayments, ANONYMOUS } = await import("@tosspayments/tosspayments-sdk");
                   const tossPayments = await loadTossPayments(TOSS_CLIENT_KEY);
                   const payment = tossPayments.payment({ customerKey: ANONYMOUS });
