@@ -20,7 +20,7 @@ export default function SeatsView({ visible, onClose }) {
         <View style={s.sheet}>
           {/* 헤더 */}
           <View style={s.header}>
-            <Text style={s.headerTitle}>🪑 좌석 안내</Text>
+            <Text style={s.headerTitle}>🪑 테이블 안내</Text>
             <TouchableOpacity style={s.closeBtn} onPress={onClose}>
               <Text style={s.closeBtnText}>✕</Text>
             </TouchableOpacity>
