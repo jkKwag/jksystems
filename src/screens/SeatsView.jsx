@@ -25,14 +25,14 @@ const CATEGORIES = [
 ];
 
 export default function SeatsView({ visible, onClose }) {
+  const today = new Date().toISOString().split("T")[0];
+
   const [expandedSeat, setExpandedSeat] = useState(null);
   const [category, setCategory] = useState("all");
-  const [rsvnDate, setRsvnDate] = useState("");
+  const [rsvnDate, setRsvnDate] = useState(today);
   const [rsvnTime, setRsvnTime] = useState("");
   const [rsvnPeople, setRsvnPeople] = useState(2);
   const [showCalendar, setShowCalendar] = useState(false);
-
-  const today = new Date().toISOString().split("T")[0];
 
   if (!visible) return null;
 
