@@ -841,7 +841,7 @@ const s = StyleSheet.create({
   shopTagIcon: { fontSize: 12 },
   shopTagText: { fontSize: 11, fontWeight: "700", color: "#475569" },
   shopTagTextActive: { color: "#fff" },
-  seatBtn: { flexDirection: "row", alignItems: "center", backgroundColor: "#6366f1", borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5 },
+  seatBtn: { flexDirection: "row", alignItems: "center", backgroundColor: "#a5b4fc", borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5 },
   seatBtnText: { fontSize: 11, fontWeight: "700", color: "#fff" },
   bizAddr: { fontSize: 12, color: "#888", marginTop: 2 },
 
