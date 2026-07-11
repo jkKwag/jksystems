@@ -15,6 +15,10 @@ const getParams = () => {
 export default function PaymentSuccess() {
   const { paymentKey, orderId, amount, bizno, bizNm } = getParams();
 
+  if (Platform.OS === "web" && bizno) {
+    try { localStorage.removeItem(`scaneat_cart_${bizno}`); } catch {}
+  }
+
   return (
     <View style={s.container}>
       <View style={s.card}>
