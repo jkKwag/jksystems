@@ -81,14 +81,37 @@ export default function SeatsView({ visible, onClose }) {
                 <View style={s.rsvnForm}>
                   <Text style={s.rsvnTitle}>예약 정보 입력</Text>
 
-                  {/* 날짜 */}
-                  <View style={s.rsvnField}>
-                    <Text style={s.rsvnLabel}>📅 날짜</Text>
-                    <TouchableOpacity style={s.rsvnInput} onPress={() => setShowCalendar(true)}>
-                      <Text style={rsvnDate ? s.rsvnDateText : s.rsvnDatePlaceholder}>
-                        {rsvnDate || "날짜를 선택하세요"}
-                      </Text>
-                    </TouchableOpacity>
+                  {/* 날짜 + 인원 (같은 행) */}
+                  <View style={s.rsvnRow}>
+                    {/* 날짜 */}
+                    <View style={[s.rsvnField, { flex: 1 }]}>
+                      <Text style={s.rsvnLabel}>📅 날짜</Text>
+                      <TouchableOpacity style={s.rsvnInput} onPress={() => setShowCalendar(true)}>
+                        <Text style={rsvnDate ? s.rsvnDateText : s.rsvnDatePlaceholder}>
+                          {rsvnDate || "날짜 선택"}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+
+                    {/* 인원 */}
+                    <View style={[s.rsvnField, s.rsvnPeopleField]}>
+                      <Text style={s.rsvnLabel}>👥 인원</Text>
+                      <View style={s.peopleRow}>
+                        <TouchableOpacity
+                          style={s.peopleBtn}
+                          onPress={() => setRsvnPeople(p => Math.max(1, p - 1))}
+                        >
+                          <Text style={s.peopleBtnText}>−</Text>
+                        </TouchableOpacity>
+                        <Text style={s.peopleNum}>{rsvnPeople}명</Text>
+                        <TouchableOpacity
+                          style={s.peopleBtn}
+                          onPress={() => setRsvnPeople(p => Math.min(expandedSeat.capacity, p + 1))}
+                        >
+                          <Text style={s.peopleBtnText}>+</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
                   </View>
 
                   {/* 달력 모달 */}
@@ -133,26 +156,6 @@ export default function SeatsView({ visible, onClose }) {
                         </TouchableOpacity>
                       ))}
                     </ScrollView>
-                  </View>
-
-                  {/* 인원 */}
-                  <View style={s.rsvnField}>
-                    <Text style={s.rsvnLabel}>👥 인원</Text>
-                    <View style={s.peopleRow}>
-                      <TouchableOpacity
-                        style={s.peopleBtn}
-                        onPress={() => setRsvnPeople(p => Math.max(1, p - 1))}
-                      >
-                        <Text style={s.peopleBtnText}>−</Text>
-                      </TouchableOpacity>
-                      <Text style={s.peopleNum}>{rsvnPeople}명</Text>
-                      <TouchableOpacity
-                        style={s.peopleBtn}
-                        onPress={() => setRsvnPeople(p => Math.min(expandedSeat.capacity, p + 1))}
-                      >
-                        <Text style={s.peopleBtnText}>+</Text>
-                      </TouchableOpacity>
-                    </View>
                   </View>
 
                   <TouchableOpacity
@@ -240,7 +243,9 @@ const s = StyleSheet.create({
 
   rsvnForm: { backgroundColor: "#0f172a", padding: 16, gap: 14 },
   rsvnTitle: { fontSize: 14, fontWeight: "900", color: "#fff", marginBottom: 2 },
+  rsvnRow: { flexDirection: "row", gap: 12, alignItems: "flex-start" },
   rsvnField: { gap: 8 },
+  rsvnPeopleField: { alignItems: "center" },
   rsvnLabel: { fontSize: 12, fontWeight: "700", color: "#94a3b8" },
   rsvnInput: { backgroundColor: "#1e293b", borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, borderWidth: 1, borderColor: "#334155", justifyContent: "center" },
   rsvnDateText: { fontSize: 14, color: "#fff" },
