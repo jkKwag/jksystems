@@ -5,7 +5,7 @@ import ChatRoom from "../components/ChatRoom";
 import MenuDetail from "./MenuDetail";
 import supabase from "../lib/supabase";
 
-const TOSS_CLIENT_KEY = "test_ck_YOUR_KEY_HERE"; // 발급 후 교체
+const TOSS_CLIENT_KEY = process.env.EXPO_PUBLIC_TOSS_CLIENT_KEY;
 
 
 const BURST_COLORS = [
@@ -743,19 +743,22 @@ export default function Menu({ bizno, tableNo }) {
                 <Text style={s.payAmtValue}>₩{cartTotal.toLocaleString()}</Text>
               </View>
               <TouchableOpacity style={s.payBtn} onPress={async () => {
-                // TODO: TOSS_CLIENT_KEY 발급 후 아래 주석 해제
-                // const toss = await loadTossPayments(TOSS_CLIENT_KEY);
-                // await toss.requestPayment({
-                //   method: "CARD",
-                //   amount: { currency: "KRW", value: cartTotal },
-                //   orderId: `order-${Date.now()}`,
-                //   orderName: cartItems.map(i => i.item.name).join(", "),
-                //   successUrl: window.location.origin + "/payment/success",
-                //   failUrl: window.location.origin + "/payment/fail",
-                // });
-                setShowPayment(false);
-                clearCart();
-                setTimeout(() => setShowConfetti(true), 300);
+                try {
+                  const { loadTossPayments } = await import("@tosspayments/tosspayments-sdk");
+                  const toss = await loadTossPayments(TOSS_CLIENT_KEY);
+                  await toss.requestPayment({
+                    method: "CARD",
+                    amount: { currency: "KRW", value: cartTotal },
+                    orderId: `scaneat-${Date.now()}`,
+                    orderName: cartItems.length === 1
+                      ? cartItems[0].item.name
+                      : `${cartItems[0].item.name} 외 ${cartItems.length - 1}건`,
+                    successUrl: window.location.origin + "/payment/success",
+                    failUrl: window.location.origin + "/payment/fail",
+                  });
+                } catch (e) {
+                  if (e?.code !== "USER_CANCEL") console.error("[Toss]", e);
+                }
               }}>
                 <Text style={s.payBtnText}>₩{cartTotal.toLocaleString()} 결제하기</Text>
               </TouchableOpacity>
