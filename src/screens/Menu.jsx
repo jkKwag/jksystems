@@ -822,8 +822,8 @@ const s = StyleSheet.create({
   shopTag: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: "#f1f5f9", borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5 },
   shopTagIcon: { fontSize: 12 },
   shopTagText: { fontSize: 11, fontWeight: "700", color: "#475569" },
-  seatBtn: { borderWidth: 1.5, borderColor: "#0f172a", borderRadius: 20, paddingHorizontal: 11, paddingVertical: 4, backgroundColor: "#f8fafc" },
-  seatBtnText: { fontSize: 11, fontWeight: "700", color: "#0f172a" },
+  seatBtn: { flexDirection: "row", alignItems: "center", backgroundColor: "#0f172a", borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5 },
+  seatBtnText: { fontSize: 11, fontWeight: "700", color: "#fff" },
   bizAddr: { fontSize: 12, color: "#888", marginTop: 2 },
 
   catBar: { backgroundColor: "#fff", borderBottomWidth: 1, borderBottomColor: "#f0f0f0", flexShrink: 0, flexDirection: "row", paddingHorizontal: 4 },
