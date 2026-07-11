@@ -9,6 +9,7 @@ import QnA from "./src/screens/QnA";
 import FAQ from "./src/screens/FAQ";
 import Menu from "./src/screens/Menu";
 import PaymentSuccess from "./src/screens/PaymentSuccess";
+import PaymentFail from "./src/screens/PaymentFail";
 import AdminLogin from "./src/components/AdminLogin";
 import QrScanner from "./src/components/QrScanner";
 
@@ -32,6 +33,7 @@ const getTableNo = () => {
 const menuBizno = getMenuBizno();
 const tableNo = getTableNo();
 const isPaymentSuccess = Platform.OS === "web" && window.location.pathname === "/payment/success";
+const isPaymentFail = Platform.OS === "web" && window.location.pathname === "/payment/fail";
 
 const MUSIC_URL = "https://raw.githubusercontent.com/jkKwag/jksystems/main/assets/bgmusic.mp3";
 
@@ -152,9 +154,8 @@ export default function App() {
     setIsAdmin(false);
   };
 
-  if (isPaymentSuccess) {
-    return <PaymentSuccess />;
-  }
+  if (isPaymentSuccess) return <PaymentSuccess />;
+  if (isPaymentFail) return <PaymentFail />;
 
   if (menuBizno) {
     return (

@@ -8,11 +8,12 @@ const getParams = () => {
     orderId: p.get("orderId"),
     amount: p.get("amount"),
     bizno: p.get("bizno"),
+    bizNm: decodeURIComponent(p.get("biz_nm") || ""),
   };
 };
 
 export default function PaymentSuccess() {
-  const { paymentKey, orderId, amount, bizno } = getParams();
+  const { paymentKey, orderId, amount, bizno, bizNm } = getParams();
 
   return (
     <View style={s.container}>
@@ -32,7 +33,7 @@ export default function PaymentSuccess() {
         </View>
 
         <TouchableOpacity style={s.btn} onPress={() => { if (Platform.OS === "web") window.location.href = bizno ? `/menu/${bizno}` : "/"; }}>
-          <Text style={s.btnText}>사업장으로 돌아가기</Text>
+          <Text style={s.btnText}>{bizNm ? `${bizNm} 홈` : "사업장 홈"}</Text>
         </TouchableOpacity>
       </View>
     </View>
