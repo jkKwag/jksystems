@@ -755,8 +755,8 @@ export default function Menu({ bizno, tableNo }) {
                     orderName: cartItems.length === 1
                       ? cartItems[0].item.name
                       : `${cartItems[0].item.name} 외 ${cartItems.length - 1}건`,
-                    successUrl: window.location.origin + "/payment/success",
-                    failUrl: window.location.origin + "/payment/fail",
+                    successUrl: window.location.origin + `/payment/success?bizno=${bizno}`,
+                    failUrl: window.location.origin + `/payment/fail?bizno=${bizno}`,
                   });
                 } catch (e) {
                   if (e?.code === "USER_CANCEL") return;

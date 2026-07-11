@@ -7,11 +7,12 @@ const getParams = () => {
     paymentKey: p.get("paymentKey"),
     orderId: p.get("orderId"),
     amount: p.get("amount"),
+    bizno: p.get("bizno"),
   };
 };
 
 export default function PaymentSuccess() {
-  const { paymentKey, orderId, amount } = getParams();
+  const { paymentKey, orderId, amount, bizno } = getParams();
 
   return (
     <View style={s.container}>
@@ -30,8 +31,8 @@ export default function PaymentSuccess() {
           <Text style={s.noticeText}>⚡ 현재 테스트 모드 — 실제 승인 API 연동 전입니다</Text>
         </View>
 
-        <TouchableOpacity style={s.btn} onPress={() => { if (Platform.OS === "web") window.location.href = "/"; }}>
-          <Text style={s.btnText}>홈으로 돌아가기</Text>
+        <TouchableOpacity style={s.btn} onPress={() => { if (Platform.OS === "web") window.location.href = bizno ? `/menu/${bizno}` : "/"; }}>
+          <Text style={s.btnText}>사업장으로 돌아가기</Text>
         </TouchableOpacity>
       </View>
     </View>
