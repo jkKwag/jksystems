@@ -449,8 +449,15 @@ export default function Menu({ bizno, tableNo }) {
           <Text style={s.shopInfo}>리뷰 142개 · {bizInfo?.ind_nm || ""}</Text>
         </View>
         <View style={s.shopTags}>
-          {["야외석", "단체예약", "포장가능"].map(t => (
-            <View key={t} style={s.shopTag}><Text style={s.shopTagText}>{t}</Text></View>
+          {[
+            { label: "야외석", icon: "🌿" },
+            { label: "단체예약", icon: "👥" },
+            { label: "포장가능", icon: "📦" },
+          ].map(t => (
+            <View key={t.label} style={s.shopTag}>
+              <Text style={s.shopTagIcon}>{t.icon}</Text>
+              <Text style={s.shopTagText}>{t.label}</Text>
+            </View>
           ))}
           <TouchableOpacity style={s.seatBtn} onPress={() => setShowSeats(true)}>
             <Text style={s.seatBtnText}>🪑 좌석보기</Text>
@@ -812,8 +819,9 @@ const s = StyleSheet.create({
   star: { color: "#f97316" },
   shopInfo: { fontSize: 12, color: "#888" },
   shopTags: { flexDirection: "row", gap: 6, marginBottom: 8, flexWrap: "wrap", alignItems: "center" },
-  shopTag: { borderWidth: 1, borderColor: "#e5e7eb", borderRadius: 20, paddingHorizontal: 11, paddingVertical: 4 },
-  shopTagText: { fontSize: 11, fontWeight: "600", color: "#555" },
+  shopTag: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: "#f1f5f9", borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5 },
+  shopTagIcon: { fontSize: 12 },
+  shopTagText: { fontSize: 11, fontWeight: "700", color: "#475569" },
   seatBtn: { borderWidth: 1.5, borderColor: "#0f172a", borderRadius: 20, paddingHorizontal: 11, paddingVertical: 4, backgroundColor: "#f8fafc" },
   seatBtnText: { fontSize: 11, fontWeight: "700", color: "#0f172a" },
   bizAddr: { fontSize: 12, color: "#888", marginTop: 2 },
