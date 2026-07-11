@@ -702,10 +702,14 @@ export default function Menu({ bizno, tableNo }) {
                 <Text style={s.totalLabel}>총 {cartCount}개</Text>
                 <Text style={s.totalPrice}>₩{cartTotal.toLocaleString()}</Text>
               </View>
-              <TouchableOpacity style={s.orderBtn} onPress={() => {
-                setShowCart(false);
-                setTimeout(() => setShowPayment(true), 300);
-              }}>
+              <TouchableOpacity
+                style={[s.orderBtn, cartItems.length === 0 && s.orderBtnDisabled]}
+                disabled={cartItems.length === 0}
+                onPress={() => {
+                  setShowCart(false);
+                  setTimeout(() => setShowPayment(true), 300);
+                }}
+              >
                 <Text style={s.orderBtnText}>주문하기 ({cartCount}개) →</Text>
               </TouchableOpacity>
             </View>
@@ -980,5 +984,6 @@ const s = StyleSheet.create({
   totalLabel: { fontSize: 13, color: "#888", fontWeight: "600" },
   totalPrice: { fontSize: 20, fontWeight: "900", color: "#111" },
   orderBtn: { backgroundColor: "#111", borderRadius: 14, padding: 15, alignItems: "center" },
+  orderBtnDisabled: { backgroundColor: "#cbd5e1", opacity: 0.6 },
   orderBtnText: { color: "#fff", fontSize: 15, fontWeight: "800" },
 });
