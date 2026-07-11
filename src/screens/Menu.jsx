@@ -312,7 +312,7 @@ export default function Menu({ bizno, tableNo }) {
     })();
   }, [bizno]);
 
-  const [cart, setCart] = useState(() => loadCart(bizno));
+  const [cart, setCart] = useState({});
   const [showCart, setShowCart] = useState(false);
   const aiToastOpacity = useRef(new Animated.Value(0)).current;
   useEffect(() => {
