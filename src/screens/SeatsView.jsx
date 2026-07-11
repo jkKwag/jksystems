@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Modal, Image, Platform } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Modal, Image, Platform, TextInput } from "react-native";
 
 const MOCK_SEATS = [
   { id: 1, name: "A-1", capacity: 2, desc: "창가 2인석 · 조용한 분위기", image: "https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=400&h=220&fit=crop" },
@@ -14,8 +14,13 @@ const MOCK_SEATS = [
 
 const fixedFill = Platform.OS === "web" ? { position: "fixed", top: 0, left: 0, right: 0, bottom: 0 } : {};
 
+const TIME_SLOTS = ["11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30"];
+
 export default function SeatsView({ visible, onClose }) {
   const [expandedSeat, setExpandedSeat] = useState(null);
+  const [rsvnDate, setRsvnDate] = useState("");
+  const [rsvnTime, setRsvnTime] = useState("");
+  const [rsvnPeople, setRsvnPeople] = useState(2);
 
   if (!visible) return null;
 
@@ -43,27 +48,94 @@ export default function SeatsView({ visible, onClose }) {
       {/* 이미지 확대 뷰어 */}
       {expandedSeat && (
         <Modal visible={!!expandedSeat} transparent animationType="fade" onRequestClose={() => setExpandedSeat(null)}>
-          <TouchableOpacity style={s.viewerBg} activeOpacity={1} onPress={() => setExpandedSeat(null)}>
-            <View style={s.viewerBox}>
-              <Image
-                source={{ uri: expandedSeat.image.replace("w=400&h=220", "w=800&h=500") }}
-                style={s.viewerImg}
-                resizeMode="cover"
-              />
-              <View style={s.viewerInfo}>
-                <View style={s.viewerRow}>
-                  <Text style={s.viewerName}>{expandedSeat.name}</Text>
-                  <View style={s.viewerBadge}>
-                    <Text style={s.viewerBadgeText}>👤 {expandedSeat.capacity}인</Text>
+          <View style={s.viewerBg}>
+            <TouchableOpacity style={StyleSheet.absoluteFillObject} activeOpacity={1} onPress={() => setExpandedSeat(null)} />
+            <ScrollView style={{ width: "100%" }} contentContainerStyle={s.viewerScroll} keyboardShouldPersistTaps="handled">
+              <View style={s.viewerBox}>
+                {/* 이미지 */}
+                <Image
+                  source={{ uri: expandedSeat.image.replace("w=400&h=220", "w=800&h=500") }}
+                  style={s.viewerImg}
+                  resizeMode="cover"
+                />
+                <TouchableOpacity style={s.viewerClose} onPress={() => setExpandedSeat(null)}>
+                  <Text style={s.viewerCloseText}>✕</Text>
+                </TouchableOpacity>
+
+                {/* 좌석 정보 */}
+                <View style={s.viewerInfo}>
+                  <View style={s.viewerRow}>
+                    <Text style={s.viewerName}>{expandedSeat.name}</Text>
+                    <View style={s.viewerBadge}>
+                      <Text style={s.viewerBadgeText}>최대 👤 {expandedSeat.capacity}인</Text>
+                    </View>
                   </View>
+                  <Text style={s.viewerDesc}>{expandedSeat.desc}</Text>
                 </View>
-                <Text style={s.viewerDesc}>{expandedSeat.desc}</Text>
+
+                {/* 예약 폼 */}
+                <View style={s.rsvnForm}>
+                  <Text style={s.rsvnTitle}>예약 정보 입력</Text>
+
+                  {/* 날짜 */}
+                  <View style={s.rsvnField}>
+                    <Text style={s.rsvnLabel}>📅 날짜</Text>
+                    <TextInput
+                      style={s.rsvnInput}
+                      placeholder="예: 2025-07-20"
+                      placeholderTextColor="#64748b"
+                      value={rsvnDate}
+                      onChangeText={setRsvnDate}
+                    />
+                  </View>
+
+                  {/* 시간 슬롯 */}
+                  <View style={s.rsvnField}>
+                    <Text style={s.rsvnLabel}>🕐 시간</Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.timeScroll}>
+                      {TIME_SLOTS.map(t => (
+                        <TouchableOpacity
+                          key={t}
+                          style={[s.timeSlot, rsvnTime === t && s.timeSlotActive]}
+                          onPress={() => setRsvnTime(t)}
+                        >
+                          <Text style={[s.timeSlotText, rsvnTime === t && s.timeSlotTextActive]}>{t}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+
+                  {/* 인원 */}
+                  <View style={s.rsvnField}>
+                    <Text style={s.rsvnLabel}>👥 인원</Text>
+                    <View style={s.peopleRow}>
+                      <TouchableOpacity
+                        style={s.peopleBtn}
+                        onPress={() => setRsvnPeople(p => Math.max(1, p - 1))}
+                      >
+                        <Text style={s.peopleBtnText}>−</Text>
+                      </TouchableOpacity>
+                      <Text style={s.peopleNum}>{rsvnPeople}명</Text>
+                      <TouchableOpacity
+                        style={s.peopleBtn}
+                        onPress={() => setRsvnPeople(p => Math.min(expandedSeat.capacity, p + 1))}
+                      >
+                        <Text style={s.peopleBtnText}>+</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+
+                  <TouchableOpacity
+                    style={[s.rsvnBtn, (!rsvnDate || !rsvnTime) && s.rsvnBtnOff]}
+                    disabled={!rsvnDate || !rsvnTime}
+                    onPress={() => alert(`${expandedSeat.name} / ${rsvnDate} ${rsvnTime} / ${rsvnPeople}명\n예약 DB 연동 예정`)}
+                  >
+                    <Text style={s.rsvnBtnText}>예약하기</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-              <TouchableOpacity style={s.viewerClose} onPress={() => setExpandedSeat(null)}>
-                <Text style={s.viewerCloseText}>✕</Text>
-              </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
+            </ScrollView>
+          </View>
         </Modal>
       )}
     </View>
@@ -123,9 +195,10 @@ const s = StyleSheet.create({
   seatDesc: { fontSize: 12, color: "#64748b", fontWeight: "500", lineHeight: 17 },
   notice: { fontSize: 11, color: "#94a3b8", textAlign: "center", marginTop: 16 },
 
-  viewerBg: { flex: 1, backgroundColor: "rgba(0,0,0,0.85)", justifyContent: "center", alignItems: "center", padding: 24 },
+  viewerBg: { flex: 1, backgroundColor: "rgba(0,0,0,0.85)", justifyContent: "center", alignItems: "center" },
+  viewerScroll: { padding: 20, alignItems: "center" },
   viewerBox: { width: "100%", maxWidth: 480, borderRadius: 20, overflow: "hidden", backgroundColor: "#1e293b" },
-  viewerImg: { width: "100%", height: 280 },
+  viewerImg: { width: "100%", height: 220 },
   viewerInfo: { padding: 16, gap: 6 },
   viewerRow: { flexDirection: "row", alignItems: "center", gap: 10 },
   viewerName: { fontSize: 18, fontWeight: "900", color: "#fff" },
@@ -134,4 +207,25 @@ const s = StyleSheet.create({
   viewerDesc: { fontSize: 13, color: "#94a3b8", fontWeight: "500" },
   viewerClose: { position: "absolute", top: 12, right: 12, width: 32, height: 32, borderRadius: 16, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center" },
   viewerCloseText: { fontSize: 13, color: "#fff", fontWeight: "700" },
+
+  rsvnForm: { backgroundColor: "#0f172a", padding: 16, gap: 14 },
+  rsvnTitle: { fontSize: 14, fontWeight: "900", color: "#fff", marginBottom: 2 },
+  rsvnField: { gap: 8 },
+  rsvnLabel: { fontSize: 12, fontWeight: "700", color: "#94a3b8" },
+  rsvnInput: { backgroundColor: "#1e293b", borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: "#fff", borderWidth: 1, borderColor: "#334155" },
+
+  timeScroll: { flexGrow: 0 },
+  timeSlot: { backgroundColor: "#1e293b", borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8, marginRight: 8, borderWidth: 1, borderColor: "#334155" },
+  timeSlotActive: { backgroundColor: "#f97316", borderColor: "#f97316" },
+  timeSlotText: { fontSize: 13, fontWeight: "700", color: "#94a3b8" },
+  timeSlotTextActive: { color: "#fff" },
+
+  peopleRow: { flexDirection: "row", alignItems: "center", gap: 16 },
+  peopleBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: "#1e293b", justifyContent: "center", alignItems: "center", borderWidth: 1, borderColor: "#334155" },
+  peopleBtnText: { fontSize: 20, color: "#fff", fontWeight: "700" },
+  peopleNum: { fontSize: 16, fontWeight: "900", color: "#fff", minWidth: 40, textAlign: "center" },
+
+  rsvnBtn: { backgroundColor: "#f97316", borderRadius: 12, paddingVertical: 14, alignItems: "center", marginTop: 4 },
+  rsvnBtnOff: { backgroundColor: "#334155" },
+  rsvnBtnText: { color: "#fff", fontSize: 15, fontWeight: "900" },
 });
