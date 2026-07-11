@@ -460,7 +460,7 @@ export default function Menu({ bizno, tableNo }) {
             </View>
           ))}
           <TouchableOpacity style={s.seatBtn} onPress={() => setShowSeats(true)}>
-            <Text style={s.seatBtnText}>🪑 테이블</Text>
+            <Text style={s.seatBtnText}>🪑 테이블 예약</Text>
           </TouchableOpacity>
         </View>
         {bizInfo?.addr && (
