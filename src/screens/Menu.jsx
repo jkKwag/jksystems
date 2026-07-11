@@ -744,6 +744,7 @@ export default function Menu({ bizno, tableNo }) {
               </View>
               <TouchableOpacity style={s.payBtn} onPress={async () => {
                 try {
+                  if (!TOSS_CLIENT_KEY) { alert("토스 클라이언트 키가 없습니다 (EXPO_PUBLIC_TOSS_CLIENT_KEY)"); return; }
                   const { loadTossPayments } = await import("@tosspayments/tosspayments-sdk");
                   const toss = await loadTossPayments(TOSS_CLIENT_KEY);
                   await toss.requestPayment({
@@ -757,7 +758,9 @@ export default function Menu({ bizno, tableNo }) {
                     failUrl: window.location.origin + "/payment/fail",
                   });
                 } catch (e) {
-                  if (e?.code !== "USER_CANCEL") console.error("[Toss]", e);
+                  if (e?.code === "USER_CANCEL") return;
+                  alert(`[결제 오류] ${e?.message || JSON.stringify(e)}`);
+                  console.error("[Toss]", e);
                 }
               }}>
                 <Text style={s.payBtnText}>₩{cartTotal.toLocaleString()} 결제하기</Text>
