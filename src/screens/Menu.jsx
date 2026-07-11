@@ -5,7 +5,7 @@ import ChatRoom from "../components/ChatRoom";
 import MenuDetail from "./MenuDetail";
 import supabase from "../lib/supabase";
 
-const TOSS_CLIENT_KEY = process.env.EXPO_PUBLIC_TOSS_CLIENT_KEY;
+const TOSS_CLIENT_KEY = process.env.EXPO_PUBLIC_TOSS_CLIENT_KEY || "test_ck_vZnjEJeQVxexx5pMqG4brPmOoBN0";
 
 
 const BURST_COLORS = [
