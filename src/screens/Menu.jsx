@@ -543,7 +543,7 @@ export default function Menu({ bizno, tableNo }) {
           <View style={s.cartBarCenter}>
             <Text style={s.cartBarText}>장바구니 보기</Text>
             <View style={s.cartOrderTypeBadge}>
-              <Text style={s.cartOrderTypeText}>{orderType === "포장주문" ? "📦 포장" : "🍽️ 매장"}</Text>
+              <Text style={s.cartOrderTypeText}>{orderType === "포장주문" ? "📦 포장주문" : "🍽️ 매장주문"}</Text>
             </View>
           </View>
           <Text style={s.cartBarTotal}>₩{cartTotal.toLocaleString()}</Text>
