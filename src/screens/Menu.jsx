@@ -784,7 +784,7 @@ export default function Menu({ bizno, tableNo }) {
                 <Text style={s.payAmtLabel}>최종 결제금액</Text>
                 <Text style={s.payAmtValue}>₩{cartTotal.toLocaleString()}</Text>
               </View>
-              <TouchableOpacity style={s.payBtn} onPress={async () => {
+              <TouchableOpacity style={[s.payBtn, cartItems.length === 0 && s.payBtnDisabled]} disabled={cartItems.length === 0} onPress={async () => {
                 try {
                   if (!TOSS_CLIENT_KEY) { alert("토스 클라이언트 키가 없습니다 (EXPO_PUBLIC_TOSS_CLIENT_KEY)"); return; }
                   try { sessionStorage.setItem(`scaneat_pending_cart_${bizno}`, JSON.stringify(cart)); } catch {}
@@ -970,6 +970,7 @@ const s = StyleSheet.create({
   payAmtLabel: { fontSize: 14, color: "#64748b", fontWeight: "600" },
   payAmtValue: { fontSize: 20, fontWeight: "900", color: "#0f172a" },
   payBtn: { backgroundColor: "#0f172a", borderRadius: 16, paddingVertical: 16, alignItems: "center", gap: 4 },
+  payBtnDisabled: { backgroundColor: "#cbd5e1", opacity: 0.6 },
   payBtnText: { color: "#fff", fontSize: 16, fontWeight: "900", letterSpacing: 0.3 },
   payOrderTypeBadge: { backgroundColor: "rgba(255,255,255,0.15)", borderRadius: 10, paddingHorizontal: 10, paddingVertical: 2 },
   payOrderTypeText: { color: "#fff", fontSize: 11, fontWeight: "700" },
