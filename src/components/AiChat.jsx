@@ -36,10 +36,8 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
   const [pendingChangeRsvn, setPendingChangeRsvn] = useState(null);
   const [pendingChange, setPendingChange] = useState(null);
   const [rsvnStep, setRsvnStep] = useState(null); // null | 'askRsvnNo' | 'askCancelRsvnNo' | 'askChangeRsvnNo' | 'askChangeContent'
-  const [showTooltip, setShowTooltip] = useState(false);
   const [listening, setListening] = useState(false);
   const panelY = useRef(new Animated.Value(500)).current;
-  const tooltipOpacity = useRef(new Animated.Value(0)).current;
   const micPulse = useRef(new Animated.Value(1)).current;
   const recognitionRef = useRef(null);
   const scrollRef = useRef(null);
@@ -86,14 +84,6 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
     rec.start();
   };
 
-  useEffect(() => {
-    setShowTooltip(true);
-    Animated.timing(tooltipOpacity, { toValue: 1, duration: 300, useNativeDriver: true }).start();
-    const t = setTimeout(() => {
-      Animated.timing(tooltipOpacity, { toValue: 0, duration: 400, useNativeDriver: true }).start(() => setShowTooltip(false));
-    }, 3000);
-    return () => clearTimeout(t);
-  }, []);
 
   useEffect(() => {
     Animated.spring(panelY, {
@@ -696,16 +686,6 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
         </View>
       </Animated.View>
 
-      {showTooltip && (
-        <Animated.View style={[
-          s.tooltip,
-          fixedBase,
-          { bottom: 216, right: 20, zIndex: 201, opacity: tooltipOpacity },
-        ]}>
-          <Text style={s.tooltipText}>AI에게 메뉴 추천받아보세요! 👆</Text>
-          <View style={s.tooltipArrow} />
-        </Animated.View>
-      )}
 
       <TouchableOpacity
         style={[s.fab, fixedBase, { bottom: 160, right: 20, zIndex: 200 }]}
