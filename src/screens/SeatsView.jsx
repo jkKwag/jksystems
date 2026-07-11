@@ -2,14 +2,14 @@ import { useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Modal, Image, Platform } from "react-native";
 
 const MOCK_SEATS = [
-  { id: 1, name: "A-1", capacity: 2, desc: "창가 2인석", image: null },
-  { id: 2, name: "A-2", capacity: 2, desc: "창가 2인석", image: null },
-  { id: 3, name: "B-1", capacity: 4, desc: "중앙 4인석", image: null },
-  { id: 4, name: "B-2", capacity: 4, desc: "중앙 4인석", image: null },
-  { id: 5, name: "C-1", capacity: 6, desc: "단체석 6인", image: null },
-  { id: 6, name: "C-2", capacity: 6, desc: "단체석 6인", image: null },
-  { id: 7, name: "D-1", capacity: 8, desc: "프라이빗 룸", image: null },
-  { id: 8, name: "D-2", capacity: 10, desc: "대형 단체석", image: null },
+  { id: 1, name: "A-1", capacity: 2, desc: "창가 2인석 · 조용한 분위기", image: "https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=400&h=220&fit=crop" },
+  { id: 2, name: "A-2", capacity: 2, desc: "창가 2인석 · 자연채광", image: "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400&h=220&fit=crop" },
+  { id: 3, name: "B-1", capacity: 4, desc: "중앙 4인석 · 넓은 테이블", image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=220&fit=crop" },
+  { id: 4, name: "B-2", capacity: 4, desc: "중앙 4인석 · 편안한 소파", image: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=220&fit=crop" },
+  { id: 5, name: "C-1", capacity: 6, desc: "단체석 6인 · 모임에 적합", image: "https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=400&h=220&fit=crop" },
+  { id: 6, name: "C-2", capacity: 6, desc: "단체석 6인 · 프라이빗 공간", image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=220&fit=crop" },
+  { id: 7, name: "D-1", capacity: 8, desc: "프라이빗 룸 · 독립 공간", image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=220&fit=crop" },
+  { id: 8, name: "D-2", capacity: 10, desc: "대형 단체석 · 행사 가능", image: "https://images.unsplash.com/photo-1567521464027-f127ff144326?w=400&h=220&fit=crop" },
 ];
 
 export default function SeatsView({ visible, onClose }) {
