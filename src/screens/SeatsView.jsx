@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Modal, Image } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Modal, Image, Platform } from "react-native";
 
 const MOCK_SEATS = [
   { id: 1, name: "A-1", capacity: 2, desc: "창가 2인석 · 조용한 분위기", image: "https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=400&h=220&fit=crop" },
@@ -12,31 +12,33 @@ const MOCK_SEATS = [
   { id: 8, name: "D-2", capacity: 10, desc: "대형 단체석 · 행사 가능", image: "https://images.unsplash.com/photo-1567521464027-f127ff144326?w=400&h=220&fit=crop" },
 ];
 
+const fixedFill = Platform.OS === "web" ? { position: "fixed", top: 0, left: 0, right: 0, bottom: 0 } : {};
+
 export default function SeatsView({ visible, onClose }) {
   const [expandedSeat, setExpandedSeat] = useState(null);
 
-  return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={s.overlay}>
-        <TouchableOpacity style={s.overlayBg} activeOpacity={1} onPress={onClose} />
-        <View style={s.sheet}>
-          <View style={s.header}>
-            <Text style={s.headerTitle}>🪑 테이블 예약</Text>
-            <TouchableOpacity style={s.closeBtn} onPress={onClose}>
-              <Text style={s.closeBtnText}>✕</Text>
-            </TouchableOpacity>
-          </View>
+  if (!visible) return null;
 
-          <ScrollView contentContainerStyle={s.content}>
-            <View style={s.grid}>
-              {MOCK_SEATS.map(seat => (
-                <SeatCard key={seat.id} seat={seat} onExpand={() => setExpandedSeat(seat)} />
-              ))}
-            </View>
-            <Text style={s.notice}>* 좌석 현황은 실시간 변동될 수 있습니다</Text>
-          </ScrollView>
-        </View>
+  return (
+    <View style={[StyleSheet.absoluteFillObject, fixedFill, s.container]}>
+      {/* 헤더 */}
+      <View style={s.header}>
+        <TouchableOpacity style={s.backBtn} onPress={onClose}>
+          <Text style={s.backBtnText}>← 뒤로</Text>
+        </TouchableOpacity>
+        <Text style={s.headerTitle}>🪑 테이블 예약</Text>
+        <View style={{ width: 64 }} />
       </View>
+
+      {/* 좌석 그리드 */}
+      <ScrollView contentContainerStyle={s.content}>
+        <View style={s.grid}>
+          {MOCK_SEATS.map(seat => (
+            <SeatCard key={seat.id} seat={seat} onExpand={() => setExpandedSeat(seat)} />
+          ))}
+        </View>
+        <Text style={s.notice}>* 좌석 현황은 실시간 변동될 수 있습니다</Text>
+      </ScrollView>
 
       {/* 이미지 확대 뷰어 */}
       {expandedSeat && (
@@ -64,7 +66,7 @@ export default function SeatsView({ visible, onClose }) {
           </TouchableOpacity>
         </Modal>
       )}
-    </Modal>
+    </View>
   );
 }
 
@@ -96,22 +98,20 @@ function SeatCard({ seat, onExpand }) {
 }
 
 const s = StyleSheet.create({
-  overlay: { flex: 1, justifyContent: "flex-end" },
-  overlayBg: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.5)" },
-  sheet: { backgroundColor: "#f8fafc", borderTopLeftRadius: 24, borderTopRightRadius: 24, maxHeight: "85%", overflow: "hidden" },
+  container: { zIndex: 110, backgroundColor: "#f8fafc" },
 
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 20, backgroundColor: "#0f172a", borderTopLeftRadius: 24, borderTopRightRadius: 24 },
+  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#0f172a", paddingHorizontal: 16, paddingVertical: 14 },
+  backBtn: { paddingHorizontal: 8, paddingVertical: 4 },
+  backBtnText: { color: "#fff", fontSize: 14, fontWeight: "700" },
   headerTitle: { fontSize: 17, fontWeight: "900", color: "#fff" },
-  closeBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: "rgba(255,255,255,0.2)", justifyContent: "center", alignItems: "center" },
-  closeBtnText: { fontSize: 13, color: "#fff", fontWeight: "700" },
 
-  content: { padding: 16, paddingBottom: 32 },
+  content: { padding: 16, paddingBottom: 40 },
   grid: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
 
   card: { width: "47.5%", backgroundColor: "#fff", borderRadius: 16, overflow: "hidden", shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 8, elevation: 3 },
   imgWrap: { position: "relative" },
-  img: { width: "100%", height: 110, backgroundColor: "#e2e8f0" },
-  noImg: { width: "100%", height: 110, backgroundColor: "#f1f5f9", justifyContent: "center", alignItems: "center" },
+  img: { width: "100%", height: 130, backgroundColor: "#e2e8f0" },
+  noImg: { width: "100%", height: 130, backgroundColor: "#f1f5f9", justifyContent: "center", alignItems: "center" },
   noImgIcon: { fontSize: 36 },
   zoomHint: { position: "absolute", top: 8, left: 8, backgroundColor: "rgba(0,0,0,0.4)", borderRadius: 12, paddingHorizontal: 6, paddingVertical: 2 },
   zoomHintText: { fontSize: 10 },
@@ -123,7 +123,6 @@ const s = StyleSheet.create({
   seatDesc: { fontSize: 12, color: "#64748b", fontWeight: "500", lineHeight: 17 },
   notice: { fontSize: 11, color: "#94a3b8", textAlign: "center", marginTop: 16 },
 
-  /* 이미지 확대 뷰어 */
   viewerBg: { flex: 1, backgroundColor: "rgba(0,0,0,0.85)", justifyContent: "center", alignItems: "center", padding: 24 },
   viewerBox: { width: "100%", maxWidth: 480, borderRadius: 20, overflow: "hidden", backgroundColor: "#1e293b" },
   viewerImg: { width: "100%", height: 280 },
