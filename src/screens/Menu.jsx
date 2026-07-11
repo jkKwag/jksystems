@@ -716,7 +716,7 @@ export default function Menu({ bizno, tableNo }) {
       </Modal>
 
       <Animated.View style={[s.aiToast, { opacity: aiToastOpacity }]} pointerEvents="none">
-        <Text style={s.aiToastText}>✦ AI도움으로 주문 및 예약가능합니다</Text>
+        <Text style={s.aiToastText}>✦ 주문 및 예약 가능합니다</Text>
       </Animated.View>
 
       {/* 결제 모달 */}
