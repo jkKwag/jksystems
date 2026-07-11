@@ -24,7 +24,7 @@ export default function SeatsView({ visible, onClose }) {
       {/* 헤더 */}
       <View style={s.header}>
         <TouchableOpacity style={s.backBtn} onPress={onClose}>
-          <Text style={s.backBtnText}>← 뒤로</Text>
+          <Text style={s.backBtnText}>← 메뉴로</Text>
         </TouchableOpacity>
         <Text style={s.headerTitle}>🪑 테이블 예약</Text>
         <View style={{ width: 64 }} />
