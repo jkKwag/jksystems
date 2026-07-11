@@ -1,0 +1,96 @@
+import { StyleSheet, Platform } from "react-native";
+import { colors, radius, font, spacing } from "./theme";
+
+export const s = StyleSheet.create({
+  panel: {
+    backgroundColor: colors.bgCard,
+    borderTopLeftRadius: radius["3xl"],
+    borderTopRightRadius: radius["3xl"],
+    height: 480,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 16,
+    elevation: 20,
+  },
+
+  panelHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: spacing["4"], backgroundColor: colors.accent },
+  panelTitle: { fontSize: font["2xl"], fontWeight: "900", color: colors.white, letterSpacing: -0.3 },
+  panelSub: { fontSize: font.xs, color: "rgba(255,255,255,0.65)", marginTop: 2 },
+  xBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: "rgba(255,255,255,0.18)", justifyContent: "center", alignItems: "center" },
+  xBtnText: { fontSize: font.md, color: colors.white, fontWeight: "700" },
+
+  msgList: { flex: 1, backgroundColor: colors.bgCard },
+  msgContent: { padding: spacing["3.5"], paddingBottom: spacing["2"], gap: spacing["2"] },
+
+  msgImage: { width: "100%", height: 160, borderRadius: radius.md, marginBottom: spacing["1.5"] },
+  msgItemName: { fontSize: font.xl, fontWeight: "700", color: colors.text, marginBottom: spacing["1"] },
+  bubble: { maxWidth: "80%", borderRadius: 16, padding: spacing["3"] },
+  bubbleAi: { backgroundColor: colors.bgInput, alignSelf: "flex-start", borderBottomLeftRadius: 4 },
+  bubbleUser: { backgroundColor: colors.accent, alignSelf: "flex-end", borderBottomRightRadius: 4 },
+  bubbleText: { fontSize: font.lg, color: "#222", lineHeight: 20 },
+  bubbleTextUser: { color: colors.white },
+
+  cartCard: { backgroundColor: colors.bgCard, borderWidth: 1.5, borderColor: colors.accent, borderRadius: radius.xl, padding: spacing["3.5"], alignSelf: "stretch" },
+  cartCardLabel: { fontSize: font.xs, fontWeight: "800", color: colors.accent, marginBottom: spacing["1"], letterSpacing: 0.5, textTransform: "uppercase" },
+  cartCardName: { fontSize: font.xl, fontWeight: "800", color: colors.text, marginBottom: 2 },
+  cartCardPrice: { fontSize: font.md, fontWeight: "700", color: colors.accent, marginBottom: spacing["2.5"] },
+  cartCardBtns: { flexDirection: "row", gap: spacing["2"] },
+  noBtn: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm, paddingVertical: spacing["2"], alignItems: "center" },
+  noBtnText: { fontSize: font.md, fontWeight: "700", color: colors.textMuted },
+  yesBtn: { flex: 1, backgroundColor: colors.accent, borderRadius: radius.sm, paddingVertical: spacing["2"], alignItems: "center" },
+  yesBtnText: { fontSize: font.md, fontWeight: "700", color: colors.white },
+
+  rsvnCard: { backgroundColor: colors.primary, borderRadius: radius.xl, padding: spacing["3.5"], marginTop: spacing["1.5"], alignSelf: "stretch" },
+  rsvnCardTopRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: spacing["2.5"] },
+  rsvnCardNo: { fontSize: font["3xl"], fontWeight: "900", color: colors.accent, fontFamily: Platform.OS === "web" ? "monospace" : undefined, letterSpacing: 1.5 },
+  rsvnCardBadge: { fontSize: font.xs, fontWeight: "700", color: colors.accent, backgroundColor: "rgba(249,115,22,0.15)", paddingHorizontal: spacing["2"], paddingVertical: 3, borderRadius: radius.pill },
+  rsvnBadgeApproved: { color: "#4ade80", backgroundColor: "rgba(74,222,128,0.15)" },
+  rsvnBadgeRejected: { color: colors.redLight, backgroundColor: "rgba(248,113,113,0.15)" },
+  rsvnBadgeCancelled: { color: "#9ca3af", backgroundColor: "rgba(156,163,175,0.15)" },
+  rsvnCardDivider: { height: 1, backgroundColor: "rgba(255,255,255,0.08)", marginBottom: spacing["2"] },
+  rsvnCardRow: { flexDirection: "row", justifyContent: "space-between", paddingVertical: spacing["1"] },
+  rsvnCardLabel: { fontSize: font.sm, color: "rgba(255,255,255,0.4)" },
+  rsvnCardValue: { fontSize: font.base, fontWeight: "600", color: "rgba(255,255,255,0.85)", flex: 1, textAlign: "right" },
+  rsvnCardValueRed: { color: colors.redLight },
+
+  changeCard: { backgroundColor: colors.amberPaleBg, borderWidth: 1.5, borderColor: colors.amber, borderRadius: radius.xl, padding: spacing["3.5"], alignSelf: "stretch" },
+  changeCardTitle: { fontSize: font.md, fontWeight: "800", color: colors.amberDark, marginBottom: spacing["2"] },
+  changeCardNote: { fontSize: font.sm, color: "#92400e", marginTop: spacing["1.5"], marginBottom: spacing["2.5"] },
+  changeOld: { color: "#9ca3af", textDecorationLine: "line-through" },
+  changeNew: { color: colors.accent, fontWeight: "700" },
+
+  cancelCard: { backgroundColor: colors.redPaleBg, borderWidth: 1.5, borderColor: colors.redDark, borderRadius: radius.xl, padding: spacing["3.5"], alignSelf: "stretch" },
+  cancelCardTitle: { fontSize: font.md, fontWeight: "800", color: colors.redDark, marginBottom: spacing["2"] },
+  cancelCardWarning: { fontSize: font.sm, color: colors.redDark, marginBottom: spacing["2.5"] },
+  cancelBtn: { flex: 1, backgroundColor: colors.redDark, borderRadius: radius.sm, paddingVertical: spacing["2"], alignItems: "center" },
+
+  rsvnNoCard: { backgroundColor: colors.primary, borderRadius: radius.lg, padding: spacing["3.5"], marginTop: spacing["1.5"], alignSelf: "stretch", alignItems: "center" },
+  rsvnNoLabel: { fontSize: font.xs, fontWeight: "700", color: "rgba(255,255,255,0.55)", letterSpacing: 1, textTransform: "uppercase", marginBottom: spacing["1"] },
+  rsvnNoValue: { fontSize: font["7xl"], fontWeight: "900", color: colors.accent, letterSpacing: 2, fontFamily: Platform.OS === "web" ? "monospace" : undefined },
+  rsvnNoHint: { fontSize: font.xs, color: "rgba(255,255,255,0.45)", marginTop: spacing["1.5"] },
+
+  consentCard: { backgroundColor: "#f8faff", borderWidth: 1.5, borderColor: colors.blue, borderRadius: radius.xl, padding: spacing["3.5"], alignSelf: "stretch" },
+  consentTitle: { fontSize: font.md, fontWeight: "800", color: colors.blueMedium, marginBottom: spacing["2"] },
+  consentBody: { gap: 3, marginBottom: spacing["2.5"] },
+  consentRow: { fontSize: font.base, color: colors.textSecondary, lineHeight: 18 },
+  consentNote: { fontSize: font.sm, color: "#6b7280", marginTop: spacing["1"] },
+  consentSummary: { backgroundColor: colors.bluePaleBg, borderRadius: radius.sm, padding: spacing["2"], marginBottom: spacing["2.5"], gap: 2 },
+  consentSummaryText: { fontSize: font.base, fontWeight: "700", color: colors.blueDark },
+
+  inputRow: { flexDirection: "row", padding: spacing["3"], gap: spacing["2"], borderTopWidth: 1, borderTopColor: colors.borderLight, backgroundColor: colors.bgCard, alignItems: "center" },
+  micBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.bgInput, justifyContent: "center", alignItems: "center" },
+  micBtnOn: { backgroundColor: "#fff0f0" },
+  micBtnText: { fontSize: font["2xl"] },
+  input: { flex: 1, backgroundColor: colors.bgInput, borderRadius: 22, paddingHorizontal: spacing["4"], paddingVertical: spacing["2.5"], fontSize: font.lg, color: colors.text },
+  sendBtn: { backgroundColor: colors.accent, borderRadius: 22, paddingHorizontal: spacing["4"], paddingVertical: spacing["2.5"], justifyContent: "center" },
+  sendBtnOff: { backgroundColor: colors.border },
+  sendBtnText: { color: colors.white, fontWeight: "700", fontSize: font.md },
+
+  tooltip: { backgroundColor: colors.primary, borderRadius: radius.lg, paddingHorizontal: spacing["3.5"], paddingVertical: spacing["2.5"], shadowColor: colors.black, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 8, elevation: 8 },
+  tooltipText: { color: colors.white, fontSize: font.md, fontWeight: "700" },
+  tooltipArrow: { position: "absolute", bottom: -6, right: 22, width: 0, height: 0, borderLeftWidth: 6, borderRightWidth: 6, borderTopWidth: 6, borderLeftColor: "transparent", borderRightColor: "transparent", borderTopColor: colors.primary },
+
+  fab: { height: 48, borderRadius: 24, backgroundColor: colors.accent, justifyContent: "center", alignItems: "center", paddingHorizontal: spacing["5"], shadowColor: colors.accent, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.45, shadowRadius: 10, elevation: 8 },
+  fabText: { fontSize: font.lg, fontWeight: "800", color: colors.white },
+});

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Platform, Modal, ScrollView, Animated, Image } from "react-native";
+import { View, Text, TouchableOpacity, StatusBar, Platform, Modal, ScrollView, Animated, Image } from "react-native";
 
 const QR_ICON_URI = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyMSAyMSc+PHJlY3QgeD0nMScgeT0nMScgd2lkdGg9JzgnIGhlaWdodD0nOCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScxLjUnLz48cmVjdCB4PSczLjUnIHk9JzMuNScgd2lkdGg9JzMnIGhlaWdodD0nMycgZmlsbD0nd2hpdGUnLz48cmVjdCB4PScxMicgeT0nMScgd2lkdGg9JzgnIGhlaWdodD0nOCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScxLjUnLz48cmVjdCB4PScxNC41JyB5PSczLjUnIHdpZHRoPSczJyBoZWlnaHQ9JzMnIGZpbGw9J3doaXRlJy8+PHJlY3QgeD0nMScgeT0nMTInIHdpZHRoPSc4JyBoZWlnaHQ9JzgnIGZpbGw9J25vbmUnIHN0cm9rZT0nd2hpdGUnIHN0cm9rZS13aWR0aD0nMS41Jy8+PHJlY3QgeD0nMy41JyB5PScxNC41JyB3aWR0aD0nMycgaGVpZ2h0PSczJyBmaWxsPSd3aGl0ZScvPjxyZWN0IHg9JzExJyB5PScxMScgd2lkdGg9JzInIGhlaWdodD0nMicgZmlsbD0nd2hpdGUnLz48cmVjdCB4PScxNCcgeT0nMTEnIHdpZHRoPScxLjUnIGhlaWdodD0nMS41JyBmaWxsPSd3aGl0ZScvPjxyZWN0IHg9JzE3JyB5PScxMScgd2lkdGg9JzInIGhlaWdodD0nMicgZmlsbD0nd2hpdGUnLz48cmVjdCB4PScxMScgeT0nMTQnIHdpZHRoPScxLjUnIGhlaWdodD0nMS41JyBmaWxsPSd3aGl0ZScvPjxyZWN0IHg9JzE0JyB5PScxNCcgd2lkdGg9JzInIGhlaWdodD0nMicgZmlsbD0nd2hpdGUnLz48cmVjdCB4PScxMScgeT0nMTcnIHdpZHRoPScyJyBoZWlnaHQ9JzInIGZpbGw9J3doaXRlJy8+PHJlY3QgeD0nMTcnIHk9JzE3JyB3aWR0aD0nMicgaGVpZ2h0PScyJyBmaWxsPSd3aGl0ZScvPjwvc3ZnPgo=";
 import supabase from "./src/lib/supabase";
@@ -12,6 +12,7 @@ import PaymentSuccess from "./src/screens/PaymentSuccess";
 import PaymentFail from "./src/screens/PaymentFail";
 import AdminLogin from "./src/components/AdminLogin";
 import QrScanner from "./src/components/QrScanner";
+import { s } from "./src/styles/App.styles";
 
 const HEADER_GRADIENT = Platform.OS === "web"
   ? { background: "linear-gradient(135deg, #0f172a 0%, #14532d 100%)" }
@@ -287,59 +288,3 @@ export default function App() {
   );
 }
 
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f8fafc" },
-  header: { backgroundColor: "#0f172a", flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 16, paddingVertical: 12 },
-  headerLeft: { flexDirection: "row", alignItems: "center", gap: 10 },
-  logoBox: { width: 36, height: 36, borderRadius: 10, backgroundColor: "#0f172a", borderWidth: 1.5, borderColor: "#f97316", justifyContent: "center", alignItems: "center", gap: 2 },
-  logoJK: { fontSize: 13, fontWeight: "900", color: "#f97316", letterSpacing: -1 },
-  logoLine: { width: 20, height: 1.5, backgroundColor: "#f97316", opacity: 0.5 },
-  headerTitle: { fontSize: 18, fontWeight: "900", color: "#fff", letterSpacing: -0.5 },
-  headerTitleAccent: { color: "#f97316" },
-adminBtn: { borderWidth: 1.5, borderColor: "rgba(255,255,255,0.3)", borderRadius: 20, paddingHorizontal: 14, paddingVertical: 6, backgroundColor: "rgba(255,255,255,0.1)" },
-  adminBtnActive: { borderColor: "#f87171", backgroundColor: "rgba(248,113,113,0.15)" },
-  adminBtnText: { color: "rgba(255,255,255,0.85)", fontWeight: "600", fontSize: 12 },
-  adminBtnTextActive: { color: "#f87171" },
-  content: { flex: 1, overflow: "hidden" },
-
-  overlayScreen: { backgroundColor: "#f8fafc", zIndex: 10 },
-
-  backBtn: { paddingVertical: 6, paddingHorizontal: 4 },
-  backBtnText: { color: "#fff", fontSize: 14, fontWeight: "700" },
-
-  musicBtn: { width: 34, height: 34, borderRadius: 17, backgroundColor: "rgba(255,255,255,0.15)", justifyContent: "center", alignItems: "center" },
-  musicBtnText: { fontSize: 16 },
-  hamburger: { padding: 8, gap: 5, justifyContent: "center" },
-  hLine: { width: 22, height: 2, backgroundColor: "#fff", borderRadius: 2 },
-
-  drawerOverlay: { flex: 1, flexDirection: "row", justifyContent: "flex-end" },
-  drawerBg: { flex: 1, backgroundColor: "rgba(0,0,0,0.45)" },
-  drawerPanel: { width: 240, backgroundColor: "#fff", paddingTop: 60, paddingHorizontal: 20, paddingBottom: 40 },
-  drawerTitle: { fontSize: 13, fontWeight: "800", color: "#aaa", letterSpacing: 1.5, marginBottom: 20, textTransform: "uppercase" },
-  drawerItem: { flexDirection: "row", alignItems: "center", gap: 14, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: "#f0f0f0" },
-  drawerItemIcon: { fontSize: 24 },
-  drawerItemLabel: { fontSize: 15, fontWeight: "800", color: "#111", marginBottom: 2 },
-  drawerItemDesc: { fontSize: 12, color: "#999" },
-  visitPage: { padding: 20, paddingBottom: 40 },
-  visitPageTitle: { fontSize: 20, fontWeight: "900", color: "#0f172a", marginBottom: 16 },
-
-  visitEmptyBox: { alignItems: "center", paddingTop: 60 },
-  visitEmptyIcon: { fontSize: 48, marginBottom: 12 },
-  visitEmptyText: { fontSize: 15, fontWeight: "700", color: "#94a3b8", marginBottom: 6 },
-  visitEmptyDesc: { fontSize: 13, color: "#cbd5e1", textAlign: "center", lineHeight: 20 },
-
-  visitCard: { backgroundColor: "#fff", borderRadius: 14, marginBottom: 10, borderWidth: 1, borderColor: "#e2e8f0", overflow: "hidden" },
-  visitCardInner: { flexDirection: "row", alignItems: "center", padding: 14, gap: 12 },
-  visitCardIcon: { width: 42, height: 42, borderRadius: 12, backgroundColor: "#f0fdf4", justifyContent: "center", alignItems: "center" },
-  visitCardIconText: { fontSize: 20 },
-  visitCardName: { fontSize: 15, fontWeight: "800", color: "#0f172a", marginBottom: 2 },
-  visitCardAddr: { fontSize: 12, color: "#94a3b8" },
-  visitCardArrow: { fontSize: 16, color: "#16a34a", fontWeight: "700" },
-  visitCardCount: { fontSize: 12, fontWeight: "800", color: "#f97316", backgroundColor: "#fff7ed", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20 },
-  visitCardCountRsvn: { color: "#3b82f6", backgroundColor: "#eff6ff" },
-  visitCardCountNone: { fontSize: 12, fontWeight: "600", color: "#94a3b8", backgroundColor: "#f1f5f9", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20 },
-
-  qrFab: { position: "absolute", bottom: 28, alignSelf: "center", flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: "#0f172a", borderRadius: 28, paddingHorizontal: 24, paddingVertical: 14, shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 10, elevation: 10 },
-  qrFabText: { fontSize: 15, fontWeight: "800", color: "#fff" },
-
-});

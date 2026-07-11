@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Modal, StyleSheet, Alert, ActivityIndicator } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Modal, Alert, ActivityIndicator } from "react-native";
+import { s } from "../styles/AdminLogin.styles";
 import bcrypt from "bcryptjs";
 import supabase from "../lib/supabase";
 
@@ -50,21 +51,3 @@ export default function AdminLogin({ visible, onClose, onLogin }) {
     </Modal>
   );
 }
-
-const s = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: "rgba(15,23,42,0.6)", justifyContent: "center", alignItems: "center", padding: 20 },
-  card: { width: "100%", maxWidth: 400, borderRadius: 24, overflow: "hidden", backgroundColor: "#fff" },
-  header: { backgroundColor: "#1d3557", padding: 32, alignItems: "center" },
-  icon: { fontSize: 44, marginBottom: 12 },
-  title: { fontSize: 22, fontWeight: "800", color: "#fff", marginBottom: 6 },
-  sub: { fontSize: 13, color: "rgba(255,255,255,0.75)" },
-  body: { padding: 24 },
-  label: { fontSize: 12, fontWeight: "700", color: "#374151", marginBottom: 6 },
-  inp: { borderWidth: 1.5, borderColor: "#e5e7eb", borderRadius: 12, padding: 12, fontSize: 14, backgroundColor: "#f9fafb", marginBottom: 14 },
-  errorBox: { backgroundColor: "#fef2f2", borderWidth: 1, borderColor: "#fecaca", borderRadius: 10, padding: 10, marginBottom: 14 },
-  errorText: { fontSize: 13, color: "#dc2626" },
-  loginBtn: { backgroundColor: "#1d3557", borderRadius: 12, padding: 14, alignItems: "center", marginBottom: 10 },
-  loginBtnText: { color: "#fff", fontWeight: "700", fontSize: 15 },
-  cancelBtn: { backgroundColor: "#f1f5f9", borderRadius: 12, padding: 12, alignItems: "center" },
-  cancelBtnText: { color: "#6b7280", fontWeight: "600", fontSize: 14 },
-});

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Alert, ActivityIndicator } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from "react-native";
+import { s } from "../styles/QnA.styles";
 import supabase from "../lib/supabase";
 
 export default function QnA({ isAdmin }) {
@@ -98,30 +99,3 @@ export default function QnA({ isAdmin }) {
     </ScrollView>
   );
 }
-
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f0f7f0", overflow: "hidden" },
-  content: { padding: 20 },
-  title: { fontSize: 22, fontWeight: "800", color: "#1b4332", marginBottom: 4 },
-  desc: { fontSize: 13, color: "#52796f", marginBottom: 16 },
-  outlineBtn: { alignSelf: "flex-end", borderWidth: 1.5, borderColor: "#2d6a4f", borderRadius: 8, paddingHorizontal: 16, paddingVertical: 7, marginBottom: 14 },
-  outlineBtnText: { color: "#2d6a4f", fontWeight: "700", fontSize: 13 },
-  formCard: { backgroundColor: "#e9f5ec", borderWidth: 1, borderColor: "#d8f3dc", borderRadius: 12, padding: 16, marginBottom: 16 },
-  formTitle: { fontSize: 14, fontWeight: "700", marginBottom: 12, color: "#1b4332" },
-  inp: { borderWidth: 1.5, borderColor: "#b7e4c7", borderRadius: 8, padding: 10, fontSize: 13, backgroundColor: "#fff", marginBottom: 8 },
-  textarea: { height: 80, textAlignVertical: "top" },
-  solidBtn: { backgroundColor: "#2d6a4f", borderRadius: 8, padding: 12, alignItems: "center" },
-  solidBtnText: { color: "#fff", fontWeight: "700", fontSize: 13 },
-  card: { backgroundColor: "#fff", borderRadius: 11, borderWidth: 1, borderColor: "#d8f3dc", borderLeftWidth: 3, marginBottom: 8, overflow: "hidden" },
-  cardTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 13 },
-  cardLeft: { flexDirection: "row", alignItems: "center", gap: 8, flex: 1 },
-  cardTitle: { fontWeight: "600", fontSize: 14, color: "#1b4332", flex: 1 },
-  cardRight: { flexDirection: "row", gap: 8, marginLeft: 8 },
-  tag: { borderRadius: 20, paddingHorizontal: 8, paddingVertical: 3 },
-  tagText: { fontSize: 10, fontWeight: "700" },
-  meta: { fontSize: 12, color: "#74c69d" },
-  answerBox: { padding: 12, backgroundColor: "#e9f5ec", borderTopWidth: 1, borderTopColor: "#d8f3dc" },
-  answerLabel: { color: "#2d6a4f", fontWeight: "800" },
-  answerText: { fontSize: 14, color: "#374151", lineHeight: 22 },
-  noAnswer: { fontSize: 13, color: "#74c69d", fontStyle: "italic" },
-});

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Animated, Platform, ActivityIndicator, Image } from "react-native";
+import { s } from "../styles/AiChat.styles";
 import supabase from "../lib/supabase";
 
 const WELCOME = "안녕하세요! Scaneat AI 메뉴 추천 도우미예요 😊\n어떤 음식이 드시고 싶으세요?";
@@ -696,97 +697,3 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
     </>
   );
 }
-
-const s = StyleSheet.create({
-  panel: {
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    height: 480,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.18,
-    shadowRadius: 16,
-    elevation: 20,
-  },
-
-  panelHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 16, backgroundColor: "#f97316" },
-  panelTitle: { fontSize: 16, fontWeight: "900", color: "#fff", letterSpacing: -0.3 },
-  panelSub: { fontSize: 10, color: "rgba(255,255,255,0.65)", marginTop: 2 },
-  xBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: "rgba(255,255,255,0.18)", justifyContent: "center", alignItems: "center" },
-  xBtnText: { fontSize: 13, color: "#fff", fontWeight: "700" },
-
-  msgList: { flex: 1, backgroundColor: "#fff" },
-  msgContent: { padding: 14, paddingBottom: 8, gap: 8 },
-
-  msgImage: { width: "100%", height: 160, borderRadius: 10, marginBottom: 6 },
-  msgItemName: { fontSize: 15, fontWeight: "700", color: "#111", marginBottom: 4 },
-  bubble: { maxWidth: "80%", borderRadius: 16, padding: 12 },
-  bubbleAi: { backgroundColor: "#f3f4f6", alignSelf: "flex-start", borderBottomLeftRadius: 4 },
-  bubbleUser: { backgroundColor: "#f97316", alignSelf: "flex-end", borderBottomRightRadius: 4 },
-  bubbleText: { fontSize: 14, color: "#222", lineHeight: 20 },
-  bubbleTextUser: { color: "#fff" },
-
-  cartCard: { backgroundColor: "#fff", borderWidth: 1.5, borderColor: "#f97316", borderRadius: 14, padding: 14, alignSelf: "stretch" },
-  cartCardLabel: { fontSize: 10, fontWeight: "800", color: "#f97316", marginBottom: 4, letterSpacing: 0.5, textTransform: "uppercase" },
-  cartCardName: { fontSize: 15, fontWeight: "800", color: "#111", marginBottom: 2 },
-  cartCardPrice: { fontSize: 13, fontWeight: "700", color: "#f97316", marginBottom: 10 },
-  cartCardBtns: { flexDirection: "row", gap: 8 },
-  noBtn: { flex: 1, borderWidth: 1, borderColor: "#e5e7eb", borderRadius: 8, paddingVertical: 8, alignItems: "center" },
-  noBtnText: { fontSize: 13, fontWeight: "700", color: "#888" },
-  yesBtn: { flex: 1, backgroundColor: "#f97316", borderRadius: 8, paddingVertical: 8, alignItems: "center" },
-  yesBtnText: { fontSize: 13, fontWeight: "700", color: "#fff" },
-
-  rsvnCard: { backgroundColor: "#0f172a", borderRadius: 14, padding: 14, marginTop: 6, alignSelf: "stretch" },
-  rsvnCardTopRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 10 },
-  rsvnCardNo: { fontSize: 17, fontWeight: "900", color: "#f97316", fontFamily: Platform.OS === "web" ? "monospace" : undefined, letterSpacing: 1.5 },
-  rsvnCardBadge: { fontSize: 10, fontWeight: "700", color: "#f97316", backgroundColor: "rgba(249,115,22,0.15)", paddingHorizontal: 8, paddingVertical: 3, borderRadius: 20 },
-  rsvnBadgeApproved: { color: "#4ade80", backgroundColor: "rgba(74,222,128,0.15)" },
-  rsvnBadgeRejected: { color: "#f87171", backgroundColor: "rgba(248,113,113,0.15)" },
-  rsvnBadgeCancelled: { color: "#9ca3af", backgroundColor: "rgba(156,163,175,0.15)" },
-  rsvnCardDivider: { height: 1, backgroundColor: "rgba(255,255,255,0.08)", marginBottom: 8 },
-  rsvnCardRow: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 4 },
-  rsvnCardLabel: { fontSize: 11, color: "rgba(255,255,255,0.4)" },
-  rsvnCardValue: { fontSize: 12, fontWeight: "600", color: "rgba(255,255,255,0.85)", flex: 1, textAlign: "right" },
-  rsvnCardValueRed: { color: "#f87171" },
-
-  changeCard: { backgroundColor: "#fffbeb", borderWidth: 1.5, borderColor: "#f59e0b", borderRadius: 14, padding: 14, alignSelf: "stretch" },
-  changeCardTitle: { fontSize: 13, fontWeight: "800", color: "#b45309", marginBottom: 8 },
-  changeCardNote: { fontSize: 11, color: "#92400e", marginTop: 6, marginBottom: 10 },
-  changeOld: { color: "#9ca3af", textDecorationLine: "line-through" },
-  changeNew: { color: "#f97316", fontWeight: "700" },
-
-  cancelCard: { backgroundColor: "#fff5f5", borderWidth: 1.5, borderColor: "#dc2626", borderRadius: 14, padding: 14, alignSelf: "stretch" },
-  cancelCardTitle: { fontSize: 13, fontWeight: "800", color: "#dc2626", marginBottom: 8 },
-  cancelCardWarning: { fontSize: 11, color: "#dc2626", marginBottom: 10 },
-  cancelBtn: { flex: 1, backgroundColor: "#dc2626", borderRadius: 8, paddingVertical: 8, alignItems: "center" },
-
-  rsvnNoCard: { backgroundColor: "#0f172a", borderRadius: 12, padding: 14, marginTop: 6, alignSelf: "stretch", alignItems: "center" },
-  rsvnNoLabel: { fontSize: 10, fontWeight: "700", color: "rgba(255,255,255,0.55)", letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 },
-  rsvnNoValue: { fontSize: 22, fontWeight: "900", color: "#f97316", letterSpacing: 2, fontFamily: Platform.OS === "web" ? "monospace" : undefined },
-  rsvnNoHint: { fontSize: 10, color: "rgba(255,255,255,0.45)", marginTop: 6 },
-
-  consentCard: { backgroundColor: "#f8faff", borderWidth: 1.5, borderColor: "#3b82f6", borderRadius: 14, padding: 14, alignSelf: "stretch" },
-  consentTitle: { fontSize: 13, fontWeight: "800", color: "#1d4ed8", marginBottom: 8 },
-  consentBody: { gap: 3, marginBottom: 10 },
-  consentRow: { fontSize: 12, color: "#374151", lineHeight: 18 },
-  consentNote: { fontSize: 11, color: "#6b7280", marginTop: 4 },
-  consentSummary: { backgroundColor: "#eff6ff", borderRadius: 8, padding: 8, marginBottom: 10, gap: 2 },
-  consentSummaryText: { fontSize: 12, fontWeight: "700", color: "#1e40af" },
-
-  inputRow: { flexDirection: "row", padding: 12, gap: 8, borderTopWidth: 1, borderTopColor: "#f0f0f0", backgroundColor: "#fff", alignItems: "center" },
-  micBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: "#f3f4f6", justifyContent: "center", alignItems: "center" },
-  micBtnOn: { backgroundColor: "#fff0f0" },
-  micBtnText: { fontSize: 16 },
-  input: { flex: 1, backgroundColor: "#f3f4f6", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 10, fontSize: 14, color: "#111" },
-  sendBtn: { backgroundColor: "#f97316", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 10, justifyContent: "center" },
-  sendBtnOff: { backgroundColor: "#e5e7eb" },
-  sendBtnText: { color: "#fff", fontWeight: "700", fontSize: 13 },
-
-  tooltip: { backgroundColor: "#0f172a", borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 8, elevation: 8 },
-  tooltipText: { color: "#fff", fontSize: 13, fontWeight: "700", whiteSpace: "nowrap" },
-  tooltipArrow: { position: "absolute", bottom: -6, right: 22, width: 0, height: 0, borderLeftWidth: 6, borderRightWidth: 6, borderTopWidth: 6, borderLeftColor: "transparent", borderRightColor: "transparent", borderTopColor: "#0f172a" },
-
-  fab: { height: 48, borderRadius: 24, backgroundColor: "#f97316", justifyContent: "center", alignItems: "center", paddingHorizontal: 20, shadowColor: "#f97316", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.45, shadowRadius: 10, elevation: 8 },
-  fabText: { fontSize: 14, fontWeight: "800", color: "#fff" },
-});

@@ -1,4 +1,5 @@
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from "react-native";
+import { View, Text, TouchableOpacity, Platform } from "react-native";
+import { s } from "../styles/PaymentFail.styles";
 
 const getParams = () => {
   if (Platform.OS !== "web") return {};
@@ -27,13 +28,3 @@ export default function PaymentFail() {
     </View>
   );
 }
-
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f8fafc", justifyContent: "center", alignItems: "center", padding: 24 },
-  card: { backgroundColor: "#fff", borderRadius: 24, padding: 32, width: "100%", maxWidth: 400, alignItems: "center", shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 16, elevation: 8 },
-  icon: { fontSize: 56, marginBottom: 12 },
-  title: { fontSize: 24, fontWeight: "900", color: "#0f172a", marginBottom: 6 },
-  desc: { fontSize: 14, color: "#64748b", marginBottom: 28 },
-  btn: { backgroundColor: "#0f172a", borderRadius: 14, paddingHorizontal: 32, paddingVertical: 14, width: "100%", alignItems: "center" },
-  btnText: { color: "#fff", fontSize: 15, fontWeight: "800" },
-});

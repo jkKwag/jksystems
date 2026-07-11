@@ -1,0 +1,76 @@
+import { StyleSheet } from "react-native";
+import { colors, radius, font, spacing } from "./theme";
+
+export const s = StyleSheet.create({
+  container: { zIndex: 110, backgroundColor: colors.bgBase },
+
+  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: colors.primary, paddingHorizontal: spacing["4"], paddingVertical: spacing["3.5"] },
+  backBtn: { paddingHorizontal: spacing["2"], paddingVertical: spacing["1"] },
+  backBtnText: { color: colors.white, fontSize: font.lg, fontWeight: "700" },
+  headerTitle: { fontSize: font["3xl"], fontWeight: "900", color: colors.white },
+
+  catBar: { flexDirection: "row", gap: spacing["2"], paddingHorizontal: spacing["4"], paddingVertical: spacing["3"], backgroundColor: colors.primary, borderBottomWidth: 1, borderBottomColor: colors.slate800 },
+  catChip: { paddingHorizontal: spacing["4"], paddingVertical: 7, borderRadius: radius.pill, backgroundColor: colors.slate800, borderWidth: 1, borderColor: colors.slate700 },
+  catChipActive: { backgroundColor: colors.accent, borderColor: colors.accent },
+  catChipText: { fontSize: font.md, fontWeight: "700", color: colors.slate400 },
+  catChipTextActive: { color: colors.white },
+
+  content: { padding: spacing["4"], paddingBottom: spacing["10"] },
+  grid: { flexDirection: "row", flexWrap: "wrap", gap: spacing["3"] },
+
+  card: { width: "47.5%", backgroundColor: colors.bgCard, borderRadius: radius["2xl"], overflow: "hidden", shadowColor: colors.black, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: spacing["2"], elevation: 3 },
+  imgWrap: { position: "relative" },
+  img: { width: "100%", height: 130, backgroundColor: colors.slate200 },
+  noImg: { width: "100%", height: 130, backgroundColor: colors.bgInputAlt, justifyContent: "center", alignItems: "center" },
+  noImgIcon: { fontSize: 36 },
+  zoomHint: { position: "absolute", top: spacing["2"], left: spacing["2"], backgroundColor: colors.overlayLight, borderRadius: radius.lg, paddingHorizontal: spacing["1.5"], paddingVertical: 2 },
+  zoomHintText: { fontSize: font.xs },
+  capacityBadge: { position: "absolute", bottom: spacing["2"], right: spacing["2"], backgroundColor: colors.primary, borderRadius: radius.pill, paddingHorizontal: spacing["2"], paddingVertical: 3 },
+  capacityText: { fontSize: font.sm, color: colors.white, fontWeight: "700" },
+
+  cardInfo: { padding: spacing["3"] },
+  seatName: { fontSize: font.xl, fontWeight: "900", color: colors.primary, marginBottom: spacing["1"] },
+  seatDesc: { fontSize: font.base, color: colors.slate500, fontWeight: "500", lineHeight: 17 },
+  notice: { fontSize: font.sm, color: colors.slate400, textAlign: "center", marginTop: spacing["4"] },
+
+  viewerBg: { flex: 1, backgroundColor: colors.overlayStrong, justifyContent: "center", alignItems: "center" },
+  viewerScroll: { padding: spacing["5"], alignItems: "center" },
+  viewerBox: { width: "100%", maxWidth: 480, borderRadius: radius["3xl"], overflow: "hidden", backgroundColor: colors.slate800 },
+  viewerImg: { width: "100%", height: 220 },
+  viewerInfo: { padding: spacing["4"], gap: spacing["1.5"] },
+  viewerRow: { flexDirection: "row", alignItems: "center", gap: spacing["2.5"] },
+  viewerName: { fontSize: font["4xl"], fontWeight: "900", color: colors.white },
+  viewerBadge: { backgroundColor: "rgba(255,255,255,0.15)", borderRadius: radius.pill, paddingHorizontal: spacing["2.5"], paddingVertical: spacing["1"] },
+  viewerBadgeText: { fontSize: font.base, color: colors.white, fontWeight: "700" },
+  viewerDesc: { fontSize: font.md, color: colors.slate400, fontWeight: "500" },
+  viewerClose: { position: "absolute", top: spacing["3"], right: spacing["3"], width: 32, height: 32, borderRadius: radius["2xl"], backgroundColor: colors.overlayDark, justifyContent: "center", alignItems: "center" },
+  viewerCloseText: { fontSize: font.md, color: colors.white, fontWeight: "700" },
+
+  rsvnForm: { backgroundColor: colors.primary, padding: spacing["4"], gap: spacing["3.5"] },
+  rsvnTitle: { fontSize: font.lg, fontWeight: "900", color: colors.white, marginBottom: 2 },
+  rsvnRow: { flexDirection: "row", gap: spacing["3"], alignItems: "flex-start" },
+  rsvnField: { gap: spacing["2"] },
+  rsvnPeopleField: { alignItems: "center" },
+  rsvnLabel: { fontSize: font.base, fontWeight: "700", color: colors.slate400 },
+  rsvnInput: { backgroundColor: colors.slate800, borderRadius: radius.md, paddingHorizontal: spacing["3.5"], paddingVertical: spacing["2.5"], borderWidth: 1, borderColor: colors.slate700, justifyContent: "center" },
+  rsvnDateText: { fontSize: font.lg, color: colors.white },
+  rsvnDatePlaceholder: { fontSize: font.lg, color: colors.slate500 },
+
+  calOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.7)", justifyContent: "center", alignItems: "center", padding: spacing["5"] },
+  calBox: { width: "100%", maxWidth: 360, borderRadius: radius["2xl"], overflow: "hidden", backgroundColor: colors.slate800 },
+
+  timeScroll: { flexGrow: 0 },
+  timeSlot: { backgroundColor: colors.slate800, borderRadius: radius.pill, paddingHorizontal: spacing["3.5"], paddingVertical: spacing["2"], marginRight: spacing["2"], borderWidth: 1, borderColor: colors.slate700 },
+  timeSlotActive: { backgroundColor: colors.accent, borderColor: colors.accent },
+  timeSlotText: { fontSize: font.md, fontWeight: "700", color: colors.slate400 },
+  timeSlotTextActive: { color: colors.white },
+
+  peopleRow: { flexDirection: "row", alignItems: "center", gap: spacing["4"] },
+  peopleBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.slate800, justifyContent: "center", alignItems: "center", borderWidth: 1, borderColor: colors.slate700 },
+  peopleBtnText: { fontSize: font["6xl"], color: colors.white, fontWeight: "700" },
+  peopleNum: { fontSize: font["2xl"], fontWeight: "900", color: colors.white, minWidth: 40, textAlign: "center" },
+
+  rsvnBtn: { backgroundColor: colors.accent, borderRadius: radius.lg, paddingVertical: spacing["3.5"], alignItems: "center", marginTop: spacing["1"] },
+  rsvnBtnOff: { backgroundColor: colors.slate700 },
+  rsvnBtnText: { color: colors.white, fontSize: font.xl, fontWeight: "900" },
+});

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator } from "react-native";
+import { s } from "../styles/Supporters.styles";
 import supabase from "../lib/supabase";
 
 export default function Supporters({ isAdmin }) {
@@ -102,37 +103,3 @@ export default function Supporters({ isAdmin }) {
     </ScrollView>
   );
 }
-
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f8fafc", overflow: "hidden" },
-  content: { padding: 16, paddingBottom: 40 },
-
-  summaryCard: { backgroundColor: "#111", borderRadius: 16, padding: 20, flexDirection: "row", alignItems: "center", marginBottom: 20 },
-  summaryItem: { flex: 1, alignItems: "center" },
-  summaryNum: { fontSize: 22, fontWeight: "900", color: "#f97316", marginBottom: 4 },
-  summaryLabel: { fontSize: 12, color: "rgba(255,255,255,0.6)", fontWeight: "600" },
-  summaryDivider: { width: 1, height: 40, backgroundColor: "rgba(255,255,255,0.15)" },
-
-  sectionTitle: { fontSize: 14, fontWeight: "800", color: "#555", marginBottom: 12, letterSpacing: 0.5 },
-
-  addBtn: { borderWidth: 1.5, borderColor: "#f97316", borderRadius: 10, padding: 12, alignItems: "center", marginBottom: 12 },
-  addBtnText: { color: "#f97316", fontWeight: "800", fontSize: 14 },
-
-  formCard: { backgroundColor: "#fff", borderRadius: 12, padding: 14, marginBottom: 14, gap: 8 },
-  inp: { borderWidth: 1.5, borderColor: "#e5e7eb", borderRadius: 8, padding: 10, fontSize: 13, backgroundColor: "#fafafa" },
-  btn: { backgroundColor: "#111", borderRadius: 8, padding: 12, alignItems: "center" },
-  btnText: { color: "#fff", fontWeight: "800", fontSize: 13 },
-
-  empty: { alignItems: "center", paddingVertical: 60 },
-  emptyText: { fontSize: 16, fontWeight: "700", color: "#aaa", marginBottom: 8 },
-  emptySubText: { fontSize: 13, color: "#ccc" },
-
-  card: { backgroundColor: "#fff", borderRadius: 12, padding: 14, flexDirection: "row", alignItems: "center", marginBottom: 8, gap: 12 },
-  cardLeft: { width: 32, height: 32, borderRadius: 16, backgroundColor: "#f3f4f6", justifyContent: "center", alignItems: "center" },
-  rank: { fontSize: 13, fontWeight: "900", color: "#555" },
-  cardInfo: { flex: 1 },
-  name: { fontSize: 15, fontWeight: "800", color: "#111", marginBottom: 2 },
-  message: { fontSize: 12, color: "#888", fontStyle: "italic", marginBottom: 2 },
-  date: { fontSize: 11, color: "#bbb" },
-  amount: { fontSize: 16, fontWeight: "900", color: "#f97316" },
-});

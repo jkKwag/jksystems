@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Modal, Image, Platform } from "react-native";
 import { Calendar } from "react-native-calendars";
+import { s } from "../styles/SeatsView.styles";
 
 const MOCK_SEATS = [
   { id: 1, name: "A-1", capacity: 2, desc: "창가 2인석 · 조용한 분위기", image: "https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=400&h=220&fit=crop" },
@@ -228,77 +229,3 @@ function SeatCard({ seat, onExpand }) {
     </View>
   );
 }
-
-const s = StyleSheet.create({
-  container: { zIndex: 110, backgroundColor: "#f8fafc" },
-
-  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#0f172a", paddingHorizontal: 16, paddingVertical: 14 },
-  backBtn: { paddingHorizontal: 8, paddingVertical: 4 },
-  backBtnText: { color: "#fff", fontSize: 14, fontWeight: "700" },
-  headerTitle: { fontSize: 17, fontWeight: "900", color: "#fff" },
-
-  catBar: { flexDirection: "row", gap: 8, paddingHorizontal: 16, paddingVertical: 12, backgroundColor: "#0f172a", borderBottomWidth: 1, borderBottomColor: "#1e293b" },
-  catChip: { paddingHorizontal: 16, paddingVertical: 7, borderRadius: 20, backgroundColor: "#1e293b", borderWidth: 1, borderColor: "#334155" },
-  catChipActive: { backgroundColor: "#f97316", borderColor: "#f97316" },
-  catChipText: { fontSize: 13, fontWeight: "700", color: "#94a3b8" },
-  catChipTextActive: { color: "#fff" },
-
-  content: { padding: 16, paddingBottom: 40 },
-  grid: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
-
-  card: { width: "47.5%", backgroundColor: "#fff", borderRadius: 16, overflow: "hidden", shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 8, elevation: 3 },
-  imgWrap: { position: "relative" },
-  img: { width: "100%", height: 130, backgroundColor: "#e2e8f0" },
-  noImg: { width: "100%", height: 130, backgroundColor: "#f1f5f9", justifyContent: "center", alignItems: "center" },
-  noImgIcon: { fontSize: 36 },
-  zoomHint: { position: "absolute", top: 8, left: 8, backgroundColor: "rgba(0,0,0,0.4)", borderRadius: 12, paddingHorizontal: 6, paddingVertical: 2 },
-  zoomHintText: { fontSize: 10 },
-  capacityBadge: { position: "absolute", bottom: 8, right: 8, backgroundColor: "#0f172a", borderRadius: 20, paddingHorizontal: 8, paddingVertical: 3 },
-  capacityText: { fontSize: 11, color: "#fff", fontWeight: "700" },
-
-  cardInfo: { padding: 12 },
-  seatName: { fontSize: 15, fontWeight: "900", color: "#0f172a", marginBottom: 4 },
-  seatDesc: { fontSize: 12, color: "#64748b", fontWeight: "500", lineHeight: 17 },
-  notice: { fontSize: 11, color: "#94a3b8", textAlign: "center", marginTop: 16 },
-
-  viewerBg: { flex: 1, backgroundColor: "rgba(0,0,0,0.85)", justifyContent: "center", alignItems: "center" },
-  viewerScroll: { padding: 20, alignItems: "center" },
-  viewerBox: { width: "100%", maxWidth: 480, borderRadius: 20, overflow: "hidden", backgroundColor: "#1e293b" },
-  viewerImg: { width: "100%", height: 220 },
-  viewerInfo: { padding: 16, gap: 6 },
-  viewerRow: { flexDirection: "row", alignItems: "center", gap: 10 },
-  viewerName: { fontSize: 18, fontWeight: "900", color: "#fff" },
-  viewerBadge: { backgroundColor: "rgba(255,255,255,0.15)", borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 },
-  viewerBadgeText: { fontSize: 12, color: "#fff", fontWeight: "700" },
-  viewerDesc: { fontSize: 13, color: "#94a3b8", fontWeight: "500" },
-  viewerClose: { position: "absolute", top: 12, right: 12, width: 32, height: 32, borderRadius: 16, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center" },
-  viewerCloseText: { fontSize: 13, color: "#fff", fontWeight: "700" },
-
-  rsvnForm: { backgroundColor: "#0f172a", padding: 16, gap: 14 },
-  rsvnTitle: { fontSize: 14, fontWeight: "900", color: "#fff", marginBottom: 2 },
-  rsvnRow: { flexDirection: "row", gap: 12, alignItems: "flex-start" },
-  rsvnField: { gap: 8 },
-  rsvnPeopleField: { alignItems: "center" },
-  rsvnLabel: { fontSize: 12, fontWeight: "700", color: "#94a3b8" },
-  rsvnInput: { backgroundColor: "#1e293b", borderRadius: 10, paddingHorizontal: 14, paddingVertical: 10, borderWidth: 1, borderColor: "#334155", justifyContent: "center" },
-  rsvnDateText: { fontSize: 14, color: "#fff" },
-  rsvnDatePlaceholder: { fontSize: 14, color: "#64748b" },
-
-  calOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.7)", justifyContent: "center", alignItems: "center", padding: 20 },
-  calBox: { width: "100%", maxWidth: 360, borderRadius: 16, overflow: "hidden", backgroundColor: "#1e293b" },
-
-  timeScroll: { flexGrow: 0 },
-  timeSlot: { backgroundColor: "#1e293b", borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8, marginRight: 8, borderWidth: 1, borderColor: "#334155" },
-  timeSlotActive: { backgroundColor: "#f97316", borderColor: "#f97316" },
-  timeSlotText: { fontSize: 13, fontWeight: "700", color: "#94a3b8" },
-  timeSlotTextActive: { color: "#fff" },
-
-  peopleRow: { flexDirection: "row", alignItems: "center", gap: 16 },
-  peopleBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: "#1e293b", justifyContent: "center", alignItems: "center", borderWidth: 1, borderColor: "#334155" },
-  peopleBtnText: { fontSize: 20, color: "#fff", fontWeight: "700" },
-  peopleNum: { fontSize: 16, fontWeight: "900", color: "#fff", minWidth: 40, textAlign: "center" },
-
-  rsvnBtn: { backgroundColor: "#f97316", borderRadius: 12, paddingVertical: 14, alignItems: "center", marginTop: 4 },
-  rsvnBtnOff: { backgroundColor: "#334155" },
-  rsvnBtnText: { color: "#fff", fontSize: 15, fontWeight: "900" },
-});

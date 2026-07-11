@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import {
-  View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Platform, Animated,
+  View, Text, Image, ScrollView, TouchableOpacity, Platform, Animated,
 } from "react-native";
+import { s } from "../styles/MenuDetail.styles";
 import supabase from "../lib/supabase";
 
 const sortByOrd = (arr) => [...arr].sort((a, b) => (a.sort_ord ?? 999) - (b.sort_ord ?? 999));
@@ -308,89 +309,3 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
     </Animated.View>
   );
 }
-
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f5f5f5", overflow: "hidden" },
-
-  header: {
-    backgroundColor: "#0f172a",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 13,
-  },
-  backBtn: { paddingVertical: 4, paddingRight: 12 },
-  backBtnText: { color: "#fff", fontSize: 14, fontWeight: "700" },
-  headerTitle: { flex: 1, color: "#fff", fontSize: 15, fontWeight: "800", textAlign: "center" },
-
-  scroll: { flex: 1 },
-  scrollContent: { paddingBottom: 20 },
-
-  heroWrap: { position: "relative" },
-  hero: { width: "100%", height: 260, backgroundColor: "#eee" },
-  heroNoImg: { justifyContent: "center", alignItems: "center", backgroundColor: "#f3f4f6" },
-  heroNoImgText: { fontSize: 14, color: "#bbb", fontWeight: "600" },
-  heroBadge: { position: "absolute", top: 14, left: 14, backgroundColor: "#f97316", borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
-  heroBadgeText: { color: "#fff", fontSize: 12, fontWeight: "800" },
-
-  infoSection: { backgroundColor: "#fff", padding: 20 },
-  category: { fontSize: 12, color: "#f97316", fontWeight: "700", marginBottom: 4 },
-  name: { fontSize: 22, fontWeight: "900", color: "#111", marginBottom: 8 },
-  desc: { fontSize: 14, color: "#666", lineHeight: 21, marginBottom: 14 },
-  basePrice: { fontSize: 20, fontWeight: "900", color: "#111" },
-
-  divider: { height: 8, backgroundColor: "#f3f4f6" },
-
-  optionBlock: { backgroundColor: "#fff", padding: 20 },
-  optionLabelRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 14 },
-  optionLabel: { fontSize: 15, fontWeight: "800", color: "#111" },
-  requiredBadge: { backgroundColor: "#f97316", borderRadius: 6, paddingHorizontal: 7, paddingVertical: 2 },
-  requiredText: { color: "#fff", fontSize: 10, fontWeight: "800" },
-  optionalText: { fontSize: 11, color: "#aaa", fontWeight: "600" },
-
-  choiceRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    paddingVertical: 13,
-    paddingHorizontal: 14,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: "#e5e7eb",
-    marginBottom: 8,
-    backgroundColor: "#fff",
-  },
-  choiceRowActive: { borderColor: "#f97316", backgroundColor: "#fff8f5" },
-
-  radio: { width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: "#d1d5db", justifyContent: "center", alignItems: "center" },
-  radioActive: { borderColor: "#f97316" },
-  radioDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: "#f97316" },
-
-  checkbox: { width: 20, height: 20, borderRadius: 5, borderWidth: 2, borderColor: "#d1d5db", justifyContent: "center", alignItems: "center" },
-  checkboxActive: { borderColor: "#f97316", backgroundColor: "#f97316" },
-  checkmark: { color: "#fff", fontSize: 12, fontWeight: "900", lineHeight: 14 },
-
-  choiceName: { flex: 1, fontSize: 14, fontWeight: "600", color: "#555" },
-  choiceNameActive: { color: "#111", fontWeight: "700" },
-  choicePrice: { fontSize: 13, fontWeight: "700", color: "#f97316" },
-
-  qtyRow: { flexDirection: "row", alignItems: "center", gap: 0, alignSelf: "flex-start", backgroundColor: "#f3f4f6", borderRadius: 24, paddingHorizontal: 4, paddingVertical: 4 },
-  qtyBtn: { width: 36, height: 36, justifyContent: "center", alignItems: "center", borderRadius: 18 },
-  qtyBtnDisabled: { opacity: 0.35 },
-  qtyBtnText: { fontSize: 20, fontWeight: "700", color: "#111" },
-  qtyNum: { minWidth: 36, textAlign: "center", fontSize: 16, fontWeight: "900", color: "#111" },
-
-  bottomBar: {
-    backgroundColor: "#fff",
-    borderTopWidth: 1,
-    borderTopColor: "#f0f0f0",
-    padding: 16,
-    gap: 12,
-  },
-  totalWrap: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  totalLabel: { fontSize: 13, color: "#888", fontWeight: "600" },
-  totalPrice: { fontSize: 22, fontWeight: "900", color: "#111" },
-  cartBtn: { backgroundColor: "#f97316", borderRadius: 14, paddingVertical: 15, alignItems: "center" },
-  cartBtnText: { color: "#fff", fontSize: 16, fontWeight: "800" },
-});

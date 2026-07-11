@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Platform, Animated } from "react-native";
+import { s } from "../styles/ChatRoom.styles";
 import supabase, { subscribeInserts } from "../lib/supabase";
 
 export default function ChatRoom({ visible, bizno, onClose }) {
@@ -201,50 +202,3 @@ export default function ChatRoom({ visible, bizno, onClose }) {
     </>
   );
 }
-
-const s = StyleSheet.create({
-  panel: {
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    height: 480,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.18,
-    shadowRadius: 16,
-    elevation: 20,
-  },
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 16, borderBottomWidth: 1, borderBottomColor: "#f0f0f0", backgroundColor: "#0f172a", borderTopLeftRadius: 20, borderTopRightRadius: 20 },
-  title: { fontSize: 16, fontWeight: "900", color: "#fff" },
-  closeBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: "rgba(255,255,255,0.2)", justifyContent: "center", alignItems: "center" },
-  closeBtnText: { fontSize: 13, color: "#fff", fontWeight: "700" },
-
-  enterBox: { flex: 1, padding: 24, gap: 12 },
-  enterDesc: { fontSize: 14, color: "#64748b", lineHeight: 22, marginBottom: 4 },
-  enterInput: { backgroundColor: "#f1f5f9", borderRadius: 12, paddingHorizontal: 16, paddingVertical: 13, fontSize: 14, color: "#0f172a" },
-  errorText: { fontSize: 13, color: "#ef4444", fontWeight: "600" },
-  joinBtn: { backgroundColor: "#0f172a", borderRadius: 12, padding: 15, alignItems: "center", marginTop: 4 },
-  joinBtnOff: { backgroundColor: "#94a3b8" },
-  joinBtnText: { color: "#fff", fontSize: 15, fontWeight: "800" },
-
-  roomBadge: { backgroundColor: "#f1f5f9", paddingHorizontal: 16, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "#e2e8f0" },
-  roomBadgeText: { fontSize: 12, fontWeight: "700", color: "#475569" },
-
-  msgList: { flex: 1 },
-  msgContent: { padding: 14, gap: 10 },
-  emptyText: { textAlign: "center", fontSize: 13, color: "#94a3b8", marginTop: 40 },
-
-  msgRow: { alignItems: "flex-start", gap: 3 },
-  msgRowMe: { alignItems: "flex-end" },
-  msgNick: { fontSize: 11, color: "#94a3b8", fontWeight: "600", paddingHorizontal: 4 },
-  bubble: { backgroundColor: "#f1f5f9", borderRadius: 16, borderBottomLeftRadius: 4, paddingHorizontal: 14, paddingVertical: 10, maxWidth: "75%" },
-  bubbleMe: { backgroundColor: "#0f172a", borderBottomLeftRadius: 16, borderBottomRightRadius: 4 },
-  bubbleText: { fontSize: 14, color: "#0f172a", lineHeight: 20 },
-  bubbleTextMe: { color: "#fff" },
-
-  inputRow: { flexDirection: "row", padding: 12, gap: 8, borderTopWidth: 1, borderTopColor: "#f0f0f0", alignItems: "center" },
-  input: { flex: 1, backgroundColor: "#f1f5f9", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 10, fontSize: 14, color: "#111" },
-  sendBtn: { backgroundColor: "#0f172a", borderRadius: 22, paddingHorizontal: 16, paddingVertical: 10 },
-  sendBtnOff: { backgroundColor: "#e2e8f0" },
-  sendBtnText: { color: "#fff", fontWeight: "700", fontSize: 13 },
-});

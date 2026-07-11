@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { s } from "../styles/FAQ.styles";
 
 const faqs = [
   { q: "캠핑카 운전 면허가 필요한가요?", a: "일반 1종 보통 또는 2종 보통 면허로 운전 가능합니다. 차량 크기에 따라 다를 수 있으니 예약 시 확인해 주세요." },
@@ -29,15 +30,3 @@ export default function FAQ() {
     </ScrollView>
   );
 }
-
-const s = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f0f7f0", overflow: "hidden" },
-  content: { padding: 20 },
-  title: { fontSize: 22, fontWeight: "800", color: "#1b4332", marginBottom: 4 },
-  desc: { fontSize: 13, color: "#52796f", marginBottom: 20 },
-  card: { backgroundColor: "#fff", borderRadius: 11, marginBottom: 8, overflow: "hidden", borderWidth: 1, borderColor: "#d8f3dc" },
-  row: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 15 },
-  question: { fontSize: 14, fontWeight: "600", color: "#1b4332", flex: 1, marginRight: 10 },
-  arrow: { fontSize: 12, color: "#74c69d" },
-  answer: { padding: 15, paddingTop: 0, fontSize: 14, color: "#52796f", lineHeight: 22, borderTopWidth: 1, borderTopColor: "#d8f3dc" },
-});

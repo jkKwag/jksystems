@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Modal } from "react-native";
+import { View, Text, TouchableOpacity, Modal } from "react-native";
+import { s } from "../styles/QrScanner.styles";
 import jsQR from "jsqr";
 
 export default function QrScanner({ visible, onScan, onClose }) {
@@ -125,27 +126,3 @@ export default function QrScanner({ visible, onScan, onClose }) {
     </Modal>
   );
 }
-
-const s = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "flex-end" },
-  panel: { backgroundColor: "#fff", borderTopLeftRadius: 24, borderTopRightRadius: 24, overflow: "hidden" },
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 20, paddingVertical: 16 },
-  title: { fontSize: 17, fontWeight: "900", color: "#0f172a" },
-  closeBtn: { fontSize: 18, color: "#94a3b8", padding: 4 },
-
-  cameraBox: { width: "100%", height: 320, backgroundColor: "#0f172a", position: "relative", justifyContent: "center", alignItems: "center" },
-  errorText: { color: "#fff", fontSize: 14, textAlign: "center", paddingHorizontal: 24, lineHeight: 22 },
-
-  frameWrap: { position: "absolute", top: "50%", left: "50%", width: 200, height: 200, marginTop: -100, marginLeft: -100 },
-  frameTL: { position: "absolute", top: 0, left: 0, width: 32, height: 32, borderTopWidth: 3, borderLeftWidth: 3, borderColor: "#16a34a" },
-  frameTR: { position: "absolute", top: 0, right: 0, width: 32, height: 32, borderTopWidth: 3, borderRightWidth: 3, borderColor: "#16a34a" },
-  frameBL: { position: "absolute", bottom: 0, left: 0, width: 32, height: 32, borderBottomWidth: 3, borderLeftWidth: 3, borderColor: "#16a34a" },
-  frameBR: { position: "absolute", bottom: 0, right: 0, width: 32, height: 32, borderBottomWidth: 3, borderRightWidth: 3, borderColor: "#16a34a" },
-
-  hint: { fontSize: 13, color: "#ef4444", textAlign: "center", paddingHorizontal: 20, paddingTop: 12 },
-
-  footer: { padding: 20, alignItems: "center", gap: 10 },
-  footerLabel: { fontSize: 12, color: "#94a3b8" },
-  fileBtn: { backgroundColor: "#f1f5f9", borderRadius: 12, paddingHorizontal: 24, paddingVertical: 12 },
-  fileBtnText: { fontSize: 14, fontWeight: "700", color: "#0f172a" },
-});
