@@ -843,7 +843,7 @@ const s = StyleSheet.create({
   shopInfo: { fontSize: 12, color: "#888" },
   shopTags: { flexDirection: "row", gap: 8, marginBottom: 8, flexWrap: "wrap", alignItems: "stretch" },
   shopTag: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: "#f1f5f9", borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5 },
-  orderTypeGroup: { flexDirection: "row", backgroundColor: "#f1f5f9", borderRadius: 20, overflow: "hidden" },
+  orderTypeGroup: { flexDirection: "row", alignItems: "center", backgroundColor: "#f1f5f9", borderRadius: 20, overflow: "hidden" },
   orderTypeBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 4, paddingHorizontal: 10, paddingVertical: 5 },
   orderTypeBtnLeft: { borderRightWidth: 1, borderRightColor: "#e2e8f0" },
   orderTypeBtnRight: {},
