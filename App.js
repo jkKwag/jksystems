@@ -8,6 +8,7 @@ import Supporters from "./src/screens/Supporters";
 import QnA from "./src/screens/QnA";
 import FAQ from "./src/screens/FAQ";
 import Menu from "./src/screens/Menu";
+import PaymentSuccess from "./src/screens/PaymentSuccess";
 import AdminLogin from "./src/components/AdminLogin";
 import QrScanner from "./src/components/QrScanner";
 
@@ -30,6 +31,7 @@ const getTableNo = () => {
 
 const menuBizno = getMenuBizno();
 const tableNo = getTableNo();
+const isPaymentSuccess = Platform.OS === "web" && window.location.pathname === "/payment/success";
 
 const MUSIC_URL = "https://raw.githubusercontent.com/jkKwag/jksystems/main/assets/bgmusic.mp3";
 
@@ -149,6 +151,10 @@ export default function App() {
     await AsyncStorage.removeItem("isAdmin");
     setIsAdmin(false);
   };
+
+  if (isPaymentSuccess) {
+    return <PaymentSuccess />;
+  }
 
   if (menuBizno) {
     return (
