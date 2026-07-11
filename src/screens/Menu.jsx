@@ -451,13 +451,12 @@ export default function Menu({ bizno, tableNo }) {
         </View>
         <View style={s.shopTags}>
           {[
-            { label: "야외석", icon: "🌿" },
-            { label: "단체예약", icon: "👥" },
-            { label: "포장가능", icon: "📦" },
+            { label: "매장주문", icon: "🍽️", active: true },
+            { label: "포장주문", icon: "📦" },
           ].map(t => (
-            <View key={t.label} style={s.shopTag}>
+            <View key={t.label} style={[s.shopTag, t.active && s.shopTagActive]}>
               <Text style={s.shopTagIcon}>{t.icon}</Text>
-              <Text style={s.shopTagText}>{t.label}</Text>
+              <Text style={[s.shopTagText, t.active && s.shopTagTextActive]}>{t.label}</Text>
             </View>
           ))}
           <TouchableOpacity style={s.seatBtn} onPress={() => setShowSeats(true)}>
@@ -824,8 +823,10 @@ const s = StyleSheet.create({
   shopInfo: { fontSize: 12, color: "#888" },
   shopTags: { flexDirection: "row", gap: 6, marginBottom: 8, flexWrap: "wrap", alignItems: "center" },
   shopTag: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: "#f1f5f9", borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5 },
+  shopTagActive: { backgroundColor: "#0f172a" },
   shopTagIcon: { fontSize: 12 },
   shopTagText: { fontSize: 11, fontWeight: "700", color: "#475569" },
+  shopTagTextActive: { color: "#fff" },
   seatBtn: { flexDirection: "row", alignItems: "center", backgroundColor: "#0f172a", borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5 },
   seatBtnText: { fontSize: 11, fontWeight: "700", color: "#fff" },
   bizAddr: { fontSize: 12, color: "#888", marginTop: 2 },
