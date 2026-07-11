@@ -856,8 +856,8 @@ const s = StyleSheet.create({
   shopTagIcon: { fontSize: 12 },
   shopTagText: { fontSize: 11, fontWeight: "700", color: "#475569" },
   shopTagTextActive: { color: "#fff" },
-  seatBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", backgroundColor: "#a5b4fc", borderRadius: 20, paddingHorizontal: 10, paddingVertical: 5 },
-  seatBtnText: { fontSize: 11, fontWeight: "700", color: "#fff" },
+  seatBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", backgroundColor: "transparent", borderRadius: 20, borderWidth: 1.5, borderColor: "#a5b4fc", paddingHorizontal: 10, paddingVertical: 5 },
+  seatBtnText: { fontSize: 11, fontWeight: "700", color: "#6366f1" },
   bizAddr: { fontSize: 12, color: "#888", marginTop: 2 },
 
   catBar: { backgroundColor: "#fff", borderBottomWidth: 1, borderBottomColor: "#f0f0f0", flexShrink: 0, flexDirection: "row", paddingHorizontal: 4 },
