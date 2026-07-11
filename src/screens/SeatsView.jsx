@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Modal, Image, Platform } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Modal, Image } from "react-native";
 
 const MOCK_SEATS = [
   { id: 1, name: "A-1", capacity: 2, desc: "창가 2인석 · 조용한 분위기", image: "https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=400&h=220&fit=crop" },
@@ -13,12 +13,13 @@ const MOCK_SEATS = [
 ];
 
 export default function SeatsView({ visible, onClose }) {
+  const [expandedSeat, setExpandedSeat] = useState(null);
+
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={s.overlay}>
         <TouchableOpacity style={s.overlayBg} activeOpacity={1} onPress={onClose} />
         <View style={s.sheet}>
-          {/* 헤더 */}
           <View style={s.header}>
             <Text style={s.headerTitle}>🪑 테이블 예약</Text>
             <TouchableOpacity style={s.closeBtn} onPress={onClose}>
@@ -27,28 +28,56 @@ export default function SeatsView({ visible, onClose }) {
           </View>
 
           <ScrollView contentContainerStyle={s.content}>
-            {/* 좌석 그리드 */}
             <View style={s.grid}>
               {MOCK_SEATS.map(seat => (
-                <SeatCard key={seat.id} seat={seat} />
+                <SeatCard key={seat.id} seat={seat} onExpand={() => setExpandedSeat(seat)} />
               ))}
             </View>
-
             <Text style={s.notice}>* 좌석 현황은 실시간 변동될 수 있습니다</Text>
           </ScrollView>
         </View>
       </View>
+
+      {/* 이미지 확대 뷰어 */}
+      {expandedSeat && (
+        <Modal visible={!!expandedSeat} transparent animationType="fade" onRequestClose={() => setExpandedSeat(null)}>
+          <TouchableOpacity style={s.viewerBg} activeOpacity={1} onPress={() => setExpandedSeat(null)}>
+            <View style={s.viewerBox}>
+              <Image
+                source={{ uri: expandedSeat.image.replace("w=400&h=220", "w=800&h=500") }}
+                style={s.viewerImg}
+                resizeMode="cover"
+              />
+              <View style={s.viewerInfo}>
+                <View style={s.viewerRow}>
+                  <Text style={s.viewerName}>{expandedSeat.name}</Text>
+                  <View style={s.viewerBadge}>
+                    <Text style={s.viewerBadgeText}>👤 {expandedSeat.capacity}인</Text>
+                  </View>
+                </View>
+                <Text style={s.viewerDesc}>{expandedSeat.desc}</Text>
+              </View>
+              <TouchableOpacity style={s.viewerClose} onPress={() => setExpandedSeat(null)}>
+                <Text style={s.viewerCloseText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </Modal>
+      )}
     </Modal>
   );
 }
 
-function SeatCard({ seat }) {
+function SeatCard({ seat, onExpand }) {
   const [imgError, setImgError] = useState(false);
   return (
     <View style={s.card}>
-      <View style={s.imgWrap}>
+      <TouchableOpacity style={s.imgWrap} activeOpacity={0.85} onPress={seat.image && !imgError ? onExpand : undefined}>
         {seat.image && !imgError ? (
-          <Image source={{ uri: seat.image }} style={s.img} onError={() => setImgError(true)} />
+          <>
+            <Image source={{ uri: seat.image }} style={s.img} onError={() => setImgError(true)} />
+            <View style={s.zoomHint}><Text style={s.zoomHintText}>🔍</Text></View>
+          </>
         ) : (
           <View style={s.noImg}>
             <Text style={s.noImgIcon}>🪑</Text>
@@ -57,7 +86,7 @@ function SeatCard({ seat }) {
         <View style={s.capacityBadge}>
           <Text style={s.capacityText}>👤 {seat.capacity}인</Text>
         </View>
-      </View>
+      </TouchableOpacity>
       <View style={s.cardInfo}>
         <Text style={s.seatName}>{seat.name}</Text>
         <Text style={s.seatDesc} numberOfLines={2}>{seat.desc}</Text>
@@ -69,60 +98,41 @@ function SeatCard({ seat }) {
 const s = StyleSheet.create({
   overlay: { flex: 1, justifyContent: "flex-end" },
   overlayBg: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.5)" },
-  sheet: {
-    backgroundColor: "#f8fafc",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    maxHeight: "85%",
-    overflow: "hidden",
-  },
+  sheet: { backgroundColor: "#f8fafc", borderTopLeftRadius: 24, borderTopRightRadius: 24, maxHeight: "85%", overflow: "hidden" },
 
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 20,
-    backgroundColor: "#0f172a",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-  },
+  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 20, backgroundColor: "#0f172a", borderTopLeftRadius: 24, borderTopRightRadius: 24 },
   headerTitle: { fontSize: 17, fontWeight: "900", color: "#fff" },
   closeBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: "rgba(255,255,255,0.2)", justifyContent: "center", alignItems: "center" },
   closeBtnText: { fontSize: 13, color: "#fff", fontWeight: "700" },
 
   content: { padding: 16, paddingBottom: 32 },
-
   grid: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
 
-  card: {
-    width: "47.5%",
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.07,
-    shadowRadius: 8,
-    elevation: 3,
-  },
+  card: { width: "47.5%", backgroundColor: "#fff", borderRadius: 16, overflow: "hidden", shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 8, elevation: 3 },
   imgWrap: { position: "relative" },
   img: { width: "100%", height: 110, backgroundColor: "#e2e8f0" },
   noImg: { width: "100%", height: 110, backgroundColor: "#f1f5f9", justifyContent: "center", alignItems: "center" },
   noImgIcon: { fontSize: 36 },
-  capacityBadge: {
-    position: "absolute",
-    bottom: 8,
-    right: 8,
-    backgroundColor: "#0f172a",
-    borderRadius: 20,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-  },
+  zoomHint: { position: "absolute", top: 8, left: 8, backgroundColor: "rgba(0,0,0,0.4)", borderRadius: 12, paddingHorizontal: 6, paddingVertical: 2 },
+  zoomHintText: { fontSize: 10 },
+  capacityBadge: { position: "absolute", bottom: 8, right: 8, backgroundColor: "#0f172a", borderRadius: 20, paddingHorizontal: 8, paddingVertical: 3 },
   capacityText: { fontSize: 11, color: "#fff", fontWeight: "700" },
 
   cardInfo: { padding: 12 },
   seatName: { fontSize: 15, fontWeight: "900", color: "#0f172a", marginBottom: 4 },
   seatDesc: { fontSize: 12, color: "#64748b", fontWeight: "500", lineHeight: 17 },
-
   notice: { fontSize: 11, color: "#94a3b8", textAlign: "center", marginTop: 16 },
+
+  /* 이미지 확대 뷰어 */
+  viewerBg: { flex: 1, backgroundColor: "rgba(0,0,0,0.85)", justifyContent: "center", alignItems: "center", padding: 24 },
+  viewerBox: { width: "100%", maxWidth: 480, borderRadius: 20, overflow: "hidden", backgroundColor: "#1e293b" },
+  viewerImg: { width: "100%", height: 280 },
+  viewerInfo: { padding: 16, gap: 6 },
+  viewerRow: { flexDirection: "row", alignItems: "center", gap: 10 },
+  viewerName: { fontSize: 18, fontWeight: "900", color: "#fff" },
+  viewerBadge: { backgroundColor: "rgba(255,255,255,0.15)", borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 },
+  viewerBadgeText: { fontSize: 12, color: "#fff", fontWeight: "700" },
+  viewerDesc: { fontSize: 13, color: "#94a3b8", fontWeight: "500" },
+  viewerClose: { position: "absolute", top: 12, right: 12, width: 32, height: 32, borderRadius: 16, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center" },
+  viewerCloseText: { fontSize: 13, color: "#fff", fontWeight: "700" },
 });
