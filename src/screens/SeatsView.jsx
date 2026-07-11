@@ -17,8 +17,16 @@ const fixedFill = Platform.OS === "web" ? { position: "fixed", top: 0, left: 0, 
 
 const TIME_SLOTS = ["11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30"];
 
+const CATEGORIES = [
+  { key: "all", label: "전체" },
+  { key: "2", label: "2인" },
+  { key: "4", label: "4인" },
+  { key: "group", label: "단체석" },
+];
+
 export default function SeatsView({ visible, onClose }) {
   const [expandedSeat, setExpandedSeat] = useState(null);
+  const [category, setCategory] = useState("all");
   const [rsvnDate, setRsvnDate] = useState("");
   const [rsvnTime, setRsvnTime] = useState("");
   const [rsvnPeople, setRsvnPeople] = useState(2);
@@ -39,12 +47,31 @@ export default function SeatsView({ visible, onClose }) {
         <View style={{ width: 64 }} />
       </View>
 
+      {/* 카테고리 필터 */}
+      <View style={s.catBar}>
+        {CATEGORIES.map(c => (
+          <TouchableOpacity
+            key={c.key}
+            style={[s.catChip, category === c.key && s.catChipActive]}
+            onPress={() => setCategory(c.key)}
+          >
+            <Text style={[s.catChipText, category === c.key && s.catChipTextActive]}>{c.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
       {/* 좌석 그리드 */}
       <ScrollView contentContainerStyle={s.content}>
         <View style={s.grid}>
-          {MOCK_SEATS.map(seat => (
-            <SeatCard key={seat.id} seat={seat} onExpand={() => setExpandedSeat(seat)} />
-          ))}
+          {MOCK_SEATS
+            .filter(seat =>
+              category === "all" ? true :
+              category === "group" ? seat.capacity >= 6 :
+              seat.capacity === Number(category)
+            )
+            .map(seat => (
+              <SeatCard key={seat.id} seat={seat} onExpand={() => setExpandedSeat(seat)} />
+            ))}
         </View>
         <Text style={s.notice}>* 좌석 현황은 실시간 변동될 수 있습니다</Text>
       </ScrollView>
@@ -209,6 +236,12 @@ const s = StyleSheet.create({
   backBtn: { paddingHorizontal: 8, paddingVertical: 4 },
   backBtnText: { color: "#fff", fontSize: 14, fontWeight: "700" },
   headerTitle: { fontSize: 17, fontWeight: "900", color: "#fff" },
+
+  catBar: { flexDirection: "row", gap: 8, paddingHorizontal: 16, paddingVertical: 12, backgroundColor: "#0f172a", borderBottomWidth: 1, borderBottomColor: "#1e293b" },
+  catChip: { paddingHorizontal: 16, paddingVertical: 7, borderRadius: 20, backgroundColor: "#1e293b", borderWidth: 1, borderColor: "#334155" },
+  catChipActive: { backgroundColor: "#f97316", borderColor: "#f97316" },
+  catChipText: { fontSize: 13, fontWeight: "700", color: "#94a3b8" },
+  catChipTextActive: { color: "#fff" },
 
   content: { padding: 16, paddingBottom: 40 },
   grid: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
