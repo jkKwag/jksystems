@@ -325,6 +325,7 @@ export default function Menu({ bizno, tableNo }) {
   const [showConfetti, setShowConfetti] = useState(false);
   const [checkoutHint, setCheckoutHint] = useState(false);
   const [showOrderDone, setShowOrderDone] = useState(false);
+  const [orderType, setOrderType] = useState("매장주문");
   const [selectedItem, setSelectedItem] = useState(null);
   const [editingCartId, setEditingCartId] = useState(null);
   const aiToastOpacity = useRef(new Animated.Value(0)).current;
@@ -451,13 +452,13 @@ export default function Menu({ bizno, tableNo }) {
         </View>
         <View style={s.shopTags}>
           {[
-            { label: "매장주문", icon: "🍽️", active: true },
+            { label: "매장주문", icon: "🍽️" },
             { label: "포장주문", icon: "📦" },
           ].map(t => (
-            <View key={t.label} style={[s.shopTag, t.active && s.shopTagActive]}>
+            <TouchableOpacity key={t.label} style={[s.shopTag, orderType === t.label && s.shopTagActive]} onPress={() => setOrderType(t.label)}>
               <Text style={s.shopTagIcon}>{t.icon}</Text>
-              <Text style={[s.shopTagText, t.active && s.shopTagTextActive]}>{t.label}</Text>
-            </View>
+              <Text style={[s.shopTagText, orderType === t.label && s.shopTagTextActive]}>{t.label}</Text>
+            </TouchableOpacity>
           ))}
           <TouchableOpacity style={s.seatBtn} onPress={() => setShowSeats(true)}>
             <Text style={s.seatBtnText}>🪑 테이블 예약</Text>
