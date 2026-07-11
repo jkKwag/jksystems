@@ -4,6 +4,7 @@ import AiChat from "../components/AiChat";
 import ChatRoom from "../components/ChatRoom";
 import MenuDetail from "./MenuDetail";
 import supabase from "../lib/supabase";
+import SeatsView from "./SeatsView";
 
 const TOSS_CLIENT_KEY = process.env.EXPO_PUBLIC_TOSS_CLIENT_KEY || "test_ck_vZnjEJeQVxexx5pMqG4brPmOoBN0";
 
@@ -335,6 +336,7 @@ export default function Menu({ bizno, tableNo }) {
   const [selectedItem, setSelectedItem] = useState(null);
   const [editingCartId, setEditingCartId] = useState(null);
   const [showChatRoom, setShowChatRoom] = useState(false);
+  const [showSeats, setShowSeats] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
 
@@ -450,6 +452,9 @@ export default function Menu({ bizno, tableNo }) {
           {["야외석", "단체예약", "포장가능"].map(t => (
             <View key={t} style={s.shopTag}><Text style={s.shopTagText}>{t}</Text></View>
           ))}
+          <TouchableOpacity style={s.seatBtn} onPress={() => setShowSeats(true)}>
+            <Text style={s.seatBtnText}>🪑 좌석보기</Text>
+          </TouchableOpacity>
         </View>
         {bizInfo?.addr && (
           <Text style={s.bizAddr}>
@@ -590,6 +595,9 @@ export default function Menu({ bizno, tableNo }) {
 
       {/* 채팅방 */}
       <ChatRoom visible={showChatRoom} bizno={bizno} onClose={() => setShowChatRoom(false)} />
+
+      {/* 좌석보기 */}
+      <SeatsView visible={showSeats} onClose={() => setShowSeats(false)} />
 
       {/* AI 채팅 */}
       <AiChat
@@ -803,9 +811,11 @@ const s = StyleSheet.create({
   shopRating: { fontSize: 13, fontWeight: "700", color: "#111" },
   star: { color: "#f97316" },
   shopInfo: { fontSize: 12, color: "#888" },
-  shopTags: { flexDirection: "row", gap: 6, marginBottom: 8 },
+  shopTags: { flexDirection: "row", gap: 6, marginBottom: 8, flexWrap: "wrap", alignItems: "center" },
   shopTag: { borderWidth: 1, borderColor: "#e5e7eb", borderRadius: 20, paddingHorizontal: 11, paddingVertical: 4 },
   shopTagText: { fontSize: 11, fontWeight: "600", color: "#555" },
+  seatBtn: { borderWidth: 1.5, borderColor: "#0f172a", borderRadius: 20, paddingHorizontal: 11, paddingVertical: 4, backgroundColor: "#f8fafc" },
+  seatBtnText: { fontSize: 11, fontWeight: "700", color: "#0f172a" },
   bizAddr: { fontSize: 12, color: "#888", marginTop: 2 },
 
   catBar: { backgroundColor: "#fff", borderBottomWidth: 1, borderBottomColor: "#f0f0f0", flexShrink: 0, flexDirection: "row", paddingHorizontal: 4 },
