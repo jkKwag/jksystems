@@ -689,7 +689,7 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
 
 
       <TouchableOpacity
-        style={[s.fab, fixedBase, { bottom: 120, right: 20, zIndex: 200 }]}
+        style={[s.fab, fixedBase, { bottom: 140, right: 20, zIndex: 200 }]}
         onPress={() => setOpen(true)}
       >
         <Text style={s.fabText}>✦ AI도움</Text>
