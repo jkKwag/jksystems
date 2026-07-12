@@ -68,19 +68,9 @@ export default function App() {
     audio.volume = 0.4;
     audioRef.current = audio;
 
-    const playOnce = () => {
-      audio.play().then(() => setMusicOn(true)).catch(() => {});
-      window.removeEventListener("click", playOnce);
-      window.removeEventListener("touchend", playOnce);
-    };
-    window.addEventListener("click", playOnce);
-    window.addEventListener("touchend", playOnce);
-
     return () => {
       audio.pause();
       audioRef.current = null;
-      window.removeEventListener("click", playOnce);
-      window.removeEventListener("touchend", playOnce);
     };
   }, []);
 
