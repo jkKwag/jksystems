@@ -16,7 +16,7 @@ export const s = StyleSheet.create({
   chatFab: { height: spacing["12"], borderRadius: radius["4xl"], backgroundColor: colors.primary, justifyContent: "center", alignItems: "center", paddingHorizontal: spacing["5"], shadowColor: colors.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.4, shadowRadius: 10, elevation: 8 },
   chatFabText: { fontSize: font.lg, fontWeight: "800", color: colors.white },
 
-  aiToast: { position: "absolute", bottom: 176, right: spacing["5"], backgroundColor: colors.primary, borderRadius: radius["3xl"], paddingHorizontal: spacing["3.5"], paddingVertical: spacing["2"], shadowColor: colors.black, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 10 },
+  aiToast: { position: "absolute", bottom: 196, right: spacing["5"], backgroundColor: colors.primary, borderRadius: radius["3xl"], paddingHorizontal: spacing["3.5"], paddingVertical: spacing["2"], shadowColor: colors.black, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 10 },
   aiToastText: { color: colors.white, fontSize: font.md, fontWeight: "700" },
   shopMeta: { flexDirection: "row", alignItems: "center", gap: spacing["2"], marginBottom: spacing["2.5"] },
   shopRating: { fontSize: font.md, fontWeight: "700", color: colors.text },
