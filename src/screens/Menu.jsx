@@ -607,7 +607,7 @@ export default function Menu({ bizno, tableNo }) {
 
       {/* 채팅방 FAB */}
       <TouchableOpacity
-        style={[s.chatFab, Platform.OS === "web" && { position: "fixed", bottom: 160, right: 130, zIndex: 200 }]}
+        style={[s.chatFab, Platform.OS === "web" && { position: "fixed", bottom: 120, right: 130, zIndex: 200 }]}
         onPress={() => setShowChatRoom(true)}
       >
         <Text style={s.chatFabText}>💬 공유채팅</Text>
