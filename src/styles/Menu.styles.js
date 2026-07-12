@@ -44,7 +44,7 @@ export const s = StyleSheet.create({
   catIndicator: { position: "absolute", bottom: 0, left: 0, right: 0, height: 2, backgroundColor: colors.text },
 
   list: { flex: 1 },
-  listContent: { paddingTop: spacing["2"], paddingBottom: spacing["5"] },
+  listContent: { paddingTop: spacing["2"], paddingBottom: 220 },
 
   card: { backgroundColor: colors.bgCard, flexDirection: "row", padding: spacing["4"], gap: spacing["3.5"], borderBottomWidth: 1, borderBottomColor: colors.bgLight },
   imgWrap: { position: "relative" },
