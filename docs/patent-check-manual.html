@@ -5,615 +5,755 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Scaneat 특허침해 검토 매뉴얼</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: #0c1220; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
 
-  :root {
-    --navy:   #0f172a;
-    --navy2:  #1e293b;
-    --orange: #f97316;
-    --orange2:#fff7ed;
-    --white:  #ffffff;
-    --slate:  #64748b;
-    --light:  #f8fafc;
-    --border: #e2e8f0;
-    --text:   #1e293b;
-    --green:  #14532d;
-  }
+/* ── 덱 ── */
+.deck { width: 100%; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 16px; }
+.slide { display: none; width: 100%; max-width: 920px; background: #fff; border-radius: 18px; overflow: hidden; box-shadow: 0 28px 72px rgba(0,0,0,0.55); flex-direction: column; }
+.slide.active { display: flex; }
 
-  html, body {
-    height: 100%;
-    background: #0c1220;
-    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", sans-serif;
-    color: var(--text);
-  }
+/* ── 공통 헤더 ── */
+.sh { background: #0f172a; padding: 18px 32px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.sh-left { display: flex; align-items: center; gap: 10px; }
+.badge { background: #f97316; color: #fff; font-size: 9px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; }
+.sh-title { font-size: 16px; font-weight: 900; color: #fff; }
+.sh-num { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.3); }
 
-  /* ── 슬라이드 래퍼 ── */
-  .deck {
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    padding: 16px;
-  }
+/* ── 슬라이드 바디 ── */
+.sb { padding: 28px 32px 32px; display: flex; flex-direction: column; gap: 20px; }
 
-  .slide {
-    display: none;
-    width: 100%;
-    max-width: 900px;
-    background: var(--white);
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.5);
-    min-height: 520px;
-    flex-direction: column;
-  }
-  .slide.active { display: flex; }
+/* ── 표지 ── */
+.cover { background: linear-gradient(155deg, #0f172a 0%, #14532d 100%); padding: 48px 40px 40px; display: flex; flex-direction: column; justify-content: space-between; min-height: 500px; }
+.cover-kicker { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #f97316; margin-bottom: 14px; }
+.cover-h1 { font-size: 30px; font-weight: 900; color: #fff; line-height: 1.3; margin-bottom: 10px; }
+.cover-sub { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.7; max-width: 480px; }
+.cover-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 24px; }
+.c-chip { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.65); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; }
+.cover-foot { display: flex; align-items: center; gap: 10px; }
+.logo-box { width: 32px; height: 32px; border-radius: 8px; background: #f97316; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; color: #fff; letter-spacing: -1px; }
+.logo-txt { font-size: 16px; font-weight: 900; color: #fff; }
+.logo-txt span { color: #f97316; }
+.cover-meta { margin-left: auto; font-size: 11px; color: rgba(255,255,255,0.3); text-align: right; line-height: 1.8; }
 
-  /* ── 슬라이드 헤더 ── */
-  .s-header {
-    background: var(--navy);
-    padding: 22px 36px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-shrink: 0;
-  }
-  .s-header-left { display: flex; align-items: center; gap: 12px; }
-  .s-badge {
-    background: var(--orange);
-    color: var(--white);
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-    padding: 4px 10px;
-    border-radius: 20px;
-    flex-shrink: 0;
-  }
-  .s-title {
-    font-size: 18px;
-    font-weight: 900;
-    color: var(--white);
-    letter-spacing: -0.3px;
-  }
-  .s-num {
-    font-size: 12px;
-    font-weight: 700;
-    color: rgba(255,255,255,0.35);
-    letter-spacing: 1px;
-  }
+/* ── 폰 모형 ── */
+.phones { display: flex; align-items: flex-start; justify-content: center; gap: 24px; }
+.phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.phone-wrap.solo .phone { width: 200px; }
+.phone-wrap.solo .screen { height: 360px; }
 
-  /* ── 슬라이드 바디 ── */
-  .s-body {
-    flex: 1;
-    padding: 32px 36px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
+.phone {
+  width: 155px;
+  background: #111827;
+  border-radius: 32px;
+  border: 3px solid #1f2937;
+  padding: 10px 7px 14px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
+  position: relative;
+}
+.phone::before { /* side button */
+  content: '';
+  position: absolute;
+  right: -5px; top: 70px;
+  width: 3px; height: 40px;
+  background: #1f2937;
+  border-radius: 2px;
+}
+.notch { width: 52px; height: 5px; background: #000; border-radius: 3px; margin: 0 auto 6px; }
+.screen { background: #f8fafc; border-radius: 22px; overflow: hidden; height: 270px; position: relative; }
 
-  /* ── 표지 슬라이드 ── */
-  .cover-body {
-    background: linear-gradient(160deg, var(--navy) 0%, #14532d 100%);
-    flex: 1;
-    padding: 48px 36px 40px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-  .cover-top { }
-  .cover-kicker {
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--orange);
-    margin-bottom: 14px;
-  }
-  .cover-h1 {
-    font-size: 32px;
-    font-weight: 900;
-    color: var(--white);
-    line-height: 1.25;
-    letter-spacing: -0.5px;
-    margin-bottom: 10px;
-  }
-  .cover-sub {
-    font-size: 14px;
-    color: rgba(255,255,255,0.55);
-    line-height: 1.6;
-    max-width: 500px;
-  }
-  .cover-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 28px;
-  }
-  .chip {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.15);
-    color: rgba(255,255,255,0.75);
-    font-size: 11px;
-    font-weight: 700;
-    padding: 5px 12px;
-    border-radius: 20px;
-  }
-  .cover-bottom {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-  }
-  .cover-meta { font-size: 12px; color: rgba(255,255,255,0.35); line-height: 1.8; }
-  .cover-logo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .logo-box {
-    width: 36px; height: 36px;
-    border-radius: 9px;
-    background: var(--orange);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 900; color: var(--white);
-    letter-spacing: -1px;
-  }
-  .logo-text { font-size: 18px; font-weight: 900; color: var(--white); }
-  .logo-text span { color: var(--orange); }
+/* 화면 안 공통 */
+.app-bar { background: #0f172a; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.app-bar-title { font-size: 10px; font-weight: 900; color: #fff; }
+.app-bar-sub { font-size: 7px; color: rgba(255,255,255,0.5); }
+.app-bar-right { display: flex; gap: 5px; }
+.app-icon { width: 18px; height: 18px; border-radius: 5px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 8px; }
 
-  /* ── 2단 그리드 ── */
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+/* ── 설명 박스 ── */
+.phone-desc { text-align: center; max-width: 155px; }
+.phone-step { font-size: 9px; font-weight: 800; color: #f97316; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px; }
+.phone-label { font-size: 12px; font-weight: 900; color: #0f172a; margin-bottom: 4px; }
+.phone-note { font-size: 10px; color: #64748b; line-height: 1.5; }
+.phone-wrap.solo .phone-desc { max-width: 240px; }
+.phone-wrap.solo .phone-label { font-size: 14px; }
+.phone-wrap.solo .phone-note { font-size: 11px; }
 
-  /* ── 피처 카드 ── */
-  .feat {
-    background: var(--light);
-    border: 1.5px solid var(--border);
-    border-radius: 12px;
-    padding: 18px;
-  }
-  .feat-icon { font-size: 22px; margin-bottom: 10px; }
-  .feat-title { font-size: 13px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
-  .feat-desc { font-size: 12px; color: var(--slate); line-height: 1.6; }
+/* ── 화살표 ── */
+.arrow { font-size: 20px; color: #cbd5e1; align-self: center; padding-top: 30px; flex-shrink: 0; }
 
-  /* ── 플로우 스텝 ── */
-  .flow { display: flex; align-items: flex-start; gap: 0; }
-  .step {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    position: relative;
-  }
-  .step:not(:last-child)::after {
-    content: '→';
-    position: absolute;
-    right: -14px;
-    top: 14px;
-    font-size: 16px;
-    color: var(--orange);
-    font-weight: 900;
-    z-index: 1;
-  }
-  .step-num {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    background: var(--navy);
-    color: var(--white);
-    font-size: 13px;
-    font-weight: 900;
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 8px;
-    flex-shrink: 0;
-  }
-  .step-label { font-size: 11px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
-  .step-sub { font-size: 10px; color: var(--slate); line-height: 1.5; }
+/* ── 슬라이드 제목 ── */
+.slide-title { font-size: 13px; font-weight: 800; color: #f97316; letter-spacing: 0.5px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.slide-title::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
 
-  /* ── 섹션 제목 ── */
-  .sec-title {
-    font-size: 13px;
-    font-weight: 800;
-    color: var(--orange);
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .sec-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+/* ── 카메라 화면 ── */
+.cam-screen { background: #000; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; }
+.cam-grid { position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 30px), repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 30px); }
+.qr-frame { position: relative; width: 100px; height: 100px; }
+.qr-corner { position: absolute; width: 18px; height: 18px; border-color: #4ade80; border-style: solid; }
+.qr-corner.tl { top:0; left:0; border-width: 3px 0 0 3px; }
+.qr-corner.tr { top:0; right:0; border-width: 3px 3px 0 0; }
+.qr-corner.bl { bottom:0; left:0; border-width: 0 0 3px 3px; }
+.qr-corner.br { bottom:0; right:0; border-width: 0 3px 3px 0; }
+.qr-inner { position: absolute; inset: 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3px; }
+.qr-cell { background: rgba(255,255,255,0.12); border-radius: 1px; }
+.qr-cell.d { background: rgba(255,255,255,0.5); }
+.cam-scan-line { position: absolute; left: 28%; right: 28%; height: 1.5px; background: linear-gradient(90deg, transparent, #4ade80, transparent); top: 50%; animation: scan 2s ease-in-out infinite; }
+@keyframes scan { 0%,100%{ top:30%; opacity:1; } 50%{ top:70%; opacity:0.6; } }
+.cam-hint { font-size: 8px; color: rgba(255,255,255,0.6); text-align: center; z-index: 1; }
+.cam-torch { position: absolute; bottom: 10px; width: 24px; height: 24px; border-radius: 12px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 10px; }
 
-  /* ── 테이블 ── */
-  table { width: 100%; border-collapse: collapse; font-size: 12px; }
-  th {
-    background: var(--navy);
-    color: var(--white);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    padding: 9px 14px;
-    text-align: left;
-  }
-  th:first-child { border-radius: 8px 0 0 0; }
-  th:last-child  { border-radius: 0 8px 0 0; }
-  td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; line-height: 1.5; }
-  tr:last-child td { border-bottom: none; }
-  tr:nth-child(even) td { background: var(--light); }
-  .tag-y { color: #16a34a; font-weight: 800; }
-  .tag-n { color: var(--slate); }
-  .tag-o { color: var(--orange); font-weight: 700; }
+/* ── 메뉴 화면 ── */
+.menu-screen { background: #f8fafc; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+.cat-bar { display: flex; gap: 4px; padding: 5px 7px; background: #fff; border-bottom: 1px solid #f0f0f0; overflow: hidden; }
+.cat-chip { font-size: 7px; font-weight: 700; padding: 2px 7px; border-radius: 10px; white-space: nowrap; }
+.cat-chip.active { background: #0f172a; color: #fff; }
+.cat-chip.plain { background: #f1f5f9; color: #64748b; }
+.menu-list { flex: 1; overflow: hidden; padding: 6px; display: flex; flex-direction: column; gap: 5px; }
+.menu-item { background: #fff; border-radius: 8px; padding: 6px; display: flex; gap: 6px; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.menu-img { width: 36px; height: 36px; border-radius: 6px; flex-shrink: 0; }
+.menu-info { flex: 1; min-width: 0; }
+.menu-name { font-size: 8px; font-weight: 800; color: #0f172a; margin-bottom: 2px; }
+.menu-price { font-size: 8px; font-weight: 700; color: #f97316; }
+.menu-add { width: 18px; height: 18px; border-radius: 5px; background: #f97316; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 900; flex-shrink: 0; }
+.menu-badge { font-size: 7px; color: #64748b; background: #f1f5f9; padding: 1px 5px; border-radius: 6px; margin-top: 1px; display: inline-block; }
 
-  /* ── 하이라이트 박스 ── */
-  .highlight {
-    background: var(--orange2);
-    border-left: 4px solid var(--orange);
-    border-radius: 0 10px 10px 0;
-    padding: 14px 16px;
-    font-size: 12px;
-    color: var(--text);
-    line-height: 1.7;
-  }
-  .highlight strong { color: var(--orange); }
+/* ── 장바구니 모달 ── */
+.cart-screen { background: rgba(0,0,0,0.3); height: 100%; display: flex; flex-direction: column; justify-content: flex-end; }
+.cart-modal { background: #fff; border-radius: 16px 16px 0 0; padding: 10px 10px 12px; }
+.cart-handle { width: 28px; height: 3px; background: #e2e8f0; border-radius: 2px; margin: 0 auto 8px; }
+.cart-title { font-size: 9px; font-weight: 900; color: #0f172a; margin-bottom: 8px; }
+.cart-item { display: flex; align-items: center; gap: 6px; padding: 5px 0; border-bottom: 1px solid #f1f5f9; }
+.cart-item-img { width: 28px; height: 28px; border-radius: 5px; flex-shrink: 0; }
+.cart-item-name { font-size: 7px; font-weight: 700; color: #0f172a; flex: 1; }
+.cart-item-qty { font-size: 7px; color: #64748b; }
+.cart-item-price { font-size: 7px; font-weight: 800; color: #f97316; }
+.cart-total { display: flex; justify-content: space-between; align-items: center; padding: 7px 0 8px; }
+.cart-total-label { font-size: 8px; color: #64748b; font-weight: 700; }
+.cart-total-price { font-size: 11px; font-weight: 900; color: #0f172a; }
+.cart-order-type { display: flex; gap: 4px; margin-bottom: 7px; }
+.ot-btn { flex: 1; font-size: 7px; font-weight: 700; padding: 4px; border-radius: 6px; text-align: center; }
+.ot-btn.active { background: #0f172a; color: #fff; }
+.ot-btn.plain { background: #f1f5f9; color: #64748b; }
+.order-btn { background: #f97316; border-radius: 8px; padding: 7px; text-align: center; font-size: 9px; font-weight: 900; color: #fff; }
 
-  /* ── 스택 뱃지 ── */
-  .stack-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-  .stack-badge {
-    background: var(--navy);
-    color: var(--white);
-    font-size: 11px;
-    font-weight: 700;
-    padding: 6px 14px;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .stack-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--orange); flex-shrink: 0; }
+/* ── 결제 화면 ── */
+.pay-screen { background: #f8fafc; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+.pay-body { flex: 1; padding: 10px; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
+.pay-summary { background: #fff; border-radius: 8px; padding: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.pay-summary-title { font-size: 7px; font-weight: 800; color: #64748b; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+.pay-row { display: flex; justify-content: space-between; align-items: center; padding: 2px 0; }
+.pay-row-label { font-size: 7px; color: #64748b; }
+.pay-row-value { font-size: 7px; font-weight: 700; color: #0f172a; }
+.pay-total-row { border-top: 1px solid #f1f5f9; margin-top: 4px; padding-top: 4px; }
+.pay-total-value { font-size: 10px; font-weight: 900; color: #f97316; }
+.pay-methods { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.pay-method { background: #fff; border: 1.5px solid #e2e8f0; border-radius: 7px; padding: 5px; display: flex; align-items: center; gap: 4px; cursor: pointer; }
+.pay-method.selected { border-color: #0f172a; }
+.pay-method-icon { font-size: 10px; }
+.pay-method-name { font-size: 7px; font-weight: 700; color: #0f172a; }
+.pay-btn { background: #0f172a; border-radius: 8px; padding: 8px; text-align: center; font-size: 9px; font-weight: 900; color: #fff; margin: 0 10px 10px; }
+.pay-btn span { color: #f97316; }
 
-  /* ── 네비게이션 ── */
-  .nav {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .nav-btn {
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    border: none;
-    background: rgba(255,255,255,0.1);
-    color: var(--white);
-    font-size: 18px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s;
-  }
-  .nav-btn:hover { background: rgba(255,255,255,0.2); }
-  .nav-btn:disabled { opacity: 0.25; cursor: default; }
-  .nav-dots { display: flex; gap: 6px; }
-  .nav-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: rgba(255,255,255,0.25);
-    cursor: pointer;
-    border: none;
-    transition: background 0.15s;
-  }
-  .nav-dot.on { background: var(--orange); width: 22px; border-radius: 4px; }
-  .nav-label { font-size: 11px; color: rgba(255,255,255,0.4); font-weight: 600; min-width: 52px; text-align: center; }
+/* ── 좌석 화면 ── */
+.seat-screen { background: #f8fafc; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+.seat-filter { display: flex; gap: 4px; padding: 5px 7px; background: #fff; overflow: hidden; border-bottom: 1px solid #f0f0f0; }
+.seat-cat { font-size: 7px; font-weight: 700; padding: 2px 7px; border-radius: 10px; }
+.seat-cat.active { background: #0f172a; color: #fff; }
+.seat-cat.plain { background: #f1f5f9; color: #64748b; }
+.seat-grid { flex: 1; padding: 8px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; align-content: start; }
+.seat-card { background: #fff; border-radius: 7px; padding: 6px; border: 1.5px solid #e2e8f0; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.seat-card.taken { background: #f1f5f9; border-color: #e2e8f0; opacity: 0.5; }
+.seat-card.selected { border-color: #f97316; background: #fff7ed; }
+.seat-icon { font-size: 12px; }
+.seat-name { font-size: 6px; font-weight: 700; color: #0f172a; }
+.seat-info { font-size: 6px; color: #64748b; }
+.seat-form { padding: 6px 8px; background: #fff; border-top: 1px solid #f0f0f0; display: flex; flex-direction: column; gap: 4px; }
+.seat-input { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 5px; padding: 4px 6px; font-size: 7px; color: #0f172a; display: flex; justify-content: space-between; align-items: center; }
+.seat-submit { background: #0f172a; border-radius: 6px; padding: 5px; text-align: center; font-size: 7px; font-weight: 900; color: #fff; }
+
+/* ── 예약완료 ── */
+.rsvn-screen { background: #f8fafc; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px; gap: 8px; }
+.rsvn-check { font-size: 28px; }
+.rsvn-title { font-size: 10px; font-weight: 900; color: #0f172a; }
+.rsvn-card { background: #0f172a; border-radius: 10px; padding: 10px; width: 100%; }
+.rsvn-no { font-size: 11px; font-weight: 900; color: #f97316; text-align: center; letter-spacing: 1px; font-family: monospace; margin-bottom: 6px; }
+.rsvn-row { display: flex; justify-content: space-between; padding: 2px 0; }
+.rsvn-label { font-size: 7px; color: rgba(255,255,255,0.4); }
+.rsvn-value { font-size: 7px; font-weight: 700; color: rgba(255,255,255,0.85); }
+.rsvn-badge { background: rgba(249,115,22,0.2); color: #f97316; font-size: 7px; font-weight: 800; padding: 2px 7px; border-radius: 10px; text-align: center; }
+.rsvn-hint { font-size: 7px; color: #94a3b8; text-align: center; line-height: 1.5; }
+
+/* ── AI 채팅 화면 ── */
+.ai-screen { background: #f8fafc; height: 100%; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+.ai-chat-list { flex: 1; padding: 8px; display: flex; flex-direction: column; gap: 6px; overflow: hidden; }
+.bubble { max-width: 80%; border-radius: 12px; padding: 5px 8px; font-size: 7px; line-height: 1.5; }
+.bubble.ai { background: #f1f5f9; color: #0f172a; align-self: flex-start; border-bottom-left-radius: 3px; }
+.bubble.user { background: #f97316; color: #fff; align-self: flex-end; border-bottom-right-radius: 3px; }
+.ai-input { display: flex; gap: 4px; padding: 5px 7px; background: #fff; border-top: 1px solid #f0f0f0; align-items: center; }
+.ai-input-box { flex: 1; background: #f1f5f9; border-radius: 12px; padding: 4px 8px; font-size: 7px; color: #94a3b8; }
+.ai-send { width: 22px; height: 22px; border-radius: 11px; background: #f97316; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #fff; font-weight: 900; }
+.ai-fab { position: absolute; bottom: 40px; right: 8px; background: #f97316; border-radius: 16px; padding: 5px 10px; font-size: 7px; font-weight: 800; color: #fff; box-shadow: 0 4px 12px rgba(249,115,22,0.5); }
+.ai-cart-card { background: #fff; border: 1.5px solid #f97316; border-radius: 8px; padding: 6px; align-self: stretch; margin: 0 0 2px; }
+.ai-cart-label { font-size: 6px; font-weight: 800; color: #f97316; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+.ai-cart-name { font-size: 8px; font-weight: 800; color: #0f172a; }
+.ai-cart-price { font-size: 7px; color: #f97316; margin-bottom: 4px; }
+.ai-cart-btns { display: flex; gap: 4px; }
+.ai-cart-no { flex: 1; border: 1px solid #e2e8f0; border-radius: 5px; padding: 3px; text-align: center; font-size: 6px; font-weight: 700; color: #94a3b8; }
+.ai-cart-yes { flex: 1; background: #f97316; border-radius: 5px; padding: 3px; text-align: center; font-size: 6px; font-weight: 700; color: #fff; }
+.rsvn-consent { background: #f8faff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 6px; align-self: stretch; }
+.rsvn-consent-title { font-size: 7px; font-weight: 800; color: #1d4ed8; margin-bottom: 3px; }
+.rsvn-consent-row { font-size: 6px; color: #374151; line-height: 1.6; }
+.rsvn-consent-btns { display: flex; gap: 4px; margin-top: 5px; }
+
+/* ── 네비게이션 ── */
+.nav { display: flex; align-items: center; gap: 10px; }
+.nav-btn { width: 38px; height: 38px; border-radius: 50%; border: none; background: rgba(255,255,255,0.1); color: #fff; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.nav-btn:hover { background: rgba(255,255,255,0.18); }
+.nav-btn:disabled { opacity: 0.2; cursor: default; }
+.nav-dots { display: flex; gap: 5px; }
+.nav-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.2); cursor: pointer; border: none; transition: all 0.15s; }
+.nav-dot.on { background: #f97316; width: 20px; border-radius: 4px; }
+.nav-label { font-size: 11px; color: rgba(255,255,255,0.35); font-weight: 600; min-width: 44px; text-align: center; }
 </style>
 </head>
 <body>
-
 <div class="deck">
 
-  <!-- ══ 슬라이드 1 : 표지 ══ -->
-  <div class="slide active" id="s1">
-    <div style="background:var(--navy); padding: 16px 36px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
-      <div class="cover-logo">
-        <div class="logo-box">JK</div>
-        <span class="logo-text"><span>Scan</span>eat</span>
+<!-- ══ 슬라이드 1 : 표지 ══ -->
+<div class="slide active" id="s1">
+  <div class="sh"><div class="sh-left"><div class="logo-box">JK</div><span class="sh-title" style="color:#f97316;">Scan<span style="color:#fff;">eat</span></span></div><span class="sh-num">1 / 5</span></div>
+  <div class="cover">
+    <div>
+      <p class="cover-kicker">Patent Review Document</p>
+      <h1 class="cover-h1">Scaneat 서비스<br>특허침해 검토 매뉴얼</h1>
+      <p class="cover-sub">QR 기반 식당 주문·예약 통합 플랫폼의 핵심 사용 흐름을 화면 단위로 정리하여 유사 특허 비교 검토에 활용합니다.</p>
+      <div class="cover-chips">
+        <span class="c-chip">① QR 스캔 접근</span>
+        <span class="c-chip">② 메뉴 주문</span>
+        <span class="c-chip">③ 테이블 예약</span>
+        <span class="c-chip">④ AI 도움 주문·예약</span>
       </div>
-      <span class="s-num">1 / 5</span>
     </div>
-    <div class="cover-body">
-      <div class="cover-top">
-        <p class="cover-kicker">Patent Review Document</p>
-        <h1 class="cover-h1">Scaneat 서비스<br>특허침해 검토 매뉴얼</h1>
-        <p class="cover-sub">
-          QR 기반 식당 주문·예약 통합 플랫폼의 핵심 기능을 기능 단위로 정리하여<br>
-          유사 특허와의 비교 검토에 활용합니다.
-        </p>
-        <div class="cover-chips">
-          <span class="chip">QR 메뉴 진입</span>
-          <span class="chip">AI 메뉴 추천</span>
-          <span class="chip">테이블 예약</span>
-          <span class="chip">실시간 채팅</span>
-          <span class="chip">간편 결제</span>
-        </div>
-      </div>
-      <div class="cover-bottom">
-        <div class="cover-meta">
-          작성일: 2026년 7월<br>
-          대상 서비스: Scaneat v1.0<br>
-          플랫폼: Web (React Native Web / Expo)
-        </div>
-      </div>
+    <div class="cover-foot">
+      <div class="logo-box">JK</div>
+      <span class="logo-txt"><span>Scan</span>eat v1.0</span>
+      <div class="cover-meta">작성일: 2026년 7월<br>플랫폼: Web (React Native Web)</div>
     </div>
   </div>
-
-  <!-- ══ 슬라이드 2 : 서비스 개요 & 흐름 ══ -->
-  <div class="slide" id="s2">
-    <div class="s-header">
-      <div class="s-header-left">
-        <span class="s-badge">Overview</span>
-        <span class="s-title">서비스 개요 및 전체 흐름</span>
-      </div>
-      <span class="s-num">2 / 5</span>
-    </div>
-    <div class="s-body">
-      <p class="sec-title">서비스 정의</p>
-      <div class="two-col" style="margin-bottom:4px;">
-        <div class="feat">
-          <div class="feat-icon">📱</div>
-          <div class="feat-title">고객 접근 방식</div>
-          <div class="feat-desc">식당 테이블의 QR코드를 스마트폰으로 스캔하여 앱 설치 없이 웹 브라우저에서 메뉴 조회·주문·예약을 완료</div>
-        </div>
-        <div class="feat">
-          <div class="feat-icon">🏪</div>
-          <div class="feat-title">사업장 관리</div>
-          <div class="feat-desc">사업자 등록번호(bizno) 기반으로 메뉴·좌석·예약을 관리. 관리자 로그인 후 Supabase DB에 직접 운영</div>
-        </div>
-      </div>
-
-      <p class="sec-title">전체 이용 흐름</p>
-      <div class="flow">
-        <div class="step">
-          <div class="step-num">1</div>
-          <div class="step-label">QR 스캔</div>
-          <div class="step-sub">테이블 QR →<br>/menu/{bizno}<br>?table=N</div>
-        </div>
-        <div class="step">
-          <div class="step-num">2</div>
-          <div class="step-label">메뉴 탐색</div>
-          <div class="step-sub">카테고리 필터<br>메뉴 상세<br>옵션 선택</div>
-        </div>
-        <div class="step">
-          <div class="step-num">3</div>
-          <div class="step-label">AI 추천</div>
-          <div class="step-sub">자연어 대화<br>음성인식<br>장바구니 추가</div>
-        </div>
-        <div class="step">
-          <div class="step-num">4</div>
-          <div class="step-label">주문·결제</div>
-          <div class="step-sub">장바구니 확인<br>개인정보 동의<br>TossPayments</div>
-        </div>
-        <div class="step">
-          <div class="step-num">5</div>
-          <div class="step-label">예약·채팅</div>
-          <div class="step-sub">좌석 선택<br>날짜·시간 예약<br>실시간 채팅</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══ 슬라이드 3 : 핵심 기능 상세 ══ -->
-  <div class="slide" id="s3">
-    <div class="s-header">
-      <div class="s-header-left">
-        <span class="s-badge">Core Features</span>
-        <span class="s-title">핵심 기능 상세</span>
-      </div>
-      <span class="s-num">3 / 5</span>
-    </div>
-    <div class="s-body">
-      <p class="sec-title">기능별 설명</p>
-      <div class="three-col">
-        <div class="feat">
-          <div class="feat-icon">🔍</div>
-          <div class="feat-title">QR 기반 메뉴 접근</div>
-          <div class="feat-desc">
-            카메라로 QR 스캔 시 URL 파싱하여 사업장 식별 및 테이블 번호 추출. 앱 설치 불필요, 브라우저에서 즉시 실행.
-          </div>
-        </div>
-        <div class="feat">
-          <div class="feat-icon">🤖</div>
-          <div class="feat-title">AI 메뉴 추천 (Claude API)</div>
-          <div class="feat-desc">
-            Anthropic Claude API 연동. 자연어 대화·음성인식으로 메뉴 추천 및 장바구니 자동 추가. 예약 신청도 AI 대화로 처리.
-          </div>
-        </div>
-        <div class="feat">
-          <div class="feat-icon">🪑</div>
-          <div class="feat-title">좌석 선택 예약</div>
-          <div class="feat-desc">
-            좌석 그리드 UI에서 시각적으로 좌석 선택. 날짜(캘린더)·시간·인원 설정 후 예약 신청. 사업자 승인/거절 처리.
-          </div>
-        </div>
-        <div class="feat">
-          <div class="feat-icon">💬</div>
-          <div class="feat-title">예약 실시간 채팅</div>
-          <div class="feat-desc">
-            예약번호로 채팅방 입장. Supabase Realtime WebSocket 기반. 동일 예약 인원 간 그룹 채팅 지원.
-          </div>
-        </div>
-        <div class="feat">
-          <div class="feat-icon">💳</div>
-          <div class="feat-title">간편 결제 (TossPayments)</div>
-          <div class="feat-desc">
-            TossPayments SDK v2 연동. 매장주문/포장주문 선택 후 결제. 성공·실패 페이지 별도 처리, 장바구니 자동 초기화.
-          </div>
-        </div>
-        <div class="feat">
-          <div class="feat-icon">📋</div>
-          <div class="feat-title">개인정보 수집 동의</div>
-          <div class="feat-desc">
-            주문·예약 시 개인정보 수집·이용 동의 절차 내장. 동의 내역 Supabase에 기록 (tb_usr_prv_cns).
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══ 슬라이드 4 : 특허 비교 검토 항목 ══ -->
-  <div class="slide" id="s4">
-    <div class="s-header">
-      <div class="s-header-left">
-        <span class="s-badge">Patent Check</span>
-        <span class="s-title">기능별 특허 검토 항목</span>
-      </div>
-      <span class="s-num">4 / 5</span>
-    </div>
-    <div class="s-body">
-      <p class="sec-title">검토 대상 기능 목록</p>
-      <div style="overflow-x:auto;">
-        <table>
-          <thead>
-            <tr>
-              <th>기능</th>
-              <th>구현 방식</th>
-              <th>검토 키워드</th>
-              <th>우선순위</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>QR 메뉴 진입</strong></td>
-              <td>URL 파라미터 파싱<br>(bizno, table)</td>
-              <td>QR코드 기반 메뉴 제공, 비접촉 주문</td>
-              <td><span class="tag-y">★★★</span></td>
-            </tr>
-            <tr>
-              <td><strong>AI 메뉴 추천</strong></td>
-              <td>LLM API 연동<br>+ 음성인식(Web Speech API)</td>
-              <td>AI 메뉴 추천, 음성 주문, 대화형 주문</td>
-              <td><span class="tag-y">★★★</span></td>
-            </tr>
-            <tr>
-              <td><strong>좌석 시각 선택</strong></td>
-              <td>그리드 UI + 카테고리 필터<br>(2인/4인/단체)</td>
-              <td>좌석 선택 예약, 테이블 시각화</td>
-              <td><span class="tag-o">★★☆</span></td>
-            </tr>
-            <tr>
-              <td><strong>예약번호 채팅</strong></td>
-              <td>Realtime WebSocket<br>(Supabase)</td>
-              <td>예약 연동 실시간 채팅, 그룹 메시징</td>
-              <td><span class="tag-o">★★☆</span></td>
-            </tr>
-            <tr>
-              <td><strong>개인정보 동의 내장</strong></td>
-              <td>주문·예약 플로우 내<br>동의 UI + DB 기록</td>
-              <td>전자적 개인정보 동의, 결제 전 동의</td>
-              <td><span class="tag-o">★★☆</span></td>
-            </tr>
-            <tr>
-              <td><strong>방문 이력 관리</strong></td>
-              <td>UUID 기반 익명 추적<br>(localStorage)</td>
-              <td>비회원 방문이력, 익명 사용자 식별</td>
-              <td><span class="tag-n">★☆☆</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="highlight" style="margin-top:16px;">
-        <strong>주요 검토 포인트:</strong> "QR코드 + 비접촉 주문" 및 "AI 대화형 메뉴 추천" 조합은 국내외 특허 집중 검토 필요.
-        특히 코로나 이후 QR 주문 관련 특허 출원이 급증한 2020~2022년 구간을 중점 확인 권장.
-      </div>
-    </div>
-  </div>
-
-  <!-- ══ 슬라이드 5 : 기술 스택 & 확인 방법 ══ -->
-  <div class="slide" id="s5">
-    <div class="s-header">
-      <div class="s-header-left">
-        <span class="s-badge">Tech Stack</span>
-        <span class="s-title">기술 스택 및 특허 검색 방법</span>
-      </div>
-      <span class="s-num">5 / 5</span>
-    </div>
-    <div class="s-body">
-      <div class="two-col">
-        <div>
-          <p class="sec-title">사용 기술 스택</p>
-          <div class="stack-grid">
-            <div class="stack-badge"><div class="stack-dot"></div>React Native Web (Expo)</div>
-            <div class="stack-badge"><div class="stack-dot"></div>Supabase (PostgreSQL)</div>
-            <div class="stack-badge"><div class="stack-dot"></div>Supabase Realtime</div>
-            <div class="stack-badge"><div class="stack-dot"></div>Anthropic Claude API</div>
-            <div class="stack-badge"><div class="stack-dot"></div>TossPayments SDK v2</div>
-            <div class="stack-badge"><div class="stack-dot"></div>Web Speech API</div>
-            <div class="stack-badge"><div class="stack-dot"></div>jsQR (QR 스캔)</div>
-            <div class="stack-badge"><div class="stack-dot"></div>react-native-calendars</div>
-            <div class="stack-badge"><div class="stack-dot"></div>bcryptjs (관리자 인증)</div>
-          </div>
-        </div>
-        <div>
-          <p class="sec-title">특허 검색 권장 경로</p>
-          <div class="feat" style="margin-bottom:10px;">
-            <div class="feat-title">🇰🇷 국내 — KIPRIS (특허정보검색서비스)</div>
-            <div class="feat-desc">
-              kipris.or.kr → 특허·실용신안 검색<br>
-              키워드: QR주문, 비접촉주문, AI메뉴추천, 테이블예약
-            </div>
-          </div>
-          <div class="feat" style="margin-bottom:10px;">
-            <div class="feat-title">🌐 해외 — Google Patents</div>
-            <div class="feat-desc">
-              patents.google.com<br>
-              키워드: QR code menu ordering, AI food recommendation, contactless restaurant
-            </div>
-          </div>
-          <div class="feat">
-            <div class="feat-title">📅 중점 검색 기간</div>
-            <div class="feat-desc">2018년 이후 출원 / 특히 2020~2023년 집중 확인</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── 네비게이션 ── -->
-  <div class="nav">
-    <button class="nav-btn" id="prev" onclick="go(-1)">‹</button>
-    <div class="nav-dots" id="dots"></div>
-    <button class="nav-btn" id="next" onclick="go(1)">›</button>
-    <span class="nav-label" id="nav-label">1 / 5</span>
-  </div>
-
 </div>
 
-<script>
-  const total = 5;
-  let cur = 1;
+<!-- ══ 슬라이드 2 : QR 스캔 ══ -->
+<div class="slide" id="s2">
+  <div class="sh"><div class="sh-left"><span class="badge">Step 1</span><span class="sh-title">QR 코드로 메뉴 접속</span></div><span class="sh-num">2 / 5</span></div>
+  <div class="sb">
+    <p class="slide-title">이용 방법</p>
+    <div class="phones">
 
+      <!-- 폰1: 카메라 열기 -->
+      <div class="phone-wrap">
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="screen">
+            <div class="cam-screen">
+              <div class="cam-grid"></div>
+              <div class="cam-hint" style="position:absolute;top:14px;">📷 카메라</div>
+              <div class="qr-frame">
+                <div class="qr-corner tl"></div><div class="qr-corner tr"></div>
+                <div class="qr-corner bl"></div><div class="qr-corner br"></div>
+                <div class="qr-inner">
+                  <div class="qr-cell d"></div><div class="qr-cell d"></div><div class="qr-cell"></div>
+                  <div class="qr-cell"></div><div class="qr-cell d"></div><div class="qr-cell d"></div>
+                  <div class="qr-cell d"></div><div class="qr-cell"></div><div class="qr-cell d"></div>
+                </div>
+              </div>
+              <div class="cam-scan-line"></div>
+              <div class="cam-hint">QR을 화면 안에 맞춰주세요</div>
+              <div class="cam-torch">🔦</div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-desc">
+          <p class="phone-step">Step 1</p>
+          <p class="phone-label">카메라로 QR 스캔</p>
+          <p class="phone-note">스마트폰 카메라 앱을 열고 테이블 위의 QR코드를 비추면 자동 인식</p>
+        </div>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <!-- 폰2: 메뉴 진입 -->
+      <div class="phone-wrap">
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="screen">
+            <div class="menu-screen">
+              <div class="app-bar">
+                <div><div class="app-bar-title">🍽 스캔이트 레스토랑</div><div class="app-bar-sub">테이블 3번</div></div>
+                <div class="app-bar-right"><div class="app-icon">≡</div></div>
+              </div>
+              <div class="cat-bar">
+                <div class="cat-chip active">전체</div>
+                <div class="cat-chip plain">한식</div>
+                <div class="cat-chip plain">일식</div>
+                <div class="cat-chip plain">음료</div>
+              </div>
+              <div class="menu-list">
+                <div class="menu-item">
+                  <div class="menu-img" style="background:linear-gradient(135deg,#c2410c,#ea580c);"></div>
+                  <div class="menu-info"><div class="menu-name">된장찌개</div><div class="menu-badge">인기</div><div class="menu-price">₩8,000</div></div>
+                  <div class="menu-add">+</div>
+                </div>
+                <div class="menu-item">
+                  <div class="menu-img" style="background:linear-gradient(135deg,#0369a1,#0ea5e9);"></div>
+                  <div class="menu-info"><div class="menu-name">연어 회덮밥</div><div class="menu-price">₩14,000</div></div>
+                  <div class="menu-add">+</div>
+                </div>
+                <div class="menu-item">
+                  <div class="menu-img" style="background:linear-gradient(135deg,#15803d,#22c55e);"></div>
+                  <div class="menu-info"><div class="menu-name">비빔밥</div><div class="menu-badge">추천</div><div class="menu-price">₩9,000</div></div>
+                  <div class="menu-add">+</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-desc">
+          <p class="phone-step">Step 2</p>
+          <p class="phone-label">메뉴 화면 자동 진입</p>
+          <p class="phone-note">앱 설치 없이 브라우저에서 바로 메뉴가 열립니다. 테이블 번호가 자동 인식됩니다.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ 슬라이드 3 : 주문 방법 ══ -->
+<div class="slide" id="s3">
+  <div class="sh"><div class="sh-left"><span class="badge">Step 2</span><span class="sh-title">메뉴 선택 → 장바구니 → 결제</span></div><span class="sh-num">3 / 5</span></div>
+  <div class="sb">
+    <p class="slide-title">주문 흐름</p>
+    <div class="phones">
+
+      <!-- 폰1: 메뉴 선택 -->
+      <div class="phone-wrap">
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="screen">
+            <div style="background:#0f172a;padding:8px 10px;flex-shrink:0;">
+              <div style="font-size:9px;font-weight:900;color:#fff;">된장찌개</div>
+              <div style="font-size:7px;color:rgba(255,255,255,0.5);">한식</div>
+            </div>
+            <div style="background:#fff;flex:1;display:flex;flex-direction:column;overflow:hidden;">
+              <div style="height:90px;background:linear-gradient(135deg,#c2410c,#ea580c);position:relative;">
+                <div style="position:absolute;top:6px;left:6px;background:#f97316;border-radius:5px;padding:2px 6px;font-size:6px;font-weight:800;color:#fff;">인기</div>
+              </div>
+              <div style="padding:8px;flex:1;">
+                <div style="font-size:9px;font-weight:900;color:#0f172a;margin-bottom:2px;">된장찌개</div>
+                <div style="font-size:7px;color:#64748b;margin-bottom:5px;">구수한 된장으로 끓인 한식 찌개</div>
+                <div style="font-size:10px;font-weight:900;color:#0f172a;margin-bottom:8px;">₩8,000</div>
+                <div style="font-size:7px;font-weight:800;color:#f97316;margin-bottom:4px;">수량</div>
+                <div style="display:flex;align-items:center;gap:6px;background:#f1f5f9;border-radius:14px;padding:3px 8px;align-self:flex-start;width:70px;">
+                  <span style="font-size:12px;font-weight:700;color:#0f172a;">−</span>
+                  <span style="font-size:9px;font-weight:900;color:#0f172a;flex:1;text-align:center;">1</span>
+                  <span style="font-size:12px;font-weight:700;color:#0f172a;">+</span>
+                </div>
+              </div>
+              <div style="background:#f97316;margin:6px;border-radius:8px;padding:6px;text-align:center;font-size:8px;font-weight:900;color:#fff;">🛒 장바구니 담기</div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-desc">
+          <p class="phone-step">Step 1</p>
+          <p class="phone-label">메뉴 선택</p>
+          <p class="phone-note">메뉴를 터치하면 상세 화면이 열립니다. 옵션·수량 선택 후 장바구니에 담으세요.</p>
+        </div>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <!-- 폰2: 장바구니 -->
+      <div class="phone-wrap">
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="screen">
+            <div class="menu-screen" style="position:relative;">
+              <div class="app-bar"><div class="app-bar-title">🍽 스캔이트 레스토랑</div></div>
+              <div style="flex:1;background:rgba(0,0,0,0.15);"></div>
+              <div class="cart-modal">
+                <div class="cart-handle"></div>
+                <div class="cart-title">🛒 장바구니</div>
+                <div class="cart-item">
+                  <div class="cart-item-img" style="background:linear-gradient(135deg,#c2410c,#ea580c);"></div>
+                  <div class="cart-item-name">된장찌개</div>
+                  <div class="cart-item-qty">×1</div>
+                  <div class="cart-item-price">₩8,000</div>
+                </div>
+                <div class="cart-item">
+                  <div class="cart-item-img" style="background:linear-gradient(135deg,#0369a1,#0ea5e9);"></div>
+                  <div class="cart-item-name">연어 회덮밥</div>
+                  <div class="cart-item-qty">×1</div>
+                  <div class="cart-item-price">₩14,000</div>
+                </div>
+                <div class="cart-total"><span class="cart-total-label">합계</span><span class="cart-total-price">₩22,000</span></div>
+                <div class="cart-order-type">
+                  <div class="ot-btn active">🍽 매장주문</div>
+                  <div class="ot-btn plain">📦 포장주문</div>
+                </div>
+                <div class="order-btn">주문하기</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-desc">
+          <p class="phone-step">Step 2</p>
+          <p class="phone-label">장바구니 확인</p>
+          <p class="phone-note">담은 메뉴와 총 금액을 확인하고 매장주문 / 포장주문을 선택하세요.</p>
+        </div>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <!-- 폰3: 결제 -->
+      <div class="phone-wrap">
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="screen">
+            <div class="pay-screen">
+              <div class="app-bar"><div class="app-bar-title">💳 결제</div></div>
+              <div class="pay-body">
+                <div class="pay-summary">
+                  <div class="pay-summary-title">주문 내역</div>
+                  <div class="pay-row"><span class="pay-row-label">된장찌개 ×1</span><span class="pay-row-value">₩8,000</span></div>
+                  <div class="pay-row"><span class="pay-row-label">연어 회덮밥 ×1</span><span class="pay-row-value">₩14,000</span></div>
+                  <div class="pay-row pay-total-row"><span class="pay-row-label" style="font-weight:800;">총 결제금액</span><span class="pay-total-value">₩22,000</span></div>
+                </div>
+                <div style="font-size:7px;font-weight:800;color:#0f172a;margin-bottom:4px;">결제 수단</div>
+                <div class="pay-methods">
+                  <div class="pay-method selected"><span class="pay-method-icon">💳</span><span class="pay-method-name">카드결제</span></div>
+                  <div class="pay-method"><span class="pay-method-icon">📱</span><span class="pay-method-name">카카오페이</span></div>
+                  <div class="pay-method"><span class="pay-method-icon">🏦</span><span class="pay-method-name">계좌이체</span></div>
+                  <div class="pay-method"><span class="pay-method-icon">🍎</span><span class="pay-method-name">애플페이</span></div>
+                </div>
+              </div>
+              <div class="pay-btn">₩22,000 <span>결제하기</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-desc">
+          <p class="phone-step">Step 3</p>
+          <p class="phone-label">간편 결제</p>
+          <p class="phone-note">TossPayments로 카드·카카오페이·계좌이체 등 다양한 수단으로 결제하세요.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ 슬라이드 4 : 테이블 예약 ══ -->
+<div class="slide" id="s4">
+  <div class="sh"><div class="sh-left"><span class="badge">Step 3</span><span class="sh-title">테이블 예약 방법</span></div><span class="sh-num">4 / 5</span></div>
+  <div class="sb">
+    <p class="slide-title">예약 흐름</p>
+    <div class="phones">
+
+      <!-- 폰1: 좌석 선택 -->
+      <div class="phone-wrap">
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="screen">
+            <div class="seat-screen">
+              <div class="app-bar"><div class="app-bar-title">🪑 테이블 예약</div></div>
+              <div class="seat-filter">
+                <div class="seat-cat active">전체</div>
+                <div class="seat-cat plain">2인</div>
+                <div class="seat-cat plain">4인</div>
+                <div class="seat-cat plain">단체</div>
+              </div>
+              <div class="seat-grid">
+                <div class="seat-card selected">
+                  <div class="seat-icon">🪑</div>
+                  <div class="seat-name">A-1</div>
+                  <div class="seat-info" style="color:#f97316;font-weight:700;">선택됨</div>
+                </div>
+                <div class="seat-card taken">
+                  <div class="seat-icon">🪑</div>
+                  <div class="seat-name">A-2</div>
+                  <div class="seat-info">예약중</div>
+                </div>
+                <div class="seat-card">
+                  <div class="seat-icon">🪑</div>
+                  <div class="seat-name">A-3</div>
+                  <div class="seat-info">2인석</div>
+                </div>
+                <div class="seat-card">
+                  <div class="seat-icon">🛋</div>
+                  <div class="seat-name">B-1</div>
+                  <div class="seat-info">4인석</div>
+                </div>
+                <div class="seat-card taken">
+                  <div class="seat-icon">🛋</div>
+                  <div class="seat-name">B-2</div>
+                  <div class="seat-info">예약중</div>
+                </div>
+                <div class="seat-card">
+                  <div class="seat-icon">🛋</div>
+                  <div class="seat-name">B-3</div>
+                  <div class="seat-info">4인석</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-desc">
+          <p class="phone-step">Step 1</p>
+          <p class="phone-label">좌석 선택</p>
+          <p class="phone-note">테이블 예약 버튼을 누르면 좌석 목록이 표시됩니다. 원하는 좌석을 터치하세요.</p>
+        </div>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <!-- 폰2: 날짜/시간 설정 -->
+      <div class="phone-wrap">
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="screen">
+            <div class="seat-screen">
+              <div class="app-bar"><div class="app-bar-title">📅 날짜 · 시간 설정</div></div>
+              <div style="padding:8px;display:flex;flex-direction:column;gap:6px;flex:1;overflow:hidden;">
+                <!-- 캘린더 미니 -->
+                <div style="background:#fff;border-radius:8px;padding:7px;border:1px solid #e2e8f0;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                    <span style="font-size:7px;font-weight:800;color:#0f172a;">2026년 7월</span>
+                    <div style="display:flex;gap:4px;"><span style="font-size:8px;color:#94a3b8;">‹</span><span style="font-size:8px;color:#94a3b8;">›</span></div>
+                  </div>
+                  <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;">
+                    <div style="font-size:6px;color:#94a3b8;">일</div><div style="font-size:6px;color:#94a3b8;">월</div><div style="font-size:6px;color:#94a3b8;">화</div><div style="font-size:6px;color:#94a3b8;">수</div><div style="font-size:6px;color:#94a3b8;">목</div><div style="font-size:6px;color:#94a3b8;">금</div><div style="font-size:6px;color:#94a3b8;">토</div>
+                    <div style="font-size:6px;color:#cbd5e1;">29</div><div style="font-size:6px;color:#cbd5e1;">30</div><div style="font-size:6px;color:#0f172a;">1</div><div style="font-size:6px;color:#0f172a;">2</div><div style="font-size:6px;color:#0f172a;">3</div><div style="font-size:6px;color:#0f172a;">4</div><div style="font-size:6px;color:#ef4444;">5</div>
+                    <div style="font-size:6px;color:#0f172a;">6</div><div style="font-size:6px;color:#0f172a;">7</div><div style="font-size:6px;color:#0f172a;">8</div><div style="font-size:6px;color:#0f172a;">9</div><div style="font-size:6px;color:#0f172a;">10</div><div style="font-size:6px;color:#0f172a;">11</div><div style="background:#0f172a;border-radius:10px;padding:1px;font-size:6px;color:#fff;">12</div>
+                    <div style="font-size:6px;color:#0f172a;">13</div><div style="font-size:6px;color:#0f172a;">14</div>
+                  </div>
+                </div>
+                <!-- 시간 슬롯 -->
+                <div style="font-size:7px;font-weight:800;color:#0f172a;">시간 선택</div>
+                <div style="display:flex;flex-wrap:wrap;gap:4px;">
+                  <div style="background:#f1f5f9;border-radius:6px;padding:3px 7px;font-size:7px;color:#64748b;">11:00</div>
+                  <div style="background:#0f172a;border-radius:6px;padding:3px 7px;font-size:7px;color:#fff;font-weight:700;">12:00</div>
+                  <div style="background:#f1f5f9;border-radius:6px;padding:3px 7px;font-size:7px;color:#64748b;">13:00</div>
+                  <div style="background:#f1f5f9;border-radius:6px;padding:3px 7px;font-size:7px;color:#64748b;">18:00</div>
+                  <div style="background:#f1f5f9;border-radius:6px;padding:3px 7px;font-size:7px;color:#64748b;">19:00</div>
+                </div>
+                <!-- 인원 -->
+                <div style="background:#fff;border:1px solid #e2e8f0;border-radius:7px;padding:5px 8px;display:flex;justify-content:space-between;align-items:center;">
+                  <span style="font-size:7px;color:#64748b;">인원</span>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <span style="font-size:10px;color:#0f172a;font-weight:700;">−</span>
+                    <span style="font-size:8px;font-weight:900;color:#0f172a;">2명</span>
+                    <span style="font-size:10px;color:#0f172a;font-weight:700;">+</span>
+                  </div>
+                </div>
+                <div style="background:#0f172a;border-radius:7px;padding:6px;text-align:center;font-size:8px;font-weight:900;color:#fff;">예약 신청하기</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-desc">
+          <p class="phone-step">Step 2</p>
+          <p class="phone-label">날짜·시간·인원 설정</p>
+          <p class="phone-note">달력에서 날짜를 선택하고 시간대와 방문 인원을 설정한 뒤 예약을 신청하세요.</p>
+        </div>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <!-- 폰3: 예약완료 -->
+      <div class="phone-wrap">
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="screen">
+            <div class="rsvn-screen">
+              <div class="rsvn-check">✅</div>
+              <div class="rsvn-title">예약 신청 완료</div>
+              <div class="rsvn-card">
+                <div class="rsvn-no">260712-48291</div>
+                <div style="height:1px;background:rgba(255,255,255,0.08);margin-bottom:5px;"></div>
+                <div class="rsvn-row"><span class="rsvn-label">좌석</span><span class="rsvn-value">A-1 (2인석)</span></div>
+                <div class="rsvn-row"><span class="rsvn-label">날짜</span><span class="rsvn-value">2026.07.12</span></div>
+                <div class="rsvn-row"><span class="rsvn-label">시간</span><span class="rsvn-value">12:00</span></div>
+                <div class="rsvn-row"><span class="rsvn-label">인원</span><span class="rsvn-value">2명</span></div>
+              </div>
+              <div class="rsvn-badge">승인 대기중 ⏳</div>
+              <div class="rsvn-hint">예약번호를 메모해 두세요.<br>사장님 승인 후 확정됩니다.</div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-desc">
+          <p class="phone-step">Step 3</p>
+          <p class="phone-label">예약 완료</p>
+          <p class="phone-note">예약번호가 발급됩니다. 사업자 승인 후 최종 확정되며, 예약번호로 채팅도 가능합니다.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ 슬라이드 5 : AI 도움 ══ -->
+<div class="slide" id="s5">
+  <div class="sh"><div class="sh-left"><span class="badge">Step 4</span><span class="sh-title">AI 도움을 이용한 주문 및 예약</span></div><span class="sh-num">5 / 5</span></div>
+  <div class="sb">
+    <p class="slide-title">AI 이용 흐름</p>
+    <div class="phones">
+
+      <!-- 폰1: AI 버튼 -->
+      <div class="phone-wrap">
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="screen">
+            <div class="ai-screen">
+              <div class="app-bar"><div class="app-bar-title">🍽 스캔이트 레스토랑</div></div>
+              <div class="cat-bar">
+                <div class="cat-chip active">전체</div>
+                <div class="cat-chip plain">한식</div>
+                <div class="cat-chip plain">음료</div>
+              </div>
+              <div class="menu-list" style="flex:1;overflow:hidden;">
+                <div class="menu-item">
+                  <div class="menu-img" style="background:linear-gradient(135deg,#c2410c,#ea580c);"></div>
+                  <div class="menu-info"><div class="menu-name">된장찌개</div><div class="menu-price">₩8,000</div></div>
+                </div>
+                <div class="menu-item">
+                  <div class="menu-img" style="background:linear-gradient(135deg,#0369a1,#0ea5e9);"></div>
+                  <div class="menu-info"><div class="menu-name">연어 회덮밥</div><div class="menu-price">₩14,000</div></div>
+                </div>
+              </div>
+              <div class="ai-fab">✦ AI도움</div>
+              <div style="height:36px;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-desc">
+          <p class="phone-step">Step 1</p>
+          <p class="phone-label">AI도움 버튼 터치</p>
+          <p class="phone-note">메뉴 화면 하단의 ✦ AI도움 버튼을 누르면 AI 채팅 창이 열립니다.</p>
+        </div>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <!-- 폰2: AI 대화 + 추천 -->
+      <div class="phone-wrap">
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="screen">
+            <div class="ai-screen">
+              <div style="background:linear-gradient(135deg,#f97316,#0f172a);padding:8px 10px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+                <div><div style="font-size:9px;font-weight:900;color:#fff;">✦ AI 메뉴 추천</div><div style="font-size:6px;color:rgba(255,255,255,0.6);">Scaneat 도우미</div></div>
+                <div style="width:18px;height:18px;border-radius:9px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;">✕</div>
+              </div>
+              <div class="ai-chat-list">
+                <div class="bubble ai">안녕하세요! 어떤 음식이 드시고 싶으세요? 😊</div>
+                <div class="bubble user">맵지 않은 걸로 추천해줘</div>
+                <div class="bubble ai">된장찌개는 어떠세요? 구수하고 맵지 않아요!</div>
+                <div class="ai-cart-card">
+                  <div class="ai-cart-label">장바구니에 담을까요?</div>
+                  <div class="ai-cart-name">된장찌개</div>
+                  <div class="ai-cart-price">₩8,000</div>
+                  <div class="ai-cart-btns">
+                    <div class="ai-cart-no">아니요</div>
+                    <div class="ai-cart-yes">🛒 담기</div>
+                  </div>
+                </div>
+              </div>
+              <div class="ai-input">
+                <div class="ai-input-box">메시지를 입력하세요...</div>
+                <div class="ai-send">↑</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-desc">
+          <p class="phone-step">Step 2</p>
+          <p class="phone-label">AI와 대화로 주문</p>
+          <p class="phone-note">원하는 음식을 자유롭게 말하면 AI가 메뉴를 추천하고 바로 장바구니에 담아줍니다.</p>
+        </div>
+      </div>
+
+      <div class="arrow">→</div>
+
+      <!-- 폰3: AI 예약 -->
+      <div class="phone-wrap">
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="screen">
+            <div class="ai-screen">
+              <div style="background:linear-gradient(135deg,#f97316,#0f172a);padding:8px 10px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+                <div><div style="font-size:9px;font-weight:900;color:#fff;">✦ AI 메뉴 추천</div></div>
+                <div style="width:18px;height:18px;border-radius:9px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;">✕</div>
+              </div>
+              <div class="ai-chat-list">
+                <div class="bubble user">오늘 저녁 7시 2명 예약해줘</div>
+                <div class="bubble ai">이름과 전화번호를 알려주시면 예약 신청해드릴게요!</div>
+                <div class="bubble user">홍길동, 010-1234-5678</div>
+                <div class="rsvn-consent">
+                  <div class="rsvn-consent-title">📋 개인정보 수집 동의</div>
+                  <div class="rsvn-consent-row">· 수집항목: 이름, 전화번호<br>· 수집목적: 예약 확인 및 안내<br>· 보유기간: 예약일 후 7일</div>
+                  <div class="rsvn-consent-btns">
+                    <div class="ai-cart-no">동의 안함</div>
+                    <div class="ai-cart-yes">✓ 동의하고 예약</div>
+                  </div>
+                </div>
+              </div>
+              <div class="ai-input">
+                <div class="ai-input-box">메시지를 입력하세요...</div>
+                <div class="ai-send">↑</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="phone-desc">
+          <p class="phone-step">Step 3</p>
+          <p class="phone-label">AI로 예약 신청</p>
+          <p class="phone-note">"오늘 저녁 7시 2명 예약해줘"처럼 말하면 AI가 정보를 수집해 예약을 자동 신청합니다.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── 네비게이션 ── -->
+<div class="nav">
+  <button class="nav-btn" id="prev" onclick="go(-1)">‹</button>
+  <div class="nav-dots" id="dots"></div>
+  <button class="nav-btn" id="next" onclick="go(1)">›</button>
+  <span class="nav-label" id="nav-label">1 / 5</span>
+</div>
+
+</div>
+<script>
+  const total = 5; let cur = 1;
   const dotsEl = document.getElementById('dots');
   for (let i = 1; i <= total; i++) {
     const b = document.createElement('button');
-    b.className = 'nav-dot' + (i === 1 ? ' on' : '');
-    b.onclick = () => { cur = i; render(); };
+    b.className = 'nav-dot' + (i===1?' on':'');
+    b.onclick = () => { cur=i; render(); };
     dotsEl.appendChild(b);
   }
-
   function render() {
-    for (let i = 1; i <= total; i++) {
-      document.getElementById('s' + i).classList.toggle('active', i === cur);
-    }
-    dotsEl.querySelectorAll('.nav-dot').forEach((d, i) => d.classList.toggle('on', i + 1 === cur));
-    document.getElementById('nav-label').textContent = cur + ' / ' + total;
-    document.getElementById('prev').disabled = cur === 1;
-    document.getElementById('next').disabled = cur === total;
+    for (let i=1;i<=total;i++) document.getElementById('s'+i).classList.toggle('active',i===cur);
+    dotsEl.querySelectorAll('.nav-dot').forEach((d,i)=>d.classList.toggle('on',i+1===cur));
+    document.getElementById('nav-label').textContent = cur+' / '+total;
+    document.getElementById('prev').disabled = cur===1;
+    document.getElementById('next').disabled = cur===total;
   }
-
-  function go(d) { cur = Math.max(1, Math.min(total, cur + d)); render(); }
-
-  document.addEventListener('keydown', e => {
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') go(1);
-    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   go(-1);
+  function go(d){cur=Math.max(1,Math.min(total,cur+d));render();}
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='ArrowDown')go(1);
+    if(e.key==='ArrowLeft'||e.key==='ArrowUp')go(-1);
   });
-
   render();
 </script>
 </body>
