@@ -61,6 +61,27 @@ export default function App() {
   const [showDrawer, setShowDrawer] = useState(false);
   const [menuOverlay, setMenuOverlay] = useState(null); // null | "supporters" | "qna" | "faq"
   const [menuMode, setMenuMode] = useState(null); // null | "test" | "elderly"
+
+  const menuModeRef = useRef(null);
+  const menuOverlayRef = useRef(null);
+  const showDrawerRef = useRef(false);
+  useEffect(() => { menuModeRef.current = menuMode; }, [menuMode]);
+  useEffect(() => { menuOverlayRef.current = menuOverlay; }, [menuOverlay]);
+  useEffect(() => { showDrawerRef.current = showDrawer; }, [showDrawer]);
+
+  useEffect(() => {
+    if (Platform.OS !== "web" || !menuBizno) return;
+    window.history.pushState(null, "");
+    const onPop = () => {
+      window.history.pushState(null, "");
+      if (showDrawerRef.current) { setShowDrawer(false); }
+      else if (menuModeRef.current === "elderly") { setMenuMode("test"); }
+      else if (menuModeRef.current === "test") { setMenuMode(null); }
+      else if (menuOverlayRef.current) { setMenuOverlay(null); }
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
   const [musicOn, setMusicOn] = useState(false);
   const audioRef = useRef(null);
 
