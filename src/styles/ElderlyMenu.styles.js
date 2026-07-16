@@ -6,7 +6,7 @@ export const s = StyleSheet.create({
   loading: { flex: 1, backgroundColor: "#0f172a", alignItems: "center", justifyContent: "center" },
   loadingText: { color: "#fff", fontSize: 22, fontWeight: "700" },
 
-  photoArea: { height: 150, backgroundColor: "#1e293b", flexShrink: 0, overflow: "hidden" },
+  photoArea: { height: 190, backgroundColor: "#1e293b", flexShrink: 0, overflow: "hidden" },
   photo: { width: "100%", height: "100%", resizeMode: "cover" },
   photoPlaceholder: { flex: 1, alignItems: "center", justifyContent: "center" },
   photoEmoji: { fontSize: 90 },
@@ -15,9 +15,9 @@ export const s = StyleSheet.create({
   carouselOuter: { flex: 1, minHeight: 0, overflow: "hidden" },
   carouselClip: { flex: 1, minHeight: 0, overflow: "hidden", zIndex: 0 },
   track: { flexDirection: "row", height: "100%" },
-  slide: { height: "100%", alignItems: "center", justifyContent: "center", paddingVertical: 12, paddingHorizontal: 16 },
+  slide: { height: "100%", alignItems: "center", justifyContent: "center", paddingVertical: 6, paddingHorizontal: 16 },
 
-  card: { backgroundColor: "#fff", borderRadius: 28, padding: 32, width: "100%", flexDirection: "column", gap: 12, shadowColor: "#000", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.35, shadowRadius: 24, elevation: 12 },
+  card: { backgroundColor: "#fff", borderRadius: 28, paddingVertical: 22, paddingHorizontal: 28, width: "100%", flexDirection: "column", gap: 8, shadowColor: "#000", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.35, shadowRadius: 24, elevation: 12 },
   menuName: { fontSize: 40, fontWeight: "900", color: "#0f172a", lineHeight: 48 },
   menuQty: { fontSize: 28, fontWeight: "800", color: "#94a3b8" },
   menuQtyActive: { color: "#f59e0b" },
@@ -37,7 +37,7 @@ export const s = StyleSheet.create({
   navArrow: { width: 52, height: 52, borderRadius: 26, backgroundColor: "#f59e0b", alignItems: "center", justifyContent: "center", shadowColor: "#f59e0b", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.7, shadowRadius: 12, elevation: 10 },
   navArrowText: { fontSize: 30, fontWeight: "900", color: "#fff", lineHeight: 34 },
 
-  dots: { flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 8, paddingVertical: 10, flexShrink: 0 },
+  dots: { flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 8, paddingVertical: 6, flexShrink: 0 },
   dot: { width: 10, height: 10, borderRadius: 5, backgroundColor: "rgba(255,255,255,0.2)" },
   dotActive: { width: 28, borderRadius: 5, backgroundColor: "#f59e0b" },
 
