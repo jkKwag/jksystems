@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity, Modal } from "react-native";
 import supabase from "../lib/supabase";
 import { s } from "../styles/ElderlyMenu.styles";
 
@@ -17,6 +17,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   const [selectedCat, setSelectedCat] = useState(null);
   const [cart, setCart] = useState({});
   const [loading, setLoading] = useState(true);
+  const [showCartModal, setShowCartModal] = useState(false);
 
   useEffect(() => {
     if (!bizno) {
@@ -114,12 +115,48 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
       </ScrollView>
 
       {cartCount > 0 && (
-        <View style={s.cartBar}>
+        <TouchableOpacity style={s.cartBar} onPress={() => setShowCartModal(true)} activeOpacity={0.85}>
           <View style={s.cartBadge}><Text style={s.cartBadgeText}>{cartCount}개</Text></View>
           <Text style={s.cartText}>장바구니 보기</Text>
           <Text style={s.cartPrice}>{cartTotal.toLocaleString()}원</Text>
-        </View>
+        </TouchableOpacity>
       )}
+
+      <Modal visible={showCartModal} transparent animationType="slide" onRequestClose={() => setShowCartModal(false)}>
+        <View style={s.modalOverlay}>
+          <TouchableOpacity style={s.modalBg} activeOpacity={1} onPress={() => setShowCartModal(false)} />
+          <View style={s.modalSheet}>
+            <Text style={s.modalTitle}>장바구니</Text>
+            <ScrollView style={s.modalList}>
+              {Object.entries(cart).map(([cd, qty]) => {
+                const menu = menus.find(m => m.menu_cd === cd);
+                if (!menu) return null;
+                return (
+                  <View key={cd} style={s.modalItem}>
+                    <Text style={s.modalItemName} numberOfLines={1}>{menu.menu_nm}</Text>
+                    <View style={s.qtyRow}>
+                      <TouchableOpacity style={s.qtyBtn} onPress={() => removeFromCart(cd)}>
+                        <Text style={s.qtyBtnText}>−</Text>
+                      </TouchableOpacity>
+                      <Text style={s.qtyNum}>{qty}</Text>
+                      <TouchableOpacity style={s.qtyBtn} onPress={() => addToCart(cd)}>
+                        <Text style={s.qtyBtnText}>+</Text>
+                      </TouchableOpacity>
+                    </View>
+                    <Text style={s.modalItemPrice}>{(menu.price * qty).toLocaleString()}원</Text>
+                  </View>
+                );
+              })}
+            </ScrollView>
+            <View style={s.modalFooter}>
+              <Text style={s.modalTotal}>총 {cartTotal.toLocaleString()}원</Text>
+              <TouchableOpacity style={s.modalOrderBtn} onPress={() => setShowCartModal(false)}>
+                <Text style={s.modalOrderBtnText}>주문하기</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
