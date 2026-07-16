@@ -40,8 +40,8 @@ export const s = StyleSheet.create({
 
   cartBar: { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#0f172a", padding: 16, flexDirection: "row", alignItems: "center", gap: 12, cursor: "pointer" },
 
-  modalOverlay: { flex: 1, justifyContent: "flex-end" },
-  modalBg: { ...{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }, backgroundColor: "rgba(0,0,0,0.5)" },
+  modalOverlay: { justifyContent: "flex-end", zIndex: 200 },
+  modalBg: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)" },
   modalSheet: { backgroundColor: "#fff", borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40, maxHeight: "80%" },
   modalTitle: { fontSize: 24, fontWeight: "900", color: "#0f172a", marginBottom: 20 },
   modalList: { flexShrink: 1, marginBottom: 20 },

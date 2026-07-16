@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, Modal } from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
 import supabase from "../lib/supabase";
 import { s } from "../styles/ElderlyMenu.styles";
 
@@ -122,8 +122,8 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
         </TouchableOpacity>
       )}
 
-      <Modal visible={showCartModal} transparent animationType="slide" onRequestClose={() => setShowCartModal(false)}>
-        <View style={s.modalOverlay}>
+      {showCartModal && (
+        <View style={[StyleSheet.absoluteFillObject, s.modalOverlay]}>
           <TouchableOpacity style={s.modalBg} activeOpacity={1} onPress={() => setShowCartModal(false)} />
           <View style={s.modalSheet}>
             <Text style={s.modalTitle}>장바구니</Text>
@@ -156,7 +156,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
             </View>
           </View>
         </View>
-      </Modal>
+      )}
     </View>
   );
 }
