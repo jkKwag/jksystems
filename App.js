@@ -78,6 +78,7 @@ export default function App() {
       else if (menuModeRef.current === "elderly") { setMenuMode("test"); }
       else if (menuModeRef.current === "test") { setMenuMode(null); }
       else if (menuOverlayRef.current) { setMenuOverlay(null); }
+      else { window.location.href = "/"; }
     };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
