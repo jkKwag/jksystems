@@ -174,7 +174,17 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
         <View style={[StyleSheet.absoluteFillObject, s.modalOverlay]}>
           <TouchableOpacity style={s.modalBg} activeOpacity={1} onPress={() => setShowCartModal(false)} />
           <View style={s.modalSheet}>
-            <Text style={s.modalTitle}>장바구니</Text>
+            <View style={s.modalTitleRow}>
+              <Text style={s.modalTitle}>장바구니</Text>
+              <View style={s.modalTitleActions}>
+                <TouchableOpacity style={s.trashBtn} onPress={() => { setCart({}); setShowCartModal(false); }}>
+                  <Text style={s.trashBtnIcon}>🗑️</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={s.closeBtn} onPress={() => setShowCartModal(false)}>
+                  <Text style={s.closeBtnText}>✕</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
             <ScrollView style={s.modalList}>
               {Object.entries(cart).map(([cd, qty]) => {
                 const menu = menus.find(m => m.menu_cd === cd);
