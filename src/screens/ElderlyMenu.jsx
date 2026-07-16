@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef } from "react";
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Animated, useWindowDimensions } from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Animated, useWindowDimensions } from "react-native";
 import supabase from "../lib/supabase";
 import { s } from "../styles/ElderlyMenu.styles";
 
 const DEMO_MENUS = [
-  { menu_cd: "d1", menu_nm: "된장찌개 정식", price: 9000 },
-  { menu_cd: "d2", menu_nm: "캠프 직화 삼겹살", price: 17000 },
-  { menu_cd: "d3", menu_nm: "돌솥 비빔밥", price: 13000 },
-  { menu_cd: "d4", menu_nm: "잔치국수", price: 7000 },
-  { menu_cd: "d5", menu_nm: "허브 치킨 구이", price: 18000 },
+  { menu_cd: "d1", menu_nm: "된장찌개 정식", price: 9000, img_url: null, emoji: "🍲" },
+  { menu_cd: "d2", menu_nm: "캠프 직화 삼겹살", price: 17000, img_url: null, emoji: "🥩" },
+  { menu_cd: "d3", menu_nm: "돌솥 비빔밥", price: 13000, img_url: null, emoji: "🍱" },
+  { menu_cd: "d4", menu_nm: "잔치국수", price: 7000, img_url: null, emoji: "🍜" },
+  { menu_cd: "d5", menu_nm: "허브 치킨 구이", price: 18000, img_url: null, emoji: "🍗" },
 ];
 
 export default function ElderlyMenu({ bizno, tableNo, onBack }) {
@@ -20,6 +20,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   const [showCartModal, setShowCartModal] = useState(false);
 
   const translateX = useRef(new Animated.Value(0)).current;
+  const photoOpacity = useRef(new Animated.Value(1)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -41,7 +42,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
     }
     supabase
       .from("tb_biz_menu")
-      .select("menu_cd,menu_nm,price")
+      .select("menu_cd,menu_nm,price,img_url")
       .eq("biz_reg_no", bizno)
       .eq("use_yn", "Y")
       .order("sort_ord")
@@ -57,12 +58,12 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
 
   const goTo = (newIndex) => {
     if (newIndex < 0 || newIndex >= menus.length) return;
-    Animated.timing(translateX, {
-      toValue: -newIndex * width,
-      duration: 280,
-      useNativeDriver: true,
-    }).start();
-    setCurrentIndex(newIndex);
+    // 사진 페이드 아웃 → 인덱스 변경 → 페이드 인
+    Animated.timing(photoOpacity, { toValue: 0, duration: 120, useNativeDriver: true }).start(() => {
+      setCurrentIndex(newIndex);
+      Animated.timing(photoOpacity, { toValue: 1, duration: 220, useNativeDriver: true }).start();
+    });
+    Animated.timing(translateX, { toValue: -newIndex * width, duration: 280, useNativeDriver: true }).start();
   };
 
   const addToCart = (menuCd) => setCart(prev => ({ ...prev, [menuCd]: (prev[menuCd] || 0) + 1 }));
@@ -87,16 +88,23 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
     );
   }
 
+  const currentMenu = menus[currentIndex];
+
   return (
     <View style={s.container}>
-      <View style={s.header}>
-        <View style={s.headerGuide}>
-          <Text style={s.headerGuideText}>👴 큰 글씨 보기 모드</Text>
-        </View>
-      </View>
+      {/* 음식 사진 영역 */}
+      <Animated.View style={[s.photoArea, { opacity: photoOpacity }]}>
+        {currentMenu?.img_url ? (
+          <Image source={{ uri: currentMenu.img_url }} style={s.photo} />
+        ) : (
+          <View style={s.photoPlaceholder}>
+            <Text style={s.photoEmoji}>{currentMenu?.emoji || "🍽"}</Text>
+          </View>
+        )}
+      </Animated.View>
 
+      {/* 카드 캐러셀 */}
       <View style={s.carouselOuter}>
-        {/* 슬라이드 — 전체 너비 */}
         <View style={s.carouselClip}>
           <Animated.View style={[s.track, { width: width * menus.length, transform: [{ translateX }] }]}>
             {menus.map((menu) => {
@@ -131,7 +139,6 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
           </Animated.View>
         </View>
 
-        {/* 떠 있는 화살표 — clip 밖, carouselOuter 기준 절대배치 */}
         {currentIndex > 0 && (
           <TouchableOpacity style={s.prevBtn} onPress={() => goTo(currentIndex - 1)} activeOpacity={0.7}>
             <View style={s.navArrow}>

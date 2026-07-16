@@ -6,9 +6,10 @@ export const s = StyleSheet.create({
   loading: { flex: 1, backgroundColor: "#0f172a", alignItems: "center", justifyContent: "center" },
   loadingText: { color: "#fff", fontSize: 22, fontWeight: "700" },
 
-  header: { backgroundColor: "#0f172a", paddingVertical: 14, paddingHorizontal: 16, flexShrink: 0 },
-  headerGuide: { backgroundColor: "rgba(74,222,128,0.12)", borderRadius: 10, paddingVertical: 10, alignItems: "center" },
-  headerGuideText: { color: "#4ade80", fontSize: 18, fontWeight: "800" },
+  photoArea: { height: 210, backgroundColor: "#1e293b", flexShrink: 0, overflow: "hidden" },
+  photo: { width: "100%", height: "100%", resizeMode: "cover" },
+  photoPlaceholder: { flex: 1, alignItems: "center", justifyContent: "center" },
+  photoEmoji: { fontSize: 90 },
 
   /* 카드 + 떠 있는 화살표 컨테이너 */
   carouselOuter: { flex: 1 },
