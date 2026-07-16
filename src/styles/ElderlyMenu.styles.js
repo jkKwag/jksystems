@@ -6,7 +6,7 @@ export const s = StyleSheet.create({
   loading: { flex: 1, backgroundColor: "#0f172a", alignItems: "center", justifyContent: "center" },
   loadingText: { color: "#fff", fontSize: 22, fontWeight: "700" },
 
-  photoArea: { height: 190, backgroundColor: "#1e293b", flexShrink: 0, overflow: "hidden" },
+  photoArea: { height: 220, backgroundColor: "#1e293b", flexShrink: 0, overflow: "hidden" },
   photo: { width: "100%", height: "100%", resizeMode: "cover" },
   photoPlaceholder: { flex: 1, alignItems: "center", justifyContent: "center" },
   photoEmoji: { fontSize: 90 },
