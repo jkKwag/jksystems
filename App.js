@@ -155,13 +155,7 @@ export default function App() {
       <View style={s.container}>
         <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
         <View style={[s.header, HEADER_GRADIENT]}>
-          {menuOverlay ? (
-            <TouchableOpacity style={s.backBtn} onPress={() => setMenuOverlay(null)}>
-              <Text style={s.backBtnText}>← 메뉴로</Text>
-            </TouchableOpacity>
-          ) : (
-            <Logo />
-          )}
+          <Logo />
           <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
             {MUSIC_URL ? (
               <TouchableOpacity onPress={toggleMusic} style={s.musicBtn}>
