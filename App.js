@@ -173,18 +173,73 @@ export default function App() {
   if (isPaymentSuccess) return <PaymentSuccess />;
   if (isPaymentFail) return <PaymentFail />;
 
+  const AppHeader = () => (
+    <View style={[s.header, HEADER_GRADIENT]}>
+      <Logo />
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+        {MUSIC_URL ? (
+          <TouchableOpacity onPress={toggleMusic} style={s.musicBtn}>
+            <Text style={s.musicBtnText}>{musicOn ? "🔊" : "🔇"}</Text>
+          </TouchableOpacity>
+        ) : null}
+        <TouchableOpacity style={s.hamburger} onPress={() => setShowDrawer(true)}>
+          <View style={s.hLine} /><View style={s.hLine} /><View style={s.hLine} />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  const AppDrawer = () => (
+    <Modal visible={showDrawer} transparent animationType="fade" onRequestClose={() => setShowDrawer(false)}>
+      <View style={s.drawerOverlay}>
+        <TouchableOpacity style={s.drawerBg} activeOpacity={1} onPress={() => setShowDrawer(false)} />
+        <View style={s.drawerPanel}>
+          <Text style={s.drawerTitle}>더보기</Text>
+          {[
+            { key: "supporters", icon: "💝", label: "후원자", desc: "후원자 명단 보기" },
+            { key: "qna", icon: "💬", label: "Q&A", desc: "자주 묻는 질문 답변" },
+            { key: "faq", icon: "❓", label: "FAQ", desc: "공지 및 안내사항" },
+            { key: "elderly", icon: "🧪", label: "노령테스트", desc: "연령별 메뉴 선택" },
+          ].map(item => (
+            <TouchableOpacity key={item.key} style={s.drawerItem} onPress={() => {
+              setShowDrawer(false);
+              if (item.key === "elderly") setMenuMode("test");
+              else setMenuOverlay(item.key);
+            }}>
+              <Text style={s.drawerItemIcon}>{item.icon}</Text>
+              <View>
+                <Text style={s.drawerItemLabel}>{item.label}</Text>
+                <Text style={s.drawerItemDesc}>{item.desc}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+    </Modal>
+  );
+
   if (menuBizno && menuMode === "test") {
     return (
-      <ElderlyTest
-        onSelect={() => setMenuMode(null)}
-        onSelectElderly={() => setMenuMode("elderly")}
-      />
+      <View style={s.container}>
+        <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
+        <AppHeader />
+        <ElderlyTest
+          onSelect={() => setMenuMode(null)}
+          onSelectElderly={() => setMenuMode("elderly")}
+        />
+        <AppDrawer />
+      </View>
     );
   }
 
   if (menuBizno && menuMode === "elderly") {
     return (
-      <ElderlyMenu bizno={menuBizno} tableNo={tableNo} onBack={() => setMenuMode(null)} />
+      <View style={s.container}>
+        <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
+        <AppHeader />
+        <ElderlyMenu bizno={menuBizno} tableNo={tableNo} onBack={() => setMenuMode(null)} />
+        <AppDrawer />
+      </View>
     );
   }
 
@@ -192,20 +247,7 @@ export default function App() {
     return (
       <View style={s.container}>
         <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
-
-        <View style={[s.header, HEADER_GRADIENT]}>
-          <Logo />
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-            {MUSIC_URL ? (
-              <TouchableOpacity onPress={toggleMusic} style={s.musicBtn}>
-                <Text style={s.musicBtnText}>{musicOn ? "🔊" : "🔇"}</Text>
-              </TouchableOpacity>
-            ) : null}
-            <TouchableOpacity style={s.hamburger} onPress={() => setShowDrawer(true)}>
-              <View style={s.hLine} /><View style={s.hLine} /><View style={s.hLine} />
-            </TouchableOpacity>
-          </View>
-        </View>
+        <AppHeader />
         <View style={s.content}>
           <Menu bizno={menuBizno} tableNo={tableNo} />
           {(menuOverlay === "supporters" || menuOverlay === "qna" || menuOverlay === "faq") && (
@@ -216,33 +258,7 @@ export default function App() {
             </View>
           )}
         </View>
-
-        <Modal visible={showDrawer} transparent animationType="fade" onRequestClose={() => setShowDrawer(false)}>
-          <View style={s.drawerOverlay}>
-            <TouchableOpacity style={s.drawerBg} activeOpacity={1} onPress={() => setShowDrawer(false)} />
-            <View style={s.drawerPanel}>
-              <Text style={s.drawerTitle}>더보기</Text>
-              {[
-                { key: "supporters", icon: "💝", label: "후원자", desc: "후원자 명단 보기" },
-                { key: "qna", icon: "💬", label: "Q&A", desc: "자주 묻는 질문 답변" },
-                { key: "faq", icon: "❓", label: "FAQ", desc: "공지 및 안내사항" },
-                { key: "elderly", icon: "🧪", label: "노령테스트", desc: "연령별 메뉴 선택" },
-              ].map(item => (
-                <TouchableOpacity key={item.key} style={s.drawerItem} onPress={() => {
-                  setShowDrawer(false);
-                  if (item.key === "elderly") setMenuMode("test");
-                  else setMenuOverlay(item.key);
-                }}>
-                  <Text style={s.drawerItemIcon}>{item.icon}</Text>
-                  <View>
-                    <Text style={s.drawerItemLabel}>{item.label}</Text>
-                    <Text style={s.drawerItemDesc}>{item.desc}</Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-        </Modal>
+        <AppDrawer />
       </View>
     );
   }
