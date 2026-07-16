@@ -101,39 +101,43 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
         </View>
       </View>
 
-      <View style={s.carouselArea}>
-        <Animated.View style={[s.track, { width: width * menus.length, transform: [{ translateX }] }]}>
-          {menus.map((menu) => {
-            const qty = cart[menu.menu_cd] || 0;
-            return (
-              <View key={menu.menu_cd} style={[s.slide, { width }]}>
-                <View style={s.card}>
-                  <Text style={s.menuName}>{menu.menu_nm}</Text>
-                  <Text style={[s.menuQty, qty > 0 && s.menuQtyActive]}>
-                    {qty > 0 ? `${qty}개 담음` : "0개"}
-                  </Text>
-                  <Text style={s.price}>{menu.price?.toLocaleString()}원</Text>
-                  {qty > 0 ? (
-                    <View style={s.qtyRow}>
-                      <TouchableOpacity style={s.qtyBtn} onPress={() => removeFromCart(menu.menu_cd)}>
-                        <Text style={s.qtyBtnText}>−</Text>
+      <View style={s.carouselOuter}>
+        {/* 슬라이드 클립 레이어 — overflow hidden으로 옆 카드 숨김 */}
+        <View style={s.carouselClip}>
+          <Animated.View style={[s.track, { width: width * menus.length, transform: [{ translateX }] }]}>
+            {menus.map((menu) => {
+              const qty = cart[menu.menu_cd] || 0;
+              return (
+                <View key={menu.menu_cd} style={[s.slide, { width }]}>
+                  <View style={s.card}>
+                    <Text style={s.menuName}>{menu.menu_nm}</Text>
+                    <Text style={[s.menuQty, qty > 0 && s.menuQtyActive]}>
+                      {qty > 0 ? `${qty}개 담음` : "0개"}
+                    </Text>
+                    <Text style={s.price}>{menu.price?.toLocaleString()}원</Text>
+                    {qty > 0 ? (
+                      <View style={s.qtyRow}>
+                        <TouchableOpacity style={s.qtyBtn} onPress={() => removeFromCart(menu.menu_cd)}>
+                          <Text style={s.qtyBtnText}>−</Text>
+                        </TouchableOpacity>
+                        <Text style={s.qtyNum}>{qty}</Text>
+                        <TouchableOpacity style={s.qtyBtn} onPress={() => addToCart(menu.menu_cd)}>
+                          <Text style={s.qtyBtnText}>+</Text>
+                        </TouchableOpacity>
+                      </View>
+                    ) : (
+                      <TouchableOpacity style={s.addBtn} onPress={() => addToCart(menu.menu_cd)}>
+                        <Text style={s.addBtnText}>추가</Text>
                       </TouchableOpacity>
-                      <Text style={s.qtyNum}>{qty}</Text>
-                      <TouchableOpacity style={s.qtyBtn} onPress={() => addToCart(menu.menu_cd)}>
-                        <Text style={s.qtyBtnText}>+</Text>
-                      </TouchableOpacity>
-                    </View>
-                  ) : (
-                    <TouchableOpacity style={s.addBtn} onPress={() => addToCart(menu.menu_cd)}>
-                      <Text style={s.addBtnText}>추가</Text>
-                    </TouchableOpacity>
-                  )}
+                    )}
+                  </View>
                 </View>
-              </View>
-            );
-          })}
-        </Animated.View>
+              );
+            })}
+          </Animated.View>
+        </View>
 
+        {/* 네비게이션 레이어 — 클립 밖에서 절대 배치, 터치 확실히 받음 */}
         {currentIndex > 0 && (
           <TouchableOpacity style={s.prevBtn} onPress={() => goTo(currentIndex - 1)} activeOpacity={0.7}>
             <View style={s.navArrowPrev}>

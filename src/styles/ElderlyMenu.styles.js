@@ -10,7 +10,8 @@ export const s = StyleSheet.create({
   headerGuide: { backgroundColor: "rgba(74,222,128,0.12)", borderRadius: 10, paddingVertical: 10, alignItems: "center" },
   headerGuideText: { color: "#4ade80", fontSize: 18, fontWeight: "800" },
 
-  carouselArea: { flex: 1, overflow: "hidden" },
+  carouselOuter: { flex: 1 },
+  carouselClip: { flex: 1, overflow: "hidden" },
   track: { flexDirection: "row", height: "100%" },
   slide: { height: "100%", alignItems: "center", justifyContent: "center", paddingVertical: 12, paddingHorizontal: 16 },
 
