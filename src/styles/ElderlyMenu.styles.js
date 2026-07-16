@@ -21,7 +21,7 @@ export const s = StyleSheet.create({
   menuName: { fontSize: 40, fontWeight: "900", color: "#0f172a", lineHeight: 48 },
   menuQty: { fontSize: 28, fontWeight: "800", color: "#94a3b8" },
   menuQtyActive: { color: "#f59e0b" },
-  price: { fontSize: 48, fontWeight: "900", color: "#1d4ed8" },
+  price: { fontSize: 48, fontWeight: "900", color: "#1d4ed8", textAlign: "center" },
 
   addBtn: { width: "100%", paddingVertical: 22, backgroundColor: "#0f172a", borderRadius: 20, alignItems: "center", justifyContent: "center", marginTop: 4 },
   addBtnText: { color: "#fff", fontSize: 30, fontWeight: "900" },
