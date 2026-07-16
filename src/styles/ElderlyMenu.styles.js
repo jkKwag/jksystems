@@ -18,22 +18,21 @@ export const s = StyleSheet.create({
   menuName: { fontSize: 44, fontWeight: "900", color: "#0f172a", lineHeight: 52 },
   menuQty: { fontSize: 30, fontWeight: "800", color: "#94a3b8" },
   menuQtyActive: { color: "#f59e0b" },
-  cardBottom: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 8, gap: 12 },
-  price: { fontSize: 52, fontWeight: "900", color: "#1d4ed8", flexShrink: 0 },
+  price: { fontSize: 52, fontWeight: "900", color: "#1d4ed8" },
 
-  addBtn: { width: 100, height: 100, backgroundColor: "#0f172a", borderRadius: 50, alignItems: "center", justifyContent: "center", flexShrink: 0 },
-  addBtnText: { color: "#fff", fontSize: 58, fontWeight: "300", lineHeight: 64 },
+  addBtn: { width: "100%", paddingVertical: 22, backgroundColor: "#0f172a", borderRadius: 20, alignItems: "center", justifyContent: "center", marginTop: 4 },
+  addBtnText: { color: "#fff", fontSize: 32, fontWeight: "900" },
 
-  qtyRow: { flexDirection: "row", alignItems: "center", gap: 0, backgroundColor: "#f1f5f9", borderRadius: 44, paddingHorizontal: 6, paddingVertical: 4, flexShrink: 0 },
+  qtyRow: { flexDirection: "row", alignItems: "center", gap: 0, backgroundColor: "#f1f5f9", borderRadius: 44, paddingHorizontal: 6, paddingVertical: 4, alignSelf: "stretch", justifyContent: "space-between", marginTop: 4 },
   qtyBtn: { width: 70, height: 70, alignItems: "center", justifyContent: "center" },
   qtyBtnText: { fontSize: 44, fontWeight: "700", color: "#0f172a" },
   qtyNum: { fontSize: 40, fontWeight: "900", color: "#0f172a", minWidth: 48, textAlign: "center" },
 
   prevBtn: { position: "absolute", left: 0, top: 0, bottom: 0, width: 56, alignItems: "center", justifyContent: "center", zIndex: 10 },
   nextBtn: { position: "absolute", right: 0, top: 0, bottom: 0, width: 56, alignItems: "center", justifyContent: "center", zIndex: 10 },
-  navArrowPrev: { width: 48, height: 48, borderRadius: 24, backgroundColor: "rgba(255,255,255,0.12)", alignItems: "center", justifyContent: "center" },
+  navArrowPrev: { width: 48, height: 48, borderRadius: 24, backgroundColor: "rgba(255,255,255,0.22)", alignItems: "center", justifyContent: "center" },
   navArrowNext: { width: 48, height: 48, borderRadius: 24, backgroundColor: "#f59e0b", alignItems: "center", justifyContent: "center", shadowColor: "#f59e0b", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.6, shadowRadius: 12, elevation: 8 },
-  navArrowPrevText: { fontSize: 28, fontWeight: "900", color: "rgba(255,255,255,0.5)", lineHeight: 32 },
+  navArrowPrevText: { fontSize: 28, fontWeight: "900", color: "#fff", lineHeight: 32 },
   navArrowNextText: { fontSize: 28, fontWeight: "900", color: "#fff", lineHeight: 32 },
 
   bubbleContainer: { position: "absolute", right: 62, top: 0, bottom: 0, justifyContent: "center", zIndex: 20 },

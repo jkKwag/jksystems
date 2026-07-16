@@ -112,24 +112,22 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
                   <Text style={[s.menuQty, qty > 0 && s.menuQtyActive]}>
                     {qty > 0 ? `${qty}개 담음` : "0개"}
                   </Text>
-                  <View style={s.cardBottom}>
-                    <Text style={s.price}>{menu.price?.toLocaleString()}원</Text>
-                    {qty > 0 ? (
-                      <View style={s.qtyRow}>
-                        <TouchableOpacity style={s.qtyBtn} onPress={() => removeFromCart(menu.menu_cd)}>
-                          <Text style={s.qtyBtnText}>−</Text>
-                        </TouchableOpacity>
-                        <Text style={s.qtyNum}>{qty}</Text>
-                        <TouchableOpacity style={s.qtyBtn} onPress={() => addToCart(menu.menu_cd)}>
-                          <Text style={s.qtyBtnText}>+</Text>
-                        </TouchableOpacity>
-                      </View>
-                    ) : (
-                      <TouchableOpacity style={s.addBtn} onPress={() => addToCart(menu.menu_cd)}>
-                        <Text style={s.addBtnText}>+</Text>
+                  <Text style={s.price}>{menu.price?.toLocaleString()}원</Text>
+                  {qty > 0 ? (
+                    <View style={s.qtyRow}>
+                      <TouchableOpacity style={s.qtyBtn} onPress={() => removeFromCart(menu.menu_cd)}>
+                        <Text style={s.qtyBtnText}>−</Text>
                       </TouchableOpacity>
-                    )}
-                  </View>
+                      <Text style={s.qtyNum}>{qty}</Text>
+                      <TouchableOpacity style={s.qtyBtn} onPress={() => addToCart(menu.menu_cd)}>
+                        <Text style={s.qtyBtnText}>+</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <TouchableOpacity style={s.addBtn} onPress={() => addToCart(menu.menu_cd)}>
+                      <Text style={s.addBtnText}>추가</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
               </View>
             );
