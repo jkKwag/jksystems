@@ -181,16 +181,18 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
                 return (
                   <View key={cd} style={s.modalItem}>
                     <Text style={s.modalItemName} numberOfLines={1}>{menu.menu_nm}</Text>
-                    <View style={s.qtyRow}>
-                      <TouchableOpacity style={s.qtyBtn} onPress={() => removeFromCart(cd)}>
-                        <Text style={s.qtyBtnText}>−</Text>
-                      </TouchableOpacity>
-                      <Text style={s.qtyNum}>{qty}</Text>
-                      <TouchableOpacity style={s.qtyBtn} onPress={() => addToCart(cd)}>
-                        <Text style={s.qtyBtnText}>+</Text>
-                      </TouchableOpacity>
+                    <View style={s.modalItemBottom}>
+                      <View style={s.qtyRow}>
+                        <TouchableOpacity style={s.qtyBtn} onPress={() => removeFromCart(cd)}>
+                          <Text style={s.qtyBtnText}>−</Text>
+                        </TouchableOpacity>
+                        <Text style={s.qtyNum}>{qty}</Text>
+                        <TouchableOpacity style={s.qtyBtn} onPress={() => addToCart(cd)}>
+                          <Text style={s.qtyBtnText}>+</Text>
+                        </TouchableOpacity>
+                      </View>
+                      <Text style={s.modalItemPrice}>{(menu.price * qty).toLocaleString()}원</Text>
                     </View>
-                    <Text style={s.modalItemPrice}>{(menu.price * qty).toLocaleString()}원</Text>
                   </View>
                 );
               })}
