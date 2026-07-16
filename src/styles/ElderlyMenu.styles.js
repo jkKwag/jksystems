@@ -1,42 +1,32 @@
 import { StyleSheet } from "react-native";
 
 export const s = StyleSheet.create({
-  container: { flex: 1, flexDirection: "column", backgroundColor: "#f1f5f9", overflow: "hidden" },
+  container: { flex: 1, flexDirection: "column", backgroundColor: "#f1f5f9" },
 
   loading: { flex: 1, backgroundColor: "#0f172a", alignItems: "center", justifyContent: "center" },
   loadingText: { color: "#fff", fontSize: 22, fontWeight: "700" },
 
-  header: { backgroundColor: "#0f172a", paddingVertical: 12, paddingHorizontal: 16, flexShrink: 0 },
+  header: { backgroundColor: "#0f172a", paddingVertical: 14, paddingHorizontal: 16, flexShrink: 0 },
   headerGuide: { backgroundColor: "rgba(74,222,128,0.15)", borderRadius: 10, paddingVertical: 10, alignItems: "center" },
   headerGuideText: { color: "#4ade80", fontSize: 18, fontWeight: "800" },
 
-  catBar: { backgroundColor: "#fff", borderBottomWidth: 2, borderBottomColor: "#e2e8f0", flexShrink: 0, flexDirection: "row", flexWrap: "wrap", paddingHorizontal: 6, paddingVertical: 4 },
-  catBarContent: {},
-  catItem: { paddingHorizontal: 16, paddingVertical: 12, borderRadius: 8, margin: 4 },
-  catItemActive: { backgroundColor: "#0f172a" },
-  catText: { fontSize: 17, fontWeight: "700", color: "#94a3b8" },
-  catTextActive: { color: "#fff" },
-
   list: { flex: 1 },
-  listContent: { paddingVertical: 6, paddingHorizontal: 8, paddingBottom: 100 },
+  listContent: { paddingVertical: 10, paddingHorizontal: 10, paddingBottom: 100, gap: 8 },
 
-  card: { backgroundColor: "#fff", marginBottom: 8, borderRadius: 20, padding: 16, flexDirection: "row", gap: 16, alignItems: "center", shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 10, elevation: 4 },
-  img: { width: 110, height: 110, borderRadius: 14, backgroundColor: "#f1f5f9" },
-  noImg: { alignItems: "center", justifyContent: "center" },
-  noImgIcon: { fontSize: 48 },
-  info: { flex: 1 },
-  menuName: { fontSize: 22, fontWeight: "900", color: "#0f172a", marginBottom: 6 },
-  menuDesc: { fontSize: 15, color: "#64748b", fontWeight: "600", marginBottom: 12, lineHeight: 22 },
-  cardBottom: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  price: { fontSize: 28, fontWeight: "900", color: "#0f172a" },
+  card: { backgroundColor: "#fff", borderRadius: 24, padding: 24, flexDirection: "column", shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 4, gap: 10 },
+  menuName: { fontSize: 40, fontWeight: "900", color: "#0f172a", lineHeight: 48 },
+  menuQty: { fontSize: 28, fontWeight: "800", color: "#94a3b8" },
+  menuQtyActive: { color: "#f59e0b" },
+  cardBottom: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 4, gap: 12 },
+  price: { fontSize: 48, fontWeight: "900", color: "#1d4ed8", flexShrink: 0 },
 
-  addBtn: { width: 56, height: 56, backgroundColor: "#0f172a", borderRadius: 28, alignItems: "center", justifyContent: "center" },
-  addBtnText: { color: "#fff", fontSize: 32, fontWeight: "300", lineHeight: 36 },
+  addBtn: { width: 96, height: 96, backgroundColor: "#0f172a", borderRadius: 48, alignItems: "center", justifyContent: "center", flexShrink: 0 },
+  addBtnText: { color: "#fff", fontSize: 54, fontWeight: "300", lineHeight: 60 },
 
-  qtyRow: { flexDirection: "row", alignItems: "center", gap: 2, backgroundColor: "#f1f5f9", borderRadius: 28, paddingHorizontal: 4, paddingVertical: 2 },
-  qtyBtn: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
-  qtyBtnText: { fontSize: 26, fontWeight: "700", color: "#0f172a" },
-  qtyNum: { fontSize: 22, fontWeight: "900", color: "#0f172a", minWidth: 32, textAlign: "center" },
+  qtyRow: { flexDirection: "row", alignItems: "center", gap: 2, backgroundColor: "#f1f5f9", borderRadius: 40, paddingHorizontal: 8, paddingVertical: 4, flexShrink: 0 },
+  qtyBtn: { width: 68, height: 68, alignItems: "center", justifyContent: "center" },
+  qtyBtnText: { fontSize: 42, fontWeight: "700", color: "#0f172a" },
+  qtyNum: { fontSize: 38, fontWeight: "900", color: "#0f172a", minWidth: 44, textAlign: "center" },
 
   cartBar: { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#0f172a", padding: 18, flexDirection: "row", alignItems: "center", gap: 12 },
   cartBadge: { backgroundColor: "#f59e0b", borderRadius: 10, paddingHorizontal: 14, paddingVertical: 7 },
