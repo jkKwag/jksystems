@@ -10,8 +10,8 @@ export const s = StyleSheet.create({
   headerGuide: { backgroundColor: "rgba(74,222,128,0.12)", borderRadius: 10, paddingVertical: 8, alignItems: "center" },
   headerGuideText: { color: "#4ade80", fontSize: 17, fontWeight: "800" },
 
-  catBar: { backgroundColor: "#fff", borderBottomWidth: 2, borderBottomColor: "#e2e8f0", flexShrink: 0, flexDirection: "row", paddingHorizontal: 8 },
-  catBarContent: { paddingHorizontal: 8, alignItems: "center" },
+  catBar: { backgroundColor: "#fff", borderBottomWidth: 2, borderBottomColor: "#e2e8f0", flexShrink: 0, height: 54 },
+  catBarContent: { alignItems: "center", paddingHorizontal: 4 },
   catItem: { height: 54, paddingHorizontal: 20, justifyContent: "center", borderBottomWidth: 3, borderBottomColor: "transparent" },
   catItemActive: { borderBottomColor: "#0f172a" },
   catText: { fontSize: 18, fontWeight: "700", color: "#94a3b8" },

@@ -70,7 +70,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
         </View>
       </View>
 
-      <View style={s.catBar}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.catBar} contentContainerStyle={s.catBarContent}>
         <TouchableOpacity style={[s.catItem, !selectedCat && s.catItemActive]} onPress={() => setSelectedCat(null)}>
           <Text style={[s.catText, !selectedCat && s.catTextActive]}>전체</Text>
         </TouchableOpacity>
@@ -79,7 +79,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
             <Text style={[s.catText, selectedCat === cat.biz_cat_cd && s.catTextActive]}>{cat.biz_cat_nm}</Text>
           </TouchableOpacity>
         ))}
-      </View>
+      </ScrollView>
 
       <ScrollView style={s.list} contentContainerStyle={s.listContent}>
         {filteredMenus.map(menu => (
