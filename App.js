@@ -156,9 +156,13 @@ export default function App() {
         <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
 
         {menuOverlay === "elderly" ? (
-          <ElderlyTest onSelect={() => setMenuOverlay(null)} onSelectElderly={() => setMenuOverlay("elderlyMenu")} />
+          <View style={{ flex: 1 }}>
+            <ElderlyTest onSelect={() => setMenuOverlay(null)} onSelectElderly={() => setMenuOverlay("elderlyMenu")} />
+          </View>
         ) : menuOverlay === "elderlyMenu" ? (
-          <ElderlyMenu bizno={menuBizno} tableNo={tableNo} onBack={() => setMenuOverlay(null)} />
+          <View style={{ flex: 1 }}>
+            <ElderlyMenu bizno={menuBizno} tableNo={tableNo} onBack={() => setMenuOverlay(null)} />
+          </View>
         ) : (
           <>
             <View style={[s.header, HEADER_GRADIENT]}>
