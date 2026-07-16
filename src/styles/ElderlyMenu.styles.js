@@ -38,7 +38,7 @@ export const s = StyleSheet.create({
   qtyBtnText: { fontSize: 22, fontWeight: "700", color: "#0f172a" },
   qtyNum: { fontSize: 20, fontWeight: "900", color: "#0f172a", minWidth: 28, textAlign: "center" },
 
-  cartBar: { backgroundColor: "#0f172a", padding: 16, flexDirection: "row", alignItems: "center", gap: 12, flexShrink: 0 },
+  cartBar: { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#0f172a", padding: 16, flexDirection: "row", alignItems: "center", gap: 12 },
   cartBadge: { backgroundColor: "#f59e0b", borderRadius: 8, paddingHorizontal: 12, paddingVertical: 5 },
   cartBadgeText: { color: "#fff", fontSize: 17, fontWeight: "900" },
   cartText: { color: "#fff", fontSize: 18, fontWeight: "700", flex: 1 },
