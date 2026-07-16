@@ -10,7 +10,7 @@ export default function ElderlyTest({ onSelect, onSelectElderly }) {
       <TouchableOpacity style={[s.btn, s.btnSenior]} onPress={onSelectElderly} activeOpacity={0.85}>
         <Text style={s.btnIcon}>👴</Text>
         <View style={s.btnText}>
-          <Text style={s.btnLabel}>60세 이상</Text>
+          <Text style={s.btnLabel}>아주크게</Text>
           <Text style={s.btnDesc}>큰 글씨 · 간편 주문</Text>
         </View>
         <Text style={s.btnArrow}>→</Text>
@@ -19,7 +19,7 @@ export default function ElderlyTest({ onSelect, onSelectElderly }) {
       <TouchableOpacity style={[s.btn, s.btnJunior]} onPress={onSelect} activeOpacity={0.85}>
         <Text style={s.btnIcon}>🧑</Text>
         <View style={s.btnText}>
-          <Text style={s.btnLabel}>60세 미만</Text>
+          <Text style={s.btnLabel}>보통</Text>
           <Text style={s.btnDesc}>일반 메뉴</Text>
         </View>
         <Text style={s.btnArrow}>→</Text>
