@@ -14,7 +14,7 @@ export const s = StyleSheet.create({
   /* 카드 + 떠 있는 화살표 컨테이너 */
   carouselOuter: { flex: 1 },
   carouselClip: { flex: 1, overflow: "hidden", zIndex: 0 },
-  track: { flexDirection: "row", height: "100%" },
+  track: { flexDirection: "row", flex: 1 },
   slide: { height: "100%", alignItems: "center", justifyContent: "center", paddingVertical: 12, paddingHorizontal: 16 },
 
   card: { backgroundColor: "#fff", borderRadius: 28, padding: 32, width: "100%", flexDirection: "column", gap: 12, shadowColor: "#000", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.35, shadowRadius: 24, elevation: 12 },
