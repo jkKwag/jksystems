@@ -68,5 +68,6 @@ export const s = StyleSheet.create({
   modalFooter: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingTop: 18, borderTopWidth: 2, borderTopColor: "#e2e8f0" },
   modalTotal: { fontSize: 24, fontWeight: "900", color: "#0f172a" },
   modalOrderBtn: { backgroundColor: "#0f172a", borderRadius: 18, paddingHorizontal: 32, paddingVertical: 18 },
+  modalOrderBtnDisabled: { backgroundColor: "#94a3b8" },
   modalOrderBtnText: { color: "#fff", fontSize: 22, fontWeight: "900" },
 });

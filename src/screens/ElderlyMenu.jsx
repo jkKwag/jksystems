@@ -76,6 +76,11 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   });
 
   const cartCount = Object.values(cart).reduce((a, b) => a + b, 0);
+
+  useEffect(() => {
+    if (showCartModal && cartCount === 0) setShowCartModal(false);
+  }, [cartCount, showCartModal]);
+
   const cartTotal = Object.entries(cart).reduce((sum, [cd, qty]) => {
     const menu = menus.find(m => m.menu_cd === cd);
     return sum + (menu ? menu.price * qty : 0);
@@ -215,7 +220,11 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
             </ScrollView>
             <View style={s.modalFooter}>
               <Text style={s.modalTotal}>총 {cartTotal.toLocaleString()}원</Text>
-              <TouchableOpacity style={s.modalOrderBtn} onPress={() => setShowCartModal(false)}>
+              <TouchableOpacity
+                style={[s.modalOrderBtn, cartCount === 0 && s.modalOrderBtnDisabled]}
+                onPress={() => cartCount > 0 && setShowCartModal(false)}
+                activeOpacity={cartCount > 0 ? 0.8 : 1}
+              >
                 <Text style={s.modalOrderBtnText}>주문하기</Text>
               </TouchableOpacity>
             </View>
