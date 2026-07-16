@@ -155,40 +155,35 @@ export default function App() {
       <View style={s.container}>
         <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
 
-        {menuOverlay === "elderly" ? (
-          <View style={{ flex: 1 }}>
-            <ElderlyTest onSelect={() => setMenuOverlay(null)} onSelectElderly={() => setMenuOverlay("elderlyMenu")} />
+        <View style={[s.header, HEADER_GRADIENT]}>
+          <Logo />
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            {MUSIC_URL ? (
+              <TouchableOpacity onPress={toggleMusic} style={s.musicBtn}>
+                <Text style={s.musicBtnText}>{musicOn ? "🔊" : "🔇"}</Text>
+              </TouchableOpacity>
+            ) : null}
+            <TouchableOpacity style={s.hamburger} onPress={() => setShowDrawer(true)}>
+              <View style={s.hLine} /><View style={s.hLine} /><View style={s.hLine} />
+            </TouchableOpacity>
           </View>
-        ) : menuOverlay === "elderlyMenu" ? (
-          <View style={{ flex: 1 }}>
-            <ElderlyMenu bizno={menuBizno} tableNo={tableNo} onBack={() => setMenuOverlay(null)} />
+        </View>
+        <View style={s.content}>
+          <Menu bizno={menuBizno} tableNo={tableNo} />
+          {(menuOverlay === "supporters" || menuOverlay === "qna" || menuOverlay === "faq") && (
+            <View style={[StyleSheet.absoluteFillObject, s.overlayScreen]}>
+              {menuOverlay === "supporters" && <Supporters isAdmin={false} />}
+              {menuOverlay === "qna" && <QnA isAdmin={false} />}
+              {menuOverlay === "faq" && <FAQ />}
+            </View>
+          )}
+        </View>
+
+        {(menuOverlay === "elderly" || menuOverlay === "elderlyMenu") && (
+          <View style={[StyleSheet.absoluteFillObject, { zIndex: 999 }]}>
+            {menuOverlay === "elderly" && <ElderlyTest onSelect={() => setMenuOverlay(null)} onSelectElderly={() => setMenuOverlay("elderlyMenu")} />}
+            {menuOverlay === "elderlyMenu" && <ElderlyMenu bizno={menuBizno} tableNo={tableNo} onBack={() => setMenuOverlay(null)} />}
           </View>
-        ) : (
-          <>
-            <View style={[s.header, HEADER_GRADIENT]}>
-              <Logo />
-              <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                {MUSIC_URL ? (
-                  <TouchableOpacity onPress={toggleMusic} style={s.musicBtn}>
-                    <Text style={s.musicBtnText}>{musicOn ? "🔊" : "🔇"}</Text>
-                  </TouchableOpacity>
-                ) : null}
-                <TouchableOpacity style={s.hamburger} onPress={() => setShowDrawer(true)}>
-                  <View style={s.hLine} /><View style={s.hLine} /><View style={s.hLine} />
-                </TouchableOpacity>
-              </View>
-            </View>
-            <View style={s.content}>
-              <Menu bizno={menuBizno} tableNo={tableNo} />
-              {menuOverlay && (
-                <View style={[StyleSheet.absoluteFillObject, s.overlayScreen]}>
-                  {menuOverlay === "supporters" && <Supporters isAdmin={false} />}
-                  {menuOverlay === "qna" && <QnA isAdmin={false} />}
-                  {menuOverlay === "faq" && <FAQ />}
-                </View>
-              )}
-            </View>
-          </>
         )}
 
         <Modal visible={showDrawer} transparent animationType="fade" onRequestClose={() => setShowDrawer(false)}>
