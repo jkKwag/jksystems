@@ -3,6 +3,14 @@ import { View, Text, Image, ScrollView, TouchableOpacity } from "react-native";
 import supabase from "../lib/supabase";
 import { s } from "../styles/ElderlyMenu.styles";
 
+const DEMO_MENUS = [
+  { menu_cd: "d1", biz_cat_cd: null, menu_nm: "된장찌개 정식", menu_desc: "구수한 된장찌개와 밥, 반찬 3종", price: 9000, img_url: null },
+  { menu_cd: "d2", biz_cat_cd: null, menu_nm: "삼겹살 구이", menu_desc: "국내산 삼겹살 1인분 200g", price: 15000, img_url: null },
+  { menu_cd: "d3", biz_cat_cd: null, menu_nm: "잔치국수", menu_desc: "시원한 멸치육수 국수", price: 7000, img_url: null },
+  { menu_cd: "d4", biz_cat_cd: null, menu_nm: "순두부찌개", menu_desc: "부드러운 순두부와 신선한 재료", price: 9500, img_url: null },
+];
+const DEMO_ICONS = { d1: "🍚", d2: "🍖", d3: "🍜", d4: "🥘" };
+
 export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   const [categories, setCategories] = useState([]);
   const [menus, setMenus] = useState([]);
@@ -11,13 +19,20 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!bizno) return;
+    if (!bizno) {
+      setMenus(DEMO_MENUS);
+      setLoading(false);
+      return;
+    }
     Promise.all([
       supabase.from("tb_biz_cat").select("biz_cat_cd,biz_cat_nm,sort_ord").eq("biz_reg_no", bizno).eq("use_yn", "Y").order("sort_ord"),
       supabase.from("tb_biz_menu").select("menu_cd,biz_cat_cd,menu_nm,menu_desc,price,img_url,badge,sort_ord").eq("biz_reg_no", bizno).eq("use_yn", "Y").order("sort_ord"),
     ]).then(([{ data: cats }, { data: items }]) => {
       setCategories(cats || []);
-      setMenus(items || []);
+      setMenus(items && items.length > 0 ? items : DEMO_MENUS);
+      setLoading(false);
+    }).catch(() => {
+      setMenus(DEMO_MENUS);
       setLoading(false);
     });
   }, [bizno]);
@@ -73,7 +88,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
           <View key={menu.menu_cd} style={s.card}>
             {menu.img_url
               ? <Image source={{ uri: menu.img_url }} style={s.img} />
-              : <View style={[s.img, s.noImg]}><Text style={s.noImgIcon}>🍽</Text></View>
+              : <View style={[s.img, s.noImg]}><Text style={s.noImgIcon}>{DEMO_ICONS[menu.menu_cd] || "🍽"}</Text></View>
             }
             <View style={s.info}>
               <Text style={s.menuName}>{menu.menu_nm}</Text>
