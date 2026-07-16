@@ -37,7 +37,7 @@ export const s = StyleSheet.create({
   navArrow: { width: 52, height: 52, borderRadius: 26, backgroundColor: "#f59e0b", alignItems: "center", justifyContent: "center", shadowColor: "#f59e0b", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.7, shadowRadius: 12, elevation: 10 },
   navArrowText: { fontSize: 30, fontWeight: "900", color: "#fff", lineHeight: 34 },
 
-  bubble: { position: "absolute", right: 10, bottom: "55%", width: 120, alignItems: "center", zIndex: 30 },
+  bubble: { position: "absolute", right: 10, bottom: "65%", width: 120, alignItems: "center", zIndex: 30 },
   bubbleBox: { backgroundColor: "#f59e0b", borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10 },
   bubbleText: { color: "#fff", fontSize: 15, fontWeight: "900", textAlign: "center", lineHeight: 22 },
 
