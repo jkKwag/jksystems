@@ -59,7 +59,8 @@ export default function App() {
   const badgeAnim = useRef(new Animated.Value(0)).current;
   const [showLogin, setShowLogin] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
-  const [menuOverlay, setMenuOverlay] = useState(null); // null | "qna" | "faq"
+  const [menuOverlay, setMenuOverlay] = useState(null); // null | "supporters" | "qna" | "faq"
+  const [menuMode, setMenuMode] = useState(null); // null | "test" | "elderly"
   const [musicOn, setMusicOn] = useState(false);
   const audioRef = useRef(null);
 
@@ -150,6 +151,21 @@ export default function App() {
   if (isPaymentSuccess) return <PaymentSuccess />;
   if (isPaymentFail) return <PaymentFail />;
 
+  if (menuBizno && menuMode === "test") {
+    return (
+      <ElderlyTest
+        onSelect={() => setMenuMode(null)}
+        onSelectElderly={() => setMenuMode("elderly")}
+      />
+    );
+  }
+
+  if (menuBizno && menuMode === "elderly") {
+    return (
+      <ElderlyMenu bizno={menuBizno} tableNo={tableNo} onBack={() => setMenuMode(null)} />
+    );
+  }
+
   if (menuBizno) {
     return (
       <View style={s.container}>
@@ -179,14 +195,6 @@ export default function App() {
           )}
         </View>
 
-        <Modal visible={menuOverlay === "elderly"} animationType="slide" onRequestClose={() => setMenuOverlay(null)}>
-          <ElderlyTest onSelect={() => setMenuOverlay(null)} onSelectElderly={() => setMenuOverlay("elderlyMenu")} />
-        </Modal>
-
-        <Modal visible={menuOverlay === "elderlyMenu"} animationType="slide" onRequestClose={() => setMenuOverlay(null)}>
-          <ElderlyMenu bizno={menuBizno} tableNo={tableNo} onBack={() => setMenuOverlay(null)} />
-        </Modal>
-
         <Modal visible={showDrawer} transparent animationType="fade" onRequestClose={() => setShowDrawer(false)}>
           <View style={s.drawerOverlay}>
             <TouchableOpacity style={s.drawerBg} activeOpacity={1} onPress={() => setShowDrawer(false)} />
@@ -198,7 +206,11 @@ export default function App() {
                 { key: "faq", icon: "❓", label: "FAQ", desc: "공지 및 안내사항" },
                 { key: "elderly", icon: "🧪", label: "노령테스트", desc: "연령별 메뉴 선택" },
               ].map(item => (
-                <TouchableOpacity key={item.key} style={s.drawerItem} onPress={() => { setMenuOverlay(item.key); setShowDrawer(false); }}>
+                <TouchableOpacity key={item.key} style={s.drawerItem} onPress={() => {
+                  setShowDrawer(false);
+                  if (item.key === "elderly") setMenuMode("test");
+                  else setMenuOverlay(item.key);
+                }}>
                   <Text style={s.drawerItemIcon}>{item.icon}</Text>
                   <View>
                     <Text style={s.drawerItemLabel}>{item.label}</Text>
