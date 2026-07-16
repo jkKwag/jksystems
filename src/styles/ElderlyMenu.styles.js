@@ -29,12 +29,12 @@ export const s = StyleSheet.create({
   qtyBtnText: { fontSize: 44, fontWeight: "700", color: "#0f172a" },
   qtyNum: { fontSize: 40, fontWeight: "900", color: "#0f172a", minWidth: 48, textAlign: "center" },
 
-  prevBtn: { position: "absolute", left: 0, top: 0, bottom: 0, width: 56, alignItems: "center", justifyContent: "center", zIndex: 10 },
-  nextBtn: { position: "absolute", right: 0, top: 0, bottom: 0, width: 56, alignItems: "center", justifyContent: "center", zIndex: 10 },
-  navArrowPrev: { width: 48, height: 48, borderRadius: 24, backgroundColor: "rgba(255,255,255,0.22)", alignItems: "center", justifyContent: "center" },
-  navArrowNext: { width: 48, height: 48, borderRadius: 24, backgroundColor: "#f59e0b", alignItems: "center", justifyContent: "center", shadowColor: "#f59e0b", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.6, shadowRadius: 12, elevation: 8 },
-  navArrowPrevText: { fontSize: 28, fontWeight: "900", color: "#fff", lineHeight: 32 },
-  navArrowNextText: { fontSize: 28, fontWeight: "900", color: "#fff", lineHeight: 32 },
+  prevBtn: { position: "absolute", left: 0, top: 0, bottom: 0, width: 64, alignItems: "center", justifyContent: "center", zIndex: 30 },
+  nextBtn: { position: "absolute", right: 0, top: 0, bottom: 0, width: 64, alignItems: "center", justifyContent: "center", zIndex: 30 },
+  navArrowPrev: { width: 52, height: 52, borderRadius: 26, backgroundColor: "#fff", alignItems: "center", justifyContent: "center", shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 8, elevation: 6 },
+  navArrowNext: { width: 52, height: 52, borderRadius: 26, backgroundColor: "#f59e0b", alignItems: "center", justifyContent: "center", shadowColor: "#f59e0b", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.6, shadowRadius: 12, elevation: 8 },
+  navArrowPrevText: { fontSize: 30, fontWeight: "900", color: "#0f172a", lineHeight: 34 },
+  navArrowNextText: { fontSize: 30, fontWeight: "900", color: "#fff", lineHeight: 34 },
 
   bubbleContainer: { position: "absolute", right: 62, top: 0, bottom: 0, justifyContent: "center", zIndex: 20 },
   bubble: { backgroundColor: "#f59e0b", borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10 },
