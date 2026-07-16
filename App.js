@@ -8,6 +8,7 @@ import Supporters from "./src/screens/Supporters";
 import QnA from "./src/screens/QnA";
 import FAQ from "./src/screens/FAQ";
 import ElderlyTest from "./src/screens/ElderlyTest";
+import ElderlyMenu from "./src/screens/ElderlyMenu";
 import Menu from "./src/screens/Menu";
 import PaymentSuccess from "./src/screens/PaymentSuccess";
 import PaymentFail from "./src/screens/PaymentFail";
@@ -180,7 +181,8 @@ export default function App() {
               {menuOverlay === "supporters" && <Supporters isAdmin={false} />}
               {menuOverlay === "qna" && <QnA isAdmin={false} />}
               {menuOverlay === "faq" && <FAQ />}
-              {menuOverlay === "elderly" && <ElderlyTest onSelect={() => setMenuOverlay(null)} />}
+              {menuOverlay === "elderly" && <ElderlyTest onSelect={() => setMenuOverlay(null)} onSelectElderly={() => setMenuOverlay("elderlyMenu")} />}
+              {menuOverlay === "elderlyMenu" && <ElderlyMenu bizno={menuBizno} tableNo={tableNo} onBack={() => setMenuOverlay(null)} />}
             </View>
           )}
         </View>
