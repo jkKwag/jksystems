@@ -67,6 +67,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   };
 
   const addToCart = (menuCd) => setCart(prev => ({ ...prev, [menuCd]: (prev[menuCd] || 0) + 1 }));
+  const deleteFromCart = (menuCd) => setCart(prev => { const next = { ...prev }; delete next[menuCd]; return next; });
   const removeFromCart = (menuCd) => setCart(prev => {
     const next = { ...prev };
     if ((next[menuCd] || 0) <= 1) delete next[menuCd];
@@ -180,7 +181,12 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
                 if (!menu) return null;
                 return (
                   <View key={cd} style={s.modalItem}>
-                    <Text style={s.modalItemName} numberOfLines={1}>{menu.menu_nm}</Text>
+                    <View style={s.modalItemHeader}>
+                      <Text style={s.modalItemName} numberOfLines={1}>{menu.menu_nm}</Text>
+                      <TouchableOpacity style={s.deleteBtn} onPress={() => deleteFromCart(cd)}>
+                        <Text style={s.deleteBtnText}>✕</Text>
+                      </TouchableOpacity>
+                    </View>
                     <View style={s.modalItemBottom}>
                       <View style={s.qtyRow}>
                         <TouchableOpacity style={s.qtyBtn} onPress={() => removeFromCart(cd)}>
