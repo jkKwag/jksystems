@@ -7,6 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Supporters from "./src/screens/Supporters";
 import QnA from "./src/screens/QnA";
 import FAQ from "./src/screens/FAQ";
+import ElderlyTest from "./src/screens/ElderlyTest";
 import Menu from "./src/screens/Menu";
 import PaymentSuccess from "./src/screens/PaymentSuccess";
 import PaymentFail from "./src/screens/PaymentFail";
@@ -179,6 +180,7 @@ export default function App() {
               {menuOverlay === "supporters" && <Supporters isAdmin={false} />}
               {menuOverlay === "qna" && <QnA isAdmin={false} />}
               {menuOverlay === "faq" && <FAQ />}
+              {menuOverlay === "elderly" && <ElderlyTest onSelect={() => setMenuOverlay(null)} />}
             </View>
           )}
         </View>
@@ -192,6 +194,7 @@ export default function App() {
                 { key: "supporters", icon: "💝", label: "후원자", desc: "후원자 명단 보기" },
                 { key: "qna", icon: "💬", label: "Q&A", desc: "자주 묻는 질문 답변" },
                 { key: "faq", icon: "❓", label: "FAQ", desc: "공지 및 안내사항" },
+                { key: "elderly", icon: "🧪", label: "노령테스트", desc: "연령별 메뉴 선택" },
               ].map(item => (
                 <TouchableOpacity key={item.key} style={s.drawerItem} onPress={() => { setMenuOverlay(item.key); setShowDrawer(false); }}>
                   <Text style={s.drawerItemIcon}>{item.icon}</Text>
