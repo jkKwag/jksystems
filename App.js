@@ -176,16 +176,17 @@ export default function App() {
 
         <View style={s.content}>
           <Menu bizno={menuBizno} tableNo={tableNo} />
-          {menuOverlay && (
-            <View style={[StyleSheet.absoluteFillObject, s.overlayScreen]}>
-              {menuOverlay === "supporters" && <Supporters isAdmin={false} />}
-              {menuOverlay === "qna" && <QnA isAdmin={false} />}
-              {menuOverlay === "faq" && <FAQ />}
-              {menuOverlay === "elderly" && <ElderlyTest onSelect={() => setMenuOverlay(null)} onSelectElderly={() => setMenuOverlay("elderlyMenu")} />}
-              {menuOverlay === "elderlyMenu" && <ElderlyMenu bizno={menuBizno} tableNo={tableNo} onBack={() => setMenuOverlay(null)} />}
-            </View>
-          )}
         </View>
+
+        {menuOverlay && (
+          <View style={[StyleSheet.absoluteFillObject, s.overlayScreen]}>
+            {menuOverlay === "supporters" && <Supporters isAdmin={false} />}
+            {menuOverlay === "qna" && <QnA isAdmin={false} />}
+            {menuOverlay === "faq" && <FAQ />}
+            {menuOverlay === "elderly" && <ElderlyTest onSelect={() => setMenuOverlay(null)} onSelectElderly={() => setMenuOverlay("elderlyMenu")} />}
+            {menuOverlay === "elderlyMenu" && <ElderlyMenu bizno={menuBizno} tableNo={tableNo} onBack={() => setMenuOverlay(null)} />}
+          </View>
+        )}
 
         <Modal visible={showDrawer} transparent animationType="fade" onRequestClose={() => setShowDrawer(false)}>
           <View style={s.drawerOverlay}>
