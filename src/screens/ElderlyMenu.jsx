@@ -11,8 +11,12 @@ const DEMO_MENUS = [
   { menu_cd: "d5", menu_nm: "허브 치킨 구이", price: 18000 },
 ];
 
+const NAV_W = 56;
+
 export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   const { width } = useWindowDimensions();
+  const slideWidth = width - NAV_W * 2;
+
   const [menus, setMenus] = useState([]);
   const [cart, setCart] = useState({});
   const [loading, setLoading] = useState(true);
@@ -20,9 +24,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   const [showCartModal, setShowCartModal] = useState(false);
 
   const translateX = useRef(new Animated.Value(0)).current;
-  const bubbleOpacity = useRef(new Animated.Value(1)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
-  const bubbleGone = useRef(false);
 
   useEffect(() => {
     const loop = Animated.loop(
@@ -60,15 +62,11 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   const goTo = (newIndex) => {
     if (newIndex < 0 || newIndex >= menus.length) return;
     Animated.timing(translateX, {
-      toValue: -newIndex * width,
+      toValue: -newIndex * slideWidth,
       duration: 280,
       useNativeDriver: true,
     }).start();
     setCurrentIndex(newIndex);
-    if (!bubbleGone.current) {
-      bubbleGone.current = true;
-      Animated.timing(bubbleOpacity, { toValue: 0, duration: 400, useNativeDriver: true }).start();
-    }
   };
 
   const addToCart = (menuCd) => setCart(prev => ({ ...prev, [menuCd]: (prev[menuCd] || 0) + 1 }));
@@ -101,14 +99,24 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
         </View>
       </View>
 
+      {/* 좌 화살표 | 슬라이드 | 우 화살표 — flex row, 절대배치 없음 */}
       <View style={s.carouselOuter}>
-        {/* 슬라이드 클립 레이어 — overflow hidden으로 옆 카드 숨김 */}
+        <View style={s.navZone}>
+          {currentIndex > 0 && (
+            <TouchableOpacity onPress={() => goTo(currentIndex - 1)} activeOpacity={0.7}>
+              <View style={s.navArrow}>
+                <Text style={s.navArrowText}>‹</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+        </View>
+
         <View style={s.carouselClip}>
-          <Animated.View style={[s.track, { width: width * menus.length, transform: [{ translateX }] }]}>
+          <Animated.View style={[s.track, { width: slideWidth * menus.length, transform: [{ translateX }] }]}>
             {menus.map((menu) => {
               const qty = cart[menu.menu_cd] || 0;
               return (
-                <View key={menu.menu_cd} style={[s.slide, { width }]}>
+                <View key={menu.menu_cd} style={[s.slide, { width: slideWidth }]}>
                   <View style={s.card}>
                     <Text style={s.menuName}>{menu.menu_nm}</Text>
                     <Text style={[s.menuQty, qty > 0 && s.menuQtyActive]}>
@@ -137,30 +145,15 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
           </Animated.View>
         </View>
 
-        {/* 네비게이션 레이어 — 클립 밖에서 절대 배치, 터치 확실히 받음 */}
-        {currentIndex > 0 && (
-          <TouchableOpacity style={s.prevBtn} onPress={() => goTo(currentIndex - 1)} activeOpacity={0.7}>
-            <View style={s.navArrowPrev}>
-              <Text style={s.navArrowPrevText}>‹</Text>
-            </View>
-          </TouchableOpacity>
-        )}
-
-        {currentIndex < menus.length - 1 && (
-          <TouchableOpacity style={s.nextBtn} onPress={() => goTo(currentIndex + 1)} activeOpacity={0.7}>
-            <Animated.View style={[s.navArrowNext, { transform: [{ scale: pulseAnim }] }]}>
-              <Text style={s.navArrowNextText}>›</Text>
-            </Animated.View>
-          </TouchableOpacity>
-        )}
-
-        {currentIndex < menus.length - 1 && (
-          <View style={s.bubbleContainer} pointerEvents="none">
-            <Animated.View style={[s.bubble, { opacity: bubbleOpacity }]}>
-              <Text style={s.bubbleText}>👉 더 있어요{"\n"}눌러보세요</Text>
-            </Animated.View>
-          </View>
-        )}
+        <View style={s.navZone}>
+          {currentIndex < menus.length - 1 && (
+            <TouchableOpacity onPress={() => goTo(currentIndex + 1)} activeOpacity={0.7}>
+              <Animated.View style={[s.navArrow, { transform: [{ scale: pulseAnim }] }]}>
+                <Text style={s.navArrowText}>›</Text>
+              </Animated.View>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       <View style={s.dots}>
