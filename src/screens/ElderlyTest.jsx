@@ -4,7 +4,7 @@ import { s } from "../styles/ElderlyTest.styles";
 export default function ElderlyTest({ onSelect, onSelectElderly }) {
   return (
     <View style={s.container}>
-      <Text style={s.title}>화면크기를 선택해주세요</Text>
+      <Text style={s.title}>글씨 크기를 선택해주세요</Text>
       <Text style={s.sub}>맞춤 메뉴를 제공해 드립니다</Text>
 
       <TouchableOpacity style={[s.btn, s.btnSenior]} onPress={onSelectElderly} activeOpacity={0.85}>
