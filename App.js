@@ -179,12 +179,13 @@ export default function App() {
           )}
         </View>
 
-        {(menuOverlay === "elderly" || menuOverlay === "elderlyMenu") && (
-          <View style={[StyleSheet.absoluteFillObject, { zIndex: 999 }]}>
-            {menuOverlay === "elderly" && <ElderlyTest onSelect={() => setMenuOverlay(null)} onSelectElderly={() => setMenuOverlay("elderlyMenu")} />}
-            {menuOverlay === "elderlyMenu" && <ElderlyMenu bizno={menuBizno} tableNo={tableNo} onBack={() => setMenuOverlay(null)} />}
-          </View>
-        )}
+        <Modal visible={menuOverlay === "elderly"} animationType="slide" onRequestClose={() => setMenuOverlay(null)}>
+          <ElderlyTest onSelect={() => setMenuOverlay(null)} onSelectElderly={() => setMenuOverlay("elderlyMenu")} />
+        </Modal>
+
+        <Modal visible={menuOverlay === "elderlyMenu"} animationType="slide" onRequestClose={() => setMenuOverlay(null)}>
+          <ElderlyMenu bizno={menuBizno} tableNo={tableNo} onBack={() => setMenuOverlay(null)} />
+        </Modal>
 
         <Modal visible={showDrawer} transparent animationType="fade" onRequestClose={() => setShowDrawer(false)}>
           <View style={s.drawerOverlay}>
