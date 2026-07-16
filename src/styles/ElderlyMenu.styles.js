@@ -10,14 +10,11 @@ export const s = StyleSheet.create({
   headerGuide: { backgroundColor: "rgba(74,222,128,0.12)", borderRadius: 10, paddingVertical: 10, alignItems: "center" },
   headerGuideText: { color: "#4ade80", fontSize: 18, fontWeight: "800" },
 
-  carouselOuter: { flex: 1, flexDirection: "row", alignItems: "stretch" },
-  navZone: { width: 56, alignItems: "center", justifyContent: "center", zIndex: 10 },
-  navArrow: { width: 52, height: 52, borderRadius: 26, backgroundColor: "#f59e0b", alignItems: "center", justifyContent: "center", shadowColor: "#f59e0b", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.6, shadowRadius: 12, elevation: 8 },
-  navArrowText: { fontSize: 30, fontWeight: "900", color: "#fff", lineHeight: 34 },
-
-  carouselClip: { flex: 1, overflow: "hidden" },
+  /* 카드 + 떠 있는 화살표 컨테이너 */
+  carouselOuter: { flex: 1 },
+  carouselClip: { flex: 1, overflow: "hidden", zIndex: 0 },
   track: { flexDirection: "row", height: "100%" },
-  slide: { height: "100%", alignItems: "center", justifyContent: "center", paddingVertical: 12, paddingHorizontal: 8 },
+  slide: { height: "100%", alignItems: "center", justifyContent: "center", paddingVertical: 12, paddingHorizontal: 16 },
 
   card: { backgroundColor: "#fff", borderRadius: 28, padding: 32, width: "100%", flexDirection: "column", gap: 12, shadowColor: "#000", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.35, shadowRadius: 24, elevation: 12 },
   menuName: { fontSize: 40, fontWeight: "900", color: "#0f172a", lineHeight: 48 },
@@ -32,6 +29,12 @@ export const s = StyleSheet.create({
   qtyBtn: { width: 64, height: 64, alignItems: "center", justifyContent: "center" },
   qtyBtnText: { fontSize: 40, fontWeight: "700", color: "#0f172a" },
   qtyNum: { fontSize: 36, fontWeight: "900", color: "#0f172a", minWidth: 44, textAlign: "center" },
+
+  /* 떠 있는 화살표 — 카드 위에 오버레이 */
+  prevBtn: { position: "absolute", left: 10, top: 0, bottom: 0, width: 60, alignItems: "center", justifyContent: "center", zIndex: 20 },
+  nextBtn: { position: "absolute", right: 10, top: 0, bottom: 0, width: 60, alignItems: "center", justifyContent: "center", zIndex: 20 },
+  navArrow: { width: 52, height: 52, borderRadius: 26, backgroundColor: "#f59e0b", alignItems: "center", justifyContent: "center", shadowColor: "#f59e0b", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.7, shadowRadius: 12, elevation: 10 },
+  navArrowText: { fontSize: 30, fontWeight: "900", color: "#fff", lineHeight: 34 },
 
   dots: { flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 8, paddingVertical: 10, flexShrink: 0 },
   dot: { width: 10, height: 10, borderRadius: 5, backgroundColor: "rgba(255,255,255,0.2)" },

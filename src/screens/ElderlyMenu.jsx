@@ -11,12 +11,8 @@ const DEMO_MENUS = [
   { menu_cd: "d5", menu_nm: "허브 치킨 구이", price: 18000 },
 ];
 
-const NAV_W = 56;
-
 export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   const { width } = useWindowDimensions();
-  const slideWidth = width - NAV_W * 2;
-
   const [menus, setMenus] = useState([]);
   const [cart, setCart] = useState({});
   const [loading, setLoading] = useState(true);
@@ -62,7 +58,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   const goTo = (newIndex) => {
     if (newIndex < 0 || newIndex >= menus.length) return;
     Animated.timing(translateX, {
-      toValue: -newIndex * slideWidth,
+      toValue: -newIndex * width,
       duration: 280,
       useNativeDriver: true,
     }).start();
@@ -99,24 +95,14 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
         </View>
       </View>
 
-      {/* 좌 화살표 | 슬라이드 | 우 화살표 — flex row, 절대배치 없음 */}
       <View style={s.carouselOuter}>
-        <View style={s.navZone}>
-          {currentIndex > 0 && (
-            <TouchableOpacity onPress={() => goTo(currentIndex - 1)} activeOpacity={0.7}>
-              <View style={s.navArrow}>
-                <Text style={s.navArrowText}>‹</Text>
-              </View>
-            </TouchableOpacity>
-          )}
-        </View>
-
+        {/* 슬라이드 — 전체 너비 */}
         <View style={s.carouselClip}>
-          <Animated.View style={[s.track, { width: slideWidth * menus.length, transform: [{ translateX }] }]}>
+          <Animated.View style={[s.track, { width: width * menus.length, transform: [{ translateX }] }]}>
             {menus.map((menu) => {
               const qty = cart[menu.menu_cd] || 0;
               return (
-                <View key={menu.menu_cd} style={[s.slide, { width: slideWidth }]}>
+                <View key={menu.menu_cd} style={[s.slide, { width }]}>
                   <View style={s.card}>
                     <Text style={s.menuName}>{menu.menu_nm}</Text>
                     <Text style={[s.menuQty, qty > 0 && s.menuQtyActive]}>
@@ -145,15 +131,21 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
           </Animated.View>
         </View>
 
-        <View style={s.navZone}>
-          {currentIndex < menus.length - 1 && (
-            <TouchableOpacity onPress={() => goTo(currentIndex + 1)} activeOpacity={0.7}>
-              <Animated.View style={[s.navArrow, { transform: [{ scale: pulseAnim }] }]}>
-                <Text style={s.navArrowText}>›</Text>
-              </Animated.View>
-            </TouchableOpacity>
-          )}
-        </View>
+        {/* 떠 있는 화살표 — clip 밖, carouselOuter 기준 절대배치 */}
+        {currentIndex > 0 && (
+          <TouchableOpacity style={s.prevBtn} onPress={() => goTo(currentIndex - 1)} activeOpacity={0.7}>
+            <View style={s.navArrow}>
+              <Text style={s.navArrowText}>‹</Text>
+            </View>
+          </TouchableOpacity>
+        )}
+        {currentIndex < menus.length - 1 && (
+          <TouchableOpacity style={s.nextBtn} onPress={() => goTo(currentIndex + 1)} activeOpacity={0.7}>
+            <Animated.View style={[s.navArrow, { transform: [{ scale: pulseAnim }] }]}>
+              <Text style={s.navArrowText}>›</Text>
+            </Animated.View>
+          </TouchableOpacity>
+        )}
       </View>
 
       <View style={s.dots}>
