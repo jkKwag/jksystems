@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { View, Text, Image, ScrollView, TouchableOpacity, Platform } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import supabase from "../lib/supabase";
 import { s } from "../styles/ElderlyMenu.styles";
 
@@ -12,6 +13,7 @@ const DEMO_MENUS = [
 const DEMO_ICONS = { d1: "🍚", d2: "🍖", d3: "🍜", d4: "🥘" };
 
 export default function ElderlyMenu({ bizno, tableNo, onBack }) {
+  const insets = useSafeAreaInsets();
   const [categories, setCategories] = useState([]);
   const [menus, setMenus] = useState([]);
   const [selectedCat, setSelectedCat] = useState(null);
@@ -114,7 +116,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
       </ScrollView>
 
       {cartCount > 0 && (
-        <View style={s.cartBar}>
+        <View style={[s.cartBar, { paddingBottom: 16 + insets.bottom }]}>
           <View style={s.cartBadge}><Text style={s.cartBadgeText}>{cartCount}개</Text></View>
           <Text style={s.cartText}>장바구니 보기</Text>
           <Text style={s.cartPrice}>{cartTotal.toLocaleString()}원</Text>
