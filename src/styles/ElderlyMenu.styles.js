@@ -37,6 +37,10 @@ export const s = StyleSheet.create({
   navArrow: { width: 52, height: 52, borderRadius: 26, backgroundColor: "#f59e0b", alignItems: "center", justifyContent: "center", shadowColor: "#f59e0b", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.7, shadowRadius: 12, elevation: 10 },
   navArrowText: { fontSize: 30, fontWeight: "900", color: "#fff", lineHeight: 34 },
 
+  bubble: { position: "absolute", right: 72, top: 0, bottom: 0, alignItems: "center", justifyContent: "center", zIndex: 30 },
+  bubbleBox: { backgroundColor: "#f59e0b", borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10 },
+  bubbleText: { color: "#fff", fontSize: 15, fontWeight: "900", textAlign: "center", lineHeight: 22 },
+
   dots: { flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 8, paddingVertical: 6, flexShrink: 0 },
   dot: { width: 10, height: 10, borderRadius: 5, backgroundColor: "rgba(255,255,255,0.2)" },
   dotActive: { width: 28, borderRadius: 5, backgroundColor: "#f59e0b" },

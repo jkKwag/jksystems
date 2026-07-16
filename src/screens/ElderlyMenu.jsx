@@ -22,6 +22,8 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   const translateX = useRef(new Animated.Value(0)).current;
   const photoOpacity = useRef(new Animated.Value(1)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  const bubbleAnim = useRef(new Animated.Value(1)).current;
+  const bubbleShown = useRef(true);
 
   useEffect(() => {
     const loop = Animated.loop(
@@ -58,6 +60,10 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
 
   const goTo = (newIndex) => {
     if (newIndex < 0 || newIndex >= menus.length) return;
+    if (bubbleShown.current) {
+      bubbleShown.current = false;
+      Animated.timing(bubbleAnim, { toValue: 0, duration: 300, useNativeDriver: true }).start();
+    }
     // 사진 페이드 아웃 → 인덱스 변경 → 페이드 인
     Animated.timing(photoOpacity, { toValue: 0, duration: 120, useNativeDriver: true }).start(() => {
       setCurrentIndex(newIndex);
@@ -158,6 +164,13 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
               <Text style={s.navArrowText}>›</Text>
             </Animated.View>
           </TouchableOpacity>
+        )}
+        {currentIndex === 0 && (
+          <Animated.View style={[s.bubble, { opacity: bubbleAnim }]} pointerEvents="none">
+            <View style={s.bubbleBox}>
+              <Text style={s.bubbleText}>더 있어요{"\n"}눌러보세요</Text>
+            </View>
+          </Animated.View>
         )}
       </View>
 
