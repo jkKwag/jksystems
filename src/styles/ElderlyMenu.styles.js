@@ -11,7 +11,7 @@ export const s = StyleSheet.create({
   headerGuideText: { color: "#4ade80", fontSize: 18, fontWeight: "800" },
 
   carouselOuter: { flex: 1, flexDirection: "row", alignItems: "stretch" },
-  navZone: { width: 56, alignItems: "center", justifyContent: "center" },
+  navZone: { width: 56, alignItems: "center", justifyContent: "center", zIndex: 10 },
   navArrow: { width: 52, height: 52, borderRadius: 26, backgroundColor: "#f59e0b", alignItems: "center", justifyContent: "center", shadowColor: "#f59e0b", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.6, shadowRadius: 12, elevation: 8 },
   navArrowText: { fontSize: 30, fontWeight: "900", color: "#fff", lineHeight: 34 },
 
