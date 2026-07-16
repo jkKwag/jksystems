@@ -4,7 +4,7 @@ export const s = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: "column",
-    backgroundColor: "#0f172a",
+    backgroundColor: "transparent",
     alignItems: "center",
     justifyContent: "flex-start",
     padding: 32,

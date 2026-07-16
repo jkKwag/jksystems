@@ -218,20 +218,6 @@ export default function App() {
     </Modal>
   );
 
-  if (menuBizno && menuMode === "test") {
-    return (
-      <View style={s.container}>
-        <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
-        <AppHeader />
-        <ElderlyTest
-          onSelect={() => setMenuMode(null)}
-          onSelectElderly={() => setMenuMode("elderly")}
-        />
-        <AppDrawer />
-      </View>
-    );
-  }
-
   if (menuBizno && menuMode === "elderly") {
     return (
       <View style={s.container}>
@@ -255,6 +241,14 @@ export default function App() {
               {menuOverlay === "supporters" && <Supporters isAdmin={false} />}
               {menuOverlay === "qna" && <QnA isAdmin={false} />}
               {menuOverlay === "faq" && <FAQ />}
+            </View>
+          )}
+          {menuMode === "test" && (
+            <View style={[StyleSheet.absoluteFillObject, { backgroundColor: "rgba(0,0,0,0.72)", zIndex: 50 }]}>
+              <ElderlyTest
+                onSelect={() => setMenuMode(null)}
+                onSelectElderly={() => setMenuMode("elderly")}
+              />
             </View>
           )}
         </View>
