@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity, Platform } from "react-native";
 import supabase from "../lib/supabase";
 import { s } from "../styles/ElderlyMenu.styles";
 
@@ -69,7 +69,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
         </View>
       </View>
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.catBar} contentContainerStyle={s.catBarContent}>
+      <View style={s.catBar}>
         <TouchableOpacity style={[s.catItem, !selectedCat && s.catItemActive]} onPress={() => setSelectedCat(null)}>
           <Text style={[s.catText, !selectedCat && s.catTextActive]}>전체</Text>
         </TouchableOpacity>
@@ -78,7 +78,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
             <Text style={[s.catText, selectedCat === cat.biz_cat_cd && s.catTextActive]}>{cat.biz_cat_nm}</Text>
           </TouchableOpacity>
         ))}
-      </ScrollView>
+      </View>
 
       <ScrollView style={s.list} contentContainerStyle={s.listContent}>
         {filteredMenus.map(menu => (

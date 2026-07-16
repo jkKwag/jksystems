@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 
 export const s = StyleSheet.create({
-  container: { flex: 1, flexDirection: "column", backgroundColor: "#f8fafc" },
+  container: { flex: 1, flexDirection: "column", backgroundColor: "#f8fafc", overflow: "hidden" },
 
   loading: { flex: 1, backgroundColor: "#0f172a", alignItems: "center", justifyContent: "center" },
   loadingText: { color: "#fff", fontSize: 20, fontWeight: "700" },
@@ -10,7 +10,7 @@ export const s = StyleSheet.create({
   headerGuide: { backgroundColor: "rgba(74,222,128,0.12)", borderRadius: 10, paddingVertical: 8, alignItems: "center" },
   headerGuideText: { color: "#4ade80", fontSize: 17, fontWeight: "800" },
 
-  catBar: { backgroundColor: "#fff", borderBottomWidth: 2, borderBottomColor: "#e2e8f0", flexShrink: 0, height: 54 },
+  catBar: { backgroundColor: "#fff", borderBottomWidth: 2, borderBottomColor: "#e2e8f0", flexShrink: 0, flexDirection: "row", paddingHorizontal: 8 },
   catBarContent: { paddingHorizontal: 8, alignItems: "center" },
   catItem: { height: 54, paddingHorizontal: 20, justifyContent: "center", borderBottomWidth: 3, borderBottomColor: "transparent" },
   catItemActive: { borderBottomColor: "#0f172a" },
