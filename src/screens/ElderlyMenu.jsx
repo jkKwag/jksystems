@@ -1,20 +1,39 @@
-import { useState, useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from "react-native";
+import { useState, useEffect, useRef } from "react";
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Animated, useWindowDimensions } from "react-native";
 import supabase from "../lib/supabase";
 import { s } from "../styles/ElderlyMenu.styles";
 
 const DEMO_MENUS = [
   { menu_cd: "d1", menu_nm: "된장찌개 정식", price: 9000 },
-  { menu_cd: "d2", menu_nm: "삼겹살 구이", price: 15000 },
-  { menu_cd: "d3", menu_nm: "잔치국수", price: 7000 },
-  { menu_cd: "d4", menu_nm: "순두부찌개", price: 9500 },
+  { menu_cd: "d2", menu_nm: "캠프 직화 삼겹살", price: 17000 },
+  { menu_cd: "d3", menu_nm: "돌솥 비빔밥", price: 13000 },
+  { menu_cd: "d4", menu_nm: "잔치국수", price: 7000 },
+  { menu_cd: "d5", menu_nm: "허브 치킨 구이", price: 18000 },
 ];
 
 export default function ElderlyMenu({ bizno, tableNo, onBack }) {
+  const { width } = useWindowDimensions();
   const [menus, setMenus] = useState([]);
   const [cart, setCart] = useState({});
   const [loading, setLoading] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [showCartModal, setShowCartModal] = useState(false);
+
+  const translateX = useRef(new Animated.Value(0)).current;
+  const bubbleOpacity = useRef(new Animated.Value(1)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const bubbleGone = useRef(false);
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, { toValue: 1.12, duration: 900, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 1, duration: 900, useNativeDriver: true }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, []);
 
   useEffect(() => {
     if (!bizno) {
@@ -37,6 +56,20 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
         setLoading(false);
       });
   }, [bizno]);
+
+  const goTo = (newIndex) => {
+    if (newIndex < 0 || newIndex >= menus.length) return;
+    Animated.timing(translateX, {
+      toValue: -newIndex * width,
+      duration: 280,
+      useNativeDriver: true,
+    }).start();
+    setCurrentIndex(newIndex);
+    if (!bubbleGone.current) {
+      bubbleGone.current = true;
+      Animated.timing(bubbleOpacity, { toValue: 0, duration: 400, useNativeDriver: true }).start();
+    }
+  };
 
   const addToCart = (menuCd) => setCart(prev => ({ ...prev, [menuCd]: (prev[menuCd] || 0) + 1 }));
   const removeFromCart = (menuCd) => setCart(prev => {
@@ -68,37 +101,71 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
         </View>
       </View>
 
-      <ScrollView style={s.list} contentContainerStyle={s.listContent}>
-        {menus.map(menu => {
-          const qty = cart[menu.menu_cd] || 0;
-          return (
-            <View key={menu.menu_cd} style={s.card}>
-              <Text style={s.menuName}>{menu.menu_nm}</Text>
-              <Text style={[s.menuQty, qty > 0 && s.menuQtyActive]}>
-                {qty > 0 ? `${qty}개 담음` : "0개"}
-              </Text>
-              <View style={s.cardBottom}>
-                <Text style={s.price}>{menu.price?.toLocaleString()}원</Text>
-                {qty > 0 ? (
-                  <View style={s.qtyRow}>
-                    <TouchableOpacity style={s.qtyBtn} onPress={() => removeFromCart(menu.menu_cd)}>
-                      <Text style={s.qtyBtnText}>−</Text>
-                    </TouchableOpacity>
-                    <Text style={s.qtyNum}>{qty}</Text>
-                    <TouchableOpacity style={s.qtyBtn} onPress={() => addToCart(menu.menu_cd)}>
-                      <Text style={s.qtyBtnText}>+</Text>
-                    </TouchableOpacity>
+      <View style={s.carouselArea}>
+        <Animated.View style={[s.track, { width: width * menus.length, transform: [{ translateX }] }]}>
+          {menus.map((menu) => {
+            const qty = cart[menu.menu_cd] || 0;
+            return (
+              <View key={menu.menu_cd} style={[s.slide, { width }]}>
+                <View style={s.card}>
+                  <Text style={s.menuName}>{menu.menu_nm}</Text>
+                  <Text style={[s.menuQty, qty > 0 && s.menuQtyActive]}>
+                    {qty > 0 ? `${qty}개 담음` : "0개"}
+                  </Text>
+                  <View style={s.cardBottom}>
+                    <Text style={s.price}>{menu.price?.toLocaleString()}원</Text>
+                    {qty > 0 ? (
+                      <View style={s.qtyRow}>
+                        <TouchableOpacity style={s.qtyBtn} onPress={() => removeFromCart(menu.menu_cd)}>
+                          <Text style={s.qtyBtnText}>−</Text>
+                        </TouchableOpacity>
+                        <Text style={s.qtyNum}>{qty}</Text>
+                        <TouchableOpacity style={s.qtyBtn} onPress={() => addToCart(menu.menu_cd)}>
+                          <Text style={s.qtyBtnText}>+</Text>
+                        </TouchableOpacity>
+                      </View>
+                    ) : (
+                      <TouchableOpacity style={s.addBtn} onPress={() => addToCart(menu.menu_cd)}>
+                        <Text style={s.addBtnText}>+</Text>
+                      </TouchableOpacity>
+                    )}
                   </View>
-                ) : (
-                  <TouchableOpacity style={s.addBtn} onPress={() => addToCart(menu.menu_cd)}>
-                    <Text style={s.addBtnText}>+</Text>
-                  </TouchableOpacity>
-                )}
+                </View>
               </View>
+            );
+          })}
+        </Animated.View>
+
+        {currentIndex > 0 && (
+          <TouchableOpacity style={s.prevBtn} onPress={() => goTo(currentIndex - 1)} activeOpacity={0.7}>
+            <View style={s.navArrowPrev}>
+              <Text style={s.navArrowPrevText}>‹</Text>
             </View>
-          );
-        })}
-      </ScrollView>
+          </TouchableOpacity>
+        )}
+
+        {currentIndex < menus.length - 1 && (
+          <TouchableOpacity style={s.nextBtn} onPress={() => goTo(currentIndex + 1)} activeOpacity={0.7}>
+            <Animated.View style={[s.navArrowNext, { transform: [{ scale: pulseAnim }] }]}>
+              <Text style={s.navArrowNextText}>›</Text>
+            </Animated.View>
+          </TouchableOpacity>
+        )}
+
+        {currentIndex < menus.length - 1 && (
+          <View style={s.bubbleContainer} pointerEvents="none">
+            <Animated.View style={[s.bubble, { opacity: bubbleOpacity }]}>
+              <Text style={s.bubbleText}>👉 더 있어요{"\n"}눌러보세요</Text>
+            </Animated.View>
+          </View>
+        )}
+      </View>
+
+      <View style={s.dots}>
+        {menus.map((_, i) => (
+          <View key={i} style={[s.dot, i === currentIndex && s.dotActive]} />
+        ))}
+      </View>
 
       {cartCount > 0 && (
         <TouchableOpacity style={s.cartBar} onPress={() => setShowCartModal(true)} activeOpacity={0.85}>
