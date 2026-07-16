@@ -64,9 +64,6 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   return (
     <View style={s.container}>
       <View style={s.header}>
-        <TouchableOpacity style={s.backBtn} onPress={onBack}>
-          <Text style={s.backBtnText}>← 뒤로</Text>
-        </TouchableOpacity>
         <View style={s.headerGuide}>
           <Text style={s.headerGuideText}>👴 큰 글씨 보기 모드</Text>
         </View>
