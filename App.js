@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StatusBar, Platform, Modal, ScrollView, A
 
 const QR_ICON_URI = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyMSAyMSc+PHJlY3QgeD0nMScgeT0nMScgd2lkdGg9JzgnIGhlaWdodD0nOCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScxLjUnLz48cmVjdCB4PSczLjUnIHk9JzMuNScgd2lkdGg9JzMnIGhlaWdodD0nMycgZmlsbD0nd2hpdGUnLz48cmVjdCB4PScxMicgeT0nMScgd2lkdGg9JzgnIGhlaWdodD0nOCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScxLjUnLz48cmVjdCB4PScxNC41JyB5PSczLjUnIHdpZHRoPSczJyBoZWlnaHQ9JzMnIGZpbGw9J3doaXRlJy8+PHJlY3QgeD0nMScgeT0nMTInIHdpZHRoPSc4JyBoZWlnaHQ9JzgnIGZpbGw9J25vbmUnIHN0cm9rZT0nd2hpdGUnIHN0cm9rZS13aWR0aD0nMS41Jy8+PHJlY3QgeD0nMy41JyB5PScxNC41JyB3aWR0aD0nMycgaGVpZ2h0PSczJyBmaWxsPSd3aGl0ZScvPjxyZWN0IHg9JzExJyB5PScxMScgd2lkdGg9JzInIGhlaWdodD0nMicgZmlsbD0nd2hpdGUnLz48cmVjdCB4PScxNCcgeT0nMTEnIHdpZHRoPScxLjUnIGhlaWdodD0nMS41JyBmaWxsPSd3aGl0ZScvPjxyZWN0IHg9JzE3JyB5PScxMScgd2lkdGg9JzInIGhlaWdodD0nMicgZmlsbD0nd2hpdGUnLz48cmVjdCB4PScxMScgeT0nMTQnIHdpZHRoPScxLjUnIGhlaWdodD0nMS41JyBmaWxsPSd3aGl0ZScvPjxyZWN0IHg9JzE0JyB5PScxNCcgd2lkdGg9JzInIGhlaWdodD0nMicgZmlsbD0nd2hpdGUnLz48cmVjdCB4PScxMScgeT0nMTcnIHdpZHRoPScyJyBoZWlnaHQ9JzInIGZpbGw9J3doaXRlJy8+PHJlY3QgeD0nMTcnIHk9JzE3JyB3aWR0aD0nMicgaGVpZ2h0PScyJyBmaWxsPSd3aGl0ZScvPjwvc3ZnPgo=";
 import supabase from "./src/lib/supabase";
+import api from "./src/lib/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Supporters from "./src/screens/Supporters";
 import QnA from "./src/screens/QnA";
@@ -123,16 +124,23 @@ export default function App() {
     (async () => {
       const uuid = localStorage.getItem("scaneat_uuid");
       if (!uuid) { setVisitLoaded(true); return; }
-      const [{ data: scanData }, { data: cnsData }] = await Promise.all([
+      const [{ data: scanData }, { data: cnsData }, orders] = await Promise.all([
         supabase.from("tb_usr_scan_log").select("biz_reg_no").eq("uuid", uuid),
         supabase.from("tb_usr_prv_cns").select("biz_reg_no,guest_name").eq("uuid", uuid),
+        api.order.list(uuid),
       ]);
       const countMap = {};
+      // 예약 횟수는 guest_name이 있는 개인정보 동의 건수로 추정 (아직 별도 예약 API 없음)
       (cnsData || []).forEach(r => {
-        if (!r.biz_reg_no) return;
+        if (!r.biz_reg_no || !r.guest_name) return;
         if (!countMap[r.biz_reg_no]) countMap[r.biz_reg_no] = { order: 0, rsvn: 0 };
-        if (r.guest_name) countMap[r.biz_reg_no].rsvn += 1;
-        else countMap[r.biz_reg_no].order += 1;
+        countMap[r.biz_reg_no].rsvn += 1;
+      });
+      // 주문 횟수는 실제 주문 테이블(GET /api/order) 기준
+      (Array.isArray(orders) ? orders : []).forEach(o => {
+        if (!o.bizRegNo) return;
+        if (!countMap[o.bizRegNo]) countMap[o.bizRegNo] = { order: 0, rsvn: 0 };
+        countMap[o.bizRegNo].order += 1;
       });
       const bizNos = [...new Set((scanData || []).map(r => r.biz_reg_no))];
       if (bizNos.length > 0) {
