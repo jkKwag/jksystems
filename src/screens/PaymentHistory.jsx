@@ -63,26 +63,31 @@ export default function PaymentHistory({ visible, onClose, payments, bizNameMap 
                 const expanded = expandedKey === p.paymentKey;
                 return (
                   <View key={p.paymentKey} style={s.card}>
-                    <TouchableOpacity activeOpacity={0.7} onPress={() => toggleExpand(p)}>
-                      <View style={s.cardTop}>
-                        <Text style={s.bizName}>{bizNameMap?.[p.bizRegNo] || "가맹점"}</Text>
-                        <Text style={s.amount}>₩{Number(p.totalAmount || 0).toLocaleString()}</Text>
-                      </View>
-                      <View style={s.cardMeta}>
-                        <Text style={s.metaText}>{formatDt(p.approvedDt)}</Text>
-                        <Text style={s.metaDot}>·</Text>
-                        <Text style={s.metaText}>{p.method || "결제"}</Text>
-                        <Text style={s.metaDot}>·</Text>
-                        <Text style={s.metaText}>주문 {p.orderNos?.length || 0}건</Text>
-                        <Text style={s.expandArrow}>{expanded ? "접기 ▴" : "상세보기 ▾"}</Text>
-                      </View>
-                    </TouchableOpacity>
+                    <View style={s.cardTop}>
+                      <Text style={s.bizName}>{bizNameMap?.[p.bizRegNo] || "가맹점"}</Text>
+                      <Text style={s.amount}>₩{Number(p.totalAmount || 0).toLocaleString()}</Text>
+                    </View>
+                    <View style={s.cardMeta}>
+                      <Text style={s.metaText}>{formatDt(p.approvedDt)}</Text>
+                      <Text style={s.metaDot}>·</Text>
+                      <Text style={s.metaText}>{p.method || "결제"}</Text>
+                      <Text style={s.metaDot}>·</Text>
+                      <Text style={s.metaText}>주문 {p.orderNos?.length || 0}건</Text>
+                    </View>
 
-                    {!!p.pg?.receiptUrl && (
-                      <TouchableOpacity onPress={() => Linking.openURL(p.pg.receiptUrl)}>
-                        <Text style={s.receiptLink}>영수증 보기 →</Text>
+                    <View style={s.actionRow}>
+                      <TouchableOpacity style={s.actionBtn} onPress={() => toggleExpand(p)}>
+                        <Text style={s.actionBtnText}>{expanded ? "접기 ▴" : "상세보기 ▾"}</Text>
                       </TouchableOpacity>
-                    )}
+                      {!!p.pg?.receiptUrl && (
+                        <TouchableOpacity
+                          style={[s.actionBtn, s.receiptBtn]}
+                          onPress={() => Linking.openURL(p.pg.receiptUrl)}
+                        >
+                          <Text style={[s.actionBtnText, s.receiptBtnText]}>영수증 보기</Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
 
                     {expanded && (
                       <View style={s.detailBox}>

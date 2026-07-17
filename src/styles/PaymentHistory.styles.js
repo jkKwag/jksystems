@@ -25,9 +25,12 @@ export const s = StyleSheet.create({
   cardMeta: { flexDirection: "row", alignItems: "center", gap: spacing["1.5"] },
   metaText: { fontSize: font.base, color: colors.slate400 },
   metaDot: { fontSize: font.base, color: colors.slate300 },
-  expandArrow: { fontSize: font.base, fontWeight: "700", color: colors.accent, marginLeft: "auto" },
 
-  receiptLink: { fontSize: font.base, fontWeight: "700", color: colors.blue, marginTop: spacing["2"] },
+  actionRow: { flexDirection: "row", gap: spacing["2"], marginTop: spacing["2.5"] },
+  actionBtn: { flex: 1, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: colors.borderMedium, borderRadius: radius.lg, paddingVertical: spacing["2"], backgroundColor: colors.slate50 },
+  actionBtnText: { fontSize: font.base, fontWeight: "700", color: colors.textSecondary },
+  receiptBtn: { borderColor: colors.blue, backgroundColor: colors.bluePaleBg },
+  receiptBtnText: { color: colors.blue },
 
   detailBox: { marginTop: spacing["3"], paddingTop: spacing["3"], borderTopWidth: 1, borderTopColor: colors.borderLight },
   detailLoading: { fontSize: font.base, color: colors.slate400, textAlign: "center", paddingVertical: spacing["2"] },
