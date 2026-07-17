@@ -104,13 +104,13 @@ export default function ChatRoom({ visible, bizno, onClose }) {
     const nick = nickname.trim() || "익명";
     const now = new Date().toISOString();
     const newMsg = {
-      rsvn_no: rsvnNo.trim(),
-      biz_reg_no: bizno,
+      rsvnNo: rsvnNo.trim(),
+      bizRegNo: bizno,
       uuid: myUuid.current,
       nickname: nick,
       message: text,
-      reg_usr_id: "guest",
-      reg_dt: now,
+      regUsrId: "guest",
+      regDt: now,
     };
     setMessages(prev => [...prev, newMsg]); // 낙관적 추가 (내 메시지 즉시 표시)
     setInput("");

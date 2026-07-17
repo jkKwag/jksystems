@@ -234,9 +234,9 @@ export default function Menu({ bizno, tableNo }) {
     api.biz.get(bizno).then(async (data) => {
       if (!data) { console.warn("[BIZ] fetch 실패"); return; }
       setBizInfo(data);
-      if (data.ind_cd) {
-        const cls = await api.industry.get(data.ind_cd);
-        if (cls) setBizInfo(prev => ({ ...prev, ind_nm: cls.ind_nm }));
+      if (data.indCd) {
+        const cls = await api.industry.get(data.indCd);
+        if (cls) setBizInfo(prev => ({ ...prev, indNm: cls.indNm }));
       }
     });
   }, [bizno]);
@@ -249,18 +249,18 @@ export default function Menu({ bizno, tableNo }) {
       menus = menus || [];
 
       const catMap = {};
-      cats.forEach(c => { catMap[c.biz_cat_cd] = c.biz_cat_nm; });
+      cats.forEach(c => { catMap[c.bizCatCd] = c.bizCatNm; });
 
-      if (cats.length) setCategories(["전체", ...cats.map(c => c.biz_cat_nm)]);
+      if (cats.length) setCategories(["전체", ...cats.map(c => c.bizCatNm)]);
 
       setMenuItems(menus.map(m => ({
-        id: m.menu_cd,
-        category: catMap[m.biz_cat_cd] || "",
-        name: m.menu_nm,
-        desc: m.menu_desc || "",
+        id: m.menuCd,
+        category: catMap[m.bizCatCd] || "",
+        name: m.menuNm,
+        desc: m.menuDesc || "",
         price: m.price,
         badge: m.badge || null,
-        image: m.img_url || null,
+        image: m.imgUrl || null,
       })));
     });
   }, [bizno]);
@@ -277,9 +277,9 @@ export default function Menu({ bizno, tableNo }) {
       const now = new Date().toISOString();
       const src = new URLSearchParams(window.location.search).get("src");
       const logs = await api.scanLog.list(uuid);
-      const existing = Array.isArray(logs) && logs.some(l => l.biz_reg_no === bizno);
+      const existing = Array.isArray(logs) && logs.some(l => l.bizRegNo === bizno);
       if (!existing) {
-        api.scanLog.post({ uuid, biz_reg_no: bizno, vst_dt: now, vst_typ_cd: src === "qr" ? "qr" : "url", reg_usr_id: "guest", reg_dt: now });
+        api.scanLog.post({ uuid, bizRegNo: bizno, vstDt: now, vstTypCd: src === "qr" ? "qr" : "url", regUsrId: "guest", regDt: now });
       }
     })();
   }, [bizno]);
@@ -406,7 +406,7 @@ export default function Menu({ bizno, tableNo }) {
       {/* 가게 정보 */}
       <View style={s.shopBanner}>
         <View style={s.shopNameRow}>
-          <Text style={s.shopName}>🍽 {bizInfo?.biz_nm || ""}</Text>
+          <Text style={s.shopName}>🍽 {bizInfo?.bizNm || ""}</Text>
           <Text style={s.shopAiBadge}>[AI✨]</Text>
           {tableNo && (
             <View style={s.tableBadge}>
@@ -419,7 +419,7 @@ export default function Menu({ bizno, tableNo }) {
         </View>
         <View style={s.shopMeta}>
           <Text style={s.shopRating}><Text style={s.star}>★</Text> 4.8</Text>
-          <Text style={s.shopInfo}>리뷰 142개 · {bizInfo?.ind_nm || ""}</Text>
+          <Text style={s.shopInfo}>리뷰 142개 · {bizInfo?.indNm || ""}</Text>
         </View>
         <View style={s.shopTags}>
           <View style={s.orderTypeGroup}>
@@ -443,7 +443,7 @@ export default function Menu({ bizno, tableNo }) {
         </View>
         {bizInfo?.addr && (
           <Text style={s.bizAddr}>
-            {bizInfo.addr}{bizInfo.addr_dtl ? ` ${bizInfo.addr_dtl}` : ""}
+            {bizInfo.addr}{bizInfo.addrDtl ? ` ${bizInfo.addrDtl}` : ""}
           </Text>
         )}
       </View>
@@ -505,8 +505,8 @@ export default function Menu({ bizno, tableNo }) {
         })}
         <View style={s.callBar}>
           <TouchableOpacity
-            style={[s.callBtn, !bizInfo?.tel_no && s.callBtnDisabled]}
-            onPress={() => bizInfo?.tel_no && Linking.openURL(`tel:${bizInfo.tel_no}`)}
+            style={[s.callBtn, !bizInfo?.telNo && s.callBtnDisabled]}
+            onPress={() => bizInfo?.telNo && Linking.openURL(`tel:${bizInfo.telNo}`)}
           >
             <Text style={s.callBtnText}>📞 전화 문의</Text>
           </TouchableOpacity>
@@ -773,8 +773,8 @@ export default function Menu({ bizno, tableNo }) {
                     orderName: cartItems.length === 1
                       ? cartItems[0].item.name
                       : `${cartItems[0].item.name} 외 ${cartItems.length - 1}건`,
-                    successUrl: window.location.origin + `/payment/success?bizno=${bizno}&biz_nm=${encodeURIComponent(bizInfo?.biz_nm || "")}`,
-                    failUrl: window.location.origin + `/payment/fail?bizno=${bizno}&biz_nm=${encodeURIComponent(bizInfo?.biz_nm || "")}`,
+                    successUrl: window.location.origin + `/payment/success?bizno=${bizno}&biz_nm=${encodeURIComponent(bizInfo?.bizNm || "")}`,
+                    failUrl: window.location.origin + `/payment/fail?bizno=${bizno}&biz_nm=${encodeURIComponent(bizInfo?.bizNm || "")}`,
                   });
                 } catch (e) {
                   if (e?.code === "USER_CANCEL") { setShowPayment(false); return; }

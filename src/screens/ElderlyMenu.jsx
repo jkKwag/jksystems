@@ -4,11 +4,11 @@ import api from "../lib/api";
 import { s } from "../styles/ElderlyMenu.styles";
 
 const DEMO_MENUS = [
-  { menu_cd: "d1", menu_nm: "된장찌개 정식", price: 9000, img_url: null, emoji: "🍲" },
-  { menu_cd: "d2", menu_nm: "캠프 직화 삼겹살", price: 17000, img_url: null, emoji: "🥩" },
-  { menu_cd: "d3", menu_nm: "돌솥 비빔밥", price: 13000, img_url: null, emoji: "🍱" },
-  { menu_cd: "d4", menu_nm: "잔치국수", price: 7000, img_url: null, emoji: "🍜" },
-  { menu_cd: "d5", menu_nm: "허브 치킨 구이", price: 18000, img_url: null, emoji: "🍗" },
+  { menuCd: "d1", menuNm: "된장찌개 정식", price: 9000, imgUrl: null, emoji: "🍲" },
+  { menuCd: "d2", menuNm: "캠프 직화 삼겹살", price: 17000, imgUrl: null, emoji: "🥩" },
+  { menuCd: "d3", menuNm: "돌솥 비빔밥", price: 13000, imgUrl: null, emoji: "🍱" },
+  { menuCd: "d4", menuNm: "잔치국수", price: 7000, imgUrl: null, emoji: "🍜" },
+  { menuCd: "d5", menuNm: "허브 치킨 구이", price: 18000, imgUrl: null, emoji: "🍗" },
 ];
 
 export default function ElderlyMenu({ bizno, tableNo, onBack }) {
@@ -81,7 +81,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   }, [cartCount, showCartModal]);
 
   const cartTotal = Object.entries(cart).reduce((sum, [cd, qty]) => {
-    const menu = menus.find(m => m.menu_cd === cd);
+    const menu = menus.find(m => m.menuCd === cd);
     return sum + (menu ? menu.price * qty : 0);
   }, 0);
 
@@ -99,8 +99,8 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
     <View style={s.container}>
       {/* 음식 사진 영역 */}
       <Animated.View style={[s.photoArea, { opacity: photoOpacity }]}>
-        {currentMenu?.img_url ? (
-          <Image source={{ uri: currentMenu.img_url }} style={s.photo} />
+        {currentMenu?.imgUrl ? (
+          <Image source={{ uri: currentMenu.imgUrl }} style={s.photo} />
         ) : (
           <View style={s.photoPlaceholder}>
             <Text style={s.photoEmoji}>{currentMenu?.emoji || "🍽"}</Text>
@@ -113,27 +113,27 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
         <View style={s.carouselClip}>
           <Animated.View style={[s.track, { width: width * menus.length, transform: [{ translateX }] }]}>
             {menus.map((menu) => {
-              const qty = cart[menu.menu_cd] || 0;
+              const qty = cart[menu.menuCd] || 0;
               return (
-                <View key={menu.menu_cd} style={[s.slide, { width }]}>
+                <View key={menu.menuCd} style={[s.slide, { width }]}>
                   <View style={s.card}>
-                    <Text style={s.menuName}>{menu.menu_nm}</Text>
+                    <Text style={s.menuName}>{menu.menuNm}</Text>
                     <Text style={[s.menuQty, qty > 0 && s.menuQtyActive]}>
                       {qty > 0 ? `${qty}개 담음` : "0개"}
                     </Text>
                     <Text style={s.price}>{menu.price?.toLocaleString()}원</Text>
                     {qty > 0 ? (
                       <View style={s.qtyRow}>
-                        <TouchableOpacity style={s.qtyBtn} onPress={() => removeFromCart(menu.menu_cd)}>
+                        <TouchableOpacity style={s.qtyBtn} onPress={() => removeFromCart(menu.menuCd)}>
                           <Text style={s.qtyBtnText}>−</Text>
                         </TouchableOpacity>
                         <Text style={s.qtyNum}>{qty}</Text>
-                        <TouchableOpacity style={s.qtyBtn} onPress={() => addToCart(menu.menu_cd)}>
+                        <TouchableOpacity style={s.qtyBtn} onPress={() => addToCart(menu.menuCd)}>
                           <Text style={s.qtyBtnText}>+</Text>
                         </TouchableOpacity>
                       </View>
                     ) : (
-                      <TouchableOpacity style={s.addBtn} onPress={() => addToCart(menu.menu_cd)}>
+                      <TouchableOpacity style={s.addBtn} onPress={() => addToCart(menu.menuCd)}>
                         <Text style={s.addBtnText}>추가</Text>
                       </TouchableOpacity>
                     )}
@@ -198,12 +198,12 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
             </View>
             <ScrollView style={s.modalList}>
               {Object.entries(cart).map(([cd, qty]) => {
-                const menu = menus.find(m => m.menu_cd === cd);
+                const menu = menus.find(m => m.menuCd === cd);
                 if (!menu) return null;
                 return (
                   <View key={cd} style={s.modalItem}>
                     <View style={s.modalItemHeader}>
-                      <Text style={s.modalItemName} numberOfLines={1}>{menu.menu_nm}</Text>
+                      <Text style={s.modalItemName} numberOfLines={1}>{menu.menuNm}</Text>
                       <TouchableOpacity style={s.deleteBtn} onPress={() => deleteFromCart(cd)}>
                         <Text style={s.deleteBtnText}>✕</Text>
                       </TouchableOpacity>

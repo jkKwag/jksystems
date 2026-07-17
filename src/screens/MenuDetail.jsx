@@ -5,7 +5,7 @@ import {
 import { s } from "../styles/MenuDetail.styles";
 import api from "../lib/api";
 
-const sortByOrd = (arr) => [...arr].sort((a, b) => (a.sort_ord ?? 999) - (b.sort_ord ?? 999));
+const sortByOrd = (arr) => [...arr].sort((a, b) => (a.sortOrd ?? 999) - (b.sortOrd ?? 999));
 
 async function fetchOptionGroups(menuCd) {
   const data = await api.menu.options(menuCd);

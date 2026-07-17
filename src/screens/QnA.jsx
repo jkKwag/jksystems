@@ -67,7 +67,7 @@ export default function QnA({ isAdmin }) {
             </View>
             <View style={s.cardRight}>
               <Text style={s.meta}>{p.author}</Text>
-              <Text style={s.meta}>{(p.created_at || "").slice(0, 10)}</Text>
+              <Text style={s.meta}>{(p.createdAt || "").slice(0, 10)}</Text>
               <Text style={s.meta}>{open === p.id ? "▲" : "▼"}</Text>
             </View>
           </TouchableOpacity>

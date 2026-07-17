@@ -90,7 +90,7 @@ export default function Supporters({ isAdmin }) {
             <View style={s.cardInfo}>
               <Text style={s.name}>{s2.name}</Text>
               {s2.message ? <Text style={s.message}>"{s2.message}"</Text> : null}
-              <Text style={s.date}>{(s2.created_at || "").slice(0, 10)}</Text>
+              <Text style={s.date}>{(s2.createdAt || "").slice(0, 10)}</Text>
             </View>
             <Text style={s.amount}>₩{(s2.amount || 0).toLocaleString()}</Text>
           </View>

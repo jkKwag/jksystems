@@ -149,7 +149,8 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
             cartContext: cartItems,
           }),
         });
-        const data = await resp.json();
+        const _json1 = await resp.json();
+        const data = typeof _json1?.success === "boolean" ? (_json1.data || {}) : _json1;
         const cleanText = data.text || "";
         const actions = data.actions || [];
         const modAction = actions.find(a => a.name === "modify_reservation");
@@ -210,7 +211,8 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: nextHistory, menuContext: menuItems, cartContext: cartItems }),
       });
-      const data = await resp.json();
+      const _json2 = await resp.json();
+      const data = typeof _json2?.success === "boolean" ? (_json2.data || {}) : _json2;
       const cleanText = data.text || "죄송합니다, 오류가 발생했습니다.";
       const actions = data.actions || [];
 
@@ -285,7 +287,7 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
     }
     setPendingChangeRsvn(rsvn);
     setRsvnStep("askChangeContent");
-    const ctx = `[현재 예약 정보 - 예약일시: ${rsvn.reserved_at}, 인원: ${rsvn.party_size}명, 요청사항: ${rsvn.req_cont || "없음"}]`;
+    const ctx = `[현재 예약 정보 - 예약일시: ${rsvn.reservedAt}, 인원: ${rsvn.partySize}명, 요청사항: ${rsvn.reqCont || "없음"}]`;
     setApiHistory(prev => [...prev, { role: "user", content: ctx }, { role: "assistant", content: "현재 예약 정보를 확인했어요. 변경할 내용을 알려주세요. (날짜/시간, 인원, 요청사항)" }]);
     setDisplayMsgs(prev => [...prev, { role: "assistant", text: "현재 예약 정보를 확인했어요.", reservations: [rsvn] }, { role: "assistant", text: "변경할 내용을 알려주세요. (날짜/시간, 인원, 요청사항)" }]);
   };
@@ -294,16 +296,16 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
     if (!pendingChange) return;
     const { rsvn, changes } = pendingChange;
     const now = new Date().toISOString();
-    const update = { status: "pending", mdf_usr_id: "guest", mdf_dt: now };
-    if (changes.reserved_at) update.reserved_at = changes.reserved_at;
-    if (changes.party_size) update.party_size = changes.party_size;
-    if (changes.req_cont !== undefined) update.req_cont = changes.req_cont;
+    const update = { status: "pending", mdfUsrId: "guest", mdfDt: now };
+    if (changes.reservedAt) update.reservedAt = changes.reservedAt;
+    if (changes.partySize) update.partySize = changes.partySize;
+    if (changes.reqCont !== undefined) update.reqCont = changes.reqCont;
 
-    const { error } = await api.reservation.put(rsvn.rsvn_no, update);
+    const { error } = await api.reservation.put(rsvn.rsvnNo, update);
 
     const resultText = error
       ? "변경 처리 중 오류가 발생했어요. 다시 시도해 주세요."
-      : `예약(${rsvn.rsvn_no})이 변경됐어요! 사장님 재승인 후 확정됩니다.`;
+      : `예약(${rsvn.rsvnNo})이 변경됐어요! 사장님 재승인 후 확정됩니다.`;
     setDisplayMsgs(prev => [...prev, { role: "assistant", text: resultText }]);
     setApiHistory(prev => [...prev, { role: "assistant", content: resultText }]);
     setPendingChange(null);
@@ -334,11 +336,11 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
   const cancelReservation = async () => {
     if (!pendingCancel) return;
     const now = new Date().toISOString();
-    const { error } = await api.reservation.put(pendingCancel.rsvn_no, { status: "cancelled", mdf_usr_id: "guest", mdf_dt: now });
+    const { error } = await api.reservation.put(pendingCancel.rsvnNo, { status: "cancelled", mdfUsrId: "guest", mdfDt: now });
 
     const resultText = error
       ? "취소 처리 중 오류가 발생했어요. 다시 시도해 주세요."
-      : `예약(${pendingCancel.rsvn_no})이 취소됐어요.`;
+      : `예약(${pendingCancel.rsvnNo})이 취소됐어요.`;
     setDisplayMsgs(prev => [...prev, { role: "assistant", text: resultText }]);
     setApiHistory(prev => [...prev, { role: "assistant", content: resultText }]);
     setPendingCancel(null);
@@ -356,7 +358,7 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
   const confirmCheckout = async () => {
     const now = new Date().toISOString();
     const scaneatUuid = Platform.OS === "web" ? localStorage.getItem("scaneat_uuid") : null;
-    await api.consent.post({ uuid: scaneatUuid, biz_reg_no: bizno, consent_at: now, reg_usr_id: "guest", reg_dt: now });
+    await api.consent.post({ uuid: scaneatUuid, bizRegNo: bizno, consentAt: now, regUsrId: "guest", regDt: now });
     setPendingCheckout(false);
     setOpen(false);
     onRequestCheckout?.();
@@ -376,19 +378,19 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
     const now = new Date().toISOString();
     const rsvnNo = generateRsvnNo();
     const scaneatUuid = Platform.OS === "web" ? localStorage.getItem("scaneat_uuid") : null;
-    await api.consent.postReservation({ uuid: scaneatUuid, biz_reg_no: bizno, guest_name: pendingReservation.guestName, guest_phone: pendingReservation.guestPhone, consent_at: now, reg_usr_id: "guest", reg_dt: now });
+    await api.consent.postReservation({ uuid: scaneatUuid, bizRegNo: bizno, guestName: pendingReservation.guestName, guestPhone: pendingReservation.guestPhone, consentAt: now, regUsrId: "guest", regDt: now });
     const { error } = await api.reservation.post({
-      biz_reg_no: bizno,
-      table_no: tableNo,
-      rsvn_no: rsvnNo,
-      guest_name: pendingReservation.guestName,
-      guest_phone: pendingReservation.guestPhone,
-      party_size: pendingReservation.partySize,
-      reserved_at: pendingReservation.datetime,
-      req_cont: pendingReservation.reqCont || null,
+      bizRegNo: bizno,
+      tableNo,
+      rsvnNo,
+      guestName: pendingReservation.guestName,
+      guestPhone: pendingReservation.guestPhone,
+      partySize: pendingReservation.partySize,
+      reservedAt: pendingReservation.datetime,
+      reqCont: pendingReservation.reqCont || null,
       status: "pending",
-      reg_usr_id: "guest",
-      reg_dt: now,
+      regUsrId: "guest",
+      regDt: now,
     });
     if (error) {
       console.error("[예약 insert 실패]", JSON.stringify(error));

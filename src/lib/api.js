@@ -4,7 +4,8 @@ async function get(path) {
   try {
     const res = await fetch(`${BASE}${path}`);
     if (!res.ok) return null;
-    return res.json();
+    const json = await res.json();
+    return typeof json?.success === "boolean" ? (json.success ? json.data : null) : json;
   } catch { return null; }
 }
 
