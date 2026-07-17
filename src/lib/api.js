@@ -9,28 +9,26 @@ async function get(path) {
   } catch { return null; }
 }
 
-async function post(path, body) {
+async function send(method, path, body) {
   try {
     const res = await fetch(`${BASE}${path}`, {
-      method: "POST",
+      method,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
-    const data = await res.json().catch(() => null);
-    return res.ok ? { data, error: null } : { data: null, error: data };
+    const json = await res.json().catch(() => null);
+    if (!res.ok) return { data: null, error: json };
+    const data = typeof json?.success === "boolean" ? (json.success ? json.data : null) : json;
+    return { data, error: null };
   } catch (e) { return { data: null, error: e }; }
 }
 
+async function post(path, body) {
+  return send("POST", path, body);
+}
+
 async function put(path, body) {
-  try {
-    const res = await fetch(`${BASE}${path}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    const data = await res.json().catch(() => null);
-    return res.ok ? { data, error: null } : { data: null, error: data };
-  } catch (e) { return { data: null, error: e }; }
+  return send("PUT", path, body);
 }
 
 const api = {
