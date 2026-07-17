@@ -31,7 +31,7 @@ export default function ElderlyTest({ onSelect, onSelectElderly }) {
         </View>
         <View style={s.btnText}>
           <Text style={s.btnLabel}>보통</Text>
-          <Text style={s.btnDesc}>일반 메뉴</Text>
+          <Text style={s.btnDesc}>작은 글씨 · 일반 주문</Text>
         </View>
         <Text style={s.btnArrow}>→</Text>
       </TouchableOpacity>
