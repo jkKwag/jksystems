@@ -25,6 +25,18 @@ export const s = StyleSheet.create({
   cardMeta: { flexDirection: "row", alignItems: "center", gap: spacing["1.5"] },
   metaText: { fontSize: font.base, color: colors.slate400 },
   metaDot: { fontSize: font.base, color: colors.slate300 },
+  expandArrow: { fontSize: font.base, fontWeight: "700", color: colors.accent, marginLeft: "auto" },
 
   receiptLink: { fontSize: font.base, fontWeight: "700", color: colors.blue, marginTop: spacing["2"] },
+
+  detailBox: { marginTop: spacing["3"], paddingTop: spacing["3"], borderTopWidth: 1, borderTopColor: colors.borderLight },
+  detailLoading: { fontSize: font.base, color: colors.slate400, textAlign: "center", paddingVertical: spacing["2"] },
+
+  orderBlock: { gap: spacing["1.5"] },
+  orderBlockDivider: { marginTop: spacing["2.5"], paddingTop: spacing["2.5"], borderTopWidth: 1, borderTopColor: colors.borderLight },
+
+  itemRow: { flexDirection: "row", alignItems: "flex-start", gap: spacing["2"] },
+  itemName: { fontSize: font.md, fontWeight: "700", color: colors.textSecondary },
+  itemOptions: { fontSize: font.sm, color: colors.slate400, marginTop: 1 },
+  itemPrice: { fontSize: font.md, fontWeight: "700", color: colors.textSecondary },
 });

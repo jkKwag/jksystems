@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { View, Text, Modal, ScrollView, TouchableOpacity, Linking } from "react-native";
 import { s } from "../styles/PaymentHistory.styles";
+import api from "../lib/api";
 
 const formatDt = (dateStr) => {
   if (!dateStr) return "-";
@@ -19,7 +21,23 @@ const formatDt = (dateStr) => {
   return `${label} ${hh}:${mm}`;
 };
 
+const formatOptions = (options) => (options || []).map(o => o.optNm).filter(Boolean).join(", ");
+
 export default function PaymentHistory({ visible, onClose, payments, bizNameMap }) {
+  const [expandedKey, setExpandedKey] = useState(null);
+  const [orderDetails, setOrderDetails] = useState({}); // { [paymentKey]: OrderResponse[] }
+  const [loadingKey, setLoadingKey] = useState(null);
+
+  const toggleExpand = async (p) => {
+    if (expandedKey === p.paymentKey) { setExpandedKey(null); return; }
+    setExpandedKey(p.paymentKey);
+    if (orderDetails[p.paymentKey]) return;
+    setLoadingKey(p.paymentKey);
+    const orders = await Promise.all((p.orderNos || []).map(no => api.order.get(no)));
+    setOrderDetails(prev => ({ ...prev, [p.paymentKey]: orders.filter(Boolean) }));
+    setLoadingKey(null);
+  };
+
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={s.overlay}>
@@ -38,26 +56,59 @@ export default function PaymentHistory({ visible, onClose, payments, bizNameMap 
                 <Text style={s.emptyText}>어제, 오늘 결제내역이 없습니다</Text>
               </View>
             ) : (
-              payments.map(p => (
-                <View key={p.paymentKey} style={s.card}>
-                  <View style={s.cardTop}>
-                    <Text style={s.bizName}>{bizNameMap?.[p.bizRegNo] || "가맹점"}</Text>
-                    <Text style={s.amount}>₩{Number(p.totalAmount || 0).toLocaleString()}</Text>
-                  </View>
-                  <View style={s.cardMeta}>
-                    <Text style={s.metaText}>{formatDt(p.approvedDt)}</Text>
-                    <Text style={s.metaDot}>·</Text>
-                    <Text style={s.metaText}>{p.method || "결제"}</Text>
-                    <Text style={s.metaDot}>·</Text>
-                    <Text style={s.metaText}>주문 {p.orderNos?.length || 0}건</Text>
-                  </View>
-                  {!!p.pg?.receiptUrl && (
-                    <TouchableOpacity onPress={() => Linking.openURL(p.pg.receiptUrl)}>
-                      <Text style={s.receiptLink}>영수증 보기 →</Text>
+              payments.map(p => {
+                const expanded = expandedKey === p.paymentKey;
+                return (
+                  <View key={p.paymentKey} style={s.card}>
+                    <TouchableOpacity activeOpacity={0.7} onPress={() => toggleExpand(p)}>
+                      <View style={s.cardTop}>
+                        <Text style={s.bizName}>{bizNameMap?.[p.bizRegNo] || "가맹점"}</Text>
+                        <Text style={s.amount}>₩{Number(p.totalAmount || 0).toLocaleString()}</Text>
+                      </View>
+                      <View style={s.cardMeta}>
+                        <Text style={s.metaText}>{formatDt(p.approvedDt)}</Text>
+                        <Text style={s.metaDot}>·</Text>
+                        <Text style={s.metaText}>{p.method || "결제"}</Text>
+                        <Text style={s.metaDot}>·</Text>
+                        <Text style={s.metaText}>주문 {p.orderNos?.length || 0}건</Text>
+                        <Text style={s.expandArrow}>{expanded ? "접기 ▴" : "상세보기 ▾"}</Text>
+                      </View>
                     </TouchableOpacity>
-                  )}
-                </View>
-              ))
+
+                    {!!p.pg?.receiptUrl && (
+                      <TouchableOpacity onPress={() => Linking.openURL(p.pg.receiptUrl)}>
+                        <Text style={s.receiptLink}>영수증 보기 →</Text>
+                      </TouchableOpacity>
+                    )}
+
+                    {expanded && (
+                      <View style={s.detailBox}>
+                        {loadingKey === p.paymentKey ? (
+                          <Text style={s.detailLoading}>불러오는 중...</Text>
+                        ) : (orderDetails[p.paymentKey] || []).length === 0 ? (
+                          <Text style={s.detailLoading}>주문 상세를 불러올 수 없습니다</Text>
+                        ) : (
+                          orderDetails[p.paymentKey].map((order, oi) => (
+                            <View key={order.orderNo} style={[s.orderBlock, oi > 0 && s.orderBlockDivider]}>
+                              {order.items?.map(item => (
+                                <View key={item.orderSeq} style={s.itemRow}>
+                                  <View style={{ flex: 1 }}>
+                                    <Text style={s.itemName}>{item.menuNm} x{item.qty}</Text>
+                                    {!!formatOptions(item.options) && (
+                                      <Text style={s.itemOptions}>{formatOptions(item.options)}</Text>
+                                    )}
+                                  </View>
+                                  <Text style={s.itemPrice}>₩{Number((item.price || 0) * (item.qty || 1)).toLocaleString()}</Text>
+                                </View>
+                              ))}
+                            </View>
+                          ))
+                        )}
+                      </View>
+                    )}
+                  </View>
+                );
+              })
             )}
           </ScrollView>
         </View>
