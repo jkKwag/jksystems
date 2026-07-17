@@ -184,6 +184,26 @@ export default function App() {
     <View style={[s.header, HEADER_GRADIENT]}>
       <Logo />
       <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+        {menuBizno && (
+          <View style={s.displayToggle}>
+            {[{ label: "아주크게", mode: "elderly" }, { label: "보통", mode: null }].map(({ label, mode }) => {
+              const active = menuMode === mode;
+              return (
+                <TouchableOpacity
+                  key={label}
+                  style={[s.displayToggleBtn, active && s.displayToggleBtnActive]}
+                  onPress={() => {
+                    localStorage.setItem("scaneat_display_mode", mode === "elderly" ? "elderly" : "normal");
+                    setMenuMode(mode);
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[s.displayToggleBtnText, active && s.displayToggleBtnTextActive]}>{label}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
         {MUSIC_URL ? (
           <TouchableOpacity onPress={toggleMusic} style={s.musicBtn}>
             <Text style={s.musicBtnText}>{musicOn ? "🔊" : "🔇"}</Text>

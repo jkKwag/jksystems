@@ -21,6 +21,11 @@ export const s = StyleSheet.create({
   backBtn: { paddingVertical: spacing["1.5"], paddingHorizontal: spacing["1"] },
   backBtnText: { color: colors.white, fontSize: font.lg, fontWeight: "700" },
 
+  displayToggle: { flexDirection: "row", backgroundColor: "rgba(255,255,255,0.12)", borderRadius: 20, padding: 3 },
+  displayToggleBtn: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 17 },
+  displayToggleBtnActive: { backgroundColor: "rgba(255,255,255,0.88)" },
+  displayToggleBtnText: { fontSize: 11, fontWeight: "800", color: "rgba(255,255,255,0.55)" },
+  displayToggleBtnTextActive: { color: "#0f172a" },
   musicBtn: { width: 34, height: 34, borderRadius: 17, backgroundColor: "rgba(255,255,255,0.15)", justifyContent: "center", alignItems: "center" },
   musicBtnText: { fontSize: font["2xl"] },
   hamburger: { padding: spacing["2"], gap: 5, justifyContent: "center" },
