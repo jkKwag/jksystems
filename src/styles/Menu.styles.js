@@ -148,6 +148,10 @@ export const s = StyleSheet.create({
   payDivider: { height: 1, backgroundColor: colors.slate100, marginVertical: spacing["1"] },
   payTotalAmt: { fontSize: font["4xl"], fontWeight: "900", color: colors.primary },
 
+  pendingOrderGroup: { marginTop: spacing["3"] },
+  pendingOrderBadge: { alignSelf: "flex-start", backgroundColor: colors.accent, borderRadius: radius.sm, paddingHorizontal: spacing["2"], paddingVertical: 3, marginBottom: spacing["1.5"] },
+  pendingOrderBadgeText: { fontSize: font.sm, fontWeight: "800", color: colors.white },
+
   payTossNote: { fontSize: font.base, color: colors.slate400, textAlign: "center", marginTop: spacing["4"], fontWeight: "600" },
 
   payFooter: { backgroundColor: colors.bgCard, padding: spacing["4"], borderTopWidth: 1, borderTopColor: colors.borderLight, gap: spacing["3"] },

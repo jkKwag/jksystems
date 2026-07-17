@@ -853,8 +853,10 @@ export default function Menu({ bizno, tableNo }) {
                 <View style={s.paySection}>
                   <Text style={s.paySectionTitle}>먼저 주문한 내역 ({pendingCount}건, 결제 대기)</Text>
                   {pendingOrders.map((order, oi) => (
-                    <View key={order.orderNo}>
-                      {oi > 0 && <View style={s.payDivider} />}
+                    <View key={order.orderNo} style={oi > 0 && s.pendingOrderGroup}>
+                      <View style={s.pendingOrderBadge}>
+                        <Text style={s.pendingOrderBadgeText}>주문{oi + 1}</Text>
+                      </View>
                       {order.items?.map(item => {
                         const optionsTotal = (item.options || []).reduce((sum, o) => sum + Number(o.addPrice || 0), 0);
                         const lineTotal = (Number(item.price || 0) + optionsTotal) * Number(item.qty || 1);
