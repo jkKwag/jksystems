@@ -1,9 +1,8 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { View, Text, TouchableOpacity, StatusBar, Platform, Modal, ScrollView, Animated, Image, StyleSheet } from "react-native";
 
 const QR_ICON_URI = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyMSAyMSc+PHJlY3QgeD0nMScgeT0nMScgd2lkdGg9JzgnIGhlaWdodD0nOCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScxLjUnLz48cmVjdCB4PSczLjUnIHk9JzMuNScgd2lkdGg9JzMnIGhlaWdodD0nMycgZmlsbD0nd2hpdGUnLz48cmVjdCB4PScxMicgeT0nMScgd2lkdGg9JzgnIGhlaWdodD0nOCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScxLjUnLz48cmVjdCB4PScxNC41JyB5PSczLjUnIHdpZHRoPSczJyBoZWlnaHQ9JzMnIGZpbGw9J3doaXRlJy8+PHJlY3QgeD0nMScgeT0nMTInIHdpZHRoPSc4JyBoZWlnaHQ9JzgnIGZpbGw9J25vbmUnIHN0cm9rZT0nd2hpdGUnIHN0cm9rZS13aWR0aD0nMS41Jy8+PHJlY3QgeD0nMy41JyB5PScxNC41JyB3aWR0aD0nMycgaGVpZ2h0PSczJyBmaWxsPSd3aGl0ZScvPjxyZWN0IHg9JzExJyB5PScxMScgd2lkdGg9JzInIGhlaWdodD0nMicgZmlsbD0nd2hpdGUnLz48cmVjdCB4PScxNCcgeT0nMTEnIHdpZHRoPScxLjUnIGhlaWdodD0nMS41JyBmaWxsPSd3aGl0ZScvPjxyZWN0IHg9JzE3JyB5PScxMScgd2lkdGg9JzInIGhlaWdodD0nMicgZmlsbD0nd2hpdGUnLz48cmVjdCB4PScxMScgeT0nMTQnIHdpZHRoPScxLjUnIGhlaWdodD0nMS41JyBmaWxsPSd3aGl0ZScvPjxyZWN0IHg9JzE0JyB5PScxNCcgd2lkdGg9JzInIGhlaWdodD0nMicgZmlsbD0nd2hpdGUnLz48cmVjdCB4PScxMScgeT0nMTcnIHdpZHRoPScyJyBoZWlnaHQ9JzInIGZpbGw9J3doaXRlJy8+PHJlY3QgeD0nMTcnIHk9JzE3JyB3aWR0aD0nMicgaGVpZ2h0PScyJyBmaWxsPSd3aGl0ZScvPjwvc3ZnPgo=";
 import supabase from "./src/lib/supabase";
-import api from "./src/lib/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Supporters from "./src/screens/Supporters";
 import QnA from "./src/screens/QnA";
@@ -14,7 +13,6 @@ import ElderlyMenu from "./src/screens/ElderlyMenu";
 import Menu from "./src/screens/Menu";
 import PaymentSuccess from "./src/screens/PaymentSuccess";
 import PaymentFail from "./src/screens/PaymentFail";
-import PaymentHistory from "./src/screens/PaymentHistory";
 import AdminLogin from "./src/components/AdminLogin";
 import QrScanner from "./src/components/QrScanner";
 import { s } from "./src/styles/App.styles";
@@ -43,15 +41,6 @@ const isPaymentFail = Platform.OS === "web" && window.location.pathname === "/pa
 
 const MUSIC_URL = "https://raw.githubusercontent.com/jkKwag/jksystems/main/assets/bgmusic.mp3";
 
-// 어제 00:00부터 지금까지 (어제+오늘 범위)
-const isWithinYesterdayToday = (dateStr) => {
-  if (!dateStr) return false;
-  const d = new Date(dateStr);
-  const now = new Date();
-  const startOfYesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 0, 0, 0);
-  return d >= startOfYesterday;
-};
-
 const Logo = () => (
   <View style={s.headerLeft}>
     <View style={s.logoBox}>
@@ -68,8 +57,6 @@ export default function App() {
   const [visitCountMap, setVisitCountMap] = useState({});   // { biz_reg_no: { order: N, rsvn: M } }
   const [visitLoaded, setVisitLoaded] = useState(false);
   const [showQrScanner, setShowQrScanner] = useState(false);
-  const [recentPayments, setRecentPayments] = useState([]);
-  const [showPaymentHistory, setShowPaymentHistory] = useState(false);
   const badgeAnim = useRef(new Animated.Value(0)).current;
   const [showLogin, setShowLogin] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
@@ -162,24 +149,6 @@ export default function App() {
       setVisitLoaded(true);
     })();
   }, []);
-
-  useEffect(() => {
-    if (Platform.OS !== "web" || menuBizno) return;
-    (async () => {
-      const uuid = localStorage.getItem("scaneat_uuid");
-      if (!uuid) { alert("DEBUG: uuid 없음"); return; }
-      const list = await api.payment.list(uuid);
-      alert("DEBUG uuid=" + uuid + "\nlist=" + JSON.stringify(list));
-      if (!Array.isArray(list)) return;
-      setRecentPayments(list.filter(p => isWithinYesterdayToday(p.approvedDt || p.regDt)));
-    })();
-  }, []);
-
-  const bizNameMap = useMemo(() => {
-    const map = {};
-    visitHistory.forEach(b => { map[b.biz_reg_no] = b.biz_nm; });
-    return map;
-  }, [visitHistory]);
 
   useEffect(() => {
     if (!visitLoaded || visitHistory.length === 0) return;
@@ -336,11 +305,6 @@ export default function App() {
 
       <ScrollView style={s.content} contentContainerStyle={s.visitPage}>
         <Text style={s.visitPageTitle}>내 스캔 목록</Text>
-        {recentPayments.length > 0 && (
-          <TouchableOpacity style={s.paymentHistoryBtn} onPress={() => setShowPaymentHistory(true)}>
-            <Text style={s.paymentHistoryBtnText}>💳 결제내역 보기 ({recentPayments.length}건)</Text>
-          </TouchableOpacity>
-        )}
         {!visitLoaded ? (
           <Text style={s.visitEmptyText}>불러오는 중...</Text>
         ) : visitHistory.length === 0 ? (
@@ -394,12 +358,6 @@ export default function App() {
 
       <QrScanner visible={showQrScanner} onScan={handleQrScan} onClose={() => setShowQrScanner(false)} />
       <AdminLogin visible={showLogin} onClose={() => setShowLogin(false)} onLogin={handleLogin} />
-      <PaymentHistory
-        visible={showPaymentHistory}
-        onClose={() => setShowPaymentHistory(false)}
-        payments={recentPayments}
-        bizNameMap={bizNameMap}
-      />
     </View>
   );
 }

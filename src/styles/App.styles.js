@@ -39,9 +39,6 @@ export const s = StyleSheet.create({
   visitPage: { padding: spacing["5"], paddingBottom: spacing["10"] },
   visitPageTitle: { fontSize: font["6xl"], fontWeight: "900", color: colors.primary, marginBottom: spacing["4"] },
 
-  paymentHistoryBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", borderWidth: 1.5, borderColor: colors.accent, borderRadius: radius.xl, backgroundColor: colors.accentLight, paddingVertical: spacing["3"], marginBottom: spacing["4"] },
-  paymentHistoryBtnText: { fontSize: font.lg, fontWeight: "800", color: colors.accent },
-
   visitEmptyBox: { alignItems: "center", paddingTop: 60 },
   visitEmptyIcon: { fontSize: 48, marginBottom: spacing["3"] },
   visitEmptyText: { fontSize: font.xl, fontWeight: "700", color: colors.slate400, marginBottom: spacing["1.5"] },

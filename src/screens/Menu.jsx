@@ -3,6 +3,7 @@ import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Linking, M
 import AiChat from "../components/AiChat";
 import ChatRoom from "../components/ChatRoom";
 import MenuDetail from "./MenuDetail";
+import PaymentHistory from "./PaymentHistory";
 import api from "../lib/api";
 import SeatsView from "./SeatsView";
 import { s } from "../styles/Menu.styles";
@@ -17,6 +18,15 @@ function getUuid() {
     localStorage.setItem("scaneat_uuid", uuid);
   }
   return uuid;
+}
+
+// 24시간 영업하는 매장도 있어 최소 이틀(어제 00:00부터 지금까지)은 확인 가능해야 함
+function isWithinYesterdayToday(dateStr) {
+  if (!dateStr) return false;
+  const d = new Date(dateStr);
+  const now = new Date();
+  const startOfYesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 0, 0, 0);
+  return d >= startOfYesterday;
 }
 
 
@@ -259,6 +269,29 @@ export default function Menu({ bizno, tableNo }) {
     refreshPendingOrders();
   }, [bizno]);
 
+  // 결제내역 (어제~오늘). "내 스캔 목록" 버튼 아래에 조건부로 노출됨
+  const [recentPayments, setRecentPayments] = useState([]);
+  const [paymentBizNames, setPaymentBizNames] = useState({});
+  const [showPaymentHistory, setShowPaymentHistory] = useState(false);
+
+  useEffect(() => {
+    const uuid = getUuid();
+    if (!uuid) return;
+    (async () => {
+      const list = await api.payment.list(uuid);
+      if (!Array.isArray(list)) return;
+      const recent = list.filter(p => isWithinYesterdayToday(p.approvedDt || p.regDt));
+      setRecentPayments(recent);
+
+      const uniqueBizRegNos = [...new Set(recent.map(p => p.bizRegNo))];
+      const entries = await Promise.all(uniqueBizRegNos.map(async (regNo) => {
+        const data = await api.biz.get(regNo);
+        return [regNo, data?.bizNm];
+      }));
+      setPaymentBizNames(Object.fromEntries(entries));
+    })();
+  }, []);
+
   useEffect(() => {
     if (!bizno) return;
     api.biz.get(bizno).then(async (data) => {
@@ -479,6 +512,11 @@ export default function Menu({ bizno, tableNo }) {
             <Text style={s.scanListBtnText}>내 스캔 목록</Text>
           </TouchableOpacity>
         </View>
+        {recentPayments.length > 0 && (
+          <TouchableOpacity style={s.paymentHistoryBtn} onPress={() => setShowPaymentHistory(true)}>
+            <Text style={s.paymentHistoryBtnText}>💳 결제내역 보기 ({recentPayments.length}건)</Text>
+          </TouchableOpacity>
+        )}
         <View style={s.shopMeta}>
           <Text style={s.shopRating}><Text style={s.star}>★</Text> 4.8</Text>
           <Text style={s.shopInfo}>리뷰 142개 · {bizInfo?.indNm || ""}</Text>
@@ -908,6 +946,13 @@ export default function Menu({ bizno, tableNo }) {
           </View>
         </View>
       </Modal>
+
+      <PaymentHistory
+        visible={showPaymentHistory}
+        onClose={() => setShowPaymentHistory(false)}
+        payments={recentPayments}
+        bizNameMap={paymentBizNames}
+      />
     </View>
   );
 }

@@ -13,6 +13,9 @@ export const s = StyleSheet.create({
   scanListBtn: { marginLeft: "auto", borderWidth: 1.5, borderColor: colors.green, borderRadius: radius["2xl"], paddingHorizontal: spacing["2.5"], paddingVertical: spacing["1"], backgroundColor: colors.greenPaleBg2 },
   scanListBtnText: { fontSize: font.sm, fontWeight: "700", color: colors.green },
 
+  paymentHistoryBtn: { alignSelf: "flex-start", flexDirection: "row", alignItems: "center", borderWidth: 1.5, borderColor: colors.accent, borderRadius: radius["2xl"], paddingHorizontal: spacing["2.5"], paddingVertical: spacing["1"], backgroundColor: colors.accentLight, marginBottom: spacing["1.5"] },
+  paymentHistoryBtnText: { fontSize: font.sm, fontWeight: "700", color: colors.accent },
+
   chatFab: { height: spacing["12"], borderRadius: radius["4xl"], backgroundColor: colors.primary, justifyContent: "center", alignItems: "center", paddingHorizontal: spacing["5"], shadowColor: colors.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.4, shadowRadius: 10, elevation: 8 },
   chatFabText: { fontSize: font.lg, fontWeight: "800", color: colors.white },
 
