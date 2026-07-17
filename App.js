@@ -65,9 +65,18 @@ export default function App() {
   useEffect(() => {
     if (!menuBizno) return;
     const isBigFont = PixelRatio.getFontScale() >= 1.3;
-    AccessibilityInfo.isBoldTextEnabled()
-      .then((isBold) => { if (isBigFont || isBold) setMenuMode("test"); })
-      .catch(() => { if (isBigFont) setMenuMode("test"); });
+    try {
+      const result = AccessibilityInfo.isBoldTextEnabled();
+      if (result && typeof result.then === "function") {
+        result
+          .then((isBold) => { if (isBigFont || isBold) setMenuMode("test"); })
+          .catch(() => { if (isBigFont) setMenuMode("test"); });
+      } else {
+        if (isBigFont) setMenuMode("test");
+      }
+    } catch {
+      if (isBigFont) setMenuMode("test");
+    }
   }, []);
 
   const menuModeRef = useRef(null);
