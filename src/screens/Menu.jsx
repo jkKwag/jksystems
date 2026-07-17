@@ -954,9 +954,6 @@ export default function Menu({ bizno, tableNo }) {
                   }}
                 >
                   <Text style={s.payNowBtnText}>₩{grandTotal.toLocaleString()} 결제하기</Text>
-                  <View style={s.payOrderTypeBadge}>
-                    <Text style={s.payOrderTypeText}>{orderType === "포장주문" ? "📦 포장주문" : "🍽️ 매장주문"}</Text>
-                  </View>
                 </TouchableOpacity>
               </View>
             </View>

@@ -163,14 +163,12 @@ export const s = StyleSheet.create({
   payBtn: { backgroundColor: colors.primary, borderRadius: radius["2xl"], paddingVertical: spacing["4"], alignItems: "center", gap: spacing["1"] },
   payBtnDisabled: { backgroundColor: colors.slate300, opacity: 0.6 },
   payBtnText: { color: colors.white, fontSize: font["2xl"], fontWeight: "900", letterSpacing: 0.3 },
-  payOrderTypeBadge: { backgroundColor: "rgba(255,255,255,0.15)", borderRadius: radius.md, paddingHorizontal: spacing["2.5"], paddingVertical: 2 },
-  payOrderTypeText: { color: colors.white, fontSize: font.sm, fontWeight: "700" },
 
   payBtnRow: { flexDirection: "row", gap: spacing["2.5"] },
-  orderOnlyBtn: { flex: 1, backgroundColor: colors.bgCard, borderWidth: 1.5, borderColor: colors.primary, borderRadius: radius["2xl"], paddingVertical: spacing["3.5"], alignItems: "center", justifyContent: "center" },
+  orderOnlyBtn: { flex: 1, backgroundColor: colors.bgCard, borderWidth: 1.5, borderColor: colors.primary, borderRadius: radius["2xl"], paddingVertical: spacing["3"], alignItems: "center", justifyContent: "center" },
   orderOnlyBtnDisabled: { borderColor: colors.slate300, opacity: 0.6 },
   orderOnlyBtnText: { color: colors.primary, fontSize: font.lg, fontWeight: "800" },
-  payNowBtn: { flex: 1.4, backgroundColor: colors.primary, borderRadius: radius["2xl"], paddingVertical: spacing["3.5"], alignItems: "center", justifyContent: "center", gap: spacing["1"] },
+  payNowBtn: { flex: 1.4, backgroundColor: colors.primary, borderRadius: radius["2xl"], paddingVertical: spacing["3"], alignItems: "center", justifyContent: "center" },
   payNowBtnDisabled: { backgroundColor: colors.slate300, opacity: 0.6 },
   payNowBtnText: { color: colors.white, fontSize: font.xl, fontWeight: "900", letterSpacing: 0.3 },
 
