@@ -15,7 +15,9 @@ export default function ElderlyTest({ onSelect, onSelectElderly }) {
       <Text style={s.sub}>맞춤 메뉴를 제공해 드립니다</Text>
 
       <TouchableOpacity style={[s.btn, s.btnSenior, GRAD_SENIOR]} onPress={onSelectElderly} activeOpacity={0.85}>
-        <Text style={s.btnIcon}>👴</Text>
+        <View style={s.sampleBox}>
+          <Text style={s.sampleBig}>{"가나\n다라"}</Text>
+        </View>
         <View style={s.btnText}>
           <Text style={s.btnLabel}>아주크게</Text>
           <Text style={s.btnDesc}>큰 글씨 · 간편 주문</Text>
@@ -24,7 +26,9 @@ export default function ElderlyTest({ onSelect, onSelectElderly }) {
       </TouchableOpacity>
 
       <TouchableOpacity style={[s.btn, s.btnJunior, GRAD_JUNIOR]} onPress={onSelect} activeOpacity={0.85}>
-        <Text style={s.btnIcon}>🧑</Text>
+        <View style={s.sampleBox}>
+          <Text style={s.sampleSmall}>{"가나\n다라"}</Text>
+        </View>
         <View style={s.btnText}>
           <Text style={s.btnLabel}>보통</Text>
           <Text style={s.btnDesc}>일반 메뉴</Text>
