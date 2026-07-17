@@ -8,6 +8,7 @@ import Supporters from "./src/screens/Supporters";
 import QnA from "./src/screens/QnA";
 import FAQ from "./src/screens/FAQ";
 import DisplaySelect from "./src/screens/DisplaySelect";
+import RmLocalStorage from "./src/screens/rmLocalStorage";
 import ElderlyMenu from "./src/screens/ElderlyMenu";
 import Menu from "./src/screens/Menu";
 import PaymentSuccess from "./src/screens/PaymentSuccess";
@@ -221,6 +222,7 @@ export default function App() {
             { key: "qna", icon: "💬", label: "Q&A", desc: "자주 묻는 질문 답변" },
             { key: "faq", icon: "❓", label: "FAQ", desc: "공지 및 안내사항" },
             { key: "elderly", icon: "🔡", label: "글씨크기", desc: "화면 글씨 크기 선택" },
+            { key: "storage", icon: "🗄️", label: "저장소", desc: "로컬 저장소 관리 (테스트)" },
           ].map(item => (
             <TouchableOpacity key={item.key} style={s.drawerItem} onPress={() => {
               setShowDrawer(false);
@@ -247,11 +249,12 @@ export default function App() {
         <AppHeader />
         <View style={s.content}>
           <ElderlyMenu bizno={menuBizno} tableNo={tableNo} onBack={() => setMenuMode(null)} />
-          {(menuOverlay === "supporters" || menuOverlay === "qna" || menuOverlay === "faq") && (
+          {(menuOverlay === "supporters" || menuOverlay === "qna" || menuOverlay === "faq" || menuOverlay === "storage") && (
             <View style={[StyleSheet.absoluteFillObject, s.overlayScreen]}>
               {menuOverlay === "supporters" && <Supporters isAdmin={false} />}
               {menuOverlay === "qna" && <QnA isAdmin={false} />}
               {menuOverlay === "faq" && <FAQ />}
+              {menuOverlay === "storage" && <RmLocalStorage />}
             </View>
           )}
         </View>
@@ -267,11 +270,12 @@ export default function App() {
         <AppHeader />
         <View style={s.content}>
           <Menu bizno={menuBizno} tableNo={tableNo} />
-          {(menuOverlay === "supporters" || menuOverlay === "qna" || menuOverlay === "faq") && (
+          {(menuOverlay === "supporters" || menuOverlay === "qna" || menuOverlay === "faq" || menuOverlay === "storage") && (
             <View style={[StyleSheet.absoluteFillObject, s.overlayScreen]}>
               {menuOverlay === "supporters" && <Supporters isAdmin={false} />}
               {menuOverlay === "qna" && <QnA isAdmin={false} />}
               {menuOverlay === "faq" && <FAQ />}
+              {menuOverlay === "storage" && <RmLocalStorage />}
             </View>
           )}
           {menuMode === "test" && (
