@@ -167,8 +167,9 @@ export default function App() {
     if (Platform.OS !== "web" || menuBizno) return;
     (async () => {
       const uuid = localStorage.getItem("scaneat_uuid");
-      if (!uuid) return;
+      if (!uuid) { alert("DEBUG: uuid 없음"); return; }
       const list = await api.payment.list(uuid);
+      alert("DEBUG uuid=" + uuid + "\nlist=" + JSON.stringify(list));
       if (!Array.isArray(list)) return;
       setRecentPayments(list.filter(p => isWithinYesterdayToday(p.approvedDt || p.regDt)));
     })();
