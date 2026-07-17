@@ -228,6 +228,9 @@ export default function Menu({ bizno, tableNo }) {
   const [menuItems, setMenuItems] = useState([]);
   const [bizInfo, setBizInfo] = useState(null);
   const [imgErrors, setImgErrors] = useState({});
+  // TODO: 백엔드 연결 전 임시 로컬 상태 — 나중에 scaneat_pending_orders_{bizno}
+  // localStorage + POST /api/order 연동으로 교체 예정
+  const [pendingOrders, setPendingOrders] = useState([]);
 
   useEffect(() => {
     if (!bizno) return;
@@ -317,6 +320,10 @@ export default function Menu({ bizno, tableNo }) {
   const cartItems = Object.values(cart);
   const cartCount = cartItems.reduce((sum, i) => sum + i.quantity, 0);
   const cartTotal = cartItems.reduce((sum, i) => sum + i.item.price * i.quantity, 0);
+
+  const pendingCount = pendingOrders.length;
+  const pendingTotal = pendingOrders.reduce((sum, o) => sum + o.amount, 0);
+  const grandTotal = cartTotal + pendingTotal;
 
   const addToCart = (item) => {
     // item.quantity는 MenuDetail에서 선택한 "담을 개수"일 뿐, 장바구니에
@@ -513,8 +520,8 @@ export default function Menu({ bizno, tableNo }) {
         </View>
       </ScrollView>
 
-      {/* 장바구니 바 */}
-      {cartCount > 0 && (
+      {/* 장바구니 바 / 결제 대기 바 */}
+      {cartCount > 0 ? (
         <TouchableOpacity style={[s.cartBar, Platform.OS === "web" && { position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100 }]} onPress={() => setShowCart(true)}>
           <View style={s.cartBadge}><Text style={s.cartBadgeText}>{cartCount}</Text></View>
           <View style={s.cartBarCenter}>
@@ -525,7 +532,15 @@ export default function Menu({ bizno, tableNo }) {
           </View>
           <Text style={s.cartBarTotal}>₩{cartTotal.toLocaleString()}</Text>
         </TouchableOpacity>
-      )}
+      ) : pendingCount > 0 ? (
+        <TouchableOpacity style={[s.cartBar, Platform.OS === "web" && { position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100 }]} onPress={() => setShowPayment(true)}>
+          <View style={s.cartBadge}><Text style={s.cartBadgeText}>{pendingCount}</Text></View>
+          <View style={s.cartBarCenter}>
+            <Text style={s.cartBarText}>결제 대기 중 · 결제하기</Text>
+          </View>
+          <Text style={s.cartBarTotal}>₩{pendingTotal.toLocaleString()}</Text>
+        </TouchableOpacity>
+      ) : null}
 
       {/* 폭죽 애니메이션 */}
       {showConfetti && (
@@ -734,59 +749,90 @@ export default function Menu({ bizno, tableNo }) {
 
             {/* 주문 요약 */}
             <ScrollView style={{ flexShrink: 1 }} contentContainerStyle={{ padding: 20 }}>
-              <View style={s.paySection}>
-                <Text style={s.paySectionTitle}>주문 내역</Text>
-                {cartItems.map(({ item, quantity }) => (
-                  <View key={item.id} style={s.payOrderRow}>
-                    <Text style={s.payOrderName} numberOfLines={1}>{item.name}</Text>
-                    <Text style={s.payOrderQty}>x{quantity}</Text>
-                    <Text style={s.payOrderPrice}>₩{(item.price * quantity).toLocaleString()}</Text>
+              {cartItems.length > 0 && (
+                <View style={s.paySection}>
+                  <Text style={s.paySectionTitle}>이번 주문</Text>
+                  {cartItems.map(({ item, quantity }) => (
+                    <View key={item.id} style={s.payOrderRow}>
+                      <Text style={s.payOrderName} numberOfLines={1}>{item.name}</Text>
+                      <Text style={s.payOrderQty}>x{quantity}</Text>
+                      <Text style={s.payOrderPrice}>₩{(item.price * quantity).toLocaleString()}</Text>
+                    </View>
+                  ))}
+                  <View style={s.payDivider} />
+                  <View style={s.payOrderRow}>
+                    <Text style={[s.payOrderName, { fontWeight: "900", color: "#111" }]}>소계</Text>
+                    <Text style={s.payTotalAmt}>₩{cartTotal.toLocaleString()}</Text>
                   </View>
-                ))}
-                <View style={s.payDivider} />
-                <View style={s.payOrderRow}>
-                  <Text style={[s.payOrderName, { fontWeight: "900", color: "#111" }]}>합계</Text>
-                  <Text style={s.payTotalAmt}>₩{cartTotal.toLocaleString()}</Text>
                 </View>
-              </View>
+              )}
+
+              {pendingCount > 0 && (
+                <View style={s.pendingBar}>
+                  <Text style={s.pendingBarText}>먼저 주문한 {pendingCount}건 (결제 대기)</Text>
+                  <Text style={s.pendingBarAmt}>₩{pendingTotal.toLocaleString()}</Text>
+                </View>
+              )}
 
               <Text style={s.payTossNote}>결제 수단 선택은 토스페이먼츠 화면에서 진행됩니다</Text>
             </ScrollView>
 
-            {/* 결제 버튼 */}
+            {/* 주문/결제 버튼 */}
             <View style={s.payFooter}>
               <View style={s.payAmtRow}>
-                <Text style={s.payAmtLabel}>최종 결제금액</Text>
-                <Text style={s.payAmtValue}>₩{cartTotal.toLocaleString()}</Text>
+                <Text style={s.payAmtLabel}>결제 시 총 금액</Text>
+                <Text style={s.payAmtValue}>₩{grandTotal.toLocaleString()}</Text>
               </View>
-              <TouchableOpacity style={[s.payBtn, cartItems.length === 0 && s.payBtnDisabled]} disabled={cartItems.length === 0} onPress={async () => {
-                try {
-                  if (!TOSS_CLIENT_KEY) { alert("토스 클라이언트 키가 없습니다 (EXPO_PUBLIC_TOSS_CLIENT_KEY)"); return; }
-                  try { sessionStorage.setItem(`scaneat_pending_cart_${bizno}`, JSON.stringify(cart)); } catch {}
-                  const { loadTossPayments, ANONYMOUS } = await import("@tosspayments/tosspayments-sdk");
-                  const tossPayments = await loadTossPayments(TOSS_CLIENT_KEY);
-                  const payment = tossPayments.payment({ customerKey: ANONYMOUS });
-                  await payment.requestPayment({
-                    method: "CARD",
-                    amount: { currency: "KRW", value: cartTotal },
-                    orderId: `scaneat-${Date.now()}`,
-                    orderName: cartItems.length === 1
-                      ? cartItems[0].item.name
-                      : `${cartItems[0].item.name} 외 ${cartItems.length - 1}건`,
-                    successUrl: window.location.origin + `/payment/success?bizno=${bizno}&biz_nm=${encodeURIComponent(bizInfo?.bizNm || "")}`,
-                    failUrl: window.location.origin + `/payment/fail?bizno=${bizno}&biz_nm=${encodeURIComponent(bizInfo?.bizNm || "")}`,
-                  });
-                } catch (e) {
-                  if (e?.code === "USER_CANCEL") { setShowPayment(false); return; }
-                  alert(`[결제 오류] ${e?.message || JSON.stringify(e)}`);
-                  console.error("[Toss]", e);
-                }
-              }}>
-                <Text style={s.payBtnText}>₩{cartTotal.toLocaleString()} 결제하기</Text>
-                <View style={s.payOrderTypeBadge}>
-                  <Text style={s.payOrderTypeText}>{orderType === "포장주문" ? "📦 포장주문" : "🍽️ 매장주문"}</Text>
-                </View>
-              </TouchableOpacity>
+              <View style={s.payBtnRow}>
+                <TouchableOpacity
+                  style={[s.orderOnlyBtn, cartItems.length === 0 && s.orderOnlyBtnDisabled]}
+                  disabled={cartItems.length === 0}
+                  onPress={() => {
+                    // TODO: POST /api/order 연동 예정. 지금은 화면 흐름만 확인하는 임시 로직.
+                    setPendingOrders(prev => [...prev, { id: Date.now(), amount: cartTotal }]);
+                    clearCart();
+                    setShowPayment(false);
+                    alert("주문이 접수되었어요. 계속 주문하시거나, 준비되면 결제해주세요.");
+                  }}
+                >
+                  <Text style={s.orderOnlyBtnText}>주문만 하기</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[s.payNowBtn, grandTotal === 0 && s.payNowBtnDisabled]}
+                  disabled={grandTotal === 0}
+                  onPress={async () => {
+                    try {
+                      if (!TOSS_CLIENT_KEY) { alert("토스 클라이언트 키가 없습니다 (EXPO_PUBLIC_TOSS_CLIENT_KEY)"); return; }
+                      try { sessionStorage.setItem(`scaneat_pending_cart_${bizno}`, JSON.stringify(cart)); } catch {}
+                      const { loadTossPayments, ANONYMOUS } = await import("@tosspayments/tosspayments-sdk");
+                      const tossPayments = await loadTossPayments(TOSS_CLIENT_KEY);
+                      const payment = tossPayments.payment({ customerKey: ANONYMOUS });
+                      await payment.requestPayment({
+                        method: "CARD",
+                        amount: { currency: "KRW", value: grandTotal },
+                        orderId: `scaneat-${Date.now()}`,
+                        orderName: cartItems.length === 1
+                          ? cartItems[0].item.name
+                          : cartItems.length > 0
+                            ? `${cartItems[0].item.name} 외 ${cartItems.length - 1}건`
+                            : `주문 ${pendingCount}건`,
+                        successUrl: window.location.origin + `/payment/success?bizno=${bizno}&biz_nm=${encodeURIComponent(bizInfo?.bizNm || "")}`,
+                        failUrl: window.location.origin + `/payment/fail?bizno=${bizno}&biz_nm=${encodeURIComponent(bizInfo?.bizNm || "")}`,
+                      });
+                    } catch (e) {
+                      if (e?.code === "USER_CANCEL") { setShowPayment(false); return; }
+                      alert(`[결제 오류] ${e?.message || JSON.stringify(e)}`);
+                      console.error("[Toss]", e);
+                    }
+                  }}
+                >
+                  <Text style={s.payNowBtnText}>₩{grandTotal.toLocaleString()} 결제하기</Text>
+                  <View style={s.payOrderTypeBadge}>
+                    <Text style={s.payOrderTypeText}>{orderType === "포장주문" ? "📦 포장주문" : "🍽️ 매장주문"}</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </View>

@@ -156,6 +156,18 @@ export const s = StyleSheet.create({
   payOrderTypeBadge: { backgroundColor: "rgba(255,255,255,0.15)", borderRadius: radius.md, paddingHorizontal: spacing["2.5"], paddingVertical: 2 },
   payOrderTypeText: { color: colors.white, fontSize: font.sm, fontWeight: "700" },
 
+  payBtnRow: { flexDirection: "row", gap: spacing["2.5"] },
+  orderOnlyBtn: { flex: 1, backgroundColor: colors.bgCard, borderWidth: 1.5, borderColor: colors.primary, borderRadius: radius["2xl"], paddingVertical: spacing["3.5"], alignItems: "center", justifyContent: "center" },
+  orderOnlyBtnDisabled: { borderColor: colors.slate300, opacity: 0.6 },
+  orderOnlyBtnText: { color: colors.primary, fontSize: font.lg, fontWeight: "800" },
+  payNowBtn: { flex: 1.4, backgroundColor: colors.primary, borderRadius: radius["2xl"], paddingVertical: spacing["3.5"], alignItems: "center", justifyContent: "center", gap: spacing["1"] },
+  payNowBtnDisabled: { backgroundColor: colors.slate300, opacity: 0.6 },
+  payNowBtnText: { color: colors.white, fontSize: font.xl, fontWeight: "900", letterSpacing: 0.3 },
+
+  pendingBar: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: colors.accentLight, borderRadius: radius.lg, paddingHorizontal: spacing["3.5"], paddingVertical: spacing["2.5"], marginBottom: spacing["3"] },
+  pendingBarText: { fontSize: font.md, color: colors.primary, fontWeight: "700" },
+  pendingBarAmt: { fontSize: font.md, color: colors.accent, fontWeight: "900" },
+
   sheetFooter: { padding: spacing["4"], borderTopWidth: 1, borderTopColor: colors.borderLight },
   totalRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: spacing["3"] },
   totalLabel: { fontSize: font.md, color: colors.textMuted, fontWeight: "600" },
