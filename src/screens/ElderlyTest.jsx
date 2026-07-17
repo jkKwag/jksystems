@@ -1,5 +1,12 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Platform } from "react-native";
 import { s } from "../styles/ElderlyTest.styles";
+
+const GRAD_SENIOR = Platform.OS === "web"
+  ? { background: "linear-gradient(135deg, #60a5fa 0%, #2563eb 100%)" }
+  : {};
+const GRAD_JUNIOR = Platform.OS === "web"
+  ? { background: "linear-gradient(135deg, #0f172a 0%, #14532d 100%)" }
+  : {};
 
 export default function ElderlyTest({ onSelect, onSelectElderly }) {
   return (
@@ -7,7 +14,7 @@ export default function ElderlyTest({ onSelect, onSelectElderly }) {
       <Text style={s.title}>글씨 크기를 선택해주세요</Text>
       <Text style={s.sub}>맞춤 메뉴를 제공해 드립니다</Text>
 
-      <TouchableOpacity style={[s.btn, s.btnSenior]} onPress={onSelectElderly} activeOpacity={0.85}>
+      <TouchableOpacity style={[s.btn, s.btnSenior, GRAD_SENIOR]} onPress={onSelectElderly} activeOpacity={0.85}>
         <Text style={s.btnIcon}>👴</Text>
         <View style={s.btnText}>
           <Text style={s.btnLabel}>아주크게</Text>
@@ -16,7 +23,7 @@ export default function ElderlyTest({ onSelect, onSelectElderly }) {
         <Text style={s.btnArrow}>→</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={[s.btn, s.btnJunior]} onPress={onSelect} activeOpacity={0.85}>
+      <TouchableOpacity style={[s.btn, s.btnJunior, GRAD_JUNIOR]} onPress={onSelect} activeOpacity={0.85}>
         <Text style={s.btnIcon}>🧑</Text>
         <View style={s.btnText}>
           <Text style={s.btnLabel}>보통</Text>
