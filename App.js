@@ -7,7 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Supporters from "./src/screens/Supporters";
 import QnA from "./src/screens/QnA";
 import FAQ from "./src/screens/FAQ";
-import ElderlyTest from "./src/screens/ElderlyTest";
+import DisplaySelect from "./src/screens/DisplaySelect";
 import ElderlyMenu from "./src/screens/ElderlyMenu";
 import Menu from "./src/screens/Menu";
 import PaymentSuccess from "./src/screens/PaymentSuccess";
@@ -276,7 +276,7 @@ export default function App() {
           )}
           {menuMode === "test" && (
             <View style={[StyleSheet.absoluteFillObject, { backgroundColor: "rgba(0,0,0,0.72)", zIndex: 50 }]}>
-              <ElderlyTest
+              <DisplaySelect
                 onSelect={() => { localStorage.setItem("scaneat_display_mode", "normal"); setMenuOverlay(null); setMenuMode(null); }}
                 onSelectElderly={() => { localStorage.setItem("scaneat_display_mode", "elderly"); setMenuOverlay(null); setMenuMode("elderly"); }}
               />

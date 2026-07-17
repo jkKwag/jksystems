@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, Platform } from "react-native";
-import { s } from "../styles/ElderlyTest.styles";
+import { s } from "../styles/DisplaySelect.styles";
 
 const GRAD_SENIOR = Platform.OS === "web"
   ? { background: "linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%)" }
