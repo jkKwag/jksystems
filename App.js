@@ -245,7 +245,16 @@ export default function App() {
       <View style={s.container}>
         <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
         <AppHeader />
-        <ElderlyMenu bizno={menuBizno} tableNo={tableNo} onBack={() => setMenuMode(null)} />
+        <View style={s.content}>
+          <ElderlyMenu bizno={menuBizno} tableNo={tableNo} onBack={() => setMenuMode(null)} />
+          {(menuOverlay === "supporters" || menuOverlay === "qna" || menuOverlay === "faq") && (
+            <View style={[StyleSheet.absoluteFillObject, s.overlayScreen]}>
+              {menuOverlay === "supporters" && <Supporters isAdmin={false} />}
+              {menuOverlay === "qna" && <QnA isAdmin={false} />}
+              {menuOverlay === "faq" && <FAQ />}
+            </View>
+          )}
+        </View>
         <AppDrawer />
       </View>
     );
