@@ -21,11 +21,6 @@ const formatDt = (dateStr) => {
   return `${label} ${hh}:${mm}`;
 };
 
-const formatOptions = (options) => (options || [])
-  .filter(o => o.optNm)
-  .map(o => Number(o.addPrice || 0) > 0 ? `${o.optNm}(+₩${Number(o.addPrice).toLocaleString()})` : o.optNm)
-  .join(", ");
-
 export default function PaymentHistory({ visible, onClose, payments, bizNameMap }) {
   const [expandedKey, setExpandedKey] = useState(null);
   const [orderDetails, setOrderDetails] = useState({}); // { [paymentKey]: OrderResponse[] }
@@ -105,9 +100,11 @@ export default function PaymentHistory({ visible, onClose, payments, bizNameMap 
                                   <View key={item.orderSeq} style={s.itemRow}>
                                     <View style={{ flex: 1 }}>
                                       <Text style={s.itemName}>{item.menuNm} x{item.qty}</Text>
-                                      {!!formatOptions(item.options) && (
-                                        <Text style={s.itemOptions}>{formatOptions(item.options)}</Text>
-                                      )}
+                                      {item.options?.filter(o => o.optNm).map(o => (
+                                        <Text key={o.optCd} style={s.itemOptions}>
+                                          {o.optNm}{Number(o.addPrice || 0) > 0 ? ` (+₩${Number(o.addPrice).toLocaleString()})` : ""}
+                                        </Text>
+                                      ))}
                                     </View>
                                     <Text style={s.itemPrice}>₩{lineTotal.toLocaleString()}</Text>
                                   </View>
