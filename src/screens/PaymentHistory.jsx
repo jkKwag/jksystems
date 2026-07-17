@@ -90,17 +90,21 @@ export default function PaymentHistory({ visible, onClose, payments, bizNameMap 
                         ) : (
                           orderDetails[p.paymentKey].map((order, oi) => (
                             <View key={order.orderNo} style={[s.orderBlock, oi > 0 && s.orderBlockDivider]}>
-                              {order.items?.map(item => (
-                                <View key={item.orderSeq} style={s.itemRow}>
-                                  <View style={{ flex: 1 }}>
-                                    <Text style={s.itemName}>{item.menuNm} x{item.qty}</Text>
-                                    {!!formatOptions(item.options) && (
-                                      <Text style={s.itemOptions}>{formatOptions(item.options)}</Text>
-                                    )}
+                              {order.items?.map(item => {
+                                const optionsTotal = (item.options || []).reduce((sum, o) => sum + Number(o.addPrice || 0), 0);
+                                const lineTotal = (Number(item.price || 0) + optionsTotal) * Number(item.qty || 1);
+                                return (
+                                  <View key={item.orderSeq} style={s.itemRow}>
+                                    <View style={{ flex: 1 }}>
+                                      <Text style={s.itemName}>{item.menuNm} x{item.qty}</Text>
+                                      {!!formatOptions(item.options) && (
+                                        <Text style={s.itemOptions}>{formatOptions(item.options)}</Text>
+                                      )}
+                                    </View>
+                                    <Text style={s.itemPrice}>₩{lineTotal.toLocaleString()}</Text>
                                   </View>
-                                  <Text style={s.itemPrice}>₩{Number((item.price || 0) * (item.qty || 1)).toLocaleString()}</Text>
-                                </View>
-                              ))}
+                                );
+                              })}
                             </View>
                           ))
                         )}
