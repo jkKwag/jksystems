@@ -93,6 +93,9 @@ export default function PaymentHistory({ visible, onClose, payments, bizNameMap 
                         ) : (
                           orderDetails[p.paymentKey].map((order, oi) => (
                             <View key={order.orderNo} style={[s.orderBlock, oi > 0 && s.orderBlockDivider]}>
+                              <View style={s.orderBadge}>
+                                <Text style={s.orderBadgeText}>주문{oi + 1}</Text>
+                              </View>
                               {order.items?.map(item => {
                                 const optionsTotal = (item.options || []).reduce((sum, o) => sum + Number(o.addPrice || 0), 0);
                                 const lineTotal = (Number(item.price || 0) + optionsTotal) * Number(item.qty || 1);
