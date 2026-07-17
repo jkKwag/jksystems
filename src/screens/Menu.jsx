@@ -250,11 +250,7 @@ export default function Menu({ bizno, tableNo }) {
     if (!uuid || !bizno) return;
     const orders = await api.order.list(uuid);
     if (!Array.isArray(orders)) return;
-    setPendingOrders(
-      orders
-        .filter(o => o.bizRegNo === bizno && o.status === "PENDING")
-        .map(o => ({ orderNo: o.orderNo, amount: o.totalAmount }))
-    );
+    setPendingOrders(orders.filter(o => o.bizRegNo === bizno && o.status === "PENDING"));
   };
 
   useEffect(() => {
@@ -373,7 +369,7 @@ export default function Menu({ bizno, tableNo }) {
   const cartTotal = cartItems.reduce((sum, i) => sum + i.item.price * i.quantity, 0);
 
   const pendingCount = pendingOrders.length;
-  const pendingTotal = pendingOrders.reduce((sum, o) => sum + o.amount, 0);
+  const pendingTotal = pendingOrders.reduce((sum, o) => sum + Number(o.totalAmount || 0), 0);
   const grandTotal = cartTotal + pendingTotal;
 
   const addToCart = (item) => {
@@ -854,9 +850,29 @@ export default function Menu({ bizno, tableNo }) {
               )}
 
               {pendingCount > 0 && (
-                <View style={s.pendingBar}>
-                  <Text style={s.pendingBarText}>먼저 주문한 {pendingCount}건 (결제 대기)</Text>
-                  <Text style={s.pendingBarAmt}>₩{pendingTotal.toLocaleString()}</Text>
+                <View style={s.paySection}>
+                  <Text style={s.paySectionTitle}>먼저 주문한 내역 ({pendingCount}건, 결제 대기)</Text>
+                  {pendingOrders.map((order, oi) => (
+                    <View key={order.orderNo}>
+                      {oi > 0 && <View style={s.payDivider} />}
+                      {order.items?.map(item => {
+                        const optionsTotal = (item.options || []).reduce((sum, o) => sum + Number(o.addPrice || 0), 0);
+                        const lineTotal = (Number(item.price || 0) + optionsTotal) * Number(item.qty || 1);
+                        return (
+                          <View key={item.orderSeq} style={s.payOrderRow}>
+                            <Text style={s.payOrderName} numberOfLines={1}>{item.menuNm}</Text>
+                            <Text style={s.payOrderQty}>x{item.qty}</Text>
+                            <Text style={s.payOrderPrice}>₩{lineTotal.toLocaleString()}</Text>
+                          </View>
+                        );
+                      })}
+                    </View>
+                  ))}
+                  <View style={s.payDivider} />
+                  <View style={s.payOrderRow}>
+                    <Text style={[s.payOrderName, { fontWeight: "900", color: "#111" }]}>소계</Text>
+                    <Text style={s.payTotalAmt}>₩{pendingTotal.toLocaleString()}</Text>
+                  </View>
                 </View>
               )}
 

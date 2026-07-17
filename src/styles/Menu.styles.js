@@ -168,10 +168,6 @@ export const s = StyleSheet.create({
   payNowBtnDisabled: { backgroundColor: colors.slate300, opacity: 0.6 },
   payNowBtnText: { color: colors.white, fontSize: font.xl, fontWeight: "900", letterSpacing: 0.3 },
 
-  pendingBar: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: colors.accentLight, borderRadius: radius.lg, paddingHorizontal: spacing["3.5"], paddingVertical: spacing["2.5"], marginBottom: spacing["3"] },
-  pendingBarText: { fontSize: font.md, color: colors.primary, fontWeight: "700" },
-  pendingBarAmt: { fontSize: font.md, color: colors.accent, fontWeight: "900" },
-
   sheetFooter: { padding: spacing["4"], borderTopWidth: 1, borderTopColor: colors.borderLight },
   totalRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: spacing["3"] },
   totalLabel: { fontSize: font.md, color: colors.textMuted, fontWeight: "600" },
