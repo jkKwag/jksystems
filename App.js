@@ -277,8 +277,8 @@ export default function App() {
           {menuMode === "test" && (
             <View style={[StyleSheet.absoluteFillObject, { backgroundColor: "rgba(0,0,0,0.72)", zIndex: 50 }]}>
               <ElderlyTest
-                onSelect={() => { localStorage.setItem("scaneat_display_mode", "normal"); setMenuMode(null); }}
-                onSelectElderly={() => { localStorage.setItem("scaneat_display_mode", "elderly"); setMenuMode("elderly"); }}
+                onSelect={() => { localStorage.setItem("scaneat_display_mode", "normal"); setMenuOverlay(null); setMenuMode(null); }}
+                onSelectElderly={() => { localStorage.setItem("scaneat_display_mode", "elderly"); setMenuOverlay(null); setMenuMode("elderly"); }}
               />
             </View>
           )}
