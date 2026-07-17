@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Animated, Platform, ActivityIndicator, Image } from "react-native";
 import { s } from "../styles/AiChat.styles";
-import supabase from "../lib/supabase";
+import api from "../lib/api";
 
 const WELCOME = "안녕하세요! Scaneat AI 메뉴 추천 도우미예요 😊\n어떤 음식이 드시고 싶으세요?";
 const CONFIRM_ADD_RE = /담아|찜|넣어|네|넵|예|응|그래|좋아|콜|오케이|ok/i;
@@ -140,7 +140,7 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
       setInput("");
       setLoading(true);
       try {
-        const resp = await fetch("/api/chat", {
+        const resp = await fetch("https://api.jkscaneat.com/api/ai/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -205,7 +205,7 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
     setPendingItem(null);
 
     try {
-      const resp = await fetch("/api/chat", {
+      const resp = await fetch("https://api.jkscaneat.com/api/ai/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: nextHistory, menuContext: menuItems, cartContext: cartItems }),
@@ -256,37 +256,29 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
   };
 
   const lookupReservations = async (rsvnNo) => {
-    const { data, error } = await supabase
-      .from("tb_usr_rsvn")
-      .select("*")
-      .eq("biz_reg_no", bizno)
-      .eq("rsvn_no", rsvnNo)
-      .order("reg_dt", { ascending: false });
+    const data = await api.reservation.get(rsvnNo);
+    const list = data ? (Array.isArray(data) ? data : [data]) : [];
 
-    if (error || !data) {
+    if (!data) {
       setDisplayMsgs(prev => [...prev, { role: "assistant", text: "조회 중 오류가 발생했어요. 다시 시도해 주세요." }]);
       return;
     }
-    if (data.length === 0) {
+    if (list.length === 0) {
       setDisplayMsgs(prev => [...prev, { role: "assistant", text: "해당 예약번호로 등록된 예약이 없어요." }]);
       return;
     }
-    setDisplayMsgs(prev => [...prev, { role: "assistant", text: "예약 내역이에요.", reservations: data }]);
+    setDisplayMsgs(prev => [...prev, { role: "assistant", text: "예약 내역이에요.", reservations: list }]);
   };
 
   const lookupForChange = async (rsvnNo) => {
-    const { data, error } = await supabase
-      .from("tb_usr_rsvn")
-      .select("*")
-      .eq("biz_reg_no", bizno)
-      .eq("rsvn_no", rsvnNo)
-      .order("reg_dt", { ascending: false });
+    const data = await api.reservation.get(rsvnNo);
+    const list2 = data ? (Array.isArray(data) ? data : [data]) : [];
 
-    if (error || !data || data.length === 0) {
+    if (!data || list2.length === 0) {
       setDisplayMsgs(prev => [...prev, { role: "assistant", text: "해당 예약번호로 등록된 예약이 없어요." }]);
       return;
     }
-    const rsvn = data[0];
+    const rsvn = list2[0];
     if (rsvn.status === "cancelled" || rsvn.status === "rejected") {
       setDisplayMsgs(prev => [...prev, { role: "assistant", text: "취소되거나 거절된 예약은 변경할 수 없어요." }]);
       return;
@@ -307,11 +299,7 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
     if (changes.party_size) update.party_size = changes.party_size;
     if (changes.req_cont !== undefined) update.req_cont = changes.req_cont;
 
-    const { error } = await supabase
-      .from("tb_usr_rsvn")
-      .update(update)
-      .eq("rsvn_no", rsvn.rsvn_no)
-      .eq("biz_reg_no", bizno);
+    const { error } = await api.reservation.put(rsvn.rsvn_no, update);
 
     const resultText = error
       ? "변경 처리 중 오류가 발생했어요. 다시 시도해 주세요."
@@ -323,22 +311,18 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
   };
 
   const lookupForCancel = async (rsvnNo) => {
-    const { data, error } = await supabase
-      .from("tb_usr_rsvn")
-      .select("*")
-      .eq("biz_reg_no", bizno)
-      .eq("rsvn_no", rsvnNo)
-      .order("reg_dt", { ascending: false });
+    const data = await api.reservation.get(rsvnNo);
+    const list3 = data ? (Array.isArray(data) ? data : [data]) : [];
 
-    if (error || !data) {
+    if (!data) {
       setDisplayMsgs(prev => [...prev, { role: "assistant", text: "조회 중 오류가 발생했어요. 다시 시도해 주세요." }]);
       return;
     }
-    if (data.length === 0) {
+    if (list3.length === 0) {
       setDisplayMsgs(prev => [...prev, { role: "assistant", text: "해당 예약번호로 등록된 예약이 없어요." }]);
       return;
     }
-    const rsvn = data[0];
+    const rsvn = list3[0];
     if (rsvn.status === "cancelled") {
       setDisplayMsgs(prev => [...prev, { role: "assistant", text: "이미 취소된 예약이에요." }]);
       return;
@@ -350,11 +334,7 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
   const cancelReservation = async () => {
     if (!pendingCancel) return;
     const now = new Date().toISOString();
-    const { error } = await supabase
-      .from("tb_usr_rsvn")
-      .update({ status: "cancelled", mdf_usr_id: "guest", mdf_dt: now })
-      .eq("rsvn_no", pendingCancel.rsvn_no)
-      .eq("biz_reg_no", bizno);
+    const { error } = await api.reservation.put(pendingCancel.rsvn_no, { status: "cancelled", mdf_usr_id: "guest", mdf_dt: now });
 
     const resultText = error
       ? "취소 처리 중 오류가 발생했어요. 다시 시도해 주세요."
@@ -376,13 +356,7 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
   const confirmCheckout = async () => {
     const now = new Date().toISOString();
     const scaneatUuid = Platform.OS === "web" ? localStorage.getItem("scaneat_uuid") : null;
-    await supabase.from("tb_usr_prv_cns").insert({
-      uuid: scaneatUuid,
-      biz_reg_no: bizno,
-      consent_at: now,
-      reg_usr_id: "guest",
-      reg_dt: now,
-    });
+    await api.consent.post({ uuid: scaneatUuid, biz_reg_no: bizno, consent_at: now, reg_usr_id: "guest", reg_dt: now });
     setPendingCheckout(false);
     setOpen(false);
     onRequestCheckout?.();
@@ -402,16 +376,8 @@ export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [],
     const now = new Date().toISOString();
     const rsvnNo = generateRsvnNo();
     const scaneatUuid = Platform.OS === "web" ? localStorage.getItem("scaneat_uuid") : null;
-    await supabase.from("tb_usr_prv_cns").insert({
-      uuid: scaneatUuid,
-      biz_reg_no: bizno,
-      guest_name: pendingReservation.guestName,
-      guest_phone: pendingReservation.guestPhone,
-      consent_at: now,
-      reg_usr_id: "guest",
-      reg_dt: now,
-    });
-    const { error } = await supabase.from("tb_usr_rsvn").insert({
+    await api.consent.postReservation({ uuid: scaneatUuid, biz_reg_no: bizno, guest_name: pendingReservation.guestName, guest_phone: pendingReservation.guestPhone, consent_at: now, reg_usr_id: "guest", reg_dt: now });
+    const { error } = await api.reservation.post({
       biz_reg_no: bizno,
       table_no: tableNo,
       rsvn_no: rsvnNo,

@@ -3,7 +3,7 @@ import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Linking, M
 import AiChat from "../components/AiChat";
 import ChatRoom from "../components/ChatRoom";
 import MenuDetail from "./MenuDetail";
-import supabase from "../lib/supabase";
+import api from "../lib/api";
 import SeatsView from "./SeatsView";
 import { s } from "../styles/Menu.styles";
 
@@ -231,46 +231,22 @@ export default function Menu({ bizno, tableNo }) {
 
   useEffect(() => {
     if (!bizno) return;
-    supabase
-      .from("tb_biz")
-      .select("biz_nm,biz_reg_no,tel_no,ind_cd,addr,addr_dtl")
-      .eq("biz_reg_no", bizno)
-      .single()
-      .then(({ data, error }) => {
-        if (!data) { console.warn("[TB_BIZ] fetch 실패", error); return; }
-        setBizInfo(data);
-        supabase
-          .from("tb_ind_cls")
-          .select("ind_nm")
-          .eq("ind_cd", data.ind_cd)
-          .single()
-          .then(({ data: cls, error: clsErr }) => {
-            if (cls) setBizInfo(prev => ({ ...prev, ind_nm: cls.ind_nm }));
-            else console.warn("[TB_IND_CLS] fetch 실패", clsErr);
-          });
-      });
+    api.biz.get(bizno).then(async (data) => {
+      if (!data) { console.warn("[BIZ] fetch 실패"); return; }
+      setBizInfo(data);
+      if (data.ind_cd) {
+        const cls = await api.industry.get(data.ind_cd);
+        if (cls) setBizInfo(prev => ({ ...prev, ind_nm: cls.ind_nm }));
+      }
+    });
   }, [bizno]);
 
   useEffect(() => {
     if (!bizno) return;
 
-    const catFetch = supabase
-      .from("tb_biz_cat")
-      .select("biz_cat_cd,biz_cat_nm,sort_ord")
-      .eq("biz_reg_no", bizno)
-      .eq("use_yn", "Y")
-      .order("sort_ord", { ascending: true });
-
-    const menuFetch = supabase
-      .from("tb_biz_menu")
-      .select("menu_cd,biz_cat_cd,menu_nm,menu_desc,price,img_url,badge,sort_ord")
-      .eq("biz_reg_no", bizno)
-      .eq("use_yn", "Y")
-      .order("sort_ord", { ascending: true });
-
-    Promise.all([catFetch, menuFetch]).then(([catRes, menuRes]) => {
-      const cats = catRes.data || [];
-      const menus = menuRes.data || [];
+    Promise.all([api.biz.categories(bizno), api.biz.menus(bizno)]).then(([cats, menus]) => {
+      cats = cats || [];
+      menus = menus || [];
 
       const catMap = {};
       cats.forEach(c => { catMap[c.biz_cat_cd] = c.biz_cat_nm; });
@@ -300,16 +276,10 @@ export default function Menu({ bizno, tableNo }) {
       }
       const now = new Date().toISOString();
       const src = new URLSearchParams(window.location.search).get("src");
-      const { data: existing } = await supabase.from("tb_usr_scan_log").select("id").eq("uuid", uuid).eq("biz_reg_no", bizno).single();
+      const logs = await api.scanLog.list(uuid);
+      const existing = Array.isArray(logs) && logs.some(l => l.biz_reg_no === bizno);
       if (!existing) {
-        supabase.from("tb_usr_scan_log").insert({
-          uuid,
-          biz_reg_no: bizno,
-          vst_dt: now,
-          vst_typ_cd: src === "qr" ? "qr" : "url",
-          reg_usr_id: "guest",
-          reg_dt: now,
-        });
+        api.scanLog.post({ uuid, biz_reg_no: bizno, vst_dt: now, vst_typ_cd: src === "qr" ? "qr" : "url", reg_usr_id: "guest", reg_dt: now });
       }
     })();
   }, [bizno]);

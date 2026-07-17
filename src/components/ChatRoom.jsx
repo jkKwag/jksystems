@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Platform, Animated } from "react-native";
 import { s } from "../styles/ChatRoom.styles";
-import supabase, { subscribeInserts } from "../lib/supabase";
+import { subscribeInserts } from "../lib/supabase";
+import api from "../lib/api";
 
 export default function ChatRoom({ visible, bizno, onClose }) {
   const [step, setStep] = useState("enter"); // "enter" | "chat"
@@ -47,10 +48,11 @@ export default function ChatRoom({ visible, bizno, onClose }) {
   const fetchMissed = async () => {
     const no = rsvnNoRef.current;
     if (!no) return;
-    const { data } = await supabase.from("tb_usr_chat_msg").select("*").eq("rsvn_no", no).gt("id", lastIdRef.current).order("reg_dt", { ascending: true });
-    if (data && data.length > 0) {
-      lastIdRef.current = Math.max(...data.map(m => m.id));
-      setMessages(prev => [...prev, ...data]);
+    const data = await api.chat.messages(no);
+    const fresh = (data || []).filter(m => m.id > lastIdRef.current);
+    if (fresh.length > 0) {
+      lastIdRef.current = Math.max(...fresh.map(m => m.id));
+      setMessages(prev => [...prev, ...fresh]);
       playNotification();
     }
   };
@@ -80,13 +82,13 @@ export default function ChatRoom({ visible, bizno, onClose }) {
     setJoining(true);
     setError("");
     myUuid.current = Platform.OS === "web" ? localStorage.getItem("scaneat_uuid") : null;
-    const { data } = await supabase.from("tb_usr_rsvn").select("rsvn_no").eq("rsvn_no", no).eq("biz_reg_no", bizno).single();
-    if (!data) {
+    const rsvn = await api.reservation.get(no);
+    if (!rsvn) {
       setError("예약번호를 찾을 수 없어요.");
       setJoining(false);
       return;
     }
-    const { data: msgs } = await supabase.from("tb_usr_chat_msg").select("*").eq("rsvn_no", no).order("reg_dt", { ascending: true });
+    const msgs = await api.chat.messages(no);
     const loaded = msgs || [];
     lastIdRef.current = loaded.length > 0 ? Math.max(...loaded.map(m => m.id)) : 0;
     rsvnNoRef.current = no;
@@ -112,7 +114,7 @@ export default function ChatRoom({ visible, bizno, onClose }) {
     };
     setMessages(prev => [...prev, newMsg]); // 낙관적 추가 (내 메시지 즉시 표시)
     setInput("");
-    await supabase.from("tb_usr_chat_msg").insert(newMsg);
+    await api.chat.send(rsvnNo.trim(), newMsg);
   };
 
   const fixedBase = Platform.OS === "web" ? { position: "fixed" } : {};

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Animated, useWindowDimensions } from "react-native";
-import supabase from "../lib/supabase";
+import api from "../lib/api";
 import { s } from "../styles/ElderlyMenu.styles";
 
 const DEMO_MENUS = [
@@ -42,20 +42,13 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
       setLoading(false);
       return;
     }
-    supabase
-      .from("tb_biz_menu")
-      .select("menu_cd,menu_nm,price,img_url")
-      .eq("biz_reg_no", bizno)
-      .eq("use_yn", "Y")
-      .order("sort_ord")
-      .then(({ data }) => {
-        setMenus(data && data.length > 0 ? data : DEMO_MENUS);
-        setLoading(false);
-      })
-      .catch(() => {
-        setMenus(DEMO_MENUS);
-        setLoading(false);
-      });
+    api.biz.menus(bizno).then((data) => {
+      setMenus(data && data.length > 0 ? data : DEMO_MENUS);
+      setLoading(false);
+    }).catch(() => {
+      setMenus(DEMO_MENUS);
+      setLoading(false);
+    });
   }, [bizno]);
 
   const goTo = (newIndex) => {

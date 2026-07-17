@@ -1,5 +1,7 @@
+import { useEffect } from "react";
 import { View, Text, TouchableOpacity, Platform } from "react-native";
 import { s } from "../styles/PaymentSuccess.styles";
+import api from "../lib/api";
 
 const getParams = () => {
   if (Platform.OS !== "web") return {};
@@ -15,6 +17,12 @@ const getParams = () => {
 
 export default function PaymentSuccess() {
   const { paymentKey, orderId, amount, bizno, bizNm } = getParams();
+
+  useEffect(() => {
+    if (paymentKey && orderId && amount) {
+      api.payment.confirm({ paymentKey, orderId, amount: Number(amount) });
+    }
+  }, []);
 
   if (Platform.OS === "web" && bizno) {
     try { localStorage.removeItem(`scaneat_cart_${bizno}`); } catch {}

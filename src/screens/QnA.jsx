@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from "react-native";
 import { s } from "../styles/QnA.styles";
-import supabase from "../lib/supabase";
+import api from "../lib/api";
 
 export default function QnA({ isAdmin }) {
   const [posts, setPosts] = useState([]);
@@ -12,8 +12,8 @@ export default function QnA({ isAdmin }) {
   const [answerText, setAnswerText] = useState({});
 
   useEffect(() => {
-    supabase.from("qna").select("*").order("created_at", { ascending: false }).then(({ data, error }) => {
-      if (!error) setPosts(data || []);
+    api.qna.list().then((data) => {
+      setPosts(data || []);
       setLoading(false);
     });
   }, []);
@@ -21,7 +21,7 @@ export default function QnA({ isAdmin }) {
   const submitAnswer = async (id) => {
     const text = answerText[id];
     if (!text) return Alert.alert("알림", "답변 내용을 입력해주세요.");
-    const { error } = await supabase.from("qna").update({ answer: text }).eq("id", id);
+    const { error } = await api.qna.answer(id, { answer: text });
     if (error) { Alert.alert("오류", "답변 등록 중 오류가 발생했습니다."); return; }
     setPosts(posts.map(p => p.id === id ? { ...p, answer: text } : p));
     setAnswerText(prev => ({ ...prev, [id]: "" }));
@@ -29,7 +29,7 @@ export default function QnA({ isAdmin }) {
 
   const submit = async () => {
     if (!form.title || !form.content || !form.author) return Alert.alert("알림", "모든 항목을 입력해주세요.");
-    const { error } = await supabase.from("qna").insert({ title: form.title, content: form.content, author: form.author });
+    const { error } = await api.qna.post({ title: form.title, content: form.content, author: form.author });
     if (error) { Alert.alert("오류", "등록 중 오류가 발생했습니다."); return; }
     setPosts([{ id: Date.now(), title: form.title, author: form.author, answer: null, created_at: new Date().toISOString() }, ...posts]);
     setForm({ title: "", content: "", author: "" });

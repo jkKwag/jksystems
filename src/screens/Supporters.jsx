@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator } from "react-native";
 import { s } from "../styles/Supporters.styles";
-import supabase from "../lib/supabase";
+import api from "../lib/api";
 
 export default function Supporters({ isAdmin }) {
   const [list, setList] = useState([]);
@@ -11,8 +11,8 @@ export default function Supporters({ isAdmin }) {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    supabase.from("supporters").select("*").order("created_at", { ascending: false }).then(({ data, error }) => {
-      if (!error) setList(data || []);
+    api.supporters.list().then((data) => {
+      setList(data || []);
       setLoading(false);
     });
   }, []);
@@ -22,13 +22,9 @@ export default function Supporters({ isAdmin }) {
   const handleAdd = async () => {
     if (!form.name.trim() || !form.amount.trim()) return;
     setSaving(true);
-    const { error } = await supabase.from("supporters").insert({
-      name: form.name.trim(),
-      amount: parseInt(form.amount, 10),
-      message: form.message.trim() || null,
-    });
+    const { error } = await api.supporters.post({ name: form.name.trim(), amount: parseInt(form.amount, 10), message: form.message.trim() || null });
     if (!error) {
-      const { data } = await supabase.from("supporters").select("*").order("created_at", { ascending: false });
+      const data = await api.supporters.list();
       setList(data || []);
       setForm({ name: "", amount: "", message: "" });
       setShowForm(false);
