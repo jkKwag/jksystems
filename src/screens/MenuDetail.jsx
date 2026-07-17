@@ -9,8 +9,18 @@ const sortByOrd = (arr) => [...arr].sort((a, b) => (a.sortOrd ?? 999) - (b.sortO
 
 async function fetchOptionGroups(menuCd) {
   const data = await api.menu.options(menuCd);
-  if (!data) return [];
-  return Array.isArray(data) ? data : [];
+  if (!Array.isArray(data)) return [];
+  return sortByOrd(data.filter(g => g.useYn === "Y")).map(g => ({
+    id: g.optGrpCd,
+    label: g.optGrpNm,
+    type: g.optType,
+    required: g.requiredYn === "Y",
+    choices: sortByOrd((g.options || []).filter(c => c.useYn === "Y")).map(c => ({
+      id: c.optCd,
+      name: c.optNm,
+      price: c.addPrice,
+    })),
+  }));
 }
 
 function RadioGroup({ label, required, choices, selected, onSelect }) {
