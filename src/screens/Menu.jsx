@@ -234,6 +234,8 @@ const formatOptions = (labels) => {
   return labels.join(" · ");
 };
 
+const orderTypLabel = (orderTypCd) => (orderTypCd === "TAKEOUT" ? "📦 포장주문" : "🍽️ 매장주문");
+
 export default function Menu({ bizno, tableNo }) {
   const [activeCat, setActiveCat] = useState("전체");
   const [categories, setCategories] = useState(["전체"]);
@@ -466,6 +468,7 @@ export default function Menu({ bizno, tableNo }) {
       uuid,
       bizRegNo: bizno,
       seatNo: tableNo || null,
+      orderTypCd: orderType === "포장주문" ? "TAKEOUT" : "DINE_IN",
       items: buildOrderItemsPayload(),
     });
     if (error || !data) {
@@ -854,8 +857,11 @@ export default function Menu({ bizno, tableNo }) {
                   <Text style={s.paySectionTitle}>먼저 주문한 내역 ({pendingCount}건, 결제 대기)</Text>
                   {pendingOrders.map((order, oi) => (
                     <View key={order.orderNo} style={oi > 0 && s.pendingOrderGroup}>
-                      <View style={s.pendingOrderBadge}>
-                        <Text style={s.pendingOrderBadgeText}>주문{oi + 1}</Text>
+                      <View style={s.pendingOrderBadgeRow}>
+                        <View style={s.pendingOrderBadge}>
+                          <Text style={s.pendingOrderBadgeText}>주문{oi + 1}</Text>
+                        </View>
+                        <Text style={s.pendingOrderTypText}>{orderTypLabel(order.orderTypCd)}</Text>
                       </View>
                       {order.items?.map(item => {
                         const optionsTotal = (item.options || []).reduce((sum, o) => sum + Number(o.addPrice || 0), 0);

@@ -38,8 +38,10 @@ export const s = StyleSheet.create({
   orderBlock: { gap: spacing["1.5"] },
   orderBlockDivider: { marginTop: spacing["2.5"], paddingTop: spacing["2.5"], borderTopWidth: 1, borderTopColor: colors.borderLight },
 
-  orderBadge: { alignSelf: "flex-start", backgroundColor: colors.accent, borderRadius: radius.sm, paddingHorizontal: spacing["2"], paddingVertical: 3, marginBottom: spacing["1"] },
+  orderBadgeRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"], marginBottom: spacing["1"] },
+  orderBadge: { alignSelf: "flex-start", backgroundColor: colors.accent, borderRadius: radius.sm, paddingHorizontal: spacing["2"], paddingVertical: 3 },
   orderBadgeText: { fontSize: font.sm, fontWeight: "800", color: colors.white },
+  orderTypText: { fontSize: font.sm, fontWeight: "700", color: colors.slate400 },
 
   itemRow: { flexDirection: "row", alignItems: "flex-start", gap: spacing["2"] },
   itemName: { fontSize: font.md, fontWeight: "700", color: colors.textSecondary },

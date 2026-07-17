@@ -21,6 +21,8 @@ const formatDt = (dateStr) => {
   return `${label} ${hh}:${mm}`;
 };
 
+const orderTypLabel = (orderTypCd) => (orderTypCd === "TAKEOUT" ? "📦 포장주문" : "🍽️ 매장주문");
+
 export default function PaymentHistory({ visible, onClose, payments, bizNameMap }) {
   const [expandedKey, setExpandedKey] = useState(null);
   const [orderDetails, setOrderDetails] = useState({}); // { [paymentKey]: OrderResponse[] }
@@ -93,8 +95,11 @@ export default function PaymentHistory({ visible, onClose, payments, bizNameMap 
                         ) : (
                           orderDetails[p.paymentKey].map((order, oi) => (
                             <View key={order.orderNo} style={[s.orderBlock, oi > 0 && s.orderBlockDivider]}>
-                              <View style={s.orderBadge}>
-                                <Text style={s.orderBadgeText}>주문{oi + 1}</Text>
+                              <View style={s.orderBadgeRow}>
+                                <View style={s.orderBadge}>
+                                  <Text style={s.orderBadgeText}>주문{oi + 1}</Text>
+                                </View>
+                                <Text style={s.orderTypText}>{orderTypLabel(order.orderTypCd)}</Text>
                               </View>
                               {order.items?.map(item => {
                                 const optionsTotal = (item.options || []).reduce((sum, o) => sum + Number(o.addPrice || 0), 0);
