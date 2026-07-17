@@ -2,7 +2,7 @@ import { View, Text, TouchableOpacity, Platform } from "react-native";
 import { s } from "../styles/ElderlyTest.styles";
 
 const GRAD_SENIOR = Platform.OS === "web"
-  ? { background: "linear-gradient(135deg, #60a5fa 0%, #2563eb 100%)" }
+  ? { background: "linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%)" }
   : {};
 const GRAD_JUNIOR = Platform.OS === "web"
   ? { background: "linear-gradient(135deg, #0f172a 0%, #14532d 100%)" }
