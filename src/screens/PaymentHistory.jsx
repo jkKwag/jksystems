@@ -21,7 +21,10 @@ const formatDt = (dateStr) => {
   return `${label} ${hh}:${mm}`;
 };
 
-const formatOptions = (options) => (options || []).map(o => o.optNm).filter(Boolean).join(", ");
+const formatOptions = (options) => (options || [])
+  .filter(o => o.optNm)
+  .map(o => Number(o.addPrice || 0) > 0 ? `${o.optNm}(+₩${Number(o.addPrice).toLocaleString()})` : o.optNm)
+  .join(", ");
 
 export default function PaymentHistory({ visible, onClose, payments, bizNameMap }) {
   const [expandedKey, setExpandedKey] = useState(null);
