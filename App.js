@@ -194,7 +194,7 @@ export default function App() {
             }}
             activeOpacity={0.8}
           >
-            <Text style={s.displayToggleBtnText}>{menuMode === "elderly" ? "아주크게" : "보통"}</Text>
+            <Text style={s.displayToggleBtnText}>{menuMode === "elderly" ? "보통" : "아주크게"}</Text>
           </TouchableOpacity>
         )}
         {MUSIC_URL ? (
