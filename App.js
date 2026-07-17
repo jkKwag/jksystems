@@ -64,7 +64,12 @@ export default function App() {
 
   useEffect(() => {
     if (!menuBizno) return;
-    if (PixelRatio.getFontScale() >= 1.3) setMenuMode("test");
+    let fontScale = PixelRatio.getFontScale();
+    if (Platform.OS === "web" && typeof document !== "undefined") {
+      const basePx = parseFloat(getComputedStyle(document.documentElement).fontSize);
+      if (!isNaN(basePx) && basePx > 0) fontScale = basePx / 16;
+    }
+    if (fontScale >= 1.3) setMenuMode("test");
   }, []);
 
   const menuModeRef = useRef(null);
