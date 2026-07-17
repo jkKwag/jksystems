@@ -153,17 +153,18 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
   const handleAddToCart = () => {
     const optionLabels = [];
     const optionIds = {};
+    const selectedOptions = []; // [{id, name, price}] — 주문 API로 그대로 보낼 수 있는 형태
     groups.forEach(g => {
       const sel = selections[g.id];
       optionIds[g.id] = sel;
       if (g.type === "C") {
         (sel || []).forEach(cid => {
           const c = g.choices.find(c => c.id === cid);
-          if (c) optionLabels.push(c.name);
+          if (c) { optionLabels.push(c.name); selectedOptions.push({ id: c.id, name: c.name, price: c.price || 0 }); }
         });
       } else {
         const c = g.choices.find(c => c.id === sel);
-        if (c) optionLabels.push(c.name);
+        if (c) { optionLabels.push(c.name); selectedOptions.push({ id: c.id, name: c.name, price: c.price || 0 }); }
       }
     });
     const hasOptions = groups.length > 0;
@@ -175,6 +176,7 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
       optionPrice,
       optionLabels: hasOptions ? optionLabels : undefined,
       optionIds: hasOptions ? optionIds : undefined,
+      selectedOptions: hasOptions ? selectedOptions : undefined,
       quantity,
       totalPrice,
     });

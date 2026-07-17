@@ -73,8 +73,15 @@ const api = {
     list: () => get(`/api/supporters`),
     post: (body) => post(`/api/supporters`, body),
   },
+  order: {
+    list: (uuid) => get(`/api/order?uuid=${uuid}`),
+    get: (orderNo) => get(`/api/order/${orderNo}`),
+    post: (body) => post(`/api/order`, body),
+  },
   payment: {
     confirm: (body) => post(`/api/payment/confirm`, body),
+    get: (paymentKey) => get(`/api/payment/${paymentKey}`),
+    list: (uuid) => get(`/api/payment?uuid=${uuid}`),
   },
 };
 

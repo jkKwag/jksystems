@@ -9,6 +9,16 @@ import { s } from "../styles/Menu.styles";
 
 const TOSS_CLIENT_KEY = process.env.EXPO_PUBLIC_TOSS_CLIENT_KEY || "test_ck_vZnjEJeQVxexx5pMqG4brPmOoBN0";
 
+function getUuid() {
+  if (Platform.OS !== "web") return null;
+  let uuid = localStorage.getItem("scaneat_uuid");
+  if (!uuid) {
+    uuid = crypto.randomUUID();
+    localStorage.setItem("scaneat_uuid", uuid);
+  }
+  return uuid;
+}
+
 
 const BURST_COLORS = [
   ["#ff4757", "#ffa502", "#ff6348"],
@@ -228,9 +238,26 @@ export default function Menu({ bizno, tableNo }) {
   const [menuItems, setMenuItems] = useState([]);
   const [bizInfo, setBizInfo] = useState(null);
   const [imgErrors, setImgErrors] = useState({});
-  // TODO: 백엔드 연결 전 임시 로컬 상태 — 나중에 scaneat_pending_orders_{bizno}
-  // localStorage + POST /api/order 연동으로 교체 예정
+  // 결제 안 된(PENDING) 주문 목록. 새로고침해도 안 없어지도록 화면 상태에
+  // 두지 않고, 매번 서버(GET /api/order)에서 다시 불러와 진짜 값(source of
+  // truth)을 유지한다.
   const [pendingOrders, setPendingOrders] = useState([]);
+
+  const refreshPendingOrders = async () => {
+    const uuid = getUuid();
+    if (!uuid || !bizno) return;
+    const orders = await api.order.list(uuid);
+    if (!Array.isArray(orders)) return;
+    setPendingOrders(
+      orders
+        .filter(o => o.bizRegNo === bizno && o.status === "PENDING")
+        .map(o => ({ orderNo: o.orderNo, amount: o.totalAmount }))
+    );
+  };
+
+  useEffect(() => {
+    refreshPendingOrders();
+  }, [bizno]);
 
   useEffect(() => {
     if (!bizno) return;
@@ -398,6 +425,34 @@ export default function Menu({ bizno, tableNo }) {
   const clearCart = () => {
     setCart({});
     saveCart(bizno, {});
+  };
+
+  const [orderSubmitting, setOrderSubmitting] = useState(false);
+
+  // 현재 장바구니 내용을 POST /api/order 요청 형식으로 변환
+  const buildOrderItemsPayload = () => cartItems.map(({ item, quantity }) => ({
+    menuCd: item.id,
+    menuNm: item.name,
+    price: item.basePrice ?? item.price,
+    qty: quantity,
+    options: (item.selectedOptions || []).map(o => ({ optCd: o.id, optNm: o.name, addPrice: o.price || 0 })),
+  }));
+
+  // 지금 장바구니를 실제 주문으로 서버에 저장. 실패하면 null.
+  const createOrderForCart = async () => {
+    const uuid = getUuid();
+    if (!uuid || cartItems.length === 0) return null;
+    const { data, error } = await api.order.post({
+      uuid,
+      bizRegNo: bizno,
+      seatNo: tableNo || null,
+      items: buildOrderItemsPayload(),
+    });
+    if (error || !data) {
+      console.error("[주문 생성 실패]", error);
+      return null;
+    }
+    return data;
   };
 
   // AI는 실제 결제를 처리하지 않음 — 장바구니 화면을 열어 손님이 직접
@@ -786,12 +841,15 @@ export default function Menu({ bizno, tableNo }) {
               <View style={s.payBtnRow}>
                 <TouchableOpacity
                   style={[s.orderOnlyBtn, cartItems.length === 0 && s.orderOnlyBtnDisabled]}
-                  disabled={cartItems.length === 0}
-                  onPress={() => {
-                    // TODO: POST /api/order 연동 예정. 지금은 화면 흐름만 확인하는 임시 로직.
-                    setPendingOrders(prev => [...prev, { id: Date.now(), amount: cartTotal }]);
+                  disabled={cartItems.length === 0 || orderSubmitting}
+                  onPress={async () => {
+                    setOrderSubmitting(true);
+                    const order = await createOrderForCart();
+                    setOrderSubmitting(false);
+                    if (!order) { alert("주문 생성에 실패했습니다. 다시 시도해주세요."); return; }
                     clearCart();
                     setShowPayment(false);
+                    await refreshPendingOrders();
                     alert("주문이 접수되었어요. 계속 주문하시거나, 준비되면 결제해주세요.");
                   }}
                 >
@@ -799,12 +857,23 @@ export default function Menu({ bizno, tableNo }) {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={[s.payNowBtn, grandTotal === 0 && s.payNowBtnDisabled]}
-                  disabled={grandTotal === 0}
+                  style={[s.payNowBtn, (grandTotal === 0 || orderSubmitting) && s.payNowBtnDisabled]}
+                  disabled={grandTotal === 0 || orderSubmitting}
                   onPress={async () => {
                     try {
                       if (!TOSS_CLIENT_KEY) { alert("토스 클라이언트 키가 없습니다 (EXPO_PUBLIC_TOSS_CLIENT_KEY)"); return; }
-                      try { sessionStorage.setItem(`scaneat_pending_cart_${bizno}`, JSON.stringify(cart)); } catch {}
+
+                      let orderNos = pendingOrders.map(o => o.orderNo);
+                      if (cartItems.length > 0) {
+                        setOrderSubmitting(true);
+                        const newOrder = await createOrderForCart();
+                        setOrderSubmitting(false);
+                        if (!newOrder) { alert("주문 생성에 실패했습니다. 다시 시도해주세요."); return; }
+                        orderNos = [...orderNos, newOrder.orderNo];
+                        clearCart();
+                      }
+                      if (orderNos.length === 0) { alert("결제할 주문이 없습니다."); return; }
+
                       const { loadTossPayments, ANONYMOUS } = await import("@tosspayments/tosspayments-sdk");
                       const tossPayments = await loadTossPayments(TOSS_CLIENT_KEY);
                       const payment = tossPayments.payment({ customerKey: ANONYMOUS });
@@ -816,14 +885,16 @@ export default function Menu({ bizno, tableNo }) {
                           ? cartItems[0].item.name
                           : cartItems.length > 0
                             ? `${cartItems[0].item.name} 외 ${cartItems.length - 1}건`
-                            : `주문 ${pendingCount}건`,
-                        successUrl: window.location.origin + `/payment/success?bizno=${bizno}&biz_nm=${encodeURIComponent(bizInfo?.bizNm || "")}`,
+                            : `주문 ${orderNos.length}건`,
+                        successUrl: window.location.origin + `/payment/success?bizno=${bizno}&biz_nm=${encodeURIComponent(bizInfo?.bizNm || "")}&orderNos=${orderNos.join(",")}`,
                         failUrl: window.location.origin + `/payment/fail?bizno=${bizno}&biz_nm=${encodeURIComponent(bizInfo?.bizNm || "")}`,
                       });
                     } catch (e) {
                       if (e?.code === "USER_CANCEL") { setShowPayment(false); return; }
                       alert(`[결제 오류] ${e?.message || JSON.stringify(e)}`);
                       console.error("[Toss]", e);
+                    } finally {
+                      await refreshPendingOrders();
                     }
                   }}
                 >
