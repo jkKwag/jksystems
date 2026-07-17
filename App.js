@@ -216,6 +216,7 @@ export default function App() {
         <View style={s.drawerPanel}>
           <Text style={s.drawerTitle}>더보기</Text>
           {[
+            { key: "main", icon: "🏠", label: "메인메뉴", desc: "주문 메뉴로 돌아가기" },
             { key: "supporters", icon: "💝", label: "후원자", desc: "후원자 명단 보기" },
             { key: "qna", icon: "💬", label: "Q&A", desc: "자주 묻는 질문 답변" },
             { key: "faq", icon: "❓", label: "FAQ", desc: "공지 및 안내사항" },
@@ -223,7 +224,8 @@ export default function App() {
           ].map(item => (
             <TouchableOpacity key={item.key} style={s.drawerItem} onPress={() => {
               setShowDrawer(false);
-              if (item.key === "elderly") setMenuMode("test");
+              if (item.key === "main") setMenuOverlay(null);
+              else if (item.key === "elderly") setMenuMode("test");
               else setMenuOverlay(item.key);
             }}>
               <Text style={s.drawerItemIcon}>{item.icon}</Text>
