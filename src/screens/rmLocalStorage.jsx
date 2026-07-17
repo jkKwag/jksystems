@@ -1,23 +1,23 @@
-import { useState, useEffect, useCallback } from "react";
-import { View, Text, TouchableOpacity, FlatList } from "react-native";
+import { useState, useEffect } from "react";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { s } from "../styles/rmLocalStorage.styles";
 
 export default function RmLocalStorage() {
   const [items, setItems] = useState([]);
 
-  const load = useCallback(() => {
+  const load = () => {
     const result = [];
     for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      result.push({ key, value: localStorage.getItem(key) });
+      const k = localStorage.key(i);
+      result.push({ k, v: localStorage.getItem(k) });
     }
     setItems(result);
-  }, []);
+  };
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { load(); }, []);
 
-  const remove = (key) => {
-    localStorage.removeItem(key);
+  const remove = (k) => {
+    localStorage.removeItem(k);
     load();
   };
 
@@ -41,19 +41,17 @@ export default function RmLocalStorage() {
           <Text style={s.emptyText}>저장된 항목 없음</Text>
         </View>
       ) : (
-        <FlatList
-          data={items}
-          keyExtractor={(item) => item.key}
-          renderItem={({ item }) => (
-            <View style={s.card}>
-              <Text style={s.cardKey} numberOfLines={1}>{item.key}</Text>
-              <Text style={s.cardValue} numberOfLines={1}>{item.value}</Text>
-              <TouchableOpacity style={s.deleteBtn} onPress={() => remove(item.key)}>
+        <ScrollView>
+          {items.map((item) => (
+            <View key={item.k} style={s.card}>
+              <Text style={s.cardKey} numberOfLines={1}>{item.k}</Text>
+              <Text style={s.cardValue} numberOfLines={1}>{item.v}</Text>
+              <TouchableOpacity style={s.deleteBtn} onPress={() => remove(item.k)}>
                 <Text style={s.deleteBtnText}>✕</Text>
               </TouchableOpacity>
             </View>
-          )}
-        />
+          ))}
+        </ScrollView>
       )}
     </View>
   );
