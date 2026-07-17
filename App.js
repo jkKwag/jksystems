@@ -226,7 +226,7 @@ export default function App() {
             { key: "supporters", icon: "💝", label: "후원자", desc: "후원자 명단 보기" },
             { key: "qna", icon: "💬", label: "Q&A", desc: "자주 묻는 질문 답변" },
             { key: "faq", icon: "❓", label: "FAQ", desc: "공지 및 안내사항" },
-            { key: "elderly", icon: "🧪", label: "노령테스트", desc: "연령별 메뉴 선택" },
+            { key: "elderly", icon: "🔡", label: "글씨크기", desc: "화면 글씨 크기 선택" },
           ].map(item => (
             <TouchableOpacity key={item.key} style={s.drawerItem} onPress={() => {
               setShowDrawer(false);
