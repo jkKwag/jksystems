@@ -20,14 +20,6 @@ function getUuid() {
   return uuid;
 }
 
-// 24시간 영업하는 매장도 있어 최소 이틀(어제 00:00부터 지금까지)은 확인 가능해야 함
-function isWithinYesterdayToday(dateStr) {
-  if (!dateStr) return false;
-  const d = new Date(dateStr);
-  const now = new Date();
-  const startOfYesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 0, 0, 0);
-  return d >= startOfYesterday;
-}
 
 
 const BURST_COLORS = [
@@ -269,7 +261,7 @@ export default function Menu({ bizno, tableNo }) {
     refreshPendingOrders();
   }, [bizno]);
 
-  // 결제내역 (어제~오늘). "내 스캔 목록" 버튼 아래에 조건부로 노출됨
+  // 결제내역 (서버가 최근 2일치만 내려줌). "내 스캔 목록" 버튼 옆에 조건부로 노출됨
   const [recentPayments, setRecentPayments] = useState([]);
   const [paymentBizNames, setPaymentBizNames] = useState({});
   const [showPaymentHistory, setShowPaymentHistory] = useState(false);
@@ -278,9 +270,8 @@ export default function Menu({ bizno, tableNo }) {
     const uuid = getUuid();
     if (!uuid) return;
     (async () => {
-      const list = await api.payment.list(uuid);
-      if (!Array.isArray(list)) return;
-      const recent = list.filter(p => isWithinYesterdayToday(p.approvedDt || p.regDt));
+      const recent = await api.payment.list(uuid);
+      if (!Array.isArray(recent)) return;
       setRecentPayments(recent);
 
       const uniqueBizRegNos = [...new Set(recent.map(p => p.bizRegNo))];
