@@ -508,15 +508,17 @@ export default function Menu({ bizno, tableNo }) {
               <Text style={s.tableBadgeText}>{tableNo.toUpperCase()}</Text>
             </View>
           )}
-          <TouchableOpacity onPress={() => { if (Platform.OS === "web") window.location.href = "/"; }} style={s.scanListBtn}>
-            <Text style={s.scanListBtnText}>내 스캔 목록</Text>
-          </TouchableOpacity>
+          <View style={s.shopNameActions}>
+            {recentPayments.length > 0 && (
+              <TouchableOpacity style={s.paymentHistoryBtn} onPress={() => setShowPaymentHistory(true)}>
+                <Text style={s.paymentHistoryBtnText}>💳 결제내역</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity onPress={() => { if (Platform.OS === "web") window.location.href = "/"; }} style={s.scanListBtn}>
+              <Text style={s.scanListBtnText}>내 스캔 목록</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        {recentPayments.length > 0 && (
-          <TouchableOpacity style={s.paymentHistoryBtn} onPress={() => setShowPaymentHistory(true)}>
-            <Text style={s.paymentHistoryBtnText}>💳 결제내역 보기 ({recentPayments.length}건)</Text>
-          </TouchableOpacity>
-        )}
         <View style={s.shopMeta}>
           <Text style={s.shopRating}><Text style={s.star}>★</Text> 4.8</Text>
           <Text style={s.shopInfo}>리뷰 142개 · {bizInfo?.indNm || ""}</Text>
