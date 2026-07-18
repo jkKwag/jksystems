@@ -97,7 +97,9 @@ export default function AdminHome({ adminInfo, onLogout }) {
               <Text style={s.hamburgerBtnText}>☰</Text>
             </TouchableOpacity>
             <Text style={s.topBarTitle}>CampRoad 관리자</Text>
-            <View style={{ width: 32 }} />
+            <TouchableOpacity style={s.hamburgerBtn} onPress={onLogout}>
+              <Text style={s.hamburgerBtnText}>🔓</Text>
+            </TouchableOpacity>
           </View>
           {showMenu && (
             <View style={s.drawerOverlay}>
