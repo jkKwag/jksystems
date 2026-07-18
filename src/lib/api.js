@@ -88,6 +88,7 @@ const api = {
   },
   order: {
     list: (uuid) => get(`/api/order?uuid=${uuid}`),
+    listByBiz: (bizRegNo) => get(`/api/order/biz/${bizRegNo}`),
     get: (orderNo) => get(`/api/order/${orderNo}`),
     post: (body) => post(`/api/order`, body),
   },
@@ -95,6 +96,7 @@ const api = {
     confirm: (body) => post(`/api/payment/confirm`, body),
     get: (paymentKey) => get(`/api/payment/${paymentKey}`),
     list: (uuid) => get(`/api/payment?uuid=${uuid}`),
+    listByBiz: (bizRegNo) => get(`/api/payment/biz/${bizRegNo}`),
   },
 };
 

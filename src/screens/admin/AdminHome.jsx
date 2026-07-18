@@ -4,6 +4,8 @@ import { s } from "../../styles/admin/AdminHome.styles";
 import api from "../../lib/api";
 import AdminReservations from "./AdminReservations";
 import AdminBizList from "./AdminBizList";
+import AdminOrders from "./AdminOrders";
+import AdminPayments from "./AdminPayments";
 import BizLookupBar from "../../components/admin/BizLookupBar";
 
 const ROLE_LABEL = { SUPER: "최종관리자", BIZ: "사업자관리자" };
@@ -14,6 +16,8 @@ const DASHBOARD_URL = "/admin/dashboard";
 const MENU_SCREENS = {
   "/admin/reservations": AdminReservations,
   "/admin/biz": AdminBizList,
+  "/admin/orders": AdminOrders,
+  "/admin/payments": AdminPayments,
 };
 
 function MenuNode({ node, depth, expanded, onToggle, selectedCd, onSelect }) {
