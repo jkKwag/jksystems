@@ -5,6 +5,7 @@ import ChatRoom from "../components/ChatRoom";
 import MenuDetail from "./MenuDetail";
 import PaymentHistory from "./PaymentHistory";
 import PickupBadge from "../components/PickupBadge";
+import OrderTypeBadge from "../components/OrderTypeBadge";
 import api from "../lib/api";
 import SeatsView from "./SeatsView";
 import { s } from "../styles/Menu.styles";
@@ -234,8 +235,6 @@ const formatOptions = (labels) => {
   if (!labels || !labels.length) return null;
   return labels.join(" · ");
 };
-
-const orderTypLabel = (orderTypCd) => (orderTypCd === "TAKEOUT" ? "📦 포장주문" : "🍽️ 매장주문");
 
 // 저장소(디버그) 화면에서 ts(에폭 밀리초)를 눈으로 바로 읽을 수 있도록 한국시간 문자열도 같이 저장
 const toKstString = (ms) => new Date(ms).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
@@ -655,7 +654,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
           <View style={s.cartBarCenter}>
             <Text style={s.cartBarText}>장바구니 보기</Text>
             <View style={s.cartOrderTypeBadge}>
-              <Text style={s.cartOrderTypeText}>{orderType === "포장주문" ? "📦 포장주문" : "🍽️ 매장주문"}</Text>
+              <OrderTypeBadge isTakeout={orderType === "포장주문"} textStyle={s.cartOrderTypeText} coloredText={false} />
             </View>
           </View>
           <Text style={s.cartBarTotal}>₩{cartTotal.toLocaleString()}</Text>
@@ -755,7 +754,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
               <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
                 <Text style={s.sheetTitle}>🛒 장바구니</Text>
                 <View style={s.cartOrderTypeBadge}>
-                  <Text style={s.cartOrderTypeText}>{orderType === "포장주문" ? "📦 포장주문" : "🍽️ 매장주문"}</Text>
+                  <OrderTypeBadge isTakeout={orderType === "포장주문"} textStyle={s.cartOrderTypeText} coloredText={false} />
                 </View>
               </View>
               <View style={{ flexDirection: "row", gap: 8 }}>
@@ -881,7 +880,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                 <View style={[s.paySection, s.paySectionCurrent]}>
                   <View style={s.paySectionTitleRow}>
                     <Text style={s.paySectionTitle}>이번 주문</Text>
-                    <Text style={s.paySectionTypText}>{orderType === "포장주문" ? "📦 포장주문" : "🍽️ 매장주문"}</Text>
+                    <OrderTypeBadge isTakeout={orderType === "포장주문"} textStyle={s.paySectionTypText} />
                   </View>
                   {cartItems.map(({ item, quantity }) => (
                     <View key={item.id} style={s.payOrderRow}>
@@ -907,7 +906,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                         <View style={s.pendingOrderBadge}>
                           <Text style={s.pendingOrderBadgeText}>주문{pendingOrders.length - oi}</Text>
                         </View>
-                        <Text style={s.pendingOrderTypText}>{orderTypLabel(order.orderTypCd)}</Text>
+                        <OrderTypeBadge isTakeout={order.orderTypCd === "TAKEOUT"} textStyle={s.pendingOrderTypText} />
                       </View>
                       {order.items?.map(item => {
                         const optionsTotal = (item.options || []).reduce((sum, o) => sum + Number(o.addPrice || 0), 0);

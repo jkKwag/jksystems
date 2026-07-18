@@ -2,6 +2,7 @@ import { useState } from "react";
 import { View, Text, Modal, ScrollView, TouchableOpacity, Linking } from "react-native";
 import { s } from "../styles/PaymentHistory.styles";
 import PickupBadge from "../components/PickupBadge";
+import OrderTypeBadge from "../components/OrderTypeBadge";
 import api from "../lib/api";
 
 const formatDt = (dateStr) => {
@@ -21,8 +22,6 @@ const formatDt = (dateStr) => {
   const mm = String(d.getMinutes()).padStart(2, "0");
   return `${label} ${hh}:${mm}`;
 };
-
-const orderTypLabel = (orderTypCd) => (orderTypCd === "TAKEOUT" ? "📦 포장주문" : "🍽️ 매장주문");
 
 export default function PaymentHistory({ visible, onClose, payments, bizNameMap }) {
   const [expandedKey, setExpandedKey] = useState(null);
@@ -101,7 +100,7 @@ export default function PaymentHistory({ visible, onClose, payments, bizNameMap 
                                 <View style={s.orderBadge}>
                                   <Text style={s.orderBadgeText}>주문{orderDetails[p.paymentKey].length - oi}</Text>
                                 </View>
-                                <Text style={s.orderTypText}>{orderTypLabel(order.orderTypCd)}</Text>
+                                <OrderTypeBadge isTakeout={order.orderTypCd === "TAKEOUT"} textStyle={s.orderTypText} />
                               </View>
                               {order.items?.map(item => {
                                 const optionsTotal = (item.options || []).reduce((sum, o) => sum + Number(o.addPrice || 0), 0);
