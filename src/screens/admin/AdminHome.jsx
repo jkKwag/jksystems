@@ -41,6 +41,7 @@ export default function AdminHome({ adminInfo, onLogout }) {
   const [expanded, setExpanded] = useState(new Set());
   const [selected, setSelected] = useState(null);
   const [showMenu, setShowMenu] = useState(false);
+  const [bizNm, setBizNm] = useState(null);
 
   useEffect(() => {
     if (!adminInfo?.adminRole) return;
@@ -51,6 +52,16 @@ export default function AdminHome({ adminInfo, onLogout }) {
       setLoaded(true);
     })();
   }, [adminInfo?.adminRole]);
+
+  useEffect(() => {
+    if (!adminInfo?.bizRegNo) { setBizNm(null); return; }
+    (async () => {
+      const biz = await api.biz.get(adminInfo.bizRegNo);
+      setBizNm(biz?.bizNm || null);
+    })();
+  }, [adminInfo?.bizRegNo]);
+
+  const brandTitle = bizNm || "CampRoad 관리자";
 
   const toggle = (menuCd) => {
     setExpanded(prev => {
@@ -69,7 +80,7 @@ export default function AdminHome({ adminInfo, onLogout }) {
     <View style={isMobile ? s.sidebarMobile : s.sidebar}>
       <View style={s.sidebarHeader}>
         <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-          <Text style={s.brand}>CampRoad 관리자</Text>
+          <Text style={s.brand}>{brandTitle}</Text>
           {isMobile && (
             <TouchableOpacity onPress={() => setShowMenu(false)}>
               <Text style={s.closeBtnText}>✕</Text>
@@ -102,7 +113,7 @@ export default function AdminHome({ adminInfo, onLogout }) {
             <TouchableOpacity style={s.hamburgerBtn} onPress={() => setShowMenu(true)}>
               <Text style={s.hamburgerBtnText}>☰</Text>
             </TouchableOpacity>
-            <Text style={s.topBarTitle}>CampRoad 관리자</Text>
+            <Text style={s.topBarTitle}>{brandTitle}</Text>
             <TouchableOpacity style={s.hamburgerBtn} onPress={onLogout}>
               <Text style={s.hamburgerBtnText}>🔓</Text>
             </TouchableOpacity>
