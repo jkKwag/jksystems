@@ -237,6 +237,13 @@ const formatOptions = (labels) => {
 
 const orderTypLabel = (orderTypCd) => (orderTypCd === "TAKEOUT" ? "📦 포장주문" : "🍽️ 매장주문");
 
+// 저장소(디버그) 화면에서 ts(에폭 밀리초)를 눈으로 바로 읽을 수 있도록 한국시간 문자열도 같이 저장
+const toKstString = (ms) => new Date(ms).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
+const saveTableInfo = (bizno, tableNo) => {
+  const now = Date.now();
+  localStorage.setItem(`scaneat_table_${bizno}`, JSON.stringify({ tableNo, ts: now, tsKst: toKstString(now) }));
+};
+
 export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
   const [activeCat, setActiveCat] = useState("전체");
   const [categories, setCategories] = useState(["전체"]);
@@ -252,14 +259,14 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
     if (Platform.OS !== "web" || !bizno) return;
     const key = `scaneat_table_${bizno}`;
     if (tableNoFromUrl) {
-      localStorage.setItem(key, JSON.stringify({ tableNo: tableNoFromUrl, ts: Date.now() }));
+      saveTableInfo(bizno, tableNoFromUrl);
       setTableNo(tableNoFromUrl);
       return;
     }
     try {
       const saved = JSON.parse(localStorage.getItem(key) || "null");
       if (saved && Date.now() - saved.ts < TABLE_EXPIRY_MS) {
-        localStorage.setItem(key, JSON.stringify({ tableNo: saved.tableNo, ts: Date.now() }));
+        saveTableInfo(bizno, saved.tableNo);
         setTableNo(saved.tableNo);
       } else {
         localStorage.removeItem(key);
@@ -273,7 +280,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
   // 장바구니에 담는 행위를 "활동"으로 보고 테이블번호 만료 타이머 갱신
   const touchTableActivity = () => {
     if (Platform.OS !== "web" || !bizno || !tableNo) return;
-    localStorage.setItem(`scaneat_table_${bizno}`, JSON.stringify({ tableNo, ts: Date.now() }));
+    saveTableInfo(bizno, tableNo);
   };
 
   // 결제 안 된(PENDING) 주문 목록. 새로고침해도 안 없어지도록 화면 상태에
