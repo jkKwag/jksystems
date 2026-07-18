@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Modal, Image, Pla
 import { Calendar } from "react-native-calendars";
 import { s } from "../styles/SeatsView.styles";
 import api from "../lib/api";
+import PickupBadge from "../components/PickupBadge";
 
 const fixedFill = Platform.OS === "web" ? { position: "fixed", top: 0, left: 0, right: 0, bottom: 0 } : {};
 
@@ -73,6 +74,7 @@ export default function SeatsView({ visible, onClose, bizno }) {
   const [guestTel, setGuestTel] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [showConsent, setShowConsent] = useState(false);
+  const [submittedRsvn, setSubmittedRsvn] = useState(null);
 
   useEffect(() => {
     if (!visible || !bizno) return;
@@ -107,10 +109,22 @@ export default function SeatsView({ visible, onClose, bizno }) {
   const minPeople = Math.max(1, rsvnStd?.minPartySize || 1);
   const maxPeople = Math.min(expandedSeat?.capacity || 99, rsvnStd?.maxPartySize || expandedSeat?.capacity || 99);
 
+  const isNameValid = guestName.trim().length > 0 && guestName.trim().length <= 10;
+  const isPhoneValid = /^\d{11}$/.test(guestTel);
+  const canSubmitRsvn = !!(rsvnDate && rsvnTime && isNameValid && isPhoneValid && !submitting);
+
   const openSeat = (seat) => {
     setExpandedSeat(seat);
     setRsvnTime("");
     setRsvnPeople(Math.min(Math.max(minPeople, 2), maxPeople));
+  };
+
+  const closeSeatModal = () => {
+    setExpandedSeat(null);
+    setSubmittedRsvn(null);
+    setGuestName("");
+    setGuestTel("");
+    setRsvnTime("");
   };
 
   const confirmReserve = async () => {
@@ -118,12 +132,12 @@ export default function SeatsView({ visible, onClose, bizno }) {
     if (!uuid || !bizno) return;
     setSubmitting(true);
     const now = new Date().toISOString();
-    await api.consent.postReservation({ uuid, bizRegNo: bizno, guestName: guestName.trim(), guestPhone: guestTel.trim() || null, consentAt: now, regUsrId: "guest", regDt: now });
+    await api.consent.postReservation({ uuid, bizRegNo: bizno, guestName: guestName.trim(), guestPhone: guestTel, consentAt: now, regUsrId: "guest", regDt: now });
     const { data, error } = await api.reservation.post({
       uuid,
       bizRegNo: bizno,
       guestName: guestName.trim(),
-      guestTel: guestTel.trim() || null,
+      guestTel,
       rsvnDt: `${rsvnDate}T${rsvnTime}:00`,
       seatCd: expandedSeat.seatCd,
       partySize: rsvnPeople,
@@ -132,11 +146,7 @@ export default function SeatsView({ visible, onClose, bizno }) {
     setSubmitting(false);
     setShowConsent(false);
     if (error || !data) { alert("예약에 실패했습니다. 다시 시도해주세요."); return; }
-    alert(`예약이 접수됐어요!\n예약번호: ${data.rsvnNo}\n사장님 확인 후 확정됩니다.`);
-    setExpandedSeat(null);
-    setGuestName("");
-    setGuestTel("");
-    setRsvnTime("");
+    setSubmittedRsvn({ rsvnNo: data.rsvnNo });
   };
 
   return (
@@ -194,23 +204,36 @@ export default function SeatsView({ visible, onClose, bizno }) {
 
       {/* 이미지 확대 뷰어 */}
       {expandedSeat && (
-        <Modal visible={!!expandedSeat} transparent animationType="fade" onRequestClose={() => setExpandedSeat(null)}>
+        <Modal visible={!!expandedSeat} transparent animationType="fade" onRequestClose={closeSeatModal}>
           <View style={s.viewerBg}>
-            <TouchableOpacity style={StyleSheet.absoluteFillObject} activeOpacity={1} onPress={() => setExpandedSeat(null)} />
+            <TouchableOpacity style={StyleSheet.absoluteFillObject} activeOpacity={1} onPress={closeSeatModal} />
             <ScrollView style={{ width: "100%" }} contentContainerStyle={s.viewerScroll} keyboardShouldPersistTaps="handled">
               <View style={s.viewerBox}>
                 {/* 이미지 */}
-                {expandedSeat.imgUrl ? (
+                {!submittedRsvn && expandedSeat.imgUrl ? (
                   <Image
                     source={{ uri: expandedSeat.imgUrl.replace("w=400&h=220", "w=800&h=500") }}
                     style={s.viewerImg}
                     resizeMode="cover"
                   />
                 ) : null}
-                <TouchableOpacity style={s.viewerClose} onPress={() => setExpandedSeat(null)}>
+                <TouchableOpacity style={s.viewerClose} onPress={closeSeatModal}>
                   <Text style={s.viewerCloseText}>✕</Text>
                 </TouchableOpacity>
 
+                {submittedRsvn ? (
+                  <View style={s.rsvnForm}>
+                    <Text style={s.rsvnTitle}>🎉 예약이 접수됐어요!</Text>
+                    <PickupBadge no={submittedRsvn.rsvnNo} label="예약번호" />
+                    <Text style={{ color: "#94a3b8", fontSize: 13, lineHeight: 18 }}>
+                      사장님 확인 후 예약이 확정됩니다.{"\n"}확정 여부는 곧 알림으로 안내해드릴게요.
+                    </Text>
+                    <TouchableOpacity style={s.rsvnBtn} onPress={closeSeatModal}>
+                      <Text style={s.rsvnBtnText}>확인</Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                <>
                 {/* 좌석 정보 */}
                 <View style={s.viewerInfo}>
                   <View style={s.viewerRow}>
@@ -317,30 +340,34 @@ export default function SeatsView({ visible, onClose, bizno }) {
                         placeholder="예약자 이름"
                         placeholderTextColor="#64748b"
                         value={guestName}
-                        onChangeText={setGuestName}
+                        onChangeText={(t) => setGuestName(t.slice(0, 10))}
+                        maxLength={10}
                       />
                     </View>
                     <View style={[s.rsvnField, { flex: 1 }]}>
                       <Text style={s.rsvnLabel}>📞 연락처</Text>
                       <TextInput
                         style={[s.rsvnInput, { color: "#fff" }]}
-                        placeholder="선택 입력"
+                        placeholder="숫자만 입력 (11자리)"
                         placeholderTextColor="#64748b"
                         value={guestTel}
-                        onChangeText={setGuestTel}
+                        onChangeText={(t) => setGuestTel(t.replace(/[^0-9]/g, "").slice(0, 11))}
                         keyboardType="phone-pad"
+                        maxLength={11}
                       />
                     </View>
                   </View>
 
                   <TouchableOpacity
-                    style={[s.rsvnBtn, (!rsvnDate || !rsvnTime || !guestName.trim() || submitting) && s.rsvnBtnOff]}
-                    disabled={!rsvnDate || !rsvnTime || !guestName.trim() || submitting}
+                    style={[s.rsvnBtn, !canSubmitRsvn && s.rsvnBtnOff]}
+                    disabled={!canSubmitRsvn}
                     onPress={() => setShowConsent(true)}
                   >
                     {submitting ? <ActivityIndicator color="#fff" /> : <Text style={s.rsvnBtnText}>예약하기</Text>}
                   </TouchableOpacity>
                 </View>
+                </>
+                )}
               </View>
             </ScrollView>
           </View>
