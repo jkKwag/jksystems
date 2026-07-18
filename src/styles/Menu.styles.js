@@ -35,6 +35,8 @@ export const s = StyleSheet.create({
   shopTagActive: { backgroundColor: colors.primary },
   shopTagIcon: { fontSize: font.base },
   shopTagText: { fontSize: font.sm, fontWeight: "700", color: colors.slate600 },
+  shopTagTextDineIn: { color: colors.green },
+  shopTagTextTakeout: { color: colors.accent },
   shopTagTextActive: { color: colors.white },
   seatBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", backgroundColor: "transparent", borderRadius: radius.pill, borderWidth: 1.5, borderColor: colors.indigoLight, paddingHorizontal: spacing["2.5"], paddingVertical: 5 },
   seatBtnText: { fontSize: font.sm, fontWeight: "700", color: colors.indigo },

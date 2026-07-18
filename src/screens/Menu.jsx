@@ -552,8 +552,8 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
         <View style={s.shopTags}>
           <View style={s.orderTypeGroup}>
             {[
-              { label: "매장주문", icon: "🍽️" },
-              { label: "포장주문", icon: "📦" },
+              { label: "매장주문", icon: "🍽️", textStyle: s.shopTagTextDineIn },
+              { label: "포장주문", icon: "📦", textStyle: s.shopTagTextTakeout },
             ].map((t, i) => (
               <TouchableOpacity
                 key={t.label}
@@ -561,7 +561,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                 onPress={() => setOrderType(t.label)}
               >
                 <Text style={s.shopTagIcon}>{t.icon}</Text>
-                <Text style={[s.shopTagText, orderType === t.label && s.shopTagTextActive]}>{t.label}</Text>
+                <Text style={[s.shopTagText, t.textStyle, orderType === t.label && s.shopTagTextActive]}>{t.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
