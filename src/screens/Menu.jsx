@@ -863,11 +863,10 @@ export default function Menu({ bizno, tableNo }) {
                     <View key={order.orderNo} style={oi > 0 && s.pendingOrderGroup}>
                       <View style={s.pendingOrderBadgeRow}>
                         <View style={s.pendingOrderBadge}>
-                          <Text style={s.pendingOrderBadgeText}>주문{oi + 1}</Text>
+                          <Text style={s.pendingOrderBadgeText}>주문{pendingOrders.length - oi}</Text>
                         </View>
                         <Text style={s.pendingOrderTypText}>{orderTypLabel(order.orderTypCd)}</Text>
                       </View>
-                      <RsvnBadge rsvnNo={order.rsvnNo} />
                       {order.items?.map(item => {
                         const optionsTotal = (item.options || []).reduce((sum, o) => sum + Number(o.addPrice || 0), 0);
                         const lineTotal = (Number(item.price || 0) + optionsTotal) * Number(item.qty || 1);
@@ -879,6 +878,7 @@ export default function Menu({ bizno, tableNo }) {
                           </View>
                         );
                       })}
+                      <RsvnBadge rsvnNo={order.rsvnNo} />
                     </View>
                   ))}
                   <View style={s.payDivider} />

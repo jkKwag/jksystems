@@ -98,11 +98,10 @@ export default function PaymentHistory({ visible, onClose, payments, bizNameMap 
                             <View key={order.orderNo} style={[s.orderBlock, oi > 0 && s.orderBlockDivider]}>
                               <View style={s.orderBadgeRow}>
                                 <View style={s.orderBadge}>
-                                  <Text style={s.orderBadgeText}>주문{oi + 1}</Text>
+                                  <Text style={s.orderBadgeText}>주문{orderDetails[p.paymentKey].length - oi}</Text>
                                 </View>
                                 <Text style={s.orderTypText}>{orderTypLabel(order.orderTypCd)}</Text>
                               </View>
-                              <RsvnBadge rsvnNo={order.rsvnNo} />
                               {order.items?.map(item => {
                                 const optionsTotal = (item.options || []).reduce((sum, o) => sum + Number(o.addPrice || 0), 0);
                                 const lineTotal = (Number(item.price || 0) + optionsTotal) * Number(item.qty || 1);
@@ -120,6 +119,7 @@ export default function PaymentHistory({ visible, onClose, payments, bizNameMap 
                                   </View>
                                 );
                               })}
+                              <RsvnBadge rsvnNo={order.rsvnNo} />
                             </View>
                           ))
                         )}
