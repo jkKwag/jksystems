@@ -10,8 +10,7 @@ export const s = StyleSheet.create({
   shopAiBadge: { fontSize: font.sm, color: colors.accent, fontWeight: "800" },
   tableBadge: { backgroundColor: colors.accent, borderRadius: radius.sm, paddingHorizontal: spacing["2.5"], paddingVertical: spacing["1"] },
   tableBadgeText: { color: colors.white, fontSize: font.md, fontWeight: "900", letterSpacing: 1 },
-  shopNameActions: { marginLeft: "auto", flexDirection: "row", alignItems: "center", gap: spacing["2"] },
-  scanListBtn: { borderWidth: 1.5, borderColor: colors.green, borderRadius: radius["2xl"], paddingHorizontal: spacing["2.5"], paddingVertical: spacing["1"], backgroundColor: colors.greenPaleBg2 },
+  scanListBtn: { marginLeft: "auto", borderWidth: 1.5, borderColor: colors.green, borderRadius: radius["2xl"], paddingHorizontal: spacing["2.5"], paddingVertical: spacing["1"], backgroundColor: colors.greenPaleBg2 },
   scanListBtnText: { fontSize: font.sm, fontWeight: "700", color: colors.green },
 
   paymentHistoryBtn: { borderWidth: 1.5, borderColor: colors.accent, borderRadius: radius["2xl"], paddingHorizontal: spacing["2.5"], paddingVertical: spacing["1"], backgroundColor: colors.accentLight },

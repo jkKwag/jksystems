@@ -496,19 +496,12 @@ export default function Menu({ bizno, tableNo }) {
           <Text style={s.shopAiBadge}>[AI✨]</Text>
           {tableNo && (
             <View style={s.tableBadge}>
-              <Text style={s.tableBadgeText}>{tableNo.toUpperCase()}</Text>
+              <Text style={s.tableBadgeText}>No. {tableNo.toUpperCase()}</Text>
             </View>
           )}
-          <View style={s.shopNameActions}>
-            {recentPayments.length > 0 && (
-              <TouchableOpacity style={s.paymentHistoryBtn} onPress={() => setShowPaymentHistory(true)}>
-                <Text style={s.paymentHistoryBtnText}>💳 결제내역</Text>
-              </TouchableOpacity>
-            )}
-            <TouchableOpacity onPress={() => { if (Platform.OS === "web") window.location.href = "/"; }} style={s.scanListBtn}>
-              <Text style={s.scanListBtnText}>내 스캔 목록</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity onPress={() => { if (Platform.OS === "web") window.location.href = "/"; }} style={s.scanListBtn}>
+            <Text style={s.scanListBtnText}>내 스캔 목록</Text>
+          </TouchableOpacity>
         </View>
         <View style={s.shopMeta}>
           <Text style={s.shopRating}><Text style={s.star}>★</Text> 4.8</Text>
@@ -533,6 +526,11 @@ export default function Menu({ bizno, tableNo }) {
           <TouchableOpacity style={s.seatBtn} onPress={() => setShowSeats(true)}>
             <Text style={s.seatBtnText}>🪑 테이블 예약</Text>
           </TouchableOpacity>
+          {recentPayments.length > 0 && (
+            <TouchableOpacity style={s.paymentHistoryBtn} onPress={() => setShowPaymentHistory(true)}>
+              <Text style={s.paymentHistoryBtnText}>💳 결제내역</Text>
+            </TouchableOpacity>
+          )}
         </View>
         {bizInfo?.addr && (
           <Text style={s.bizAddr}>
