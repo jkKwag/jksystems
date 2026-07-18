@@ -269,6 +269,13 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
       setTableNo(null);
     }
   }, [bizno, tableNoFromUrl]);
+
+  // 장바구니에 담는 행위를 "활동"으로 보고 테이블번호 만료 타이머 갱신
+  const touchTableActivity = () => {
+    if (Platform.OS !== "web" || !bizno || !tableNo) return;
+    localStorage.setItem(`scaneat_table_${bizno}`, JSON.stringify({ tableNo, ts: Date.now() }));
+  };
+
   // 결제 안 된(PENDING) 주문 목록. 새로고침해도 안 없어지도록 화면 상태에
   // 두지 않고, 매번 서버(GET /api/order)에서 다시 불러와 진짜 값(source of
   // truth)을 유지한다.
@@ -402,6 +409,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
   const grandTotal = cartTotal + pendingTotal;
 
   const addToCart = (item) => {
+    touchTableActivity();
     // item.quantity는 MenuDetail에서 선택한 "담을 개수"일 뿐, 장바구니에
     // 저장된 뒤에는 의미가 없는 값이라 보관하면 +버튼을 누를 때마다
     // 그 값만큼 재추가되는 버그가 생김 → 저장 전에 떼어냄
