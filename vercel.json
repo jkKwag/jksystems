@@ -6,6 +6,7 @@
   "rewrites": [
     { "source": "/menu/:bizno", "destination": "/index.html" },
     { "source": "/payment/success", "destination": "/index.html" },
-    { "source": "/payment/fail", "destination": "/index.html" }
+    { "source": "/payment/fail", "destination": "/index.html" },
+    { "source": "/admin", "destination": "/index.html" }
   ]
 }
