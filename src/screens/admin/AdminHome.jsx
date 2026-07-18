@@ -12,6 +12,7 @@ import AdminHours from "./AdminHours";
 import AdminReservationStandard from "./AdminReservationStandard";
 import AdminDashboard from "./AdminDashboard";
 import BizLookupBar from "../../components/admin/BizLookupBar";
+import ConfirmModal from "../../components/ConfirmModal";
 
 const ROLE_LABEL = { SUPER: "최종관리자", BIZ: "사업자관리자" };
 const MOBILE_BREAKPOINT = 768;
@@ -71,6 +72,7 @@ export default function AdminHome({ adminInfo, onLogout }) {
   const [selected, setSelected] = useState(null);
   const [showMenu, setShowMenu] = useState(false);
   const [bizNm, setBizNm] = useState(null);
+  const [logoutStep, setLogoutStep] = useState(null); // null | "confirm" | "done"
 
   const isSuper = adminInfo?.adminRole === "SUPER";
   const [bizLookupInput, setBizLookupInput] = useState("");
@@ -144,6 +146,8 @@ export default function AdminHome({ adminInfo, onLogout }) {
     if (node) selectMenu(node);
   };
 
+  const requestLogout = () => setLogoutStep("confirm");
+
   const Sidebar = () => (
     <View style={isMobile ? s.sidebarMobile : s.sidebar}>
       <View style={s.sidebarHeader}>
@@ -167,7 +171,7 @@ export default function AdminHome({ adminInfo, onLogout }) {
           ))
         )}
       </ScrollView>
-      <TouchableOpacity style={s.logoutBtn} onPress={onLogout}>
+      <TouchableOpacity style={s.logoutBtn} onPress={requestLogout}>
         <Text style={s.logoutBtnText}>🔓 로그아웃</Text>
       </TouchableOpacity>
     </View>
@@ -182,7 +186,7 @@ export default function AdminHome({ adminInfo, onLogout }) {
               <Text style={s.hamburgerBtnText}>☰</Text>
             </TouchableOpacity>
             <Text style={s.topBarTitle}>{brandTitle}</Text>
-            <TouchableOpacity style={s.hamburgerBtn} onPress={onLogout}>
+            <TouchableOpacity style={s.hamburgerBtn} onPress={requestLogout}>
               <Text style={s.hamburgerBtnText}>🔓</Text>
             </TouchableOpacity>
           </View>
@@ -238,6 +242,20 @@ export default function AdminHome({ adminInfo, onLogout }) {
           })()}
         </View>
       </View>
+
+      <ConfirmModal
+        visible={logoutStep === "confirm"}
+        message="로그아웃 하시겠어요?"
+        confirmText="로그아웃"
+        cancelText="취소"
+        onConfirm={() => setLogoutStep("done")}
+        onCancel={() => setLogoutStep(null)}
+      />
+      <ConfirmModal
+        visible={logoutStep === "done"}
+        message="로그아웃 되었습니다."
+        onConfirm={() => { setLogoutStep(null); onLogout(); }}
+      />
     </View>
   );
 }
