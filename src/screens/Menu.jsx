@@ -4,6 +4,7 @@ import AiChat from "../components/AiChat";
 import ChatRoom from "../components/ChatRoom";
 import MenuDetail from "./MenuDetail";
 import PaymentHistory from "./PaymentHistory";
+import RsvnBadge from "../components/RsvnBadge";
 import api from "../lib/api";
 import SeatsView from "./SeatsView";
 import { s } from "../styles/Menu.styles";
@@ -866,7 +867,7 @@ export default function Menu({ bizno, tableNo }) {
                         </View>
                         <Text style={s.pendingOrderTypText}>{orderTypLabel(order.orderTypCd)}</Text>
                       </View>
-                      {!!order.rsvnNo && <Text style={s.pendingOrderRsvnText}>픽업번호 {order.rsvnNo}</Text>}
+                      <RsvnBadge rsvnNo={order.rsvnNo} />
                       {order.items?.map(item => {
                         const optionsTotal = (item.options || []).reduce((sum, o) => sum + Number(o.addPrice || 0), 0);
                         const lineTotal = (Number(item.price || 0) + optionsTotal) * Number(item.qty || 1);

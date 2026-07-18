@@ -157,7 +157,6 @@ export const s = StyleSheet.create({
   pendingOrderBadge: { alignSelf: "flex-start", backgroundColor: colors.accent, borderRadius: radius.sm, paddingHorizontal: spacing["2"], paddingVertical: 3 },
   pendingOrderBadgeText: { fontSize: font.sm, fontWeight: "800", color: colors.white },
   pendingOrderTypText: { fontSize: font.sm, fontWeight: "700", color: colors.textSecondary, marginLeft: "auto" },
-  pendingOrderRsvnText: { fontSize: font.sm, fontWeight: "700", color: colors.accent, marginBottom: spacing["1.5"] },
 
   payTossNote: { fontSize: font.base, color: colors.slate400, textAlign: "center", marginTop: spacing["4"], fontWeight: "600" },
 
