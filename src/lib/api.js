@@ -65,6 +65,7 @@ const api = {
     get: (rsvnNo) => get(`/api/reservation/${rsvnNo}`),
     post: (body) => post(`/api/reservation`, body),
     put: (rsvnNo, body) => put(`/api/reservation/${rsvnNo}`, body),
+    updateStatus: (rsvnNo, body) => put(`/api/reservation/${rsvnNo}/status`, body),
   },
   chat: {
     messages: (rsvnNo) => get(`/api/chat/${rsvnNo}/messages`),

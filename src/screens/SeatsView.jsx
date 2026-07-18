@@ -72,7 +72,7 @@ const formatRsvnDt = (iso) => {
 };
 
 // 라벨(예: "예약대기")은 공통코드(RSVN_STATUS)에서 받아오고, 색상 매핑만 화면단에서 유지
-const STATUS_STYLE_KEY = { PENDING: "statusPending", CONFIRMED: "statusConfirmed", CANCELLED: "statusCancelled", COMPLETED: "statusCompleted" };
+const STATUS_STYLE_KEY = { PENDING: "statusPending", CONFIRMED: "statusConfirmed", REJECTED: "statusRejected", CANCELLED: "statusCancelled", COMPLETED: "statusCompleted" };
 
 export default function SeatsView({ visible, onClose, bizno }) {
   const today = new Date().toISOString().split("T")[0];
@@ -97,6 +97,7 @@ export default function SeatsView({ visible, onClose, bizno }) {
   const [showConsent, setShowConsent] = useState(false);
   const [submittedRsvn, setSubmittedRsvn] = useState(null);
   const [occupiedWindows, setOccupiedWindows] = useState([]);
+  const [cancellingRsvn, setCancellingRsvn] = useState(null);
 
   useEffect(() => {
     if (!expandedSeat || !rsvnDate || !bizno) { setOccupiedWindows([]); return; }
@@ -202,6 +203,15 @@ export default function SeatsView({ visible, onClose, bizno }) {
     setMyReservations(prev => [data, ...prev]);
   };
 
+  const cancelReservation = async (rsvnNo) => {
+    if (Platform.OS === "web" && !window.confirm("예약을 취소하시겠어요?")) return;
+    setCancellingRsvn(rsvnNo);
+    const { data, error } = await api.reservation.updateStatus(rsvnNo, { rsvnStatus: "CANCELLED" });
+    setCancellingRsvn(null);
+    if (error || !data) { alert("예약 취소에 실패했습니다. 다시 시도해주세요."); return; }
+    setMyReservations(prev => prev.map(r => r.rsvnNo === rsvnNo ? data : r));
+  };
+
   return (
     <View style={[StyleSheet.absoluteFillObject, fixedFill, s.container]}>
       {/* 헤더 */}
@@ -236,6 +246,7 @@ export default function SeatsView({ visible, onClose, bizno }) {
           ) : (
             myReservations.map(r => {
               const seat = seats.find(sv => sv.seatCd === r.seatCd);
+              const canCancel = (r.rsvnStatus === "PENDING" || r.rsvnStatus === "CONFIRMED") && new Date(r.rsvnDt) > new Date();
               return (
                 <View key={r.rsvnNo} style={s.historyCard}>
                   {seat?.imgUrl ? (
@@ -255,9 +266,25 @@ export default function SeatsView({ visible, onClose, bizno }) {
                     <Text style={s.historyMeta}>
                       {seat ? seat.seatNm : "좌석 미지정"} · {r.partySize}명
                     </Text>
+                    {r.rsvnStatus === "REJECTED" && r.rejectRsn ? (
+                      <Text style={s.historyRejectRsn}>사유: {r.rejectRsn}</Text>
+                    ) : null}
                     <View style={s.rsvnNoBadge}>
                       <Text style={s.rsvnNoBadgeText}>예약번호 {r.rsvnNo}</Text>
                     </View>
+                    {canCancel && (
+                      <TouchableOpacity
+                        style={s.historyCancelBtn}
+                        onPress={() => cancelReservation(r.rsvnNo)}
+                        disabled={cancellingRsvn === r.rsvnNo}
+                      >
+                        {cancellingRsvn === r.rsvnNo ? (
+                          <ActivityIndicator color="#ef4444" size="small" />
+                        ) : (
+                          <Text style={s.historyCancelBtnText}>예약 취소</Text>
+                        )}
+                      </TouchableOpacity>
+                    )}
                   </View>
                 </View>
               );
