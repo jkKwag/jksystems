@@ -73,4 +73,18 @@ export const s = StyleSheet.create({
   rsvnBtn: { backgroundColor: colors.accent, borderRadius: radius.lg, paddingVertical: spacing["3.5"], alignItems: "center", marginTop: spacing["1"] },
   rsvnBtnOff: { backgroundColor: colors.slate700 },
   rsvnBtnText: { color: colors.white, fontSize: font.xl, fontWeight: "900" },
+
+  consentOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.7)", justifyContent: "center", alignItems: "center", padding: spacing["5"] },
+  consentCard: { width: "100%", maxWidth: 380, backgroundColor: colors.slate800, borderRadius: radius["2xl"], padding: spacing["4"], borderWidth: 1, borderColor: colors.slate700 },
+  consentTitle: { fontSize: font.lg, fontWeight: "900", color: colors.white, marginBottom: spacing["2"] },
+  consentBody: { gap: 3, marginBottom: spacing["2.5"] },
+  consentRow: { fontSize: font.base, color: colors.slate400, lineHeight: 18 },
+  consentSummary: { backgroundColor: colors.slate700, borderRadius: radius.md, padding: spacing["2.5"], marginBottom: spacing["2.5"], gap: 2 },
+  consentSummaryText: { fontSize: font.base, fontWeight: "700", color: colors.white },
+  consentNote: { fontSize: font.sm, color: colors.accent, marginBottom: spacing["3"] },
+  consentBtns: { flexDirection: "row", gap: spacing["2.5"] },
+  consentNoBtn: { flex: 1, borderWidth: 1, borderColor: colors.slate700, borderRadius: radius.md, paddingVertical: spacing["2.5"], alignItems: "center" },
+  consentNoBtnText: { fontSize: font.md, fontWeight: "700", color: colors.slate400 },
+  consentYesBtn: { flex: 1, backgroundColor: colors.accent, borderRadius: radius.md, paddingVertical: spacing["2.5"], alignItems: "center" },
+  consentYesBtnText: { fontSize: font.md, fontWeight: "700", color: colors.white },
 });

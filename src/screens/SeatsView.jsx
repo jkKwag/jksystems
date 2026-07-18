@@ -72,6 +72,7 @@ export default function SeatsView({ visible, onClose, bizno }) {
   const [guestName, setGuestName] = useState("");
   const [guestTel, setGuestTel] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [showConsent, setShowConsent] = useState(false);
 
   useEffect(() => {
     if (!visible || !bizno) return;
@@ -112,11 +113,12 @@ export default function SeatsView({ visible, onClose, bizno }) {
     setRsvnPeople(Math.min(Math.max(minPeople, 2), maxPeople));
   };
 
-  const handleReserve = async () => {
-    if (!guestName.trim()) { alert("예약자 이름을 입력해주세요."); return; }
+  const confirmReserve = async () => {
     const uuid = getUuid();
     if (!uuid || !bizno) return;
     setSubmitting(true);
+    const now = new Date().toISOString();
+    await api.consent.postReservation({ uuid, bizRegNo: bizno, guestName: guestName.trim(), guestPhone: guestTel.trim() || null, consentAt: now, regUsrId: "guest", regDt: now });
     const { data, error } = await api.reservation.post({
       uuid,
       bizRegNo: bizno,
@@ -128,6 +130,7 @@ export default function SeatsView({ visible, onClose, bizno }) {
       memo: expandedSeat.seatNm ? `좌석 희망: ${expandedSeat.seatNm}` : null,
     });
     setSubmitting(false);
+    setShowConsent(false);
     if (error || !data) { alert("예약에 실패했습니다. 다시 시도해주세요."); return; }
     alert(`예약이 접수됐어요!\n예약번호: ${data.rsvnNo}\n사장님 확인 후 확정됩니다.`);
     setExpandedSeat(null);
@@ -223,31 +226,6 @@ export default function SeatsView({ visible, onClose, bizno }) {
                 <View style={s.rsvnForm}>
                   <Text style={s.rsvnTitle}>예약 정보 입력</Text>
 
-                  {/* 예약자 이름 + 연락처 */}
-                  <View style={s.rsvnRow}>
-                    <View style={[s.rsvnField, { flex: 1 }]}>
-                      <Text style={s.rsvnLabel}>👤 이름</Text>
-                      <TextInput
-                        style={[s.rsvnInput, { color: "#fff" }]}
-                        placeholder="예약자 이름"
-                        placeholderTextColor="#64748b"
-                        value={guestName}
-                        onChangeText={setGuestName}
-                      />
-                    </View>
-                    <View style={[s.rsvnField, { flex: 1 }]}>
-                      <Text style={s.rsvnLabel}>📞 연락처</Text>
-                      <TextInput
-                        style={[s.rsvnInput, { color: "#fff" }]}
-                        placeholder="선택 입력"
-                        placeholderTextColor="#64748b"
-                        value={guestTel}
-                        onChangeText={setGuestTel}
-                        keyboardType="phone-pad"
-                      />
-                    </View>
-                  </View>
-
                   {/* 날짜 + 인원 (같은 행) */}
                   <View style={s.rsvnRow}>
                     {/* 날짜 */}
@@ -330,16 +308,70 @@ export default function SeatsView({ visible, onClose, bizno }) {
                     )}
                   </View>
 
+                  {/* 예약자 이름 + 연락처 */}
+                  <View style={s.rsvnRow}>
+                    <View style={[s.rsvnField, { flex: 1 }]}>
+                      <Text style={s.rsvnLabel}>👤 이름</Text>
+                      <TextInput
+                        style={[s.rsvnInput, { color: "#fff" }]}
+                        placeholder="예약자 이름"
+                        placeholderTextColor="#64748b"
+                        value={guestName}
+                        onChangeText={setGuestName}
+                      />
+                    </View>
+                    <View style={[s.rsvnField, { flex: 1 }]}>
+                      <Text style={s.rsvnLabel}>📞 연락처</Text>
+                      <TextInput
+                        style={[s.rsvnInput, { color: "#fff" }]}
+                        placeholder="선택 입력"
+                        placeholderTextColor="#64748b"
+                        value={guestTel}
+                        onChangeText={setGuestTel}
+                        keyboardType="phone-pad"
+                      />
+                    </View>
+                  </View>
+
                   <TouchableOpacity
                     style={[s.rsvnBtn, (!rsvnDate || !rsvnTime || !guestName.trim() || submitting) && s.rsvnBtnOff]}
                     disabled={!rsvnDate || !rsvnTime || !guestName.trim() || submitting}
-                    onPress={handleReserve}
+                    onPress={() => setShowConsent(true)}
                   >
                     {submitting ? <ActivityIndicator color="#fff" /> : <Text style={s.rsvnBtnText}>예약하기</Text>}
                   </TouchableOpacity>
                 </View>
               </View>
             </ScrollView>
+          </View>
+        </Modal>
+      )}
+
+      {/* 개인정보 수집·이용 동의 */}
+      {showConsent && (
+        <Modal visible transparent animationType="fade" onRequestClose={() => setShowConsent(false)}>
+          <View style={s.consentOverlay}>
+            <View style={s.consentCard}>
+              <Text style={s.consentTitle}>📋 개인정보 수집·이용 동의</Text>
+              <View style={s.consentBody}>
+                <Text style={s.consentRow}>· 수집항목: 이름, 전화번호</Text>
+                <Text style={s.consentRow}>· 수집목적: 예약 확인 및 승인 안내</Text>
+                <Text style={s.consentRow}>· 보유기간: 예약일로부터 7일 후 삭제</Text>
+              </View>
+              <View style={s.consentSummary}>
+                <Text style={s.consentSummaryText}>{guestName} {guestTel ? `· ${guestTel}` : ""}</Text>
+                <Text style={s.consentSummaryText}>{rsvnPeople}명 · {rsvnDate} {rsvnTime}</Text>
+              </View>
+              <Text style={s.consentNote}>※ 동의 거부 시 예약 서비스 이용이 제한됩니다.</Text>
+              <View style={s.consentBtns}>
+                <TouchableOpacity style={s.consentNoBtn} onPress={() => setShowConsent(false)} disabled={submitting}>
+                  <Text style={s.consentNoBtnText}>동의 안함</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={s.consentYesBtn} onPress={confirmReserve} disabled={submitting}>
+                  {submitting ? <ActivityIndicator color="#fff" /> : <Text style={s.consentYesBtnText}>✓ 동의하고 예약</Text>}
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
         </Modal>
       )}
