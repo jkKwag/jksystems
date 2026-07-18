@@ -11,6 +11,7 @@ const formatRsvnDt = (iso) => {
 };
 
 const STATUS_STYLE_KEY = { PENDING: "statusPending", CONFIRMED: "statusConfirmed", REJECTED: "statusRejected", CANCELLED: "statusCancelled", COMPLETED: "statusCompleted" };
+const isPast = (iso) => new Date(iso) <= new Date();
 const STATUS_SORT_PRIORITY = { PENDING: 0, CONFIRMED: 1 };
 const sortReservations = (list) => [...list].sort((a, b) => {
   const pa = STATUS_SORT_PRIORITY[a.rsvnStatus] ?? 2;
@@ -124,7 +125,7 @@ export default function AdminReservations({ adminInfo }) {
                     </TouchableOpacity>
                   </View>
                 )}
-                {r.rsvnStatus === "CONFIRMED" && (
+                {r.rsvnStatus === "CONFIRMED" && isPast(r.rsvnDt) && (
                   <View style={s.btnRow}>
                     <TouchableOpacity style={s.completeBtn} onPress={() => setConfirmCompleteRsvnNo(r.rsvnNo)} disabled={busy}>
                       {busy ? <ActivityIndicator color="#fff" size="small" /> : <Text style={s.completeBtnText}>이용완료 처리</Text>}
