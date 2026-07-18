@@ -45,6 +45,7 @@ export default function AdminDashboard({ adminInfo }) {
   const [reservations, setReservations] = useState([]);
   const [chartBoxWidth, setChartBoxWidth] = useState(0);
   const chartReveal = useRef(new Animated.Value(0)).current;
+  const menuBarAnims = useRef([0, 1, 2, 3, 4].map(() => new Animated.Value(0))).current;
 
   const load = async () => {
     if (!bizRegNo) { setLoaded(true); return; }
@@ -66,6 +67,11 @@ export default function AdminDashboard({ adminInfo }) {
     if (!loaded || !bizRegNo) return;
     chartReveal.setValue(0);
     Animated.timing(chartReveal, { toValue: 1, duration: 700, useNativeDriver: false }).start();
+
+    menuBarAnims.forEach(anim => anim.setValue(0));
+    Animated.stagger(80, menuBarAnims.map(anim =>
+      Animated.timing(anim, { toValue: 1, duration: 500, useNativeDriver: false })
+    )).start();
   }, [loaded, bizRegNo]);
 
   if (!bizRegNo) {
@@ -234,16 +240,24 @@ export default function AdminDashboard({ adminInfo }) {
         {topMenus.length === 0 ? (
           <Text style={s.emptySmallText}>주문 데이터가 없습니다</Text>
         ) : (
-          topMenus.map(([nm, count], i) => (
-            <View key={nm} style={s.menuRow}>
-              <Text style={s.menuRank}>{i + 1}</Text>
-              <Text style={s.menuNm} numberOfLines={1}>{nm}</Text>
-              <View style={s.menuBarTrack}>
-                <View style={[s.menuBarFill, { width: `${Math.round((count / maxMenuCount) * 100)}%` }]} />
+          topMenus.map(([nm, count], i) => {
+            const pct = Math.round((count / maxMenuCount) * 100);
+            return (
+              <View key={nm} style={s.menuRow}>
+                <Text style={s.menuRank}>{i + 1}</Text>
+                <Text style={s.menuNm} numberOfLines={1}>{nm}</Text>
+                <View style={s.menuBarTrack}>
+                  <Animated.View
+                    style={[
+                      s.menuBarFill,
+                      { width: menuBarAnims[i].interpolate({ inputRange: [0, 1], outputRange: ["0%", `${pct}%`] }) },
+                    ]}
+                  />
+                </View>
+                <Text style={s.menuCount}>{count}개</Text>
               </View>
-              <Text style={s.menuCount}>{count}개</Text>
-            </View>
-          ))
+            );
+          })
         )}
       </View>
 
