@@ -16,7 +16,11 @@ export const s = StyleSheet.create({
   tabBtnTextActive: { color: colors.white },
 
   historyList: { padding: spacing["4"], gap: spacing["3"], paddingBottom: spacing["10"] },
-  historyCard: { backgroundColor: colors.bgCard, borderRadius: radius["2xl"], padding: spacing["4"], gap: spacing["1.5"], shadowColor: colors.black, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: spacing["2"], elevation: 3 },
+  historyCard: { backgroundColor: colors.bgCard, borderRadius: radius["2xl"], padding: spacing["3"], shadowColor: colors.black, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: spacing["2"], elevation: 3 },
+  historyCardRow: { flexDirection: "row", gap: spacing["3"] },
+  historyThumb: { width: 72, height: 72, borderRadius: radius.lg, backgroundColor: colors.slate200 },
+  historyThumbPlaceholder: { width: 72, height: 72, borderRadius: radius.lg, backgroundColor: colors.bgInputAlt, justifyContent: "center", alignItems: "center" },
+  historyInfo: { flex: 1, gap: spacing["1.5"], justifyContent: "center" },
   historyTopRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   historyDt: { fontSize: font.lg, fontWeight: "900", color: colors.primary },
   historyMeta: { fontSize: font.base, color: colors.slate500, fontWeight: "600" },
