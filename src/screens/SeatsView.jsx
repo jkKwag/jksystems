@@ -137,7 +137,7 @@ export default function SeatsView({ visible, onClose, bizno }) {
       uuid,
       bizRegNo: bizno,
       guestName: guestName.trim(),
-      guestTel,
+      guestPhone: guestTel,
       rsvnDt: `${rsvnDate}T${rsvnTime}:00`,
       seatCd: expandedSeat.seatCd,
       partySize: rsvnPeople,
