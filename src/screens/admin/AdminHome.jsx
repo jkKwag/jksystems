@@ -10,6 +10,7 @@ import AdminMenu from "./AdminMenu";
 import AdminSeats from "./AdminSeats";
 import AdminHours from "./AdminHours";
 import AdminReservationStandard from "./AdminReservationStandard";
+import AdminDashboard from "./AdminDashboard";
 import BizLookupBar from "../../components/admin/BizLookupBar";
 
 const ROLE_LABEL = { SUPER: "최종관리자", BIZ: "사업자관리자" };
@@ -26,6 +27,7 @@ const MENU_SCREENS = {
   "/admin/seat": AdminSeats,
   "/admin/hours": AdminHours,
   "/admin/reservation-standard": AdminReservationStandard,
+  "/admin/dashboard": AdminDashboard,
 };
 
 function MenuNode({ node, depth, expanded, onToggle, selectedCd, onSelect }) {
