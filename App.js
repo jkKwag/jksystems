@@ -15,7 +15,7 @@ import Menu from "./src/screens/Menu";
 import PaymentSuccess from "./src/screens/PaymentSuccess";
 import PaymentFail from "./src/screens/PaymentFail";
 import AdminLogin from "./src/components/AdminLogin";
-import AdminHome from "./src/screens/AdminHome";
+import AdminHome from "./src/screens/admin/AdminHome";
 import QrScanner from "./src/components/QrScanner";
 import { s } from "./src/styles/App.styles";
 

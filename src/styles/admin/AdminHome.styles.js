@@ -1,5 +1,5 @@
 import { StyleSheet, Platform } from "react-native";
-import { colors, radius, font, spacing } from "./theme";
+import { colors, radius, font, spacing } from "../theme";
 
 export const s = StyleSheet.create({
   container: { flex: 1, flexDirection: "row", ...(Platform.OS === "web" ? { height: "100vh" } : {}) },

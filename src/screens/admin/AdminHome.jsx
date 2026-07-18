@@ -1,10 +1,16 @@
 import { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, useWindowDimensions } from "react-native";
-import { s } from "../styles/AdminHome.styles";
-import api from "../lib/api";
+import { s } from "../../styles/admin/AdminHome.styles";
+import api from "../../lib/api";
+import AdminReservations from "./AdminReservations";
 
 const ROLE_LABEL = { SUPER: "최종관리자", BIZ: "사업자관리자" };
 const MOBILE_BREAKPOINT = 768;
+
+// menu_url -> 실제 구현된 화면 컴포넌트. 없는 항목은 준비중 플레이스홀더로 표시.
+const MENU_SCREENS = {
+  "/admin/reservations": AdminReservations,
+};
 
 function MenuNode({ node, depth, expanded, onToggle, selectedCd, onSelect }) {
   const hasChildren = node.children && node.children.length > 0;
@@ -113,19 +119,26 @@ export default function AdminHome({ adminInfo, onLogout }) {
       )}
 
       <View style={s.content}>
-        {selected ? (
-          <View style={s.placeholder}>
-            <Text style={s.placeholderTitle}>{selected.menuNm}</Text>
-            <Text style={s.placeholderDesc}>이 화면은 아직 준비 중입니다.</Text>
-          </View>
-        ) : (
-          <View style={s.placeholder}>
-            <Text style={s.placeholderTitle}>👋 환영합니다</Text>
-            <Text style={s.placeholderDesc}>
-              {isMobile ? "☰ 버튼을 눌러 메뉴를 열어주세요." : "왼쪽 메뉴에서 원하는 항목을 선택해주세요."}
-            </Text>
-          </View>
-        )}
+        {(() => {
+          if (!selected) {
+            return (
+              <View style={s.placeholder}>
+                <Text style={s.placeholderTitle}>👋 환영합니다</Text>
+                <Text style={s.placeholderDesc}>
+                  {isMobile ? "☰ 버튼을 눌러 메뉴를 열어주세요." : "왼쪽 메뉴에서 원하는 항목을 선택해주세요."}
+                </Text>
+              </View>
+            );
+          }
+          const ScreenComponent = MENU_SCREENS[selected.menuUrl];
+          if (ScreenComponent) return <ScreenComponent adminInfo={adminInfo} />;
+          return (
+            <View style={s.placeholder}>
+              <Text style={s.placeholderTitle}>{selected.menuNm}</Text>
+              <Text style={s.placeholderDesc}>이 화면은 아직 준비 중입니다.</Text>
+            </View>
+          );
+        })()}
       </View>
     </View>
   );
