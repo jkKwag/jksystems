@@ -56,6 +56,7 @@ const api = {
     postReservation: (body) => post(`/api/consent/reservation`, body),
   },
   reservation: {
+    list: (uuid) => get(`/api/reservation?uuid=${uuid}`),
     get: (rsvnNo) => get(`/api/reservation/${rsvnNo}`),
     post: (body) => post(`/api/reservation`, body),
     put: (rsvnNo, body) => put(`/api/reservation/${rsvnNo}`, body),

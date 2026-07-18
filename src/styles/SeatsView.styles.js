@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Platform } from "react-native";
 import { colors, radius, font, spacing } from "./theme";
 
 export const s = StyleSheet.create({
@@ -8,6 +8,25 @@ export const s = StyleSheet.create({
   backBtn: { paddingHorizontal: spacing["2"], paddingVertical: spacing["1"] },
   backBtnText: { color: colors.white, fontSize: font.lg, fontWeight: "700" },
   headerTitle: { fontSize: font["3xl"], fontWeight: "900", color: colors.white },
+
+  tabBar: { flexDirection: "row", gap: spacing["2"], backgroundColor: colors.primary, paddingHorizontal: spacing["4"], paddingBottom: spacing["3"] },
+  tabBtn: { flex: 1, alignItems: "center", paddingVertical: spacing["2.5"], borderRadius: radius.lg, backgroundColor: colors.slate800, borderWidth: 1, borderColor: colors.slate700 },
+  tabBtnActive: { backgroundColor: colors.accent, borderColor: colors.accent },
+  tabBtnText: { fontSize: font.md, fontWeight: "800", color: colors.slate400 },
+  tabBtnTextActive: { color: colors.white },
+
+  historyList: { padding: spacing["4"], gap: spacing["3"], paddingBottom: spacing["10"] },
+  historyCard: { backgroundColor: colors.bgCard, borderRadius: radius["2xl"], padding: spacing["4"], gap: spacing["1.5"], shadowColor: colors.black, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: spacing["2"], elevation: 3 },
+  historyTopRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  historyDt: { fontSize: font.lg, fontWeight: "900", color: colors.primary },
+  historyMeta: { fontSize: font.base, color: colors.slate500, fontWeight: "600" },
+  historyRsvnNo: { fontSize: font.sm, color: colors.slate400, fontFamily: Platform.OS === "web" ? "monospace" : undefined },
+  statusBadge: { borderRadius: radius.pill, paddingHorizontal: spacing["2.5"], paddingVertical: 4 },
+  statusBadgeText: { fontSize: font.sm, fontWeight: "800", color: colors.white },
+  statusPending: { backgroundColor: "#f59e0b" },
+  statusConfirmed: { backgroundColor: "#22c55e" },
+  statusCancelled: { backgroundColor: "#94a3b8" },
+  statusCompleted: { backgroundColor: "#64748b" },
 
   catBar: { flexDirection: "row", gap: spacing["2"], paddingHorizontal: spacing["4"], paddingVertical: spacing["3"], backgroundColor: colors.primary, borderBottomWidth: 1, borderBottomColor: colors.slate800 },
   catChip: { paddingHorizontal: spacing["4"], paddingVertical: 7, borderRadius: radius.pill, backgroundColor: colors.slate800, borderWidth: 1, borderColor: colors.slate700 },

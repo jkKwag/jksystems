@@ -56,6 +56,15 @@ const getUuid = () => {
   return uuid;
 };
 
+const DAY_KR = ["일", "월", "화", "수", "목", "금", "토"];
+const formatRsvnDt = (iso) => {
+  const d = new Date(iso);
+  return `${d.getMonth() + 1}/${d.getDate()}(${DAY_KR[d.getDay()]}) ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+};
+
+const STATUS_LABEL = { PENDING: "예약대기", CONFIRMED: "예약확정", CANCELLED: "취소됨", COMPLETED: "이용완료" };
+const STATUS_STYLE_KEY = { PENDING: "statusPending", CONFIRMED: "statusConfirmed", CANCELLED: "statusCancelled", COMPLETED: "statusCompleted" };
+
 export default function SeatsView({ visible, onClose, bizno }) {
   const today = new Date().toISOString().split("T")[0];
 
@@ -63,6 +72,8 @@ export default function SeatsView({ visible, onClose, bizno }) {
   const [seats, setSeats] = useState([]);
   const [rsvnStd, setRsvnStd] = useState(null);
   const [hoursByDay, setHoursByDay] = useState({});
+  const [activeTab, setActiveTab] = useState("book");
+  const [myReservations, setMyReservations] = useState([]);
 
   const [expandedSeat, setExpandedSeat] = useState(null);
   const [category, setCategory] = useState("all");
@@ -80,16 +91,24 @@ export default function SeatsView({ visible, onClose, bizno }) {
     if (!visible || !bizno) return;
     setLoaded(false);
     (async () => {
-      const [std, hours, seatList] = await Promise.all([
+      const uuid = getUuid();
+      const [std, hours, seatList, rsvnList] = await Promise.all([
         api.biz.reservationStandard(bizno),
         api.biz.hours(bizno),
         api.biz.seats(bizno),
+        uuid ? api.reservation.list(uuid) : Promise.resolve([]),
       ]);
       setRsvnStd(std || null);
       const map = {};
       (Array.isArray(hours) ? hours : []).forEach(h => { map[h.dayOfWeek] = h; });
       setHoursByDay(map);
       setSeats(Array.isArray(seatList) ? seatList : []);
+      const bizRsvns = (Array.isArray(rsvnList) ? rsvnList : [])
+        .filter(r => r.bizRegNo === bizno)
+        .sort((a, b) => new Date(b.rsvnDt) - new Date(a.rsvnDt));
+      setMyReservations(bizRsvns);
+      const hasUpcoming = bizRsvns.some(r => new Date(r.rsvnDt) > new Date());
+      setActiveTab(hasUpcoming ? "history" : "book");
       setLoaded(true);
     })();
   }, [visible, bizno]);
@@ -120,6 +139,7 @@ export default function SeatsView({ visible, onClose, bizno }) {
   };
 
   const closeSeatModal = () => {
+    if (submittedRsvn) setActiveTab("history");
     setExpandedSeat(null);
     setSubmittedRsvn(null);
     setGuestName("");
@@ -147,6 +167,7 @@ export default function SeatsView({ visible, onClose, bizno }) {
     setShowConsent(false);
     if (error || !data) { alert("예약에 실패했습니다. 다시 시도해주세요."); return; }
     setSubmittedRsvn({ rsvnNo: data.rsvnNo });
+    setMyReservations(prev => [data, ...prev]);
   };
 
   return (
@@ -160,10 +181,46 @@ export default function SeatsView({ visible, onClose, bizno }) {
         <View style={{ width: 64 }} />
       </View>
 
+      {/* 탭 */}
+      <View style={s.tabBar}>
+        <TouchableOpacity style={[s.tabBtn, activeTab === "book" && s.tabBtnActive]} onPress={() => setActiveTab("book")}>
+          <Text style={[s.tabBtnText, activeTab === "book" && s.tabBtnTextActive]}>좌석 예약하기</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[s.tabBtn, activeTab === "history" && s.tabBtnActive]} onPress={() => setActiveTab("history")}>
+          <Text style={[s.tabBtnText, activeTab === "history" && s.tabBtnTextActive]}>
+            내 예약내역{myReservations.length > 0 ? ` (${myReservations.length})` : ""}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       {!loaded ? (
         <View style={s.content}>
           <ActivityIndicator size="large" color="#f97316" />
         </View>
+      ) : activeTab === "history" ? (
+        <ScrollView contentContainerStyle={s.historyList}>
+          {myReservations.length === 0 ? (
+            <Text style={s.notice}>예약내역이 없습니다</Text>
+          ) : (
+            myReservations.map(r => {
+              const seat = seats.find(sv => sv.seatCd === r.seatCd);
+              return (
+                <View key={r.rsvnNo} style={s.historyCard}>
+                  <View style={s.historyTopRow}>
+                    <Text style={s.historyDt}>{formatRsvnDt(r.rsvnDt)}</Text>
+                    <View style={[s.statusBadge, s[STATUS_STYLE_KEY[r.status]]]}>
+                      <Text style={s.statusBadgeText}>{STATUS_LABEL[r.status] || r.status}</Text>
+                    </View>
+                  </View>
+                  <Text style={s.historyMeta}>
+                    {seat ? seat.seatNm : "좌석 미지정"} · {r.partySize}명
+                  </Text>
+                  <Text style={s.historyRsvnNo}>예약번호 {r.rsvnNo}</Text>
+                </View>
+              );
+            })
+          )}
+        </ScrollView>
       ) : reservationDisabled ? (
         <View style={s.content}>
           <Text style={s.notice}>이 매장은 현재 테이블 예약을 받지 않습니다</Text>
