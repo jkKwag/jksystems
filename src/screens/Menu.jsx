@@ -237,12 +237,25 @@ const formatOptions = (labels) => {
 
 const orderTypLabel = (orderTypCd) => (orderTypCd === "TAKEOUT" ? "📦 포장주문" : "🍽️ 매장주문");
 
-export default function Menu({ bizno, tableNo }) {
+export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
   const [activeCat, setActiveCat] = useState("전체");
   const [categories, setCategories] = useState(["전체"]);
   const [menuItems, setMenuItems] = useState([]);
   const [bizInfo, setBizInfo] = useState(null);
   const [imgErrors, setImgErrors] = useState({});
+  // QR로 처음 들어올 때만 URL에 테이블번호가 붙어있고, 이후 새로고침/이동
+  // 시엔 사라지므로 한 번 들어오면 매장별로 저장해두고 계속 사용한다.
+  const [tableNo, setTableNo] = useState(tableNoFromUrl || null);
+  useEffect(() => {
+    if (Platform.OS !== "web" || !bizno) return;
+    const key = `scaneat_table_${bizno}`;
+    if (tableNoFromUrl) {
+      localStorage.setItem(key, tableNoFromUrl);
+      setTableNo(tableNoFromUrl);
+    } else {
+      setTableNo(localStorage.getItem(key) || null);
+    }
+  }, [bizno, tableNoFromUrl]);
   // 결제 안 된(PENDING) 주문 목록. 새로고침해도 안 없어지도록 화면 상태에
   // 두지 않고, 매번 서버(GET /api/order)에서 다시 불러와 진짜 값(source of
   // truth)을 유지한다.
