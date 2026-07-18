@@ -5,7 +5,6 @@ import ChatRoom from "../components/ChatRoom";
 import MenuDetail from "./MenuDetail";
 import PaymentHistory from "./PaymentHistory";
 import api from "../lib/api";
-import { generateRsvnNo } from "../lib/genNo";
 import SeatsView from "./SeatsView";
 import { s } from "../styles/Menu.styles";
 
@@ -465,13 +464,11 @@ export default function Menu({ bizno, tableNo }) {
   const createOrderForCart = async () => {
     const uuid = getUuid();
     if (!uuid || cartItems.length === 0) return null;
-    const isTakeout = orderType === "포장주문";
     const { data, error } = await api.order.post({
       uuid,
       bizRegNo: bizno,
       seatNo: tableNo || null,
-      orderTypCd: isTakeout ? "TAKEOUT" : "DINE_IN",
-      rsvnNo: isTakeout ? generateRsvnNo() : null,
+      orderTypCd: orderType === "포장주문" ? "TAKEOUT" : "DINE_IN",
       items: buildOrderItemsPayload(),
     });
     if (error || !data) {
