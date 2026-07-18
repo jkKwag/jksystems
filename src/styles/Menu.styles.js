@@ -156,7 +156,7 @@ export const s = StyleSheet.create({
   pendingOrderBadgeRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"], marginBottom: spacing["1.5"] },
   pendingOrderBadge: { alignSelf: "flex-start", backgroundColor: colors.accent, borderRadius: radius.sm, paddingHorizontal: spacing["2"], paddingVertical: 3 },
   pendingOrderBadgeText: { fontSize: font.sm, fontWeight: "800", color: colors.white },
-  pendingOrderTypText: { fontSize: font.sm, fontWeight: "700", color: colors.slate400 },
+  pendingOrderTypText: { fontSize: font.sm, fontWeight: "700", color: colors.textSecondary, marginLeft: "auto" },
 
   payTossNote: { fontSize: font.base, color: colors.slate400, textAlign: "center", marginTop: spacing["4"], fontWeight: "600" },
 

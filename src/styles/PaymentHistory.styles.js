@@ -41,7 +41,7 @@ export const s = StyleSheet.create({
   orderBadgeRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"], marginBottom: spacing["1"] },
   orderBadge: { alignSelf: "flex-start", backgroundColor: colors.accent, borderRadius: radius.sm, paddingHorizontal: spacing["2"], paddingVertical: 3 },
   orderBadgeText: { fontSize: font.sm, fontWeight: "800", color: colors.white },
-  orderTypText: { fontSize: font.sm, fontWeight: "700", color: colors.slate400 },
+  orderTypText: { fontSize: font.sm, fontWeight: "700", color: colors.textSecondary, marginLeft: "auto" },
 
   itemRow: { flexDirection: "row", alignItems: "flex-start", gap: spacing["2"] },
   itemName: { fontSize: font.md, fontWeight: "700", color: colors.textSecondary },
