@@ -153,7 +153,7 @@ export default function AdminDashboard({ adminInfo }) {
         </View>
         <View style={[s.statTile, pendingRsvnCount > 0 && s.statTileAlert]}>
           <Text style={s.statLabel}>승인대기 예약</Text>
-          <Text style={[s.statValue, pendingRsvnCount > 0 && s.statValueAlert]}>{pendingRsvnCount}건</Text>
+          <Text style={s.statValue}>{pendingRsvnCount}건</Text>
         </View>
       </View>
 

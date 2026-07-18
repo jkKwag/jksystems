@@ -14,8 +14,7 @@ export const s = StyleSheet.create({
   statTile: { flexGrow: 1, minWidth: 140, backgroundColor: colors.bgCard, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.border, padding: spacing["3.5"], gap: 4 },
   statTileAlert: { backgroundColor: colors.amberPaleBg, borderColor: colors.amber },
   statLabel: { fontSize: font.sm, fontWeight: "700", color: colors.textMuted },
-  statValue: { fontSize: font["2xl"], fontWeight: "900", color: colors.text },
-  statValueAlert: { color: colors.amberDark },
+  statValue: { fontSize: font["2xl"], fontWeight: "900", color: colors.accent },
 
   card: { backgroundColor: colors.bgCard, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.border, padding: spacing["4"], gap: spacing["2"] },
   cardTitle: { fontSize: font.lg, fontWeight: "800", color: colors.text, marginBottom: spacing["1"] },
