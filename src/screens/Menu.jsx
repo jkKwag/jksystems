@@ -5,6 +5,7 @@ import ChatRoom from "../components/ChatRoom";
 import MenuDetail from "./MenuDetail";
 import PaymentHistory from "./PaymentHistory";
 import api from "../lib/api";
+import { generateRsvnNo } from "../lib/genNo";
 import SeatsView from "./SeatsView";
 import { s } from "../styles/Menu.styles";
 
@@ -464,11 +465,13 @@ export default function Menu({ bizno, tableNo }) {
   const createOrderForCart = async () => {
     const uuid = getUuid();
     if (!uuid || cartItems.length === 0) return null;
+    const isTakeout = orderType === "포장주문";
     const { data, error } = await api.order.post({
       uuid,
       bizRegNo: bizno,
       seatNo: tableNo || null,
-      orderTypCd: orderType === "포장주문" ? "TAKEOUT" : "DINE_IN",
+      orderTypCd: isTakeout ? "TAKEOUT" : "DINE_IN",
+      rsvnNo: isTakeout ? generateRsvnNo() : null,
       items: buildOrderItemsPayload(),
     });
     if (error || !data) {
@@ -866,6 +869,7 @@ export default function Menu({ bizno, tableNo }) {
                         </View>
                         <Text style={s.pendingOrderTypText}>{orderTypLabel(order.orderTypCd)}</Text>
                       </View>
+                      {!!order.rsvnNo && <Text style={s.pendingOrderRsvnText}>픽업번호 {order.rsvnNo}</Text>}
                       {order.items?.map(item => {
                         const optionsTotal = (item.options || []).reduce((sum, o) => sum + Number(o.addPrice || 0), 0);
                         const lineTotal = (Number(item.price || 0) + optionsTotal) * Number(item.qty || 1);
@@ -908,7 +912,11 @@ export default function Menu({ bizno, tableNo }) {
                     clearCart();
                     setShowPayment(false);
                     await refreshPendingOrders();
-                    alert("주문이 접수되었어요. 계속 주문하시거나, 준비되면 결제해주세요.");
+                    alert(
+                      order.rsvnNo
+                        ? `주문이 접수되었어요. 픽업번호: ${order.rsvnNo}\n계속 주문하시거나, 준비되면 결제해주세요.`
+                        : "주문이 접수되었어요. 계속 주문하시거나, 준비되면 결제해주세요."
+                    );
                   }}
                 >
                   <Text style={s.orderOnlyBtnText}>주문만 하기</Text>

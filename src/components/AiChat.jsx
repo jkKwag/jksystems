@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Animated, Platform, ActivityIndicator, Image } from "react-native";
 import { s } from "../styles/AiChat.styles";
 import api from "../lib/api";
+import { generateRsvnNo } from "../lib/genNo";
 
 const WELCOME = "안녕하세요! Scaneat AI 메뉴 추천 도우미예요 😊\n어떤 음식이 드시고 싶으세요?";
 const CONFIRM_ADD_RE = /담아|찜|넣어|네|넵|예|응|그래|좋아|콜|오케이|ok/i;
@@ -14,15 +15,6 @@ const CART_ACTION_RE = /지워|비워|빼|취소|담아|찜|넣어/;
 const RSVN_INQUIRY_RE = /예약.*(확인|조회|내역)|내.*예약|예약.*됐|예약.*어떻/;
 const RSVN_CANCEL_RE = /예약.*(취소|철회|삭제)|취소.*예약/;
 const RSVN_CHANGE_RE = /예약.*(변경|수정|바꿔|변경해)|변경.*예약/;
-
-const generateRsvnNo = () => {
-  const d = new Date();
-  const yy = String(d.getFullYear()).slice(2);
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  const rand = String(Math.floor(Math.random() * 100000)).padStart(5, "0");
-  return `${yy}${mm}${dd}-${rand}`;
-};
 
 export default function AiChat({ bizno, tableNo, menuItems = [], cartItems = [], onAddToCart, onRemoveFromCart, onDecrementCart, onClearCart, onRequestCheckout }) {
   const [open, setOpen] = useState(false);

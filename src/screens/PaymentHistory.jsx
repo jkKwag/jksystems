@@ -101,6 +101,7 @@ export default function PaymentHistory({ visible, onClose, payments, bizNameMap 
                                 </View>
                                 <Text style={s.orderTypText}>{orderTypLabel(order.orderTypCd)}</Text>
                               </View>
+                              {!!order.rsvnNo && <Text style={s.orderRsvnText}>픽업번호 {order.rsvnNo}</Text>}
                               {order.items?.map(item => {
                                 const optionsTotal = (item.options || []).reduce((sum, o) => sum + Number(o.addPrice || 0), 0);
                                 const lineTotal = (Number(item.price || 0) + optionsTotal) * Number(item.qty || 1);
