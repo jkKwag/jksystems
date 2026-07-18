@@ -15,6 +15,7 @@ import Menu from "./src/screens/Menu";
 import PaymentSuccess from "./src/screens/PaymentSuccess";
 import PaymentFail from "./src/screens/PaymentFail";
 import AdminLogin from "./src/components/AdminLogin";
+import AdminHome from "./src/screens/AdminHome";
 import QrScanner from "./src/components/QrScanner";
 import { s } from "./src/styles/App.styles";
 
@@ -194,6 +195,7 @@ export default function App() {
 
   if (isPaymentSuccess) return <PaymentSuccess />;
   if (isPaymentFail) return <PaymentFail />;
+  if (isAdmin) return <AdminHome adminInfo={adminInfo} onLogout={handleLogout} />;
 
   const AppHeader = () => (
     <View style={[s.header, HEADER_GRADIENT]}>

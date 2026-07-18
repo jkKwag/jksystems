@@ -34,6 +34,7 @@ async function put(path, body) {
 const api = {
   admin: {
     login: (body) => post(`/api/admin/login`, body),
+    menu: (role) => get(`/api/admin/menu?role=${role}`),
   },
   biz: {
     get: (bizno) => get(`/api/biz/${bizno}`),
