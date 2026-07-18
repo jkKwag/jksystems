@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { View, Text, ScrollView, ActivityIndicator } from "react-native";
+import { useState, useEffect, useRef } from "react";
+import { View, Text, ScrollView, ActivityIndicator, Animated } from "react-native";
 import { s } from "../../styles/admin/AdminDashboard.styles";
 import api from "../../lib/api";
 
@@ -44,6 +44,7 @@ export default function AdminDashboard({ adminInfo }) {
   const [payments, setPayments] = useState([]);
   const [reservations, setReservations] = useState([]);
   const [chartBoxWidth, setChartBoxWidth] = useState(0);
+  const chartReveal = useRef(new Animated.Value(0)).current;
 
   const load = async () => {
     if (!bizRegNo) { setLoaded(true); return; }
@@ -60,6 +61,12 @@ export default function AdminDashboard({ adminInfo }) {
   };
 
   useEffect(() => { load(); }, [bizRegNo]);
+
+  useEffect(() => {
+    if (!loaded || !bizRegNo) return;
+    chartReveal.setValue(0);
+    Animated.timing(chartReveal, { toValue: 1, duration: 700, useNativeDriver: false }).start();
+  }, [loaded, bizRegNo]);
 
   if (!bizRegNo) {
     return (
@@ -186,6 +193,14 @@ export default function AdminDashboard({ adminInfo }) {
                   </View>
                 );
               })}
+
+              <Animated.View
+                pointerEvents="none"
+                style={[
+                  s.chartRevealMask,
+                  { width: chartReveal.interpolate({ inputRange: [0, 1], outputRange: [chartWidth, 0] }) },
+                ]}
+              />
             </View>
           </ScrollView>
         </View>

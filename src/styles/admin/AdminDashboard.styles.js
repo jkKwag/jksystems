@@ -28,6 +28,7 @@ export const s = StyleSheet.create({
   pointValue: { position: "absolute", fontSize: 10, fontWeight: "800", color: colors.accent, textAlign: "center" },
   pointDayLabel: { position: "absolute", fontSize: 9, fontWeight: "700", color: colors.textMuted, textAlign: "center" },
   pointDayLabelToday: { color: colors.accent },
+  chartRevealMask: { position: "absolute", top: 0, bottom: 0, right: 0, backgroundColor: colors.bgCard },
 
   twoColRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing["3"] },
   halfCard: { flex: 1, minWidth: 220 },
