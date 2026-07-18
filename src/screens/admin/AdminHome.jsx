@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, useWindowDimensions } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, TextInput, useWindowDimensions } from "react-native";
 import { s } from "../../styles/admin/AdminHome.styles";
 import api from "../../lib/api";
 import AdminReservations from "./AdminReservations";
@@ -42,6 +42,29 @@ export default function AdminHome({ adminInfo, onLogout }) {
   const [selected, setSelected] = useState(null);
   const [showMenu, setShowMenu] = useState(false);
   const [bizNm, setBizNm] = useState(null);
+
+  const isSuper = adminInfo?.adminRole === "SUPER";
+  const [bizLookupInput, setBizLookupInput] = useState("");
+  const [viewingBizRegNo, setViewingBizRegNo] = useState(null);
+  const [viewingBizNm, setViewingBizNm] = useState(null);
+  const [bizLookupError, setBizLookupError] = useState("");
+
+  const effectiveBizRegNo = isSuper ? viewingBizRegNo : adminInfo?.bizRegNo;
+
+  const handleBizLookup = async () => {
+    const regNo = bizLookupInput.trim();
+    if (!regNo) return;
+    setBizLookupError("");
+    const biz = await api.biz.get(regNo);
+    if (!biz) {
+      setViewingBizRegNo(null);
+      setViewingBizNm(null);
+      setBizLookupError("사업장을 찾을 수 없습니다.");
+      return;
+    }
+    setViewingBizRegNo(regNo);
+    setViewingBizNm(biz.bizNm);
+  };
 
   useEffect(() => {
     if (!adminInfo?.adminRole) return;
@@ -129,27 +152,49 @@ export default function AdminHome({ adminInfo, onLogout }) {
         <Sidebar />
       )}
 
-      <View style={s.content}>
-        {(() => {
-          if (!selected) {
+      <View style={s.rightCol}>
+        {isSuper && (
+          <View style={s.bizLookupBar}>
+            <TextInput
+              style={s.bizLookupInput}
+              placeholder="사업자등록번호로 사업장 조회"
+              placeholderTextColor="#94a3b8"
+              value={bizLookupInput}
+              onChangeText={setBizLookupInput}
+              onSubmitEditing={handleBizLookup}
+              keyboardType="number-pad"
+            />
+            <TouchableOpacity style={s.bizLookupBtn} onPress={handleBizLookup}>
+              <Text style={s.bizLookupBtnText}>조회</Text>
+            </TouchableOpacity>
+            {!!bizLookupError && <Text style={s.bizLookupError}>{bizLookupError}</Text>}
+            {!!viewingBizNm && !bizLookupError && (
+              <Text style={s.bizLookupResult}>조회중: {viewingBizNm} ({viewingBizRegNo})</Text>
+            )}
+          </View>
+        )}
+        <View style={s.content}>
+          {(() => {
+            if (!selected) {
+              return (
+                <View style={s.placeholder}>
+                  <Text style={s.placeholderTitle}>👋 환영합니다</Text>
+                  <Text style={s.placeholderDesc}>
+                    {isMobile ? "☰ 버튼을 눌러 메뉴를 열어주세요." : "왼쪽 메뉴에서 원하는 항목을 선택해주세요."}
+                  </Text>
+                </View>
+              );
+            }
+            const ScreenComponent = MENU_SCREENS[selected.menuUrl];
+            if (ScreenComponent) return <ScreenComponent adminInfo={{ ...adminInfo, bizRegNo: effectiveBizRegNo }} />;
             return (
               <View style={s.placeholder}>
-                <Text style={s.placeholderTitle}>👋 환영합니다</Text>
-                <Text style={s.placeholderDesc}>
-                  {isMobile ? "☰ 버튼을 눌러 메뉴를 열어주세요." : "왼쪽 메뉴에서 원하는 항목을 선택해주세요."}
-                </Text>
+                <Text style={s.placeholderTitle}>{selected.menuNm}</Text>
+                <Text style={s.placeholderDesc}>이 화면은 아직 준비 중입니다.</Text>
               </View>
             );
-          }
-          const ScreenComponent = MENU_SCREENS[selected.menuUrl];
-          if (ScreenComponent) return <ScreenComponent adminInfo={adminInfo} />;
-          return (
-            <View style={s.placeholder}>
-              <Text style={s.placeholderTitle}>{selected.menuNm}</Text>
-              <Text style={s.placeholderDesc}>이 화면은 아직 준비 중입니다.</Text>
-            </View>
-          );
-        })()}
+          })()}
+        </View>
       </View>
     </View>
   );

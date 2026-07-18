@@ -79,7 +79,7 @@ export default function AdminReservations({ adminInfo }) {
   if (!bizRegNo) {
     return (
       <View style={s.center}>
-        <Text style={s.emptyText}>사업자관리자 계정으로 로그인해야 예약 목록을 볼 수 있습니다.</Text>
+        <Text style={s.emptyText}>상단에서 사업자등록번호로 사업장을 조회해주세요.</Text>
       </View>
     );
   }
