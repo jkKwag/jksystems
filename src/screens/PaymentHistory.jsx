@@ -35,7 +35,8 @@ export default function PaymentHistory({ visible, onClose, payments, bizNameMap 
     if (orderDetails[p.paymentKey]) return;
     setLoadingKey(p.paymentKey);
     const orders = await Promise.all((p.orderNos || []).map(no => api.order.get(no)));
-    setOrderDetails(prev => ({ ...prev, [p.paymentKey]: orders.filter(Boolean) }));
+    const sorted = orders.filter(Boolean).sort((a, b) => new Date(b.regDt) - new Date(a.regDt));
+    setOrderDetails(prev => ({ ...prev, [p.paymentKey]: sorted }));
     setLoadingKey(null);
   };
 
