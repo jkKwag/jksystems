@@ -27,12 +27,12 @@ const formatDt = (iso) => {
 };
 
 // SVG 없이 View 회전만으로 선을 그림: 두 점의 중점에 길이만큼의 얇은 막대를 놓고 각도만큼 회전
-const POINT_GAP = 44;
+const MIN_POINT_GAP = 44;
 const CHART_H = 108;
 const CHART_PAD_TOP = 26;
 
-const linePoint = (i, value, maxValue) => ({
-  x: i * POINT_GAP + POINT_GAP / 2,
+const linePoint = (i, value, maxValue, gap) => ({
+  x: i * gap + gap / 2,
   y: maxValue > 0 ? CHART_PAD_TOP + CHART_H * (1 - value / maxValue) : CHART_PAD_TOP + CHART_H,
 });
 
@@ -43,6 +43,7 @@ export default function AdminDashboard({ adminInfo }) {
   const [orders, setOrders] = useState([]);
   const [payments, setPayments] = useState([]);
   const [reservations, setReservations] = useState([]);
+  const [chartBoxWidth, setChartBoxWidth] = useState(0);
 
   const load = async () => {
     if (!bizRegNo) { setLoaded(true); return; }
@@ -88,8 +89,9 @@ export default function AdminDashboard({ adminInfo }) {
   );
   const maxRevenue = Math.max(1, ...revenueByDay);
   const peakRevenue = Math.max(...revenueByDay);
-  const points = revenueByDay.map((v, i) => ({ ...linePoint(i, v, maxRevenue), value: v, date: days[i] }));
-  const chartWidth = days.length * POINT_GAP;
+  const pointGap = chartBoxWidth > 0 ? Math.max(MIN_POINT_GAP, chartBoxWidth / days.length) : MIN_POINT_GAP;
+  const points = revenueByDay.map((v, i) => ({ ...linePoint(i, v, maxRevenue, pointGap), value: v, date: days[i] }));
+  const chartWidth = days.length * pointGap;
 
   const orderStatusCounts = ["PENDING", "PAID", "CANCELED"].map(st => ({
     st, count: orders.filter(o => o.status === st).length,
@@ -144,47 +146,49 @@ export default function AdminDashboard({ adminInfo }) {
 
       <View style={s.card}>
         <Text style={s.cardTitle}>최근 7일 매출</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View style={[s.chartArea, { width: chartWidth, height: CHART_PAD_TOP + CHART_H + 20 }]}>
-            <View style={[s.chartBaseline, { width: chartWidth, top: CHART_PAD_TOP + CHART_H }]} />
+        <View onLayout={(e) => setChartBoxWidth(e.nativeEvent.layout.width)}>
+          <ScrollView horizontal={chartWidth > chartBoxWidth} showsHorizontalScrollIndicator={false}>
+            <View style={[s.chartArea, { width: chartWidth, height: CHART_PAD_TOP + CHART_H + 20 }]}>
+              <View style={[s.chartBaseline, { width: chartWidth, top: CHART_PAD_TOP + CHART_H }]} />
 
-            {points.slice(0, -1).map((p, i) => {
-              const p2 = points[i + 1];
-              const dx = p2.x - p.x;
-              const dy = p2.y - p.y;
-              const length = Math.sqrt(dx * dx + dy * dy);
-              const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
-              const midX = (p.x + p2.x) / 2;
-              const midY = (p.y + p2.y) / 2;
-              return (
-                <View
-                  key={`seg-${i}`}
-                  style={[s.lineSeg, { width: length, left: midX - length / 2, top: midY - 1, transform: [{ rotate: `${angle}deg` }] }]}
-                />
-              );
-            })}
+              {points.slice(0, -1).map((p, i) => {
+                const p2 = points[i + 1];
+                const dx = p2.x - p.x;
+                const dy = p2.y - p.y;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+                const midX = (p.x + p2.x) / 2;
+                const midY = (p.y + p2.y) / 2;
+                return (
+                  <View
+                    key={`seg-${i}`}
+                    style={[s.lineSeg, { width: length, left: midX - length / 2, top: midY - 1, transform: [{ rotate: `${angle}deg` }] }]}
+                  />
+                );
+              })}
 
-            {points.map((p, i) => {
-              const isToday = p.date === today;
-              const isPeak = p.value === peakRevenue && peakRevenue > 0;
-              const dt = new Date(`${p.date}T00:00:00`);
-              const dayLabel = `${dt.getMonth() + 1}/${dt.getDate()}`;
-              return (
-                <View key={p.date}>
-                  {(isPeak || isToday) && (
-                    <Text style={[s.pointValue, { left: p.x - 22, top: p.y - 20, width: 44 }]}>
-                      {`${Math.round(p.value / 1000)}k`}
+              {points.map((p, i) => {
+                const isToday = p.date === today;
+                const isPeak = p.value === peakRevenue && peakRevenue > 0;
+                const dt = new Date(`${p.date}T00:00:00`);
+                const dayLabel = `${dt.getMonth() + 1}/${dt.getDate()}`;
+                return (
+                  <View key={p.date}>
+                    {(isPeak || isToday) && (
+                      <Text style={[s.pointValue, { left: p.x - 22, top: p.y - 20, width: 44 }]}>
+                        {`${Math.round(p.value / 1000)}k`}
+                      </Text>
+                    )}
+                    <View style={[s.dot, isToday && s.dotToday, { left: p.x - 4, top: p.y - 4 }]} />
+                    <Text style={[s.pointDayLabel, isToday && s.pointDayLabelToday, { left: p.x - 15, top: CHART_PAD_TOP + CHART_H + 6, width: 30 }]}>
+                      {dayLabel}
                     </Text>
-                  )}
-                  <View style={[s.dot, isToday && s.dotToday, { left: p.x - 4, top: p.y - 4 }]} />
-                  <Text style={[s.pointDayLabel, isToday && s.pointDayLabelToday, { left: p.x - 15, top: CHART_PAD_TOP + CHART_H + 6, width: 30 }]}>
-                    {dayLabel}
-                  </Text>
-                </View>
-              );
-            })}
-          </View>
-        </ScrollView>
+                  </View>
+                );
+              })}
+            </View>
+          </ScrollView>
+        </View>
       </View>
 
       <View style={s.twoColRow}>
