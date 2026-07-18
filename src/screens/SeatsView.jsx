@@ -162,8 +162,9 @@ export default function SeatsView({ visible, onClose, bizno }) {
     return cats;
   }, [seats]);
 
-  const minPeople = Math.max(1, rsvnStd?.minPartySize || 1);
-  const maxPeople = Math.min(expandedSeat?.capacity || 99, rsvnStd?.maxPartySize || expandedSeat?.capacity || 99);
+  const seatCapacity = expandedSeat?.capacity || 99;
+  const minPeople = Math.max(1, Math.min(rsvnStd?.minPartySize || 1, seatCapacity));
+  const maxPeople = Math.min(seatCapacity, rsvnStd?.maxPartySize || seatCapacity);
 
   const isNameValid = guestName.trim().length > 0 && guestName.trim().length <= 10;
   const isPhoneValid = /^\d{11}$/.test(guestTel);
@@ -172,7 +173,9 @@ export default function SeatsView({ visible, onClose, bizno }) {
   const openSeat = (seat) => {
     setExpandedSeat(seat);
     setRsvnTime("");
-    setRsvnPeople(Math.min(Math.max(minPeople, 2), maxPeople));
+    const seatMin = Math.max(1, Math.min(rsvnStd?.minPartySize || 1, seat.capacity));
+    const seatMax = Math.min(seat.capacity, rsvnStd?.maxPartySize || seat.capacity);
+    setRsvnPeople(Math.min(Math.max(seatMin, 2), seatMax));
   };
 
   const closeSeatModal = () => {
@@ -398,15 +401,17 @@ export default function SeatsView({ visible, onClose, bizno }) {
                       <Text style={s.rsvnLabel}>👥 인원</Text>
                       <View style={s.peopleRow}>
                         <TouchableOpacity
-                          style={s.peopleBtn}
+                          style={[s.peopleBtn, rsvnPeople <= minPeople && s.peopleBtnDisabled]}
                           onPress={() => setRsvnPeople(p => Math.max(minPeople, p - 1))}
+                          disabled={rsvnPeople <= minPeople}
                         >
                           <Text style={s.peopleBtnText}>−</Text>
                         </TouchableOpacity>
                         <Text style={s.peopleNum}>{rsvnPeople}명</Text>
                         <TouchableOpacity
-                          style={s.peopleBtn}
+                          style={[s.peopleBtn, rsvnPeople >= maxPeople && s.peopleBtnDisabled]}
                           onPress={() => setRsvnPeople(p => Math.min(maxPeople, p + 1))}
+                          disabled={rsvnPeople >= maxPeople}
                         >
                           <Text style={s.peopleBtnText}>+</Text>
                         </TouchableOpacity>

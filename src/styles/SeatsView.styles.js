@@ -96,6 +96,7 @@ export const s = StyleSheet.create({
 
   peopleRow: { flexDirection: "row", alignItems: "center", gap: spacing["4"] },
   peopleBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.slate800, justifyContent: "center", alignItems: "center", borderWidth: 1, borderColor: colors.slate700 },
+  peopleBtnDisabled: { opacity: 0.35 },
   peopleBtnText: { fontSize: font["6xl"], color: colors.white, fontWeight: "700" },
   peopleNum: { fontSize: font["2xl"], fontWeight: "900", color: colors.white, minWidth: 40, textAlign: "center" },
 
