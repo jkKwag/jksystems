@@ -118,7 +118,16 @@ export default function App() {
   };
 
   useEffect(() => {
-    AsyncStorage.getItem("isAdmin").then(v => { if (v === "true") setIsAdmin(true); });
+    AsyncStorage.getItem("isAdmin").then(v => {
+      if (v === "true") {
+        setIsAdmin(true);
+        return;
+      }
+      // 당분간 루트(/) 방문은 데모 메뉴로 리다이렉트. 관리자 로그인은 /admin 경로로 접근.
+      if (Platform.OS === "web" && !menuBizno && window.location.pathname === "/") {
+        window.location.href = "https://www.jkscaneat.com/menu/2122544531";
+      }
+    });
     AsyncStorage.getItem("adminInfo").then(v => { if (v) setAdminInfo(JSON.parse(v)); });
   }, []);
 
