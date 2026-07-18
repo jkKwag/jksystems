@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Modal, Alert, ActivityIndicator } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Modal, ActivityIndicator } from "react-native";
 import { s } from "../styles/AdminLogin.styles";
-import bcrypt from "bcryptjs";
-import supabase from "../lib/supabase";
+import api from "../lib/api";
 
 export default function AdminLogin({ visible, onClose, onLogin }) {
   const [form, setForm] = useState({ id: "", pw: "" });
@@ -12,16 +11,13 @@ export default function AdminLogin({ visible, onClose, onLogin }) {
   const handleLogin = async () => {
     if (!form.id || !form.pw) { setError("아이디와 비밀번호를 입력해주세요."); return; }
     setLoading(true); setError("");
-    const { data, error: dbError } = await supabase
-      .from("admin_users")
-      .select("password_hash")
-      .eq("user_id", form.id)
-      .single();
+    const { data, error: apiError } = await api.admin.login({ adminId: form.id, password: form.pw });
     setLoading(false);
-    if (dbError || !data) { setError("아이디 또는 비밀번호가 올바르지 않습니다."); return; }
-    const match = await bcrypt.compare(form.pw, data.password_hash);
-    if (match) { onLogin(); }
-    else { setError("아이디 또는 비밀번호가 올바르지 않습니다."); }
+    if (apiError || !data) {
+      setError(apiError?.message || "아이디 또는 비밀번호가 올바르지 않습니다.");
+      return;
+    }
+    onLogin(data);
   };
 
   return (

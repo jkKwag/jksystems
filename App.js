@@ -54,6 +54,7 @@ const Logo = () => (
 
 export default function App() {
   const [isAdmin, setIsAdmin] = useState(false);
+  const [adminInfo, setAdminInfo] = useState(null); // { adminId, adminNm, adminRole, bizRegNo }
   const [visitHistory, setVisitHistory] = useState([]);
   const [visitCountMap, setVisitCountMap] = useState({});   // { biz_reg_no: { order: N, rsvn: M } }
   const [visitLoaded, setVisitLoaded] = useState(false);
@@ -117,6 +118,7 @@ export default function App() {
 
   useEffect(() => {
     AsyncStorage.getItem("isAdmin").then(v => { if (v === "true") setIsAdmin(true); });
+    AsyncStorage.getItem("adminInfo").then(v => { if (v) setAdminInfo(JSON.parse(v)); });
   }, []);
 
   useEffect(() => {
@@ -175,15 +177,19 @@ export default function App() {
     }
   };
 
-  const handleLogin = async () => {
+  const handleLogin = async (admin) => {
     await AsyncStorage.setItem("isAdmin", "true");
+    await AsyncStorage.setItem("adminInfo", JSON.stringify(admin));
     setIsAdmin(true);
+    setAdminInfo(admin);
     setShowLogin(false);
   };
 
   const handleLogout = async () => {
     await AsyncStorage.removeItem("isAdmin");
+    await AsyncStorage.removeItem("adminInfo");
     setIsAdmin(false);
+    setAdminInfo(null);
   };
 
   if (isPaymentSuccess) return <PaymentSuccess />;
