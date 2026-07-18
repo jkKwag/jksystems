@@ -125,11 +125,11 @@ export default function AdminDashboard({ adminInfo }) {
 
   const recentActivity = [
     ...orders.map(o => ({
-      key: `order-${o.orderNo}`, type: "order", dt: o.regDt,
+      key: `order-${o.orderNo}`, type: "order", dt: o.regDt, status: o.status,
       label: `주문 ${o.orderNo}`, sub: `₩${Number(o.totalAmount || 0).toLocaleString()}`,
     })),
     ...reservations.map(r => ({
-      key: `rsvn-${r.rsvnNo}`, type: "rsvn", dt: r.regDt,
+      key: `rsvn-${r.rsvnNo}`, type: "rsvn", dt: r.regDt, status: r.rsvnStatus,
       label: `${r.guestName || "고객"}님 예약`, sub: `${r.partySize}명 · ${RSVN_STATUS_LABEL[r.rsvnStatus] || r.rsvnStatus}`,
     })),
   ].filter(a => a.dt).sort((a, b) => new Date(b.dt) - new Date(a.dt)).slice(0, 8);
@@ -266,16 +266,21 @@ export default function AdminDashboard({ adminInfo }) {
         {recentActivity.length === 0 ? (
           <Text style={s.emptySmallText}>최근 활동이 없습니다</Text>
         ) : (
-          recentActivity.map(a => (
-            <View key={a.key} style={s.activityRow}>
-              <Text style={s.activityIcon}>{a.type === "order" ? "🧾" : "📅"}</Text>
-              <View style={{ flex: 1 }}>
-                <Text style={s.activityLabel}>{a.label}</Text>
-                <Text style={s.activitySub}>{a.sub}</Text>
+          recentActivity.map(a => {
+            const isCancelled = a.status === "CANCELED" || a.status === "CANCELLED";
+            return (
+              <View key={a.key} style={s.activityRow}>
+                <Text style={s.activityIcon}>{a.type === "order" ? "🧾" : "📅"}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={[s.activityLabel, isCancelled ? s.activityLabelCancelled : a.type === "rsvn" && s.activityLabelRsvn]}>
+                    {a.label}
+                  </Text>
+                  <Text style={s.activitySub}>{a.sub}</Text>
+                </View>
+                <Text style={s.activityTime}>{formatDt(a.dt)}</Text>
               </View>
-              <Text style={s.activityTime}>{formatDt(a.dt)}</Text>
-            </View>
-          ))
+            );
+          })
         )}
       </View>
     </ScrollView>

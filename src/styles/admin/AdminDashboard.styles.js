@@ -47,6 +47,8 @@ export const s = StyleSheet.create({
   activityRow: { flexDirection: "row", alignItems: "center", gap: spacing["2.5"], paddingVertical: spacing["1.5"], borderTopWidth: 1, borderTopColor: colors.borderLight },
   activityIcon: { fontSize: font.xl },
   activityLabel: { fontSize: font.md, fontWeight: "700", color: colors.text },
+  activityLabelCancelled: { color: "#ef4444" },
+  activityLabelRsvn: { color: colors.green },
   activitySub: { fontSize: font.sm, color: colors.textMuted },
   activityTime: { fontSize: font.sm, color: colors.textMuted },
 });
