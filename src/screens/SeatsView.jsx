@@ -68,6 +68,15 @@ const formatRsvnDt = (iso) => {
 // 라벨(예: "예약대기")은 공통코드(RSVN_STATUS)에서 받아오고, 색상 매핑만 화면단에서 유지
 const STATUS_STYLE_KEY = { PENDING: "statusPending", CONFIRMED: "statusConfirmed", REJECTED: "statusRejected", CANCELLED: "statusCancelled", COMPLETED: "statusCompleted" };
 
+// 예약확정 > 예약대기 > 나머지(취소/반려/완료) 순으로 정렬, 같은 우선순위 안에서는 최신 예약일시 순
+const STATUS_SORT_PRIORITY = { CONFIRMED: 0, PENDING: 1 };
+const sortReservations = (list) => [...list].sort((a, b) => {
+  const pa = STATUS_SORT_PRIORITY[a.rsvnStatus] ?? 2;
+  const pb = STATUS_SORT_PRIORITY[b.rsvnStatus] ?? 2;
+  if (pa !== pb) return pa - pb;
+  return new Date(b.rsvnDt) - new Date(a.rsvnDt);
+});
+
 export default function SeatsView({ visible, onClose, bizno }) {
   const today = new Date().toISOString().split("T")[0];
 
@@ -127,9 +136,7 @@ export default function SeatsView({ visible, onClose, bizno }) {
       (Array.isArray(hours) ? hours : []).forEach(h => { map[h.dayOfWeek] = h; });
       setHoursByDay(map);
       setSeats(Array.isArray(seatList) ? seatList : []);
-      const bizRsvns = (Array.isArray(rsvnList) ? rsvnList : [])
-        .filter(r => r.bizRegNo === bizno)
-        .sort((a, b) => new Date(b.rsvnDt) - new Date(a.rsvnDt));
+      const bizRsvns = sortReservations((Array.isArray(rsvnList) ? rsvnList : []).filter(r => r.bizRegNo === bizno));
       setMyReservations(bizRsvns);
       const labelMap = {};
       (Array.isArray(statusCodes) ? statusCodes : []).forEach(c => { labelMap[c.cd] = c.cdNm; });
@@ -161,6 +168,8 @@ export default function SeatsView({ visible, onClose, bizno }) {
     if (seats.some(sv => sv.capacity >= 6)) cats.push({ key: "group", label: "단체석" });
     return cats;
   }, [seats]);
+
+  const activeRsvnCount = myReservations.filter(r => r.rsvnStatus === "CONFIRMED" || r.rsvnStatus === "PENDING").length;
 
   const seatCapacity = expandedSeat?.capacity || 99;
   const minPeople = Math.max(1, Math.min(rsvnStd?.minPartySize || 1, seatCapacity));
@@ -207,7 +216,7 @@ export default function SeatsView({ visible, onClose, bizno }) {
     setShowConsent(false);
     if (error || !data) { alert("예약에 실패했습니다. 다시 시도해주세요."); return; }
     setSubmittedRsvn({ rsvnNo: data.rsvnNo });
-    setMyReservations(prev => [data, ...prev]);
+    setMyReservations(prev => sortReservations([data, ...prev]));
   };
 
   const doCancelReservation = async () => {
@@ -217,7 +226,7 @@ export default function SeatsView({ visible, onClose, bizno }) {
     const { data, error } = await api.reservation.updateStatus(rsvnNo, { rsvnStatus: "CANCELLED" });
     setCancellingRsvn(null);
     if (error || !data) { setCancelAlertMsg("예약 취소에 실패했습니다. 다시 시도해주세요."); return; }
-    setMyReservations(prev => prev.map(r => r.rsvnNo === rsvnNo ? data : r));
+    setMyReservations(prev => sortReservations(prev.map(r => r.rsvnNo === rsvnNo ? data : r)));
   };
 
   return (
@@ -238,7 +247,7 @@ export default function SeatsView({ visible, onClose, bizno }) {
         </TouchableOpacity>
         <TouchableOpacity style={[s.tabBtn, activeTab === "history" && s.tabBtnActive]} onPress={() => setActiveTab("history")}>
           <Text style={[s.tabBtnText, activeTab === "history" && s.tabBtnTextActive]}>
-            내 예약내역{myReservations.length > 0 ? ` (${myReservations.length})` : ""}
+            내 예약내역{activeRsvnCount > 0 ? ` (${activeRsvnCount})` : ""}
           </Text>
         </TouchableOpacity>
       </View>
