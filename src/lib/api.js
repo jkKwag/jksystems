@@ -31,6 +31,10 @@ async function put(path, body) {
   return send("PUT", path, body);
 }
 
+async function del(path) {
+  return send("DELETE", path);
+}
+
 const api = {
   admin: {
     login: (body) => post(`/api/admin/login`, body),
@@ -41,6 +45,9 @@ const api = {
     get: (bizno) => get(`/api/biz/${bizno}`),
     categories: (bizno) => get(`/api/biz/${bizno}/categories`),
     menus: (bizno) => get(`/api/biz/${bizno}/menus`),
+    createMenu: (bizno, body) => post(`/api/biz/${bizno}/menus`, body),
+    updateMenu: (bizno, menuCd, body) => put(`/api/biz/${bizno}/menus/${menuCd}`, body),
+    deleteMenu: (bizno, menuCd) => del(`/api/biz/${bizno}/menus/${menuCd}`),
     hours: (bizno) => get(`/api/biz/${bizno}/hours`),
     reservationStandard: (bizno) => get(`/api/biz/${bizno}/reservation-standard`),
     seats: (bizno) => get(`/api/biz/${bizno}/seats`),
@@ -55,6 +62,10 @@ const api = {
   },
   menu: {
     options: (menuCd) => get(`/api/menu/${menuCd}/options`),
+    createOptionGroup: (menuCd, body) => post(`/api/menu/${menuCd}/option-groups`, body),
+    addOption: (menuCd, optGrpCd, body) => post(`/api/menu/${menuCd}/option-groups/${optGrpCd}/options`, body),
+    deleteOptionGroup: (menuCd, optGrpCd) => del(`/api/menu/${menuCd}/option-groups/${optGrpCd}`),
+    deleteOption: (menuCd, optGrpCd, optCd) => del(`/api/menu/${menuCd}/option-groups/${optGrpCd}/options/${optCd}`),
   },
   scanLog: {
     list: (uuid) => get(`/api/scan-log?uuid=${uuid}`),

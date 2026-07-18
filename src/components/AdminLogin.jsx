@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { View, Text, TextInput, TouchableOpacity, Modal, ActivityIndicator } from "react-native";
 import { s } from "../styles/AdminLogin.styles";
 import api from "../lib/api";
@@ -7,6 +7,7 @@ export default function AdminLogin({ visible, onClose, onLogin }) {
   const [form, setForm] = useState({ id: "", pw: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const pwRef = useRef(null);
 
   const handleLogin = async () => {
     if (!form.id || !form.pw) { setError("아이디와 비밀번호를 입력해주세요."); return; }
@@ -31,9 +32,27 @@ export default function AdminLogin({ visible, onClose, onLogin }) {
           </View>
           <View style={s.body}>
             <Text style={s.label}>아이디</Text>
-            <TextInput style={s.inp} placeholder="관리자 아이디 입력" value={form.id} onChangeText={v => setForm(f => ({ ...f, id: v }))} autoCapitalize="none" />
+            <TextInput
+              style={s.inp}
+              placeholder="관리자 아이디 입력"
+              value={form.id}
+              onChangeText={v => setForm(f => ({ ...f, id: v }))}
+              autoCapitalize="none"
+              returnKeyType="next"
+              onSubmitEditing={() => pwRef.current?.focus()}
+              blurOnSubmit={false}
+            />
             <Text style={s.label}>비밀번호</Text>
-            <TextInput style={s.inp} placeholder="비밀번호 입력" value={form.pw} onChangeText={v => setForm(f => ({ ...f, pw: v }))} secureTextEntry />
+            <TextInput
+              ref={pwRef}
+              style={s.inp}
+              placeholder="비밀번호 입력"
+              value={form.pw}
+              onChangeText={v => setForm(f => ({ ...f, pw: v }))}
+              secureTextEntry
+              returnKeyType="done"
+              onSubmitEditing={handleLogin}
+            />
             {!!error && <View style={s.errorBox}><Text style={s.errorText}>⚠️ {error}</Text></View>}
             <TouchableOpacity style={[s.loginBtn, { opacity: loading ? 0.7 : 1 }]} onPress={handleLogin} disabled={loading}>
               {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.loginBtnText}>로그인</Text>}
