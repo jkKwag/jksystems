@@ -206,25 +206,25 @@ export default function SeatsView({ visible, onClose, bizno }) {
               const seat = seats.find(sv => sv.seatCd === r.seatCd);
               return (
                 <View key={r.rsvnNo} style={s.historyCard}>
-                  <View style={s.historyCardRow}>
-                    {seat?.imgUrl ? (
-                      <Image source={{ uri: seat.imgUrl }} style={s.historyThumb} />
-                    ) : (
-                      <View style={s.historyThumbPlaceholder}>
-                        <Text style={s.noImgIcon}>🪑</Text>
+                  {seat?.imgUrl ? (
+                    <Image source={{ uri: seat.imgUrl }} style={s.historyImg} />
+                  ) : (
+                    <View style={s.historyImgPlaceholder}>
+                      <Text style={s.noImgIcon}>🪑</Text>
+                    </View>
+                  )}
+                  <View style={s.historyInfo}>
+                    <View style={s.historyTopRow}>
+                      <Text style={s.historyDt}>{formatRsvnDt(r.rsvnDt)}</Text>
+                      <View style={[s.statusBadge, s[STATUS_STYLE_KEY[r.status]]]}>
+                        <Text style={s.statusBadgeText}>{STATUS_LABEL[r.status] || r.status}</Text>
                       </View>
-                    )}
-                    <View style={s.historyInfo}>
-                      <View style={s.historyTopRow}>
-                        <Text style={s.historyDt}>{formatRsvnDt(r.rsvnDt)}</Text>
-                        <View style={[s.statusBadge, s[STATUS_STYLE_KEY[r.status]]]}>
-                          <Text style={s.statusBadgeText}>{STATUS_LABEL[r.status] || r.status}</Text>
-                        </View>
-                      </View>
-                      <Text style={s.historyMeta}>
-                        {seat ? seat.seatNm : "좌석 미지정"} · {r.partySize}명
-                      </Text>
-                      <Text style={s.historyRsvnNo}>예약번호 {r.rsvnNo}</Text>
+                    </View>
+                    <Text style={s.historyMeta}>
+                      {seat ? seat.seatNm : "좌석 미지정"} · {r.partySize}명
+                    </Text>
+                    <View style={s.rsvnNoBadge}>
+                      <Text style={s.rsvnNoBadgeText}>예약번호 {r.rsvnNo}</Text>
                     </View>
                   </View>
                 </View>
