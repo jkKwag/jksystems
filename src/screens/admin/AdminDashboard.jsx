@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { View, Text, ScrollView, ActivityIndicator, Animated } from "react-native";
+import { View, Text, ScrollView, ActivityIndicator, Animated, TouchableOpacity } from "react-native";
 import { s } from "../../styles/admin/AdminDashboard.styles";
 import api from "../../lib/api";
 
@@ -36,7 +36,7 @@ const linePoint = (i, value, maxValue, gap) => ({
   y: maxValue > 0 ? CHART_PAD_TOP + CHART_H * (1 - value / maxValue) : CHART_PAD_TOP + CHART_H,
 });
 
-export default function AdminDashboard({ adminInfo }) {
+export default function AdminDashboard({ adminInfo, onNavigate }) {
   const bizRegNo = adminInfo?.bizRegNo;
 
   const [loaded, setLoaded] = useState(false);
@@ -151,10 +151,15 @@ export default function AdminDashboard({ adminInfo }) {
           <Text style={s.statLabel}>오늘 예약</Text>
           <Text style={s.statValue}>{todayRsvnCount}건</Text>
         </View>
-        <View style={[s.statTile, pendingRsvnCount > 0 && s.statTileAlert]}>
+        <TouchableOpacity
+          style={[s.statTile, pendingRsvnCount > 0 && s.statTileAlert]}
+          onPress={() => onNavigate?.("/admin/reservations")}
+          disabled={!onNavigate}
+          activeOpacity={0.7}
+        >
           <Text style={s.statLabel}>승인대기 예약</Text>
           <Text style={s.statValue}>{pendingRsvnCount}건</Text>
-        </View>
+        </TouchableOpacity>
       </View>
 
       <View style={s.card}>

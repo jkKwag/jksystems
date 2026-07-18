@@ -30,6 +30,17 @@ const MENU_SCREENS = {
   "/admin/dashboard": AdminDashboard,
 };
 
+function findMenuNode(nodes, menuUrl) {
+  for (const node of nodes) {
+    if (node.menuUrl === menuUrl) return node;
+    if (node.children?.length) {
+      const found = findMenuNode(node.children, menuUrl);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
 function MenuNode({ node, depth, expanded, onToggle, selectedCd, onSelect }) {
   const hasChildren = node.children && node.children.length > 0;
   const isOpen = expanded.has(node.menuCd);
@@ -128,6 +139,11 @@ export default function AdminHome({ adminInfo, onLogout }) {
     if (isMobile) setShowMenu(false);
   };
 
+  const navigateTo = (menuUrl) => {
+    const node = findMenuNode(menuTree, menuUrl);
+    if (node) selectMenu(node);
+  };
+
   const Sidebar = () => (
     <View style={isMobile ? s.sidebarMobile : s.sidebar}>
       <View style={s.sidebarHeader}>
@@ -209,6 +225,7 @@ export default function AdminHome({ adminInfo, onLogout }) {
                 <ScreenComponent
                   adminInfo={{ ...adminInfo, bizRegNo: effectiveBizRegNo }}
                   onSelectBiz={isSuper ? handleBizLookup : undefined}
+                  onNavigate={navigateTo}
                 />
               );
             }
