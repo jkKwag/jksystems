@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Modal, Image, Platform, TextInput, ActivityIndicator } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { s } from "../styles/SeatsView.styles";
@@ -7,13 +7,6 @@ import PickupBadge from "../components/PickupBadge";
 import ConfirmModal from "../components/ConfirmModal";
 
 const fixedFill = Platform.OS === "web" ? { position: "fixed", top: 0, left: 0, right: 0, bottom: 0 } : {};
-
-const CATEGORIES = [
-  { key: "all", label: "전체" },
-  { key: "2", label: "2인" },
-  { key: "4", label: "4인" },
-  { key: "group", label: "단체석" },
-];
 
 const DAY_CODES = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 const getDayCode = (dateStr) => DAY_CODES[new Date(`${dateStr}T00:00:00`).getDay()];
@@ -161,6 +154,14 @@ export default function SeatsView({ visible, onClose, bizno }) {
     ? filterByAdvance(buildTimeSlots(dayHour, rsvnStd?.timeUnitMin), rsvnDate, rsvnStd?.minAdvanceHours)
     : [];
 
+  const categories = useMemo(() => {
+    const cats = [{ key: "all", label: "전체" }];
+    const smallCapacities = [...new Set(seats.filter(sv => sv.capacity < 6).map(sv => sv.capacity))].sort((a, b) => a - b);
+    smallCapacities.forEach(c => cats.push({ key: String(c), label: `${c}인` }));
+    if (seats.some(sv => sv.capacity >= 6)) cats.push({ key: "group", label: "단체석" });
+    return cats;
+  }, [seats]);
+
   const minPeople = Math.max(1, rsvnStd?.minPartySize || 1);
   const maxPeople = Math.min(expandedSeat?.capacity || 99, rsvnStd?.maxPartySize || expandedSeat?.capacity || 99);
 
@@ -303,7 +304,7 @@ export default function SeatsView({ visible, onClose, bizno }) {
         <>
           {/* 카테고리 필터 */}
           <View style={s.catBar}>
-            {CATEGORIES.map(c => (
+            {categories.map(c => (
               <TouchableOpacity
                 key={c.key}
                 style={[s.catChip, category === c.key && s.catChipActive]}
