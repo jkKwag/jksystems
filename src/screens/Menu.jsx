@@ -245,15 +245,28 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
   const [imgErrors, setImgErrors] = useState({});
   // QR로 처음 들어올 때만 URL에 테이블번호가 붙어있고, 이후 새로고침/이동
   // 시엔 사라지므로 한 번 들어오면 매장별로 저장해두고 계속 사용한다.
+  // 단, 2시간 동안 활동(방문)이 없으면 다른 손님 자리일 수 있으니 초기화한다.
+  const TABLE_EXPIRY_MS = 2 * 60 * 60 * 1000;
   const [tableNo, setTableNo] = useState(tableNoFromUrl || null);
   useEffect(() => {
     if (Platform.OS !== "web" || !bizno) return;
     const key = `scaneat_table_${bizno}`;
     if (tableNoFromUrl) {
-      localStorage.setItem(key, tableNoFromUrl);
+      localStorage.setItem(key, JSON.stringify({ tableNo: tableNoFromUrl, ts: Date.now() }));
       setTableNo(tableNoFromUrl);
-    } else {
-      setTableNo(localStorage.getItem(key) || null);
+      return;
+    }
+    try {
+      const saved = JSON.parse(localStorage.getItem(key) || "null");
+      if (saved && Date.now() - saved.ts < TABLE_EXPIRY_MS) {
+        localStorage.setItem(key, JSON.stringify({ tableNo: saved.tableNo, ts: Date.now() }));
+        setTableNo(saved.tableNo);
+      } else {
+        localStorage.removeItem(key);
+        setTableNo(null);
+      }
+    } catch {
+      setTableNo(null);
     }
   }, [bizno, tableNoFromUrl]);
   // 결제 안 된(PENDING) 주문 목록. 새로고침해도 안 없어지도록 화면 상태에
