@@ -727,7 +727,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
       <ChatRoom visible={showChatRoom} bizno={bizno} onClose={() => setShowChatRoom(false)} />
 
       {/* 테이블 예약 상세화면 */}
-      {showSeats && <SeatsView visible={showSeats} onClose={() => setShowSeats(false)} />}
+      {showSeats && <SeatsView visible={showSeats} onClose={() => setShowSeats(false)} bizno={bizno} />}
 
       {/* AI 채팅 */}
       <AiChat

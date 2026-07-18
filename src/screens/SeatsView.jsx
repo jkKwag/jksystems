@@ -1,22 +1,10 @@
-import { useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Modal, Image, Platform } from "react-native";
+import { useState, useEffect } from "react";
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Modal, Image, Platform, TextInput, ActivityIndicator } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { s } from "../styles/SeatsView.styles";
-
-const MOCK_SEATS = [
-  { id: 1, name: "A-1", capacity: 2, desc: "창가 2인석 · 조용한 분위기", image: "https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=400&h=220&fit=crop" },
-  { id: 2, name: "A-2", capacity: 2, desc: "창가 2인석 · 자연채광", image: "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=400&h=220&fit=crop" },
-  { id: 3, name: "B-1", capacity: 4, desc: "중앙 4인석 · 넓은 테이블", image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=220&fit=crop" },
-  { id: 4, name: "B-2", capacity: 4, desc: "중앙 4인석 · 편안한 소파", image: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&h=220&fit=crop" },
-  { id: 5, name: "C-1", capacity: 6, desc: "단체석 6인 · 모임에 적합", image: "https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=400&h=220&fit=crop" },
-  { id: 6, name: "C-2", capacity: 6, desc: "단체석 6인 · 프라이빗 공간", image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=220&fit=crop" },
-  { id: 7, name: "D-1", capacity: 8, desc: "프라이빗 룸 · 독립 공간", image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=220&fit=crop" },
-  { id: 8, name: "D-2", capacity: 10, desc: "대형 단체석 · 행사 가능", image: "https://images.unsplash.com/photo-1567521464027-f127ff144326?w=400&h=220&fit=crop" },
-];
+import api from "../lib/api";
 
 const fixedFill = Platform.OS === "web" ? { position: "fixed", top: 0, left: 0, right: 0, bottom: 0 } : {};
-
-const TIME_SLOTS = ["11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "18:00", "18:30", "19:00", "19:30", "20:00", "20:30"];
 
 const CATEGORIES = [
   { key: "all", label: "전체" },
@@ -25,8 +13,55 @@ const CATEGORIES = [
   { key: "group", label: "단체석" },
 ];
 
-export default function SeatsView({ visible, onClose }) {
+const DAY_CODES = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+const getDayCode = (dateStr) => DAY_CODES[new Date(`${dateStr}T00:00:00`).getDay()];
+
+const toMinutes = (hhmmss) => {
+  const [h, m] = hhmmss.split(":").map(Number);
+  return h * 60 + m;
+};
+const toHHMM = (min) => `${String(Math.floor(min / 60)).padStart(2, "0")}:${String(min % 60).padStart(2, "0")}`;
+
+// 영업시간(요일별) + 예약 단위시간으로 그날 예약 가능한 시간 슬롯 생성
+const buildTimeSlots = (hour, timeUnitMin) => {
+  if (!hour || hour.isClosed === "Y" || !hour.openTime || !hour.closeTime) return [];
+  const unit = timeUnitMin || 30;
+  const start = toMinutes(hour.openTime);
+  const end = toMinutes(hour.lastOrderTime || hour.closeTime);
+  const breakStart = hour.breakStartTime ? toMinutes(hour.breakStartTime) : null;
+  const breakEnd = hour.breakEndTime ? toMinutes(hour.breakEndTime) : null;
+  const slots = [];
+  for (let t = start; t <= end; t += unit) {
+    if (breakStart !== null && breakEnd !== null && t >= breakStart && t < breakEnd) continue;
+    slots.push(toHHMM(t));
+  }
+  return slots;
+};
+
+// 최소 사전예약 시간 이내인 슬롯은 제외
+const filterByAdvance = (slots, dateStr, minAdvanceHours) => {
+  if (!minAdvanceHours) return slots;
+  const cutoff = new Date(Date.now() + minAdvanceHours * 60 * 60 * 1000);
+  return slots.filter(t => new Date(`${dateStr}T${t}:00`) >= cutoff);
+};
+
+const getUuid = () => {
+  if (Platform.OS !== "web") return null;
+  let uuid = localStorage.getItem("scaneat_uuid");
+  if (!uuid) {
+    uuid = crypto.randomUUID();
+    localStorage.setItem("scaneat_uuid", uuid);
+  }
+  return uuid;
+};
+
+export default function SeatsView({ visible, onClose, bizno }) {
   const today = new Date().toISOString().split("T")[0];
+
+  const [loaded, setLoaded] = useState(false);
+  const [seats, setSeats] = useState([]);
+  const [rsvnStd, setRsvnStd] = useState(null);
+  const [hoursByDay, setHoursByDay] = useState({});
 
   const [expandedSeat, setExpandedSeat] = useState(null);
   const [category, setCategory] = useState("all");
@@ -34,8 +69,72 @@ export default function SeatsView({ visible, onClose }) {
   const [rsvnTime, setRsvnTime] = useState("");
   const [rsvnPeople, setRsvnPeople] = useState(2);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [guestName, setGuestName] = useState("");
+  const [guestTel, setGuestTel] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!visible || !bizno) return;
+    setLoaded(false);
+    (async () => {
+      const [std, hours, seatList] = await Promise.all([
+        api.biz.reservationStandard(bizno),
+        api.biz.hours(bizno),
+        api.biz.seats(bizno),
+      ]);
+      setRsvnStd(std || null);
+      const map = {};
+      (Array.isArray(hours) ? hours : []).forEach(h => { map[h.dayOfWeek] = h; });
+      setHoursByDay(map);
+      setSeats(Array.isArray(seatList) ? seatList : []);
+      setLoaded(true);
+    })();
+  }, [visible, bizno]);
 
   if (!visible) return null;
+
+  const reservationDisabled = loaded && (!rsvnStd || rsvnStd.useYn === "N");
+
+  const maxDateStr = rsvnStd?.maxAdvanceDays
+    ? new Date(Date.now() + rsvnStd.maxAdvanceDays * 86400000).toISOString().split("T")[0]
+    : undefined;
+
+  const timeSlots = rsvnDate
+    ? filterByAdvance(buildTimeSlots(hoursByDay[getDayCode(rsvnDate)], rsvnStd?.timeUnitMin), rsvnDate, rsvnStd?.minAdvanceHours)
+    : [];
+
+  const minPeople = Math.max(1, rsvnStd?.minPartySize || 1);
+  const maxPeople = Math.min(expandedSeat?.capacity || 99, rsvnStd?.maxPartySize || expandedSeat?.capacity || 99);
+
+  const openSeat = (seat) => {
+    setExpandedSeat(seat);
+    setRsvnTime("");
+    setRsvnPeople(Math.min(Math.max(minPeople, 2), maxPeople));
+  };
+
+  const handleReserve = async () => {
+    if (!guestName.trim()) { alert("예약자 이름을 입력해주세요."); return; }
+    const uuid = getUuid();
+    if (!uuid || !bizno) return;
+    setSubmitting(true);
+    const { data, error } = await api.reservation.post({
+      uuid,
+      bizRegNo: bizno,
+      guestName: guestName.trim(),
+      guestTel: guestTel.trim() || null,
+      rsvnDt: `${rsvnDate}T${rsvnTime}:00`,
+      seatNo: expandedSeat.seatCd,
+      partySize: rsvnPeople,
+      memo: expandedSeat.seatNm ? `좌석 희망: ${expandedSeat.seatNm}` : null,
+    });
+    setSubmitting(false);
+    if (error || !data) { alert("예약에 실패했습니다. 다시 시도해주세요."); return; }
+    alert(`예약이 접수됐어요!\n예약번호: ${data.rsvnNo}\n사장님 확인 후 확정됩니다.`);
+    setExpandedSeat(null);
+    setGuestName("");
+    setGuestTel("");
+    setRsvnTime("");
+  };
 
   return (
     <View style={[StyleSheet.absoluteFillObject, fixedFill, s.container]}>
@@ -48,34 +147,47 @@ export default function SeatsView({ visible, onClose }) {
         <View style={{ width: 64 }} />
       </View>
 
-      {/* 카테고리 필터 */}
-      <View style={s.catBar}>
-        {CATEGORIES.map(c => (
-          <TouchableOpacity
-            key={c.key}
-            style={[s.catChip, category === c.key && s.catChipActive]}
-            onPress={() => setCategory(c.key)}
-          >
-            <Text style={[s.catChipText, category === c.key && s.catChipTextActive]}>{c.label}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* 좌석 그리드 */}
-      <ScrollView contentContainerStyle={s.content}>
-        <View style={s.grid}>
-          {MOCK_SEATS
-            .filter(seat =>
-              category === "all" ? true :
-              category === "group" ? seat.capacity >= 6 :
-              seat.capacity === Number(category)
-            )
-            .map(seat => (
-              <SeatCard key={seat.id} seat={seat} onExpand={() => setExpandedSeat(seat)} />
-            ))}
+      {!loaded ? (
+        <View style={s.content}>
+          <ActivityIndicator size="large" color="#f97316" />
         </View>
-        <Text style={s.notice}>* 좌석 현황은 실시간 변동될 수 있습니다</Text>
-      </ScrollView>
+      ) : reservationDisabled ? (
+        <View style={s.content}>
+          <Text style={s.notice}>이 매장은 현재 테이블 예약을 받지 않습니다</Text>
+        </View>
+      ) : (
+        <>
+          {/* 카테고리 필터 */}
+          <View style={s.catBar}>
+            {CATEGORIES.map(c => (
+              <TouchableOpacity
+                key={c.key}
+                style={[s.catChip, category === c.key && s.catChipActive]}
+                onPress={() => setCategory(c.key)}
+              >
+                <Text style={[s.catChipText, category === c.key && s.catChipTextActive]}>{c.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {/* 좌석 그리드 */}
+          <ScrollView contentContainerStyle={s.content}>
+            <View style={s.grid}>
+              {seats
+                .filter(seat =>
+                  category === "all" ? true :
+                  category === "group" ? seat.capacity >= 6 :
+                  seat.capacity === Number(category)
+                )
+                .map(seat => (
+                  <SeatCard key={seat.seatCd} seat={seat} onExpand={() => openSeat(seat)} />
+                ))}
+            </View>
+            {seats.length === 0 && <Text style={s.notice}>등록된 좌석이 없습니다</Text>}
+            <Text style={s.notice}>* 좌석 현황은 실시간 변동될 수 있습니다</Text>
+          </ScrollView>
+        </>
+      )}
 
       {/* 이미지 확대 뷰어 */}
       {expandedSeat && (
@@ -85,11 +197,13 @@ export default function SeatsView({ visible, onClose }) {
             <ScrollView style={{ width: "100%" }} contentContainerStyle={s.viewerScroll} keyboardShouldPersistTaps="handled">
               <View style={s.viewerBox}>
                 {/* 이미지 */}
-                <Image
-                  source={{ uri: expandedSeat.image.replace("w=400&h=220", "w=800&h=500") }}
-                  style={s.viewerImg}
-                  resizeMode="cover"
-                />
+                {expandedSeat.imgUrl ? (
+                  <Image
+                    source={{ uri: expandedSeat.imgUrl.replace("w=400&h=220", "w=800&h=500") }}
+                    style={s.viewerImg}
+                    resizeMode="cover"
+                  />
+                ) : null}
                 <TouchableOpacity style={s.viewerClose} onPress={() => setExpandedSeat(null)}>
                   <Text style={s.viewerCloseText}>✕</Text>
                 </TouchableOpacity>
@@ -97,17 +211,42 @@ export default function SeatsView({ visible, onClose }) {
                 {/* 좌석 정보 */}
                 <View style={s.viewerInfo}>
                   <View style={s.viewerRow}>
-                    <Text style={s.viewerName}>{expandedSeat.name}</Text>
+                    <Text style={s.viewerName}>{expandedSeat.seatNm}</Text>
                     <View style={s.viewerBadge}>
                       <Text style={s.viewerBadgeText}>최대 👤 {expandedSeat.capacity}인</Text>
                     </View>
                   </View>
-                  <Text style={s.viewerDesc}>{expandedSeat.desc}</Text>
+                  <Text style={s.viewerDesc}>{expandedSeat.seatDesc}</Text>
                 </View>
 
                 {/* 예약 폼 */}
                 <View style={s.rsvnForm}>
                   <Text style={s.rsvnTitle}>예약 정보 입력</Text>
+
+                  {/* 예약자 이름 + 연락처 */}
+                  <View style={s.rsvnRow}>
+                    <View style={[s.rsvnField, { flex: 1 }]}>
+                      <Text style={s.rsvnLabel}>👤 이름</Text>
+                      <TextInput
+                        style={[s.rsvnInput, { color: "#fff" }]}
+                        placeholder="예약자 이름"
+                        placeholderTextColor="#64748b"
+                        value={guestName}
+                        onChangeText={setGuestName}
+                      />
+                    </View>
+                    <View style={[s.rsvnField, { flex: 1 }]}>
+                      <Text style={s.rsvnLabel}>📞 연락처</Text>
+                      <TextInput
+                        style={[s.rsvnInput, { color: "#fff" }]}
+                        placeholder="선택 입력"
+                        placeholderTextColor="#64748b"
+                        value={guestTel}
+                        onChangeText={setGuestTel}
+                        keyboardType="phone-pad"
+                      />
+                    </View>
+                  </View>
 
                   {/* 날짜 + 인원 (같은 행) */}
                   <View style={s.rsvnRow}>
@@ -127,14 +266,14 @@ export default function SeatsView({ visible, onClose }) {
                       <View style={s.peopleRow}>
                         <TouchableOpacity
                           style={s.peopleBtn}
-                          onPress={() => setRsvnPeople(p => Math.max(1, p - 1))}
+                          onPress={() => setRsvnPeople(p => Math.max(minPeople, p - 1))}
                         >
                           <Text style={s.peopleBtnText}>−</Text>
                         </TouchableOpacity>
                         <Text style={s.peopleNum}>{rsvnPeople}명</Text>
                         <TouchableOpacity
                           style={s.peopleBtn}
-                          onPress={() => setRsvnPeople(p => Math.min(expandedSeat.capacity, p + 1))}
+                          onPress={() => setRsvnPeople(p => Math.min(maxPeople, p + 1))}
                         >
                           <Text style={s.peopleBtnText}>+</Text>
                         </TouchableOpacity>
@@ -149,7 +288,8 @@ export default function SeatsView({ visible, onClose }) {
                         <View style={s.calBox}>
                           <Calendar
                             minDate={today}
-                            onDayPress={day => { setRsvnDate(day.dateString); setShowCalendar(false); }}
+                            maxDate={maxDateStr}
+                            onDayPress={day => { setRsvnDate(day.dateString); setRsvnTime(""); setShowCalendar(false); }}
                             markedDates={rsvnDate ? { [rsvnDate]: { selected: true, selectedColor: "#f97316" } } : {}}
                             theme={{
                               backgroundColor: "#1e293b",
@@ -173,25 +313,29 @@ export default function SeatsView({ visible, onClose }) {
                   {/* 시간 슬롯 */}
                   <View style={s.rsvnField}>
                     <Text style={s.rsvnLabel}>🕐 시간</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.timeScroll}>
-                      {TIME_SLOTS.map(t => (
-                        <TouchableOpacity
-                          key={t}
-                          style={[s.timeSlot, rsvnTime === t && s.timeSlotActive]}
-                          onPress={() => setRsvnTime(prev => prev === t ? "" : t)}
-                        >
-                          <Text style={[s.timeSlotText, rsvnTime === t && s.timeSlotTextActive]}>{t}</Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
+                    {timeSlots.length === 0 ? (
+                      <Text style={s.rsvnDatePlaceholder}>선택한 날짜엔 예약 가능한 시간이 없어요</Text>
+                    ) : (
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.timeScroll}>
+                        {timeSlots.map(t => (
+                          <TouchableOpacity
+                            key={t}
+                            style={[s.timeSlot, rsvnTime === t && s.timeSlotActive]}
+                            onPress={() => setRsvnTime(prev => prev === t ? "" : t)}
+                          >
+                            <Text style={[s.timeSlotText, rsvnTime === t && s.timeSlotTextActive]}>{t}</Text>
+                          </TouchableOpacity>
+                        ))}
+                      </ScrollView>
+                    )}
                   </View>
 
                   <TouchableOpacity
-                    style={[s.rsvnBtn, (!rsvnDate || !rsvnTime) && s.rsvnBtnOff]}
-                    disabled={!rsvnDate || !rsvnTime}
-                    onPress={() => alert(`${expandedSeat.name} / ${rsvnDate} ${rsvnTime} / ${rsvnPeople}명\n예약 DB 연동 예정`)}
+                    style={[s.rsvnBtn, (!rsvnDate || !rsvnTime || !guestName.trim() || submitting) && s.rsvnBtnOff]}
+                    disabled={!rsvnDate || !rsvnTime || !guestName.trim() || submitting}
+                    onPress={handleReserve}
                   >
-                    <Text style={s.rsvnBtnText}>예약하기</Text>
+                    {submitting ? <ActivityIndicator color="#fff" /> : <Text style={s.rsvnBtnText}>예약하기</Text>}
                   </TouchableOpacity>
                 </View>
               </View>
@@ -207,10 +351,10 @@ function SeatCard({ seat, onExpand }) {
   const [imgError, setImgError] = useState(false);
   return (
     <View style={s.card}>
-      <TouchableOpacity style={s.imgWrap} activeOpacity={0.85} onPress={seat.image && !imgError ? onExpand : undefined}>
-        {seat.image && !imgError ? (
+      <TouchableOpacity style={s.imgWrap} activeOpacity={0.85} onPress={onExpand}>
+        {seat.imgUrl && !imgError ? (
           <>
-            <Image source={{ uri: seat.image }} style={s.img} onError={() => setImgError(true)} />
+            <Image source={{ uri: seat.imgUrl }} style={s.img} onError={() => setImgError(true)} />
             <View style={s.zoomHint}><Text style={s.zoomHintText}>🔍</Text></View>
           </>
         ) : (
@@ -222,10 +366,10 @@ function SeatCard({ seat, onExpand }) {
           <Text style={s.capacityText}>👤 {seat.capacity}인</Text>
         </View>
       </TouchableOpacity>
-      <View style={s.cardInfo}>
-        <Text style={s.seatName}>{seat.name}</Text>
-        <Text style={s.seatDesc} numberOfLines={2}>{seat.desc}</Text>
-      </View>
+      <TouchableOpacity style={s.cardInfo} activeOpacity={0.85} onPress={onExpand}>
+        <Text style={s.seatName}>{seat.seatNm}</Text>
+        <Text style={s.seatDesc} numberOfLines={2}>{seat.seatDesc}</Text>
+      </TouchableOpacity>
     </View>
   );
 }

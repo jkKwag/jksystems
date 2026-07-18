@@ -36,6 +36,9 @@ const api = {
     get: (bizno) => get(`/api/biz/${bizno}`),
     categories: (bizno) => get(`/api/biz/${bizno}/categories`),
     menus: (bizno) => get(`/api/biz/${bizno}/menus`),
+    hours: (bizno) => get(`/api/biz/${bizno}/hours`),
+    reservationStandard: (bizno) => get(`/api/biz/${bizno}/reservation-standard`),
+    seats: (bizno) => get(`/api/biz/${bizno}/seats`),
   },
   industry: {
     get: (indCd) => get(`/api/industry/${indCd}`),
