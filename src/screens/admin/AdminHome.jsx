@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, TextInput, useWindowDimensions } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, useWindowDimensions } from "react-native";
 import { s } from "../../styles/admin/AdminHome.styles";
 import api from "../../lib/api";
 import AdminReservations from "./AdminReservations";
+import BizLookupBar from "../../components/admin/BizLookupBar";
 
 const ROLE_LABEL = { SUPER: "최종관리자", BIZ: "사업자관리자" };
 const MOBILE_BREAKPOINT = 768;
@@ -44,16 +45,13 @@ export default function AdminHome({ adminInfo, onLogout }) {
   const [bizNm, setBizNm] = useState(null);
 
   const isSuper = adminInfo?.adminRole === "SUPER";
-  const [bizLookupInput, setBizLookupInput] = useState("");
   const [viewingBizRegNo, setViewingBizRegNo] = useState(null);
   const [viewingBizNm, setViewingBizNm] = useState(null);
   const [bizLookupError, setBizLookupError] = useState("");
 
   const effectiveBizRegNo = isSuper ? viewingBizRegNo : adminInfo?.bizRegNo;
 
-  const handleBizLookup = async () => {
-    const regNo = bizLookupInput.trim();
-    if (!regNo) return;
+  const handleBizLookup = async (regNo) => {
     setBizLookupError("");
     const biz = await api.biz.get(regNo);
     if (!biz) {
@@ -154,24 +152,11 @@ export default function AdminHome({ adminInfo, onLogout }) {
 
       <View style={s.rightCol}>
         {isSuper && (
-          <View style={s.bizLookupBar}>
-            <TextInput
-              style={s.bizLookupInput}
-              placeholder="사업자등록번호로 사업장 조회"
-              placeholderTextColor="#94a3b8"
-              value={bizLookupInput}
-              onChangeText={setBizLookupInput}
-              onSubmitEditing={handleBizLookup}
-              keyboardType="number-pad"
-            />
-            <TouchableOpacity style={s.bizLookupBtn} onPress={handleBizLookup}>
-              <Text style={s.bizLookupBtnText}>조회</Text>
-            </TouchableOpacity>
-            {!!bizLookupError && <Text style={s.bizLookupError}>{bizLookupError}</Text>}
-            {!!viewingBizNm && !bizLookupError && (
-              <Text style={s.bizLookupResult}>조회중: {viewingBizNm} ({viewingBizRegNo})</Text>
-            )}
-          </View>
+          <BizLookupBar
+            onLookup={handleBizLookup}
+            errorText={bizLookupError}
+            resultText={viewingBizNm ? `조회중: ${viewingBizNm} (${viewingBizRegNo})` : null}
+          />
         )}
         <View style={s.content}>
           {(() => {

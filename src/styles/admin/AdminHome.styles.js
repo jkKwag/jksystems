@@ -32,13 +32,6 @@ export const s = StyleSheet.create({
 
   rightCol: { flex: 1, flexDirection: "column" },
 
-  bizLookupBar: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: spacing["2.5"], backgroundColor: colors.bgCard, borderBottomWidth: 1, borderBottomColor: colors.border, paddingHorizontal: spacing["4"], paddingVertical: spacing["2.5"] },
-  bizLookupInput: { minWidth: 220, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["2"], fontSize: font.md, color: colors.text },
-  bizLookupBtn: { backgroundColor: colors.primary, borderRadius: radius.md, paddingHorizontal: spacing["3.5"], paddingVertical: spacing["2"] },
-  bizLookupBtnText: { fontSize: font.md, fontWeight: "700", color: colors.white },
-  bizLookupResult: { fontSize: font.md, fontWeight: "700", color: colors.green },
-  bizLookupError: { fontSize: font.md, fontWeight: "700", color: "#ef4444" },
-
   content: { flex: 1, backgroundColor: colors.bgLight, justifyContent: "center", alignItems: "center" },
   placeholder: { alignItems: "center", gap: spacing["2"] },
   placeholderTitle: { fontSize: font["3xl"], fontWeight: "900", color: colors.text },
