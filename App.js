@@ -124,17 +124,17 @@ export default function App() {
     (async () => {
       const uuid = localStorage.getItem("scaneat_uuid");
       if (!uuid) { setVisitLoaded(true); return; }
-      const [{ data: scanData }, { data: cnsData }, orders] = await Promise.all([
+      const [{ data: scanData }, reservations, orders] = await Promise.all([
         supabase.from("tb_usr_scan_log").select("biz_reg_no").eq("uuid", uuid),
-        supabase.from("tb_usr_prv_cns").select("biz_reg_no,guest_name").eq("uuid", uuid),
+        api.reservation.list(uuid),
         api.order.list(uuid),
       ]);
       const countMap = {};
-      // 예약 횟수는 guest_name이 있는 개인정보 동의 건수로 추정 (아직 별도 예약 API 없음)
-      (cnsData || []).forEach(r => {
-        if (!r.biz_reg_no || !r.guest_name) return;
-        if (!countMap[r.biz_reg_no]) countMap[r.biz_reg_no] = { order: 0, rsvn: 0 };
-        countMap[r.biz_reg_no].rsvn += 1;
+      // 예약 횟수는 실제 예약 상태가 확정(CONFIRMED) 또는 이용완료(COMPLETED)인 건만 카운트
+      (Array.isArray(reservations) ? reservations : []).forEach(r => {
+        if (!r.bizRegNo || (r.rsvnStatus !== "CONFIRMED" && r.rsvnStatus !== "COMPLETED")) return;
+        if (!countMap[r.bizRegNo]) countMap[r.bizRegNo] = { order: 0, rsvn: 0 };
+        countMap[r.bizRegNo].rsvn += 1;
       });
       // 주문 횟수는 실제 주문 테이블(GET /api/order) 기준
       (Array.isArray(orders) ? orders : []).forEach(o => {
