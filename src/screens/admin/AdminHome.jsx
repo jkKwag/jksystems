@@ -55,6 +55,15 @@ export default function AdminHome({ adminInfo, onLogout }) {
 
   const effectiveBizRegNo = isSuper ? viewingBizRegNo : adminInfo?.bizRegNo;
 
+  const handleBizInputChange = (text) => {
+    setBizLookupInput(text);
+    if (!text.trim()) {
+      setViewingBizRegNo(null);
+      setViewingBizNm(null);
+      setBizLookupError("");
+    }
+  };
+
   const handleBizLookup = async (regNo) => {
     setBizLookupInput(regNo);
     setBizLookupError("");
@@ -162,7 +171,7 @@ export default function AdminHome({ adminInfo, onLogout }) {
         {isSuper && (
           <BizLookupBar
             value={bizLookupInput}
-            onChangeText={setBizLookupInput}
+            onChangeText={handleBizInputChange}
             onLookup={handleBizLookup}
             errorText={bizLookupError}
             resultText={viewingBizNm ? `조회중: ${viewingBizNm} (${viewingBizRegNo})` : null}
