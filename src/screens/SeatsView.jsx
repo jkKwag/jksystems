@@ -125,7 +125,7 @@ export default function SeatsView({ visible, onClose, bizno }) {
       guestName: guestName.trim(),
       guestTel: guestTel.trim() || null,
       rsvnDt: `${rsvnDate}T${rsvnTime}:00`,
-      seatNo: expandedSeat.seatCd,
+      seatCd: expandedSeat.seatCd,
       partySize: rsvnPeople,
       memo: expandedSeat.seatNm ? `좌석 희망: ${expandedSeat.seatNm}` : null,
     });
