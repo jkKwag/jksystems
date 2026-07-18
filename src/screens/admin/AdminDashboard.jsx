@@ -11,9 +11,9 @@ const RSVN_STATUS_COLOR = { PENDING: "#f59e0b", CONFIRMED: "#22c55e", REJECTED: 
 const dateStr = (iso) => (iso ? String(iso).slice(0, 10) : null);
 const todayStr = () => new Date().toISOString().slice(0, 10);
 
-const last14Dates = () => {
+const last7Dates = () => {
   const arr = [];
-  for (let i = 13; i >= 0; i--) {
+  for (let i = 6; i >= 0; i--) {
     const d = new Date();
     d.setDate(d.getDate() - i);
     arr.push(d.toISOString().slice(0, 10));
@@ -82,7 +82,7 @@ export default function AdminDashboard({ adminInfo }) {
   ).length;
   const pendingRsvnCount = reservations.filter(r => r.rsvnStatus === "PENDING").length;
 
-  const days = last14Dates();
+  const days = last7Dates();
   const revenueByDay = days.map(d =>
     payments.filter(p => dateStr(p.approvedDt) === d).reduce((sum, p) => sum + Number(p.totalAmount || 0), 0)
   );
@@ -143,7 +143,7 @@ export default function AdminDashboard({ adminInfo }) {
       </View>
 
       <View style={s.card}>
-        <Text style={s.cardTitle}>최근 2주 매출</Text>
+        <Text style={s.cardTitle}>최근 7일 매출</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View style={[s.chartArea, { width: chartWidth, height: CHART_PAD_TOP + CHART_H + 20 }]}>
             <View style={[s.chartBaseline, { width: chartWidth, top: CHART_PAD_TOP + CHART_H }]} />
