@@ -46,6 +46,15 @@ const filterByAdvance = (slots, dateStr, minAdvanceHours) => {
   return slots.filter(t => new Date(`${dateStr}T${t}:00`) >= cutoff);
 };
 
+// 이용시간(useTimeMin) 동안 이미 그 좌석이 예약된 시간대이거나, 마감시간 전까지 이용시간이 안 나오는 슬롯인지 체크
+const isSlotUnavailable = (t, occupiedWindows, useTimeMin, closeMin) => {
+  if (!useTimeMin) return false;
+  const start = toMinutes(t);
+  const end = start + useTimeMin;
+  if (closeMin != null && end > closeMin) return true;
+  return occupiedWindows.some(([wStart, wEnd]) => start < wEnd && end > wStart);
+};
+
 const getUuid = () => {
   if (Platform.OS !== "web") return null;
   let uuid = localStorage.getItem("scaneat_uuid");
@@ -87,6 +96,22 @@ export default function SeatsView({ visible, onClose, bizno }) {
   const [submitting, setSubmitting] = useState(false);
   const [showConsent, setShowConsent] = useState(false);
   const [submittedRsvn, setSubmittedRsvn] = useState(null);
+  const [occupiedWindows, setOccupiedWindows] = useState([]);
+
+  useEffect(() => {
+    if (!expandedSeat || !rsvnDate || !bizno) { setOccupiedWindows([]); return; }
+    (async () => {
+      const list = await api.reservation.listByBiz(bizno, rsvnDate);
+      const useTimeMin = rsvnStd?.useTimeMin || 90;
+      const windows = (Array.isArray(list) ? list : [])
+        .filter(r => r.seatCd === expandedSeat.seatCd && r.rsvnStatus !== "CANCELLED")
+        .map(r => {
+          const start = toMinutes(r.rsvnDt.slice(11, 19));
+          return [start, start + useTimeMin];
+        });
+      setOccupiedWindows(windows);
+    })();
+  }, [expandedSeat, rsvnDate, bizno, rsvnStd]);
 
   useEffect(() => {
     if (!visible || !bizno) return;
@@ -126,8 +151,10 @@ export default function SeatsView({ visible, onClose, bizno }) {
     ? new Date(Date.now() + rsvnStd.maxAdvanceDays * 86400000).toISOString().split("T")[0]
     : undefined;
 
+  const dayHour = rsvnDate ? hoursByDay[getDayCode(rsvnDate)] : null;
+  const closeMin = dayHour?.closeTime ? toMinutes(dayHour.closeTime) : null;
   const timeSlots = rsvnDate
-    ? filterByAdvance(buildTimeSlots(hoursByDay[getDayCode(rsvnDate)], rsvnStd?.timeUnitMin), rsvnDate, rsvnStd?.minAdvanceHours)
+    ? filterByAdvance(buildTimeSlots(dayHour, rsvnStd?.timeUnitMin), rsvnDate, rsvnStd?.minAdvanceHours)
     : [];
 
   const minPeople = Math.max(1, rsvnStd?.minPartySize || 1);
@@ -391,15 +418,19 @@ export default function SeatsView({ visible, onClose, bizno }) {
                       <Text style={s.rsvnDatePlaceholder}>선택한 날짜엔 예약 가능한 시간이 없어요</Text>
                     ) : (
                       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.timeScroll}>
-                        {timeSlots.map(t => (
-                          <TouchableOpacity
-                            key={t}
-                            style={[s.timeSlot, rsvnTime === t && s.timeSlotActive]}
-                            onPress={() => setRsvnTime(prev => prev === t ? "" : t)}
-                          >
-                            <Text style={[s.timeSlotText, rsvnTime === t && s.timeSlotTextActive]}>{t}</Text>
-                          </TouchableOpacity>
-                        ))}
+                        {timeSlots.map(t => {
+                          const disabled = isSlotUnavailable(t, occupiedWindows, rsvnStd?.useTimeMin, closeMin);
+                          return (
+                            <TouchableOpacity
+                              key={t}
+                              style={[s.timeSlot, rsvnTime === t && s.timeSlotActive, disabled && s.timeSlotDisabled]}
+                              onPress={() => !disabled && setRsvnTime(prev => prev === t ? "" : t)}
+                              disabled={disabled}
+                            >
+                              <Text style={[s.timeSlotText, rsvnTime === t && s.timeSlotTextActive, disabled && s.timeSlotTextDisabled]}>{t}</Text>
+                            </TouchableOpacity>
+                          );
+                        })}
                       </ScrollView>
                     )}
                   </View>

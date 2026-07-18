@@ -85,8 +85,10 @@ export const s = StyleSheet.create({
   timeScroll: { flexGrow: 0 },
   timeSlot: { backgroundColor: colors.slate800, borderRadius: radius.pill, paddingHorizontal: spacing["3.5"], paddingVertical: spacing["2"], marginRight: spacing["2"], borderWidth: 1, borderColor: colors.slate700 },
   timeSlotActive: { backgroundColor: colors.accent, borderColor: colors.accent },
+  timeSlotDisabled: { backgroundColor: "transparent", borderColor: colors.slate800, opacity: 0.4 },
   timeSlotText: { fontSize: font.md, fontWeight: "700", color: colors.slate400 },
   timeSlotTextActive: { color: colors.white },
+  timeSlotTextDisabled: { color: colors.slate600, textDecorationLine: "line-through" },
 
   peopleRow: { flexDirection: "row", alignItems: "center", gap: spacing["4"] },
   peopleBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.slate800, justifyContent: "center", alignItems: "center", borderWidth: 1, borderColor: colors.slate700 },
