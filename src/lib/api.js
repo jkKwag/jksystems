@@ -44,6 +44,10 @@ const api = {
     get: (indCd) => get(`/api/industry/${indCd}`),
     list: () => get(`/api/industry`),
   },
+  commonCode: {
+    groups: () => get(`/api/common-code/group`),
+    list: (grpCd) => get(`/api/common-code/${grpCd}`),
+  },
   menu: {
     options: (menuCd) => get(`/api/menu/${menuCd}/options`),
   },

@@ -62,7 +62,7 @@ const formatRsvnDt = (iso) => {
   return `${d.getMonth() + 1}/${d.getDate()}(${DAY_KR[d.getDay()]}) ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 };
 
-const STATUS_LABEL = { PENDING: "예약대기", CONFIRMED: "예약확정", CANCELLED: "취소됨", COMPLETED: "이용완료" };
+// 라벨(예: "예약대기")은 공통코드(RSVN_STATUS)에서 받아오고, 색상 매핑만 화면단에서 유지
 const STATUS_STYLE_KEY = { PENDING: "statusPending", CONFIRMED: "statusConfirmed", CANCELLED: "statusCancelled", COMPLETED: "statusCompleted" };
 
 export default function SeatsView({ visible, onClose, bizno }) {
@@ -74,6 +74,7 @@ export default function SeatsView({ visible, onClose, bizno }) {
   const [hoursByDay, setHoursByDay] = useState({});
   const [activeTab, setActiveTab] = useState("book");
   const [myReservations, setMyReservations] = useState([]);
+  const [statusLabels, setStatusLabels] = useState({});
 
   const [expandedSeat, setExpandedSeat] = useState(null);
   const [category, setCategory] = useState("all");
@@ -92,11 +93,12 @@ export default function SeatsView({ visible, onClose, bizno }) {
     setLoaded(false);
     (async () => {
       const uuid = getUuid();
-      const [std, hours, seatList, rsvnList] = await Promise.all([
+      const [std, hours, seatList, rsvnList, statusCodes] = await Promise.all([
         api.biz.reservationStandard(bizno),
         api.biz.hours(bizno),
         api.biz.seats(bizno),
         uuid ? api.reservation.list(uuid) : Promise.resolve([]),
+        api.commonCode.list("RSVN_STATUS"),
       ]);
       setRsvnStd(std || null);
       const map = {};
@@ -107,6 +109,9 @@ export default function SeatsView({ visible, onClose, bizno }) {
         .filter(r => r.bizRegNo === bizno)
         .sort((a, b) => new Date(b.rsvnDt) - new Date(a.rsvnDt));
       setMyReservations(bizRsvns);
+      const labelMap = {};
+      (Array.isArray(statusCodes) ? statusCodes : []).forEach(c => { labelMap[c.cd] = c.cdNm; });
+      setStatusLabels(labelMap);
       const hasUpcoming = bizRsvns.some(r => new Date(r.rsvnDt) > new Date());
       setActiveTab(hasUpcoming ? "history" : "book");
       setLoaded(true);
@@ -216,8 +221,8 @@ export default function SeatsView({ visible, onClose, bizno }) {
                   <View style={s.historyInfo}>
                     <View style={s.historyTopRow}>
                       <Text style={s.historyDt}>{formatRsvnDt(r.rsvnDt)}</Text>
-                      <View style={[s.statusBadge, s[STATUS_STYLE_KEY[r.status]]]}>
-                        <Text style={s.statusBadgeText}>{STATUS_LABEL[r.status] || r.status}</Text>
+                      <View style={[s.statusBadge, s[STATUS_STYLE_KEY[r.rsvnStatus]]]}>
+                        <Text style={s.statusBadgeText}>{statusLabels[r.rsvnStatus] || r.rsvnStatus}</Text>
                       </View>
                     </View>
                     <Text style={s.historyMeta}>
