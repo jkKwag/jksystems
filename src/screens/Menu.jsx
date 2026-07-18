@@ -311,16 +311,17 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
     (async () => {
       const recent = await api.payment.list(uuid);
       if (!Array.isArray(recent)) return;
-      setRecentPayments(recent);
+      const filtered = recent.filter(p => p.bizRegNo === bizno);
+      setRecentPayments(filtered);
 
-      const uniqueBizRegNos = [...new Set(recent.map(p => p.bizRegNo))];
+      const uniqueBizRegNos = [...new Set(filtered.map(p => p.bizRegNo))];
       const entries = await Promise.all(uniqueBizRegNos.map(async (regNo) => {
         const data = await api.biz.get(regNo);
         return [regNo, data?.bizNm];
       }));
       setPaymentBizNames(Object.fromEntries(entries));
     })();
-  }, []);
+  }, [bizno]);
 
   useEffect(() => {
     if (!bizno) return;
