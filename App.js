@@ -168,7 +168,7 @@ export default function App() {
     try {
       const url = new URL(result);
       const match = url.pathname.match(/^\/menu\/(.+)/);
-      if (match) window.location.href = `/menu/${match[1]}`;
+      if (match) window.location.href = `/menu/${match[1]}${url.search}`;
     } catch {
       const match = result.match(/\/menu\/(.+)/);
       if (match) window.location.href = `/menu/${match[1]}`;
