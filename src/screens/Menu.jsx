@@ -4,7 +4,7 @@ import AiChat from "../components/AiChat";
 import ChatRoom from "../components/ChatRoom";
 import MenuDetail from "./MenuDetail";
 import PaymentHistory from "./PaymentHistory";
-import RsvnBadge from "../components/RsvnBadge";
+import PickupBadge from "../components/PickupBadge";
 import api from "../lib/api";
 import SeatsView from "./SeatsView";
 import { s } from "../styles/Menu.styles";
@@ -878,7 +878,7 @@ export default function Menu({ bizno, tableNo }) {
                           </View>
                         );
                       })}
-                      <RsvnBadge rsvnNo={order.rsvnNo} />
+                      <PickupBadge pickupNo={order.pickupNo} />
                     </View>
                   ))}
                   <View style={s.payDivider} />
@@ -911,8 +911,8 @@ export default function Menu({ bizno, tableNo }) {
                     setShowPayment(false);
                     await refreshPendingOrders();
                     alert(
-                      order.rsvnNo
-                        ? `주문이 접수되었어요. 픽업번호: ${order.rsvnNo}\n계속 주문하시거나, 준비되면 결제해주세요.`
+                      order.pickupNo
+                        ? `주문이 접수되었어요. 픽업번호: ${order.pickupNo}\n계속 주문하시거나, 준비되면 결제해주세요.`
                         : "주문이 접수되었어요. 계속 주문하시거나, 준비되면 결제해주세요."
                     );
                   }}

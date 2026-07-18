@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { View, Text, Modal, ScrollView, TouchableOpacity, Linking } from "react-native";
 import { s } from "../styles/PaymentHistory.styles";
-import RsvnBadge from "../components/RsvnBadge";
+import PickupBadge from "../components/PickupBadge";
 import api from "../lib/api";
 
 const formatDt = (dateStr) => {
@@ -120,7 +120,7 @@ export default function PaymentHistory({ visible, onClose, payments, bizNameMap 
                                   </View>
                                 );
                               })}
-                              <RsvnBadge rsvnNo={order.rsvnNo} />
+                              <PickupBadge pickupNo={order.pickupNo} />
                             </View>
                           ))
                         )}
