@@ -78,7 +78,7 @@ export default function AdminMenu({ adminInfo }) {
           </TouchableOpacity>
         </View>
       </View>
-      <Text style={s.hintText}>메뉴 카드를 클릭하면 옵션을 등록/관리할 수 있어요.</Text>
+      <Text style={s.hintText}>메뉴 카드를 클릭하면 메뉴를 수정할 수 있어요.</Text>
 
       {!loaded ? (
         <ActivityIndicator style={{ marginTop: 40 }} color="#f97316" />
@@ -87,7 +87,7 @@ export default function AdminMenu({ adminInfo }) {
       ) : (
         <ScrollView contentContainerStyle={s.list}>
           {menus.map(menu => (
-            <TouchableOpacity key={menu.menuCd} style={s.card} onPress={() => setOptionsTarget(menu)} activeOpacity={0.75}>
+            <TouchableOpacity key={menu.menuCd} style={s.card} onPress={() => setFormTarget(menu)} activeOpacity={0.75}>
               {menu.imgUrl ? (
                 <Image source={{ uri: menu.imgUrl }} style={s.thumb} resizeMode="cover" />
               ) : (
@@ -104,8 +104,8 @@ export default function AdminMenu({ adminInfo }) {
                 <Text style={s.price}>₩{Number(menu.price || 0).toLocaleString()}</Text>
               </View>
               <View style={s.cardActions}>
-                <TouchableOpacity style={s.actionBtn} onPress={(e) => { e?.stopPropagation?.(); setFormTarget(menu); }}>
-                  <Text style={s.actionBtnText}>수정</Text>
+                <TouchableOpacity style={s.actionBtn} onPress={(e) => { e?.stopPropagation?.(); setOptionsTarget(menu); }}>
+                  <Text style={s.actionBtnText}>옵션상세</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[s.actionBtn, s.deleteBtn]} onPress={(e) => { e?.stopPropagation?.(); setDeleteTarget(menu); }}>
                   <Text style={[s.actionBtnText, s.deleteBtnText]}>삭제</Text>

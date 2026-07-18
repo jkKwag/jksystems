@@ -94,7 +94,7 @@ export default function MenuOptionsModal({ visible, menu, onClose }) {
         <TouchableOpacity style={s.overlayBg} activeOpacity={1} onPress={onClose} />
         <View style={s.sheet}>
           <View style={s.header}>
-            <Text style={s.headerTitle}>🧩 {menu?.menuNm} 옵션 관리</Text>
+            <Text style={s.headerTitle}>🧩 {menu?.menuNm} 옵션상세</Text>
             <TouchableOpacity onPress={onClose} style={s.closeBtn}>
               <Text style={s.closeBtnText}>✕</Text>
             </TouchableOpacity>
