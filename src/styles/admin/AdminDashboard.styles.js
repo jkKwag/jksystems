@@ -20,12 +20,12 @@ export const s = StyleSheet.create({
   card: { backgroundColor: colors.bgCard, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.border, padding: spacing["4"], gap: spacing["2"] },
   cardTitle: { fontSize: font.lg, fontWeight: "800", color: colors.text, marginBottom: spacing["1"] },
 
-  chartRow: { flexDirection: "row", alignItems: "flex-end", gap: spacing["2"], height: 160 },
-  barCol: { flex: 1, alignItems: "center", gap: 4, height: "100%", justifyContent: "flex-end" },
-  barValue: { fontSize: 10, fontWeight: "700", color: colors.textMuted, height: 14 },
+  chartRow: { flexDirection: "row", alignItems: "flex-end", gap: spacing["2"], height: 160, paddingHorizontal: 2 },
+  barCol: { width: 34, alignItems: "center", gap: 4, height: "100%", justifyContent: "flex-end" },
+  barValue: { fontSize: 9, fontWeight: "700", color: colors.textMuted, height: 14 },
   barTrack: { width: "100%", height: 110, backgroundColor: colors.slate100, borderRadius: radius.sm, justifyContent: "flex-end", overflow: "hidden" },
   barFill: { width: "100%", backgroundColor: colors.accent, borderTopLeftRadius: radius.xs, borderTopRightRadius: radius.xs, minHeight: 4 },
-  barDayLabel: { fontSize: font.sm, fontWeight: "700", color: colors.textMuted },
+  barDayLabel: { fontSize: 9, fontWeight: "700", color: colors.textMuted },
   barDayLabelToday: { color: colors.accent },
 
   twoColRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing["3"] },

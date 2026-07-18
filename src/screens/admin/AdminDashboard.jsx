@@ -7,14 +7,13 @@ const ORDER_STATUS_LABEL = { PENDING: "주문접수", PAID: "결제완료", CANC
 const ORDER_STATUS_COLOR = { PENDING: "#f59e0b", PAID: "#22c55e", CANCELED: "#94a3b8" };
 const RSVN_STATUS_LABEL = { PENDING: "대기", CONFIRMED: "확정", REJECTED: "거절", CANCELLED: "취소", COMPLETED: "완료" };
 const RSVN_STATUS_COLOR = { PENDING: "#f59e0b", CONFIRMED: "#22c55e", REJECTED: "#ef4444", CANCELLED: "#94a3b8", COMPLETED: "#64748b" };
-const DAY_KR = ["일", "월", "화", "수", "목", "금", "토"];
 
 const dateStr = (iso) => (iso ? String(iso).slice(0, 10) : null);
 const todayStr = () => new Date().toISOString().slice(0, 10);
 
-const last7Dates = () => {
+const last14Dates = () => {
   const arr = [];
-  for (let i = 6; i >= 0; i--) {
+  for (let i = 13; i >= 0; i--) {
     const d = new Date();
     d.setDate(d.getDate() - i);
     arr.push(d.toISOString().slice(0, 10));
@@ -73,7 +72,7 @@ export default function AdminDashboard({ adminInfo }) {
   ).length;
   const pendingRsvnCount = reservations.filter(r => r.rsvnStatus === "PENDING").length;
 
-  const days = last7Dates();
+  const days = last14Dates();
   const revenueByDay = days.map(d =>
     payments.filter(p => dateStr(p.approvedDt) === d).reduce((sum, p) => sum + Number(p.totalAmount || 0), 0)
   );
@@ -131,23 +130,24 @@ export default function AdminDashboard({ adminInfo }) {
       </View>
 
       <View style={s.card}>
-        <Text style={s.cardTitle}>최근 7일 매출</Text>
-        <View style={s.chartRow}>
+        <Text style={s.cardTitle}>최근 2주 매출</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chartRow}>
           {days.map((d, i) => {
             const value = revenueByDay[i];
             const heightPct = Math.max(4, Math.round((value / maxRevenue) * 100));
-            const dow = DAY_KR[new Date(`${d}T00:00:00`).getDay()];
+            const dt = new Date(`${d}T00:00:00`);
+            const dayLabel = `${dt.getMonth() + 1}/${dt.getDate()}`;
             return (
               <View key={d} style={s.barCol}>
                 <Text style={s.barValue}>{value > 0 ? `${Math.round(value / 1000)}k` : ""}</Text>
                 <View style={s.barTrack}>
                   <View style={[s.barFill, { height: `${heightPct}%` }]} />
                 </View>
-                <Text style={[s.barDayLabel, d === today && s.barDayLabelToday]}>{dow}</Text>
+                <Text style={[s.barDayLabel, d === today && s.barDayLabelToday]}>{dayLabel}</Text>
               </View>
             );
           })}
-        </View>
+        </ScrollView>
       </View>
 
       <View style={s.twoColRow}>
