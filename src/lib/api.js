@@ -37,7 +37,7 @@ const api = {
     menu: (role) => get(`/api/admin/menu?role=${role}`),
   },
   biz: {
-    list: () => get(`/api/biz`),
+    list: (page = 0, size = 10) => get(`/api/biz?page=${page}&size=${size}`),
     get: (bizno) => get(`/api/biz/${bizno}`),
     categories: (bizno) => get(`/api/biz/${bizno}/categories`),
     menus: (bizno) => get(`/api/biz/${bizno}/menus`),
