@@ -139,8 +139,12 @@ export const s = StyleSheet.create({
   tossLogoText: { color: colors.white, fontSize: font.md, fontWeight: "900", letterSpacing: -0.5 },
   payHeaderTitle: { fontSize: font["4xl"], fontWeight: "900", color: colors.text },
 
-  paySection: { backgroundColor: colors.bgCard, borderRadius: radius["2xl"], padding: spacing["4"], gap: spacing["2.5"] },
+  paySection: { backgroundColor: colors.bgCard, borderRadius: radius["2xl"], padding: spacing["4"], gap: spacing["2.5"], marginBottom: spacing["3"], borderWidth: 1.5, borderColor: "transparent" },
+  paySectionCurrent: { backgroundColor: colors.accentLight, borderColor: colors.accent },
+  paySectionPending: { backgroundColor: colors.slate100, borderColor: colors.borderMedium },
+  paySectionTitleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   paySectionTitle: { fontSize: font.md, fontWeight: "800", color: colors.slate400, marginBottom: spacing["1"], textTransform: "uppercase", letterSpacing: 0.5 },
+  paySectionTypText: { fontSize: font.sm, fontWeight: "700", color: colors.textSecondary },
   payOrderRow: { flexDirection: "row", alignItems: "center", gap: spacing["1"] },
   payOrderName: { flex: 1, fontSize: font.lg, fontWeight: "700", color: colors.textSecondary },
   payOrderQty: { fontSize: font.md, color: colors.slate400, fontWeight: "600", marginHorizontal: spacing["1"] },

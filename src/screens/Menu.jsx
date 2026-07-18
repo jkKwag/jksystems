@@ -835,8 +835,11 @@ export default function Menu({ bizno, tableNo }) {
             {/* 주문 요약 */}
             <ScrollView style={{ flexShrink: 1 }} contentContainerStyle={{ padding: 20 }}>
               {cartItems.length > 0 && (
-                <View style={s.paySection}>
-                  <Text style={s.paySectionTitle}>이번 주문</Text>
+                <View style={[s.paySection, s.paySectionCurrent]}>
+                  <View style={s.paySectionTitleRow}>
+                    <Text style={s.paySectionTitle}>이번 주문</Text>
+                    <Text style={s.paySectionTypText}>{orderType === "포장주문" ? "📦 포장주문" : "🍽️ 매장주문"}</Text>
+                  </View>
                   {cartItems.map(({ item, quantity }) => (
                     <View key={item.id} style={s.payOrderRow}>
                       <Text style={s.payOrderName} numberOfLines={1}>{item.name}</Text>
@@ -853,7 +856,7 @@ export default function Menu({ bizno, tableNo }) {
               )}
 
               {pendingCount > 0 && (
-                <View style={s.paySection}>
+                <View style={[s.paySection, s.paySectionPending]}>
                   <Text style={s.paySectionTitle}>먼저 주문한 내역 ({pendingCount}건, 결제 대기)</Text>
                   {pendingOrders.map((order, oi) => (
                     <View key={order.orderNo} style={oi > 0 && s.pendingOrderGroup}>
