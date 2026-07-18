@@ -51,6 +51,10 @@ const api = {
     hours: (bizno) => get(`/api/biz/${bizno}/hours`),
     reservationStandard: (bizno) => get(`/api/biz/${bizno}/reservation-standard`),
     seats: (bizno) => get(`/api/biz/${bizno}/seats`),
+    seatsAdmin: (bizno) => get(`/api/biz/${bizno}/seats/admin`),
+    createSeat: (bizno, body) => post(`/api/biz/${bizno}/seats`, body),
+    updateSeat: (bizno, seatCd, body) => put(`/api/biz/${bizno}/seats/${seatCd}`, body),
+    deleteSeat: (bizno, seatCd) => del(`/api/biz/${bizno}/seats/${seatCd}`),
   },
   industry: {
     get: (indCd) => get(`/api/industry/${indCd}`),
