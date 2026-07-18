@@ -4,6 +4,7 @@ import { Calendar } from "react-native-calendars";
 import { s } from "../styles/SeatsView.styles";
 import api from "../lib/api";
 import PickupBadge from "../components/PickupBadge";
+import ConfirmModal from "../components/ConfirmModal";
 
 const fixedFill = Platform.OS === "web" ? { position: "fixed", top: 0, left: 0, right: 0, bottom: 0 } : {};
 
@@ -98,6 +99,8 @@ export default function SeatsView({ visible, onClose, bizno }) {
   const [submittedRsvn, setSubmittedRsvn] = useState(null);
   const [occupiedWindows, setOccupiedWindows] = useState([]);
   const [cancellingRsvn, setCancellingRsvn] = useState(null);
+  const [confirmCancelRsvnNo, setConfirmCancelRsvnNo] = useState(null);
+  const [cancelAlertMsg, setCancelAlertMsg] = useState(null);
 
   useEffect(() => {
     if (!expandedSeat || !rsvnDate || !bizno) { setOccupiedWindows([]); return; }
@@ -203,12 +206,13 @@ export default function SeatsView({ visible, onClose, bizno }) {
     setMyReservations(prev => [data, ...prev]);
   };
 
-  const cancelReservation = async (rsvnNo) => {
-    if (Platform.OS === "web" && !window.confirm("예약을 취소하시겠어요?")) return;
+  const doCancelReservation = async () => {
+    const rsvnNo = confirmCancelRsvnNo;
+    setConfirmCancelRsvnNo(null);
     setCancellingRsvn(rsvnNo);
     const { data, error } = await api.reservation.updateStatus(rsvnNo, { rsvnStatus: "CANCELLED" });
     setCancellingRsvn(null);
-    if (error || !data) { alert("예약 취소에 실패했습니다. 다시 시도해주세요."); return; }
+    if (error || !data) { setCancelAlertMsg("예약 취소에 실패했습니다. 다시 시도해주세요."); return; }
     setMyReservations(prev => prev.map(r => r.rsvnNo === rsvnNo ? data : r));
   };
 
@@ -275,7 +279,7 @@ export default function SeatsView({ visible, onClose, bizno }) {
                     {canCancel && (
                       <TouchableOpacity
                         style={s.historyCancelBtn}
-                        onPress={() => cancelReservation(r.rsvnNo)}
+                        onPress={() => setConfirmCancelRsvnNo(r.rsvnNo)}
                         disabled={cancellingRsvn === r.rsvnNo}
                       >
                         {cancellingRsvn === r.rsvnNo ? (
@@ -533,6 +537,21 @@ export default function SeatsView({ visible, onClose, bizno }) {
           </View>
         </Modal>
       )}
+
+      <ConfirmModal
+        visible={!!confirmCancelRsvnNo}
+        message="예약을 취소하시겠어요?"
+        confirmText="취소하기"
+        cancelText="아니오"
+        danger
+        onConfirm={doCancelReservation}
+        onCancel={() => setConfirmCancelRsvnNo(null)}
+      />
+      <ConfirmModal
+        visible={!!cancelAlertMsg}
+        message={cancelAlertMsg}
+        onConfirm={() => setCancelAlertMsg(null)}
+      />
     </View>
   );
 }
