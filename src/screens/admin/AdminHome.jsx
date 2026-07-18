@@ -3,14 +3,17 @@ import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, useWindowD
 import { s } from "../../styles/admin/AdminHome.styles";
 import api from "../../lib/api";
 import AdminReservations from "./AdminReservations";
+import AdminBizList from "./AdminBizList";
 import BizLookupBar from "../../components/admin/BizLookupBar";
 
 const ROLE_LABEL = { SUPER: "최종관리자", BIZ: "사업자관리자" };
 const MOBILE_BREAKPOINT = 768;
+const DASHBOARD_URL = "/admin/dashboard";
 
 // menu_url -> 실제 구현된 화면 컴포넌트. 없는 항목은 준비중 플레이스홀더로 표시.
 const MENU_SCREENS = {
   "/admin/reservations": AdminReservations,
+  "/admin/biz": AdminBizList,
 };
 
 function MenuNode({ node, depth, expanded, onToggle, selectedCd, onSelect }) {
@@ -68,8 +71,11 @@ export default function AdminHome({ adminInfo, onLogout }) {
     if (!adminInfo?.adminRole) return;
     (async () => {
       const tree = await api.admin.menu(adminInfo.adminRole);
-      setMenuTree(Array.isArray(tree) ? tree : []);
-      setExpanded(new Set((Array.isArray(tree) ? tree : []).map(m => m.menuCd)));
+      const list = Array.isArray(tree) ? tree : [];
+      setMenuTree(list);
+      setExpanded(new Set(list.map(m => m.menuCd)));
+      const dashboard = list.find(m => m.menuUrl === DASHBOARD_URL);
+      if (dashboard) setSelected(dashboard);
       setLoaded(true);
     })();
   }, [adminInfo?.adminRole]);
@@ -171,7 +177,14 @@ export default function AdminHome({ adminInfo, onLogout }) {
               );
             }
             const ScreenComponent = MENU_SCREENS[selected.menuUrl];
-            if (ScreenComponent) return <ScreenComponent adminInfo={{ ...adminInfo, bizRegNo: effectiveBizRegNo }} />;
+            if (ScreenComponent) {
+              return (
+                <ScreenComponent
+                  adminInfo={{ ...adminInfo, bizRegNo: effectiveBizRegNo }}
+                  onSelectBiz={isSuper ? handleBizLookup : undefined}
+                />
+              );
+            }
             return (
               <View style={s.placeholder}>
                 <Text style={s.placeholderTitle}>{selected.menuNm}</Text>
