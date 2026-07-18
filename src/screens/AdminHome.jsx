@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, useWindowDimensions } from "react-native";
 import { s } from "../styles/AdminHome.styles";
 import api from "../lib/api";
 
 const ROLE_LABEL = { SUPER: "최종관리자", BIZ: "사업자관리자" };
+const MOBILE_BREAKPOINT = 768;
 
 function MenuNode({ node, depth, expanded, onToggle, selectedCd, onSelect }) {
   const hasChildren = node.children && node.children.length > 0;
@@ -26,10 +27,14 @@ function MenuNode({ node, depth, expanded, onToggle, selectedCd, onSelect }) {
 }
 
 export default function AdminHome({ adminInfo, onLogout }) {
+  const { width } = useWindowDimensions();
+  const isMobile = width < MOBILE_BREAKPOINT;
+
   const [loaded, setLoaded] = useState(false);
   const [menuTree, setMenuTree] = useState([]);
   const [expanded, setExpanded] = useState(new Set());
   const [selected, setSelected] = useState(null);
+  const [showMenu, setShowMenu] = useState(false);
 
   useEffect(() => {
     if (!adminInfo?.adminRole) return;
@@ -49,27 +54,61 @@ export default function AdminHome({ adminInfo, onLogout }) {
     });
   };
 
-  return (
-    <View style={s.container}>
-      <View style={s.sidebar}>
-        <View style={s.sidebarHeader}>
+  const selectMenu = (node) => {
+    setSelected(node);
+    if (isMobile) setShowMenu(false);
+  };
+
+  const Sidebar = () => (
+    <View style={isMobile ? s.sidebarMobile : s.sidebar}>
+      <View style={s.sidebarHeader}>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
           <Text style={s.brand}>CampRoad 관리자</Text>
-          <Text style={s.adminNm}>{adminInfo?.adminNm || adminInfo?.adminId}</Text>
-          <Text style={s.roleBadge}>{ROLE_LABEL[adminInfo?.adminRole] || adminInfo?.adminRole}</Text>
-        </View>
-        <ScrollView style={s.menuScroll} contentContainerStyle={{ paddingVertical: 8 }}>
-          {!loaded ? (
-            <ActivityIndicator color="#fff" style={{ marginTop: 24 }} />
-          ) : (
-            menuTree.map(node => (
-              <MenuNode key={node.menuCd} node={node} depth={0} expanded={expanded} onToggle={toggle} selectedCd={selected?.menuCd} onSelect={setSelected} />
-            ))
+          {isMobile && (
+            <TouchableOpacity onPress={() => setShowMenu(false)}>
+              <Text style={s.closeBtnText}>✕</Text>
+            </TouchableOpacity>
           )}
-        </ScrollView>
-        <TouchableOpacity style={s.logoutBtn} onPress={onLogout}>
-          <Text style={s.logoutBtnText}>🔓 로그아웃</Text>
-        </TouchableOpacity>
+        </View>
+        <Text style={s.adminNm}>{adminInfo?.adminNm || adminInfo?.adminId}</Text>
+        <Text style={s.roleBadge}>{ROLE_LABEL[adminInfo?.adminRole] || adminInfo?.adminRole}</Text>
       </View>
+      <ScrollView style={s.menuScroll} contentContainerStyle={{ paddingVertical: 8 }}>
+        {!loaded ? (
+          <ActivityIndicator color="#fff" style={{ marginTop: 24 }} />
+        ) : (
+          menuTree.map(node => (
+            <MenuNode key={node.menuCd} node={node} depth={0} expanded={expanded} onToggle={toggle} selectedCd={selected?.menuCd} onSelect={selectMenu} />
+          ))
+        )}
+      </ScrollView>
+      <TouchableOpacity style={s.logoutBtn} onPress={onLogout}>
+        <Text style={s.logoutBtnText}>🔓 로그아웃</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  return (
+    <View style={isMobile ? s.containerMobile : s.container}>
+      {isMobile ? (
+        <>
+          <View style={s.topBar}>
+            <TouchableOpacity style={s.hamburgerBtn} onPress={() => setShowMenu(true)}>
+              <Text style={s.hamburgerBtnText}>☰</Text>
+            </TouchableOpacity>
+            <Text style={s.topBarTitle}>CampRoad 관리자</Text>
+            <View style={{ width: 32 }} />
+          </View>
+          {showMenu && (
+            <View style={s.drawerOverlay}>
+              <TouchableOpacity style={s.drawerBackdrop} activeOpacity={1} onPress={() => setShowMenu(false)} />
+              <Sidebar />
+            </View>
+          )}
+        </>
+      ) : (
+        <Sidebar />
+      )}
 
       <View style={s.content}>
         {selected ? (
@@ -80,7 +119,9 @@ export default function AdminHome({ adminInfo, onLogout }) {
         ) : (
           <View style={s.placeholder}>
             <Text style={s.placeholderTitle}>👋 환영합니다</Text>
-            <Text style={s.placeholderDesc}>왼쪽 메뉴에서 원하는 항목을 선택해주세요.</Text>
+            <Text style={s.placeholderDesc}>
+              {isMobile ? "☰ 버튼을 눌러 메뉴를 열어주세요." : "왼쪽 메뉴에서 원하는 항목을 선택해주세요."}
+            </Text>
           </View>
         )}
       </View>
