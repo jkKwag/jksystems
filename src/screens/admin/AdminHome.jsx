@@ -48,6 +48,7 @@ export default function AdminHome({ adminInfo, onLogout }) {
   const [bizNm, setBizNm] = useState(null);
 
   const isSuper = adminInfo?.adminRole === "SUPER";
+  const [bizLookupInput, setBizLookupInput] = useState("");
   const [viewingBizRegNo, setViewingBizRegNo] = useState(null);
   const [viewingBizNm, setViewingBizNm] = useState(null);
   const [bizLookupError, setBizLookupError] = useState("");
@@ -55,6 +56,7 @@ export default function AdminHome({ adminInfo, onLogout }) {
   const effectiveBizRegNo = isSuper ? viewingBizRegNo : adminInfo?.bizRegNo;
 
   const handleBizLookup = async (regNo) => {
+    setBizLookupInput(regNo);
     setBizLookupError("");
     const biz = await api.biz.get(regNo);
     if (!biz) {
@@ -159,6 +161,8 @@ export default function AdminHome({ adminInfo, onLogout }) {
       <View style={s.rightCol}>
         {isSuper && (
           <BizLookupBar
+            value={bizLookupInput}
+            onChangeText={setBizLookupInput}
             onLookup={handleBizLookup}
             errorText={bizLookupError}
             resultText={viewingBizNm ? `조회중: ${viewingBizNm} (${viewingBizRegNo})` : null}
