@@ -12,10 +12,10 @@ export const s = StyleSheet.create({
   emptyText: { fontSize: font.md, color: colors.textMuted, textAlign: "center" },
 
   list: { gap: spacing["2.5"], paddingBottom: spacing["10"] },
-  dayCard: { backgroundColor: colors.bgCard, borderRadius: radius.xl, padding: spacing["3.5"], gap: spacing["2.5"], borderWidth: 1, borderColor: colors.border, borderTopWidth: 4, borderTopColor: "#008300" },
+  dayCard: { backgroundColor: colors.bgCard, borderRadius: radius.xl, padding: spacing["3.5"], gap: spacing["2.5"], borderWidth: 1, borderColor: colors.border, borderTopWidth: 4, borderTopColor: colors.slate200 },
   dayTopRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   dayLabelRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"] },
-  dayDot: { width: 10, height: 10, borderRadius: 999, backgroundColor: "#008300" },
+  dayDot: { width: 10, height: 10, borderRadius: 999, backgroundColor: colors.slate200 },
   dayLabel: { fontSize: font.lg, fontWeight: "800", color: colors.text },
   closedToggle: { flexDirection: "row", alignItems: "center", gap: spacing["2"] },
   closedToggleText: { fontSize: font.base, fontWeight: "700", color: colors.textGray },
