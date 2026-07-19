@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { View, Text, Image, ActivityIndicator } from "react-native";
+import { View, Text, Image, ActivityIndicator, TouchableOpacity, Platform } from "react-native";
 import { s } from "../../styles/admin/AdminBizQr.styles";
 import api from "../../lib/api";
 
@@ -36,6 +36,24 @@ export default function AdminBizQr({ adminInfo }) {
   const targetUrl = `${MENU_BASE_URL}/${bizRegNo}`;
   const qrUri = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(targetUrl)}`;
 
+  const downloadQr = async () => {
+    if (Platform.OS !== "web") return;
+    try {
+      const res = await fetch(qrUri);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = `${bizRegNo}_qr.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch (e) {
+      window.open(qrUri, "_blank");
+    }
+  };
+
   return (
     <View style={s.container}>
       <Text style={s.title}>사업장 QR관리</Text>
@@ -51,9 +69,10 @@ export default function AdminBizQr({ adminInfo }) {
         </View>
       </View>
 
-      <View style={s.qrBox}>
+      <TouchableOpacity style={s.qrBox} onPress={downloadQr} activeOpacity={0.8}>
         <Image source={{ uri: qrUri }} style={s.qrImage} resizeMode="contain" />
-      </View>
+      </TouchableOpacity>
+      <Text style={s.hintText}>이미지를 클릭하면 저장돼요</Text>
 
       <Text style={s.urlText}>{targetUrl}</Text>
     </View>
