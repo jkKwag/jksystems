@@ -17,6 +17,7 @@ export default function AdminMenu({ adminInfo }) {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [alertMsg, setAlertMsg] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [selectedCatCd, setSelectedCatCd] = useState(null); // null = 전체
 
   const load = async () => {
     if (!bizRegNo) { setLoaded(true); return; }
@@ -27,6 +28,7 @@ export default function AdminMenu({ adminInfo }) {
     ]);
     setMenus(Array.isArray(menuList) ? menuList : []);
     setCategories(Array.isArray(catList) ? catList : []);
+    setSelectedCatCd(null);
     setLoaded(true);
   };
 
@@ -65,6 +67,8 @@ export default function AdminMenu({ adminInfo }) {
     );
   }
 
+  const filteredMenus = selectedCatCd ? menus.filter(m => m.bizCatCd === selectedCatCd) : menus;
+
   return (
     <View style={s.container}>
       <View style={s.headerRow}>
@@ -80,13 +84,39 @@ export default function AdminMenu({ adminInfo }) {
       </View>
       <Text style={s.hintText}>메뉴 카드를 클릭하면 메뉴를 수정할 수 있어요.</Text>
 
+      {categories.length > 0 && (
+        <View style={s.catFilterRow}>
+          <TouchableOpacity
+            style={[s.catChip, !selectedCatCd && s.catChipActive]}
+            onPress={() => setSelectedCatCd(null)}
+          >
+            <Text style={[s.catChipText, !selectedCatCd && s.catChipTextActive]}>전체 {menus.length}</Text>
+          </TouchableOpacity>
+          {categories.map(c => {
+            const count = menus.filter(m => m.bizCatCd === c.bizCatCd).length;
+            const active = selectedCatCd === c.bizCatCd;
+            return (
+              <TouchableOpacity
+                key={c.bizCatCd}
+                style={[s.catChip, active && s.catChipActive]}
+                onPress={() => setSelectedCatCd(c.bizCatCd)}
+              >
+                <Text style={[s.catChipText, active && s.catChipTextActive]}>{c.bizCatNm} {count}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      )}
+
       {!loaded ? (
         <ActivityIndicator style={{ marginTop: 40 }} color="#f97316" />
-      ) : menus.length === 0 ? (
-        <View style={s.center}><Text style={s.emptyText}>등록된 메뉴가 없습니다</Text></View>
+      ) : filteredMenus.length === 0 ? (
+        <View style={s.center}>
+          <Text style={s.emptyText}>{selectedCatCd ? "해당 카테고리에 메뉴가 없습니다" : "등록된 메뉴가 없습니다"}</Text>
+        </View>
       ) : (
         <ScrollView contentContainerStyle={s.list}>
-          {menus.map(menu => (
+          {filteredMenus.map(menu => (
             <TouchableOpacity key={menu.menuCd} style={s.card} onPress={() => setFormTarget(menu)} activeOpacity={0.75}>
               {menu.imgUrl ? (
                 <Image source={{ uri: menu.imgUrl }} style={s.thumb} resizeMode="cover" />
