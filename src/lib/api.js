@@ -43,6 +43,8 @@ const api = {
   biz: {
     list: (page = 0, size = 10) => get(`/api/biz?page=${page}&size=${size}`),
     get: (bizno) => get(`/api/biz/${bizno}`),
+    create: (body) => post(`/api/biz`, body),
+    update: (bizno, body) => put(`/api/biz/${bizno}`, body),
     categories: (bizno) => get(`/api/biz/${bizno}/categories`),
     menus: (bizno) => get(`/api/biz/${bizno}/menus`),
     createMenu: (bizno, body) => post(`/api/biz/${bizno}/menus`, body),

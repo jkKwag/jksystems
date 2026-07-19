@@ -3,7 +3,10 @@ import { colors, radius, font, spacing } from "../theme";
 
 export const s = StyleSheet.create({
   container: { flex: 1, width: "100%", padding: spacing["5"] },
-  title: { fontSize: font["3xl"], fontWeight: "900", color: colors.text, marginBottom: spacing["4"] },
+  headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: spacing["4"] },
+  title: { fontSize: font["3xl"], fontWeight: "900", color: colors.text },
+  addBtn: { backgroundColor: colors.primary, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"] },
+  addBtnText: { fontSize: font.md, fontWeight: "700", color: colors.white },
 
   center: { flex: 1, justifyContent: "center", alignItems: "center", paddingVertical: spacing["10"] },
   emptyText: { fontSize: font.md, color: colors.textMuted },
