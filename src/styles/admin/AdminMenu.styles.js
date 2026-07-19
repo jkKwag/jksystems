@@ -12,8 +12,7 @@ export const s = StyleSheet.create({
   addBtnText: { fontSize: font.md, fontWeight: "700", color: colors.white },
   hintText: { fontSize: font.sm, color: colors.textMuted, marginTop: spacing["1"], marginBottom: spacing["3"] },
 
-  catFilterBox: { backgroundColor: colors.slate50, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.border, padding: spacing["3.5"], marginBottom: spacing["4"], gap: spacing["2"] },
-  catFilterLabel: { fontSize: font.sm, fontWeight: "800", color: colors.textMuted, textTransform: "uppercase", letterSpacing: 0.5 },
+  catFilterBox: { backgroundColor: colors.slate200, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.slate300, padding: spacing["3.5"], marginBottom: spacing["4"] },
   catFilterRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing["2"] },
   catChip: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"], backgroundColor: colors.bgCard },
   catChipActive: { backgroundColor: colors.primary, borderColor: colors.primary },

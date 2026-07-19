@@ -86,7 +86,6 @@ export default function AdminMenu({ adminInfo }) {
 
       {categories.length > 0 && (
         <View style={s.catFilterBox}>
-          <Text style={s.catFilterLabel}>카테고리</Text>
           <View style={s.catFilterRow}>
             <TouchableOpacity
               style={[s.catChip, !selectedCatCd && s.catChipActive]}
