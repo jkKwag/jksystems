@@ -3,8 +3,12 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator,
 import { s } from "../../styles/admin/AdminReservationStandard.styles";
 import api from "../../lib/api";
 import ConfirmModal from "../../components/ConfirmModal";
+import DurationDialField from "../../components/admin/DurationDialField";
 
-const emptyForm = { useYn: "Y", timeUnitMin: "30", useTimeMin: "90", minPartySize: "", maxPartySize: "", maxAdvanceDays: "", minAdvanceHours: "" };
+const TIME_UNIT_OPTIONS = [10, 15, 20, 30, 45, 60];
+const USE_TIME_OPTIONS = [30, 60, 90, 120, 150, 180];
+
+const emptyForm = { useYn: "Y", timeUnitMin: 30, useTimeMin: 90, minPartySize: "", maxPartySize: "", maxAdvanceDays: "", minAdvanceHours: "" };
 
 export default function AdminReservationStandard({ adminInfo }) {
   const bizRegNo = adminInfo?.bizRegNo;
@@ -22,8 +26,8 @@ export default function AdminReservationStandard({ adminInfo }) {
     const std = await api.biz.reservationStandard(bizRegNo);
     setForm(std ? {
       useYn: std.useYn || "Y",
-      timeUnitMin: std.timeUnitMin != null ? String(std.timeUnitMin) : "30",
-      useTimeMin: std.useTimeMin != null ? String(std.useTimeMin) : "90",
+      timeUnitMin: std.timeUnitMin != null ? std.timeUnitMin : 30,
+      useTimeMin: std.useTimeMin != null ? std.useTimeMin : 90,
       minPartySize: std.minPartySize != null ? String(std.minPartySize) : "",
       maxPartySize: std.maxPartySize != null ? String(std.maxPartySize) : "",
       maxAdvanceDays: std.maxAdvanceDays != null ? String(std.maxAdvanceDays) : "",
@@ -37,10 +41,8 @@ export default function AdminReservationStandard({ adminInfo }) {
   const update = (key) => (v) => setForm(f => ({ ...f, [key]: v }));
 
   const submit = async () => {
-    const timeUnitMin = Number(form.timeUnitMin);
-    const useTimeMin = Number(form.useTimeMin);
-    if (!form.timeUnitMin || Number.isNaN(timeUnitMin) || timeUnitMin <= 0) { setError("예약 시간 단위를 올바르게 입력해주세요."); return; }
-    if (!form.useTimeMin || Number.isNaN(useTimeMin) || useTimeMin <= 0) { setError("좌석 점유 시간을 올바르게 입력해주세요."); return; }
+    if (!form.timeUnitMin) { setError("예약 시간 단위를 선택해주세요."); return; }
+    if (!form.useTimeMin) { setError("좌석 점유 시간을 선택해주세요."); return; }
     const minPartySize = form.minPartySize ? Number(form.minPartySize) : null;
     const maxPartySize = form.maxPartySize ? Number(form.maxPartySize) : null;
     if (minPartySize != null && maxPartySize != null && minPartySize > maxPartySize) {
@@ -51,8 +53,8 @@ export default function AdminReservationStandard({ adminInfo }) {
     setSaving(true);
     const { error: apiError } = await api.biz.saveReservationStandard(bizRegNo, {
       useYn: form.useYn,
-      timeUnitMin,
-      useTimeMin,
+      timeUnitMin: form.timeUnitMin,
+      useTimeMin: form.useTimeMin,
       minPartySize,
       maxPartySize,
       maxAdvanceDays: form.maxAdvanceDays ? Number(form.maxAdvanceDays) : null,
@@ -97,13 +99,13 @@ export default function AdminReservationStandard({ adminInfo }) {
           <View style={s.card}>
             <Text style={s.fieldLabel}>예약 시간 단위 (분)</Text>
             <Text style={s.fieldDesc}>예: 30분 단위로 예약 슬롯을 생성합니다.</Text>
-            <TextInput style={s.inp} placeholder="30" value={form.timeUnitMin} onChangeText={update("timeUnitMin")} keyboardType="numeric" />
+            <DurationDialField label="예약 시간 단위" value={form.timeUnitMin} onChange={update("timeUnitMin")} options={TIME_UNIT_OPTIONS} />
           </View>
 
           <View style={s.card}>
             <Text style={s.fieldLabel}>좌석 점유 시간 (분)</Text>
             <Text style={s.fieldDesc}>예약 1건이 좌석을 점유하는 시간입니다.</Text>
-            <TextInput style={s.inp} placeholder="90" value={form.useTimeMin} onChangeText={update("useTimeMin")} keyboardType="numeric" />
+            <DurationDialField label="좌석 점유 시간" value={form.useTimeMin} onChange={update("useTimeMin")} options={USE_TIME_OPTIONS} />
           </View>
 
           <View style={s.card}>
