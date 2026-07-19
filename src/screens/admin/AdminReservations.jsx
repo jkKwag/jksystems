@@ -1,13 +1,40 @@
 import { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, TextInput, Modal } from "react-native";
+import { Calendar } from "react-native-calendars";
 import { s } from "../../styles/admin/AdminReservations.styles";
 import api from "../../lib/api";
 import ConfirmModal from "../../components/ConfirmModal";
 
+const pad = (n) => String(n).padStart(2, "0");
 const DAY_KR = ["일", "월", "화", "수", "목", "금", "토"];
 const formatRsvnDt = (iso) => {
   const d = new Date(iso);
-  return `${d.getMonth() + 1}/${d.getDate()}(${DAY_KR[d.getDay()]}) ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())}(${DAY_KR[d.getDay()]}) ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
+const toDateStr = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const addDays = (dateStr, n) => {
+  const d = new Date(`${dateStr}T00:00:00`);
+  d.setDate(d.getDate() + n);
+  return toDateStr(d);
+};
+const formatDateLabel = (dateStr) => {
+  const d = new Date(`${dateStr}T00:00:00`);
+  return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())}`;
+};
+
+const CAL_THEME = {
+  backgroundColor: "#1e293b",
+  calendarBackground: "#1e293b",
+  textSectionTitleColor: "#94a3b8",
+  selectedDayBackgroundColor: "#f97316",
+  selectedDayTextColor: "#fff",
+  todayTextColor: "#f97316",
+  dayTextColor: "#e2e8f0",
+  textDisabledColor: "#475569",
+  arrowColor: "#f97316",
+  monthTextColor: "#fff",
+  indicatorColor: "#f97316",
 };
 
 const STATUS_STYLE_KEY = { PENDING: "statusPending", CONFIRMED: "statusConfirmed", REJECTED: "statusRejected", CANCELLED: "statusCancelled", COMPLETED: "statusCompleted" };
@@ -17,6 +44,7 @@ const sortReservations = (list) => [...list].sort((a, b) => new Date(b.rsvnDt) -
 
 export default function AdminReservations({ adminInfo }) {
   const bizRegNo = adminInfo?.bizRegNo;
+  const todayStr = toDateStr(new Date());
 
   const [loaded, setLoaded] = useState(false);
   const [reservations, setReservations] = useState([]);
@@ -26,12 +54,15 @@ export default function AdminReservations({ adminInfo }) {
   const [rejectReason, setRejectReason] = useState("");
   const [confirmCompleteRsvnNo, setConfirmCompleteRsvnNo] = useState(null);
   const [alertMsg, setAlertMsg] = useState(null);
+  const [dateFrom, setDateFrom] = useState(addDays(todayStr, -1));
+  const [dateTo, setDateTo] = useState(todayStr);
+  const [calTarget, setCalTarget] = useState(null); // null | "from" | "to"
 
-  const load = async () => {
+  const load = async (from = dateFrom, to = dateTo) => {
     if (!bizRegNo) { setLoaded(true); return; }
     setLoaded(false);
     const [list, statusCodes] = await Promise.all([
-      api.reservation.listByBiz(bizRegNo),
+      api.reservation.listByBiz(bizRegNo, null, from, to),
       api.commonCode.list("RSVN_STATUS"),
     ]);
     setReservations(sortReservations(Array.isArray(list) ? list : []));
@@ -42,6 +73,20 @@ export default function AdminReservations({ adminInfo }) {
   };
 
   useEffect(() => { load(); }, [bizRegNo]);
+
+  const pickDate = (dateString) => {
+    if (calTarget === "from") {
+      const nextFrom = dateString > dateTo ? dateTo : dateString;
+      setDateFrom(nextFrom);
+      setCalTarget(null);
+      load(nextFrom, dateTo);
+    } else if (calTarget === "to") {
+      const nextTo = dateString < dateFrom ? dateFrom : dateString;
+      setDateTo(nextTo);
+      setCalTarget(null);
+      load(dateFrom, nextTo);
+    }
+  };
 
   const approve = async (rsvnNo) => {
     setBusyRsvnNo(rsvnNo);
@@ -84,10 +129,38 @@ export default function AdminReservations({ adminInfo }) {
     <View style={s.container}>
       <View style={s.headerRow}>
         <Text style={s.title}>예약 승인/거절</Text>
-        <TouchableOpacity style={s.refreshBtn} onPress={load}>
+        <TouchableOpacity style={s.refreshBtn} onPress={() => load()}>
           <Text style={s.refreshBtnText}>새로고침</Text>
         </TouchableOpacity>
       </View>
+
+      <View style={s.dateRangeRow}>
+        <TouchableOpacity style={s.dateField} onPress={() => setCalTarget("from")}>
+          <Text style={s.dateFieldText}>📅 {formatDateLabel(dateFrom)}</Text>
+        </TouchableOpacity>
+        <Text style={s.dateRangeSep}>~</Text>
+        <TouchableOpacity style={s.dateField} onPress={() => setCalTarget("to")}>
+          <Text style={s.dateFieldText}>📅 {formatDateLabel(dateTo)}</Text>
+        </TouchableOpacity>
+      </View>
+
+      {calTarget && (
+        <Modal visible transparent animationType="fade" onRequestClose={() => setCalTarget(null)}>
+          <TouchableOpacity style={s.calOverlay} activeOpacity={1} onPress={() => setCalTarget(null)}>
+            <View style={s.calBox}>
+              <Calendar
+                current={calTarget === "from" ? dateFrom : dateTo}
+                maxDate={todayStr}
+                onDayPress={(day) => pickDate(day.dateString)}
+                markedDates={{
+                  [calTarget === "from" ? dateFrom : dateTo]: { selected: true, selectedColor: "#f97316" },
+                }}
+                theme={CAL_THEME}
+              />
+            </View>
+          </TouchableOpacity>
+        </Modal>
+      )}
 
       {!loaded ? (
         <ActivityIndicator style={{ marginTop: 40 }} color="#f97316" />

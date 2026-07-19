@@ -85,7 +85,10 @@ const api = {
   },
   reservation: {
     list: (uuid) => get(`/api/reservation?uuid=${uuid}`),
-    listByBiz: (bizRegNo, date) => get(`/api/reservation/biz/${bizRegNo}${date ? `?date=${date}` : ""}`),
+    listByBiz: (bizRegNo, date, from, to) => {
+      if (from && to) return get(`/api/reservation/biz/${bizRegNo}?from=${from}&to=${to}`);
+      return get(`/api/reservation/biz/${bizRegNo}${date ? `?date=${date}` : ""}`);
+    },
     get: (rsvnNo) => get(`/api/reservation/${rsvnNo}`),
     post: (body) => post(`/api/reservation`, body),
     put: (rsvnNo, body) => put(`/api/reservation/${rsvnNo}`, body),
@@ -115,7 +118,7 @@ const api = {
     confirm: (body) => post(`/api/payment/confirm`, body),
     get: (paymentKey) => get(`/api/payment/${paymentKey}`),
     list: (uuid) => get(`/api/payment?uuid=${uuid}`),
-    listByBiz: (bizRegNo) => get(`/api/payment/biz/${bizRegNo}`),
+    listByBiz: (bizRegNo, from, to) => get(`/api/payment/biz/${bizRegNo}${from && to ? `?from=${from}&to=${to}` : ""}`),
   },
 };
 

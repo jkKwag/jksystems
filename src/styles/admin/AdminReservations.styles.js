@@ -8,6 +8,14 @@ export const s = StyleSheet.create({
   refreshBtn: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"] },
   refreshBtnText: { fontSize: font.md, fontWeight: "700", color: colors.textGray },
 
+  dateRangeRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"], marginBottom: spacing["4"] },
+  dateField: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["2"], backgroundColor: colors.bgCard },
+  dateFieldText: { fontSize: font.md, fontWeight: "700", color: colors.text },
+  dateRangeSep: { fontSize: font.md, fontWeight: "700", color: colors.textMuted },
+
+  calOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.7)", justifyContent: "center", alignItems: "center", padding: spacing["5"] },
+  calBox: { width: "100%", maxWidth: 360, borderRadius: radius["2xl"], overflow: "hidden", backgroundColor: colors.slate800 },
+
   center: { flex: 1, justifyContent: "center", alignItems: "center", paddingVertical: spacing["10"] },
   emptyText: { fontSize: font.md, color: colors.textMuted, textAlign: "center" },
 
