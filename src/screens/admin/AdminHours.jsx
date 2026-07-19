@@ -30,29 +30,48 @@ const timeSelectStyle = {
   fontFamily: "inherit",
 };
 
-function TimeField({ label, value, onChange }) {
+function HourMinuteSelect({ value, onChange }) {
   const [h, m] = value ? value.split(":") : ["", ""];
 
   const setHour = (nh) => onChange(nh ? `${nh}:${m || "00"}` : "");
   const setMinute = (nm) => { if (h) onChange(`${h}:${nm}`); };
 
+  if (Platform.OS !== "web") {
+    return <Text style={s.timeInp}>{value || "-"}</Text>;
+  }
+
+  return (
+    <View style={s.timeSelectRow}>
+      <select value={h} onChange={(e) => setHour(e.target.value)} style={timeSelectStyle}>
+        <option value="">--</option>
+        {HOURS.map(hh => <option key={hh} value={hh}>{hh}시</option>)}
+      </select>
+      <select value={m} onChange={(e) => setMinute(e.target.value)} style={timeSelectStyle} disabled={!h}>
+        <option value="">--</option>
+        {MINUTES.map(mm => <option key={mm} value={mm}>{mm}분</option>)}
+      </select>
+    </View>
+  );
+}
+
+function TimeField({ label, value, onChange }) {
   return (
     <View style={s.timeField}>
       <Text style={s.timeLabel}>{label}</Text>
-      {Platform.OS === "web" ? (
-        <View style={s.timeSelectRow}>
-          <select value={h} onChange={(e) => setHour(e.target.value)} style={timeSelectStyle}>
-            <option value="">--</option>
-            {HOURS.map(hh => <option key={hh} value={hh}>{hh}시</option>)}
-          </select>
-          <select value={m} onChange={(e) => setMinute(e.target.value)} style={timeSelectStyle} disabled={!h}>
-            <option value="">--</option>
-            {MINUTES.map(mm => <option key={mm} value={mm}>{mm}분</option>)}
-          </select>
-        </View>
-      ) : (
-        <Text style={s.timeInp}>{value || "-"}</Text>
-      )}
+      <HourMinuteSelect value={value} onChange={onChange} />
+    </View>
+  );
+}
+
+function TimeRangeField({ label, startValue, endValue, onChangeStart, onChangeEnd }) {
+  return (
+    <View style={s.rangeBox}>
+      <Text style={s.timeLabel}>{label}</Text>
+      <View style={s.rangeRow}>
+        <View style={s.rangeField}><HourMinuteSelect value={startValue} onChange={onChangeStart} /></View>
+        <Text style={s.rangeTilde}>~</Text>
+        <View style={s.rangeField}><HourMinuteSelect value={endValue} onChange={onChangeEnd} /></View>
+      </View>
     </View>
   );
 }
@@ -149,14 +168,20 @@ export default function AdminHours({ adminInfo }) {
 
                 {!closed && (
                   <>
-                    <View style={s.timeRow}>
-                      <TimeField label="영업시작" value={d.openTime} onChange={(v) => updateDay(day, "openTime", v)} />
-                      <TimeField label="영업종료" value={d.closeTime} onChange={(v) => updateDay(day, "closeTime", v)} />
-                    </View>
-                    <View style={s.timeRow}>
-                      <TimeField label="브레이크 시작" value={d.breakStartTime} onChange={(v) => updateDay(day, "breakStartTime", v)} />
-                      <TimeField label="브레이크 종료" value={d.breakEndTime} onChange={(v) => updateDay(day, "breakEndTime", v)} />
-                    </View>
+                    <TimeRangeField
+                      label="영업시간"
+                      startValue={d.openTime}
+                      endValue={d.closeTime}
+                      onChangeStart={(v) => updateDay(day, "openTime", v)}
+                      onChangeEnd={(v) => updateDay(day, "closeTime", v)}
+                    />
+                    <TimeRangeField
+                      label="브레이크타임"
+                      startValue={d.breakStartTime}
+                      endValue={d.breakEndTime}
+                      onChangeStart={(v) => updateDay(day, "breakStartTime", v)}
+                      onChangeEnd={(v) => updateDay(day, "breakEndTime", v)}
+                    />
                     <View style={s.timeRow}>
                       <TimeField label="라스트오더" value={d.lastOrderTime} onChange={(v) => updateDay(day, "lastOrderTime", v)} />
                     </View>

@@ -24,6 +24,11 @@ export const s = StyleSheet.create({
   timeSelectRow: { flexDirection: "row", gap: spacing["1.5"] },
   timeInp: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: spacing["2.5"], paddingVertical: spacing["3"], fontSize: font.md, color: colors.text },
 
+  rangeBox: { backgroundColor: colors.slate50, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, padding: spacing["3"] },
+  rangeRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"] },
+  rangeField: { flex: 1 },
+  rangeTilde: { fontSize: font.md, fontWeight: "700", color: colors.textMuted },
+
   error: { fontSize: font.sm, color: "#ef4444", fontWeight: "600", marginBottom: spacing["2"] },
 
   saveBtn: { backgroundColor: colors.primary, borderRadius: radius.md, paddingVertical: spacing["3"], alignItems: "center", marginTop: spacing["2"] },
