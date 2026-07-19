@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, Image, ActivityIndicator } from "react-native";
+import { View, Text, Image, ActivityIndicator } from "react-native";
 import { s } from "../../styles/admin/AdminBizQr.styles";
 import api from "../../lib/api";
 
@@ -10,10 +10,8 @@ export default function AdminBizQr({ adminInfo }) {
 
   const [loaded, setLoaded] = useState(false);
   const [biz, setBiz] = useState(null);
-  const [qrUri, setQrUri] = useState(null);
 
   useEffect(() => {
-    setQrUri(null);
     if (!bizRegNo) { setBiz(null); setLoaded(true); return; }
     setLoaded(false);
     (async () => {
@@ -36,10 +34,7 @@ export default function AdminBizQr({ adminInfo }) {
   }
 
   const targetUrl = `${MENU_BASE_URL}/${bizRegNo}`;
-
-  const generateQr = () => {
-    setQrUri(`https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(targetUrl)}`);
-  };
+  const qrUri = `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(targetUrl)}`;
 
   return (
     <View style={s.container}>
@@ -57,21 +52,10 @@ export default function AdminBizQr({ adminInfo }) {
       </View>
 
       <View style={s.qrBox}>
-        {qrUri ? (
-          <Image source={{ uri: qrUri }} style={s.qrImage} resizeMode="contain" />
-        ) : (
-          <View style={s.qrPlaceholder}>
-            <Text style={s.qrPlaceholderIcon}>🖼️</Text>
-            <Text style={s.qrPlaceholderText}>생성된 QR이 없습니다</Text>
-          </View>
-        )}
+        <Image source={{ uri: qrUri }} style={s.qrImage} resizeMode="contain" />
       </View>
 
       <Text style={s.urlText}>{targetUrl}</Text>
-
-      <TouchableOpacity style={s.genBtn} onPress={generateQr}>
-        <Text style={s.genBtnText}>QR 생성</Text>
-      </TouchableOpacity>
     </View>
   );
 }

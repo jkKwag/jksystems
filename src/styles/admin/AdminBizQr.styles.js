@@ -15,12 +15,6 @@ export const s = StyleSheet.create({
 
   qrBox: { width: 280, height: 280, alignItems: "center", justifyContent: "center", backgroundColor: colors.bgCard, borderRadius: radius["2xl"], borderWidth: 1, borderColor: colors.border, marginBottom: spacing["4"] },
   qrImage: { width: 240, height: 240 },
-  qrPlaceholder: { alignItems: "center", justifyContent: "center", width: "100%", height: "100%", borderRadius: radius["2xl"], borderWidth: 2, borderColor: colors.borderLight, borderStyle: "dashed" },
-  qrPlaceholderIcon: { fontSize: 40, marginBottom: spacing["2"] },
-  qrPlaceholderText: { fontSize: font.base, fontWeight: "700", color: colors.textMuted },
 
   urlText: { fontSize: font.sm, color: colors.textSecondary, marginBottom: spacing["4"], textAlign: "center" },
-
-  genBtn: { backgroundColor: colors.primary, borderRadius: radius.md, paddingHorizontal: spacing["6"], paddingVertical: spacing["3"] },
-  genBtnText: { fontSize: font.md, fontWeight: "800", color: colors.white },
 });
