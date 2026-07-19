@@ -12,7 +12,8 @@ const toHHMM = (v) => (v ? v.slice(0, 5) : "");
 
 const emptyDay = () => ({ isClosed: "N", openTime: "", closeTime: "", breakStartTime: "", breakEndTime: "", lastOrderTime: "" });
 
-// 브라우저 기본 시간 선택 UI(모바일: 휠/시계 피커, 데스크탑: 시/분 스피너) 사용
+// 브라우저 기본 시간 선택 UI(모바일: 휠/시계 피커, 데스크탑: 시/분 스피너) 사용.
+// 브라우저 기본 파란색(accent-color/포커스 링) 대신 scaneat 톤으로 맞춤
 const nativeTimeInputStyle = {
   borderWidth: 1,
   borderColor: colors.borderLight,
@@ -25,13 +26,26 @@ const nativeTimeInputStyle = {
   width: "100%",
   boxSizing: "border-box",
   fontFamily: "inherit",
+  accentColor: colors.accent,
+  outline: "none",
 };
 
 function HourMinuteSelect({ value, onChange }) {
+  const [focused, setFocused] = useState(false);
+
   if (Platform.OS !== "web") {
     return <Text style={s.timeInp}>{value || "-"}</Text>;
   }
-  return <input type="time" value={value || ""} onChange={(e) => onChange(e.target.value)} style={nativeTimeInputStyle} />;
+  return (
+    <input
+      type="time"
+      value={value || ""}
+      onChange={(e) => onChange(e.target.value)}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+      style={{ ...nativeTimeInputStyle, borderColor: focused ? colors.accent : colors.borderLight }}
+    />
+  );
 }
 
 function TimeField({ label, value, onChange }) {
