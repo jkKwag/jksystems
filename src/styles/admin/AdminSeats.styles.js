@@ -10,7 +10,14 @@ export const s = StyleSheet.create({
   refreshBtnText: { fontSize: font.md, fontWeight: "700", color: colors.textGray },
   addBtn: { backgroundColor: colors.primary, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"] },
   addBtnText: { fontSize: font.md, fontWeight: "700", color: colors.white },
-  hintText: { fontSize: font.sm, color: colors.textMuted, marginTop: spacing["1"], marginBottom: spacing["4"] },
+  hintText: { fontSize: font.sm, color: colors.textMuted, marginTop: spacing["1"], marginBottom: spacing["3"] },
+
+  capFilterBox: { backgroundColor: colors.slate200, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.slate300, padding: spacing["3.5"], marginBottom: spacing["4"] },
+  capFilterRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing["2"] },
+  capChip: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"], backgroundColor: colors.bgCard },
+  capChipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+  capChipText: { fontSize: font.base, fontWeight: "700", color: colors.textGray },
+  capChipTextActive: { color: colors.white },
 
   center: { flex: 1, justifyContent: "center", alignItems: "center", paddingVertical: spacing["10"] },
   emptyText: { fontSize: font.md, color: colors.textMuted, textAlign: "center" },

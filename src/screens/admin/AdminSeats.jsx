@@ -14,12 +14,14 @@ export default function AdminSeats({ adminInfo }) {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [alertMsg, setAlertMsg] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [selectedCapacity, setSelectedCapacity] = useState(null); // null = 전체
 
   const load = async () => {
     if (!bizRegNo) { setLoaded(true); return; }
     setLoaded(false);
     const list = await api.biz.seatsAdmin(bizRegNo);
     setSeats(Array.isArray(list) ? list : []);
+    setSelectedCapacity(null);
     setLoaded(true);
   };
 
@@ -56,6 +58,9 @@ export default function AdminSeats({ adminInfo }) {
     );
   }
 
+  const capacities = [...new Set(seats.map(v => v.capacity))].sort((a, b) => a - b);
+  const filteredSeats = selectedCapacity != null ? seats.filter(v => v.capacity === selectedCapacity) : seats;
+
   return (
     <View style={s.container}>
       <View style={s.headerRow}>
@@ -71,13 +76,41 @@ export default function AdminSeats({ adminInfo }) {
       </View>
       <Text style={s.hintText}>좌석 카드를 클릭하면 수정할 수 있어요.</Text>
 
+      {capacities.length > 0 && (
+        <View style={s.capFilterBox}>
+          <View style={s.capFilterRow}>
+            <TouchableOpacity
+              style={[s.capChip, selectedCapacity == null && s.capChipActive]}
+              onPress={() => setSelectedCapacity(null)}
+            >
+              <Text style={[s.capChipText, selectedCapacity == null && s.capChipTextActive]}>전체 {seats.length}</Text>
+            </TouchableOpacity>
+            {capacities.map(cap => {
+              const count = seats.filter(v => v.capacity === cap).length;
+              const active = selectedCapacity === cap;
+              return (
+                <TouchableOpacity
+                  key={cap}
+                  style={[s.capChip, active && s.capChipActive]}
+                  onPress={() => setSelectedCapacity(cap)}
+                >
+                  <Text style={[s.capChipText, active && s.capChipTextActive]}>{cap}인 {count}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+      )}
+
       {!loaded ? (
         <ActivityIndicator style={{ marginTop: 40 }} color="#f97316" />
-      ) : seats.length === 0 ? (
-        <View style={s.center}><Text style={s.emptyText}>등록된 좌석이 없습니다</Text></View>
+      ) : filteredSeats.length === 0 ? (
+        <View style={s.center}>
+          <Text style={s.emptyText}>{selectedCapacity != null ? "해당 인원의 좌석이 없습니다" : "등록된 좌석이 없습니다"}</Text>
+        </View>
       ) : (
         <ScrollView contentContainerStyle={s.list}>
-          {seats.map(seat => (
+          {filteredSeats.map(seat => (
             <TouchableOpacity key={seat.seatCd} style={s.card} onPress={() => setFormTarget(seat)} activeOpacity={0.75}>
               {seat.imgUrl ? (
                 <Image source={{ uri: seat.imgUrl }} style={s.thumb} resizeMode="cover" />
