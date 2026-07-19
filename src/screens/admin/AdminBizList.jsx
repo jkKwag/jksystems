@@ -5,13 +5,14 @@ import api from "../../lib/api";
 import ConfirmModal from "../../components/ConfirmModal";
 
 const PAGE_SIZE = 10;
-const emptyForm = { bizRegNo: "", bizNm: "", repNm: "", telNo: "", indCd: "", addr: "", addrDtl: "" };
+const emptyForm = { bizRegNo: "", bizNm: "", repNm: "", telNo: "", emailAddr: "", indCd: "", addr: "", addrDtl: "" };
 
 const toForm = (biz) => ({
   bizRegNo: biz?.bizRegNo || "",
   bizNm: biz?.bizNm || "",
   repNm: biz?.repNm || "",
   telNo: biz?.telNo || "",
+  emailAddr: biz?.emailAddr || "",
   indCd: biz?.indCd || "",
   addr: biz?.addr || "",
   addrDtl: biz?.addrDtl || "",
@@ -95,6 +96,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
       bizRegNo: form.bizRegNo.trim(),
       bizNm: form.bizNm.trim(),
       telNo: form.telNo.trim() || null,
+      emailAddr: form.emailAddr.trim() || null,
       indCd: form.indCd || null,
       addr: form.addr.trim() || null,
       addrDtl: form.addrDtl.trim() || null,
@@ -116,7 +118,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
     <View style={s.editSection}>
       {expandedKey === "__new__" && (
         <View style={s.fieldRow}>
-          <Text style={s.fieldLabel}>사업자등록번호</Text>
+          <Text style={s.fieldLabel}>· 사업자등록번호</Text>
           <TextInput
             style={s.fieldInp}
             placeholder="숫자만 입력 (예: 2122544531)"
@@ -127,28 +129,32 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
         </View>
       )}
       <View style={s.fieldRow}>
-        <Text style={s.fieldLabel}>사업장명</Text>
+        <Text style={s.fieldLabel}>· 사업장명</Text>
         <TextInput style={s.fieldInp} placeholder="사업장명 입력" value={form.bizNm} onChangeText={update("bizNm")} />
       </View>
       {expandedKey === "__new__" ? (
         <View style={s.fieldRow}>
-          <Text style={s.fieldLabel}>대표자명</Text>
+          <Text style={s.fieldLabel}>· 대표자명</Text>
           <TextInput style={s.fieldInp} placeholder="대표자명 입력" value={form.repNm} onChangeText={update("repNm")} />
         </View>
       ) : (
         <View style={s.fieldRow}>
-          <Text style={s.fieldLabel}>대표자명</Text>
+          <Text style={s.fieldLabel}>· 대표자명</Text>
           <View style={s.readonlyBox}>
             <Text style={s.readonlyText}>{biz?.repNm || "-"}</Text>
           </View>
         </View>
       )}
       <View style={s.fieldRow}>
-        <Text style={s.fieldLabel}>전화번호</Text>
+        <Text style={s.fieldLabel}>· 전화번호</Text>
         <TextInput style={s.fieldInp} placeholder="선택" value={form.telNo} onChangeText={update("telNo")} keyboardType="phone-pad" />
       </View>
       <View style={s.fieldRow}>
-        <Text style={s.fieldLabel}>업종</Text>
+        <Text style={s.fieldLabel}>· 이메일</Text>
+        <TextInput style={s.fieldInp} placeholder="선택" value={form.emailAddr} onChangeText={update("emailAddr")} keyboardType="email-address" autoCapitalize="none" />
+      </View>
+      <View style={s.fieldRow}>
+        <Text style={s.fieldLabel}>· 업종</Text>
         <View style={s.readonlyBox}>
           <Text style={s.readonlyText}>
             {industries.find(ind => ind.indCd === form.indCd)?.indNm || "미지정"}
@@ -157,7 +163,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
       </View>
       {biz && (
         <View style={s.fieldRow}>
-          <Text style={s.fieldLabel}>영업상태</Text>
+          <Text style={s.fieldLabel}>· 영업상태</Text>
           <View style={s.readonlyBox}>
             <Text style={s.readonlyText}>
               {oprSttCodes.find(c => c.cd === biz.bizStatus)?.cdNm || biz.bizStatus || "-"}
@@ -166,11 +172,11 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
         </View>
       )}
       <View style={s.fieldRow}>
-        <Text style={s.fieldLabel}>주소</Text>
+        <Text style={s.fieldLabel}>· 주소</Text>
         <TextInput style={s.fieldInp} placeholder="선택" value={form.addr} onChangeText={update("addr")} />
       </View>
       <View style={s.fieldRow}>
-        <Text style={s.fieldLabel}>상세주소</Text>
+        <Text style={s.fieldLabel}>· 상세주소</Text>
         <TextInput style={s.fieldInp} placeholder="선택" value={form.addrDtl} onChangeText={update("addrDtl")} />
       </View>
 
