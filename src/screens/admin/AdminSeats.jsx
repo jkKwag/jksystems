@@ -83,10 +83,9 @@ export default function AdminSeats({ adminInfo }) {
               style={[s.capChip, selectedCapacity == null && s.capChipActive]}
               onPress={() => setSelectedCapacity(null)}
             >
-              <Text style={[s.capChipText, selectedCapacity == null && s.capChipTextActive]}>전체 {seats.length}</Text>
+              <Text style={[s.capChipText, selectedCapacity == null && s.capChipTextActive]}>전체</Text>
             </TouchableOpacity>
             {capacities.map(cap => {
-              const count = seats.filter(v => v.capacity === cap).length;
               const active = selectedCapacity === cap;
               return (
                 <TouchableOpacity
@@ -94,7 +93,7 @@ export default function AdminSeats({ adminInfo }) {
                   style={[s.capChip, active && s.capChipActive]}
                   onPress={() => setSelectedCapacity(cap)}
                 >
-                  <Text style={[s.capChipText, active && s.capChipTextActive]}>{cap}인 {count}</Text>
+                  <Text style={[s.capChipText, active && s.capChipTextActive]}>{cap}인</Text>
                 </TouchableOpacity>
               );
             })}
