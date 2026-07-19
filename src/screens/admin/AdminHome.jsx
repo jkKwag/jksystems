@@ -4,6 +4,7 @@ import { s } from "../../styles/admin/AdminHome.styles";
 import api from "../../lib/api";
 import AdminReservations from "./AdminReservations";
 import AdminBizList from "./AdminBizList";
+import AdminBizQr from "./AdminBizQr";
 import AdminOrders from "./AdminOrders";
 import AdminPayments from "./AdminPayments";
 import AdminMenu from "./AdminMenu";
@@ -25,6 +26,7 @@ const HEADER_GRADIENT = Platform.OS === "web"
 const MENU_SCREENS = {
   "/admin/reservations": AdminReservations,
   "/admin/biz": AdminBizList,
+  "/admin/biz-qr": AdminBizQr,
   "/admin/orders": AdminOrders,
   "/admin/payments": AdminPayments,
   "/admin/menu": AdminMenu,
