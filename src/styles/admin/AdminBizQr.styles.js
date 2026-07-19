@@ -13,7 +13,7 @@ export const s = StyleSheet.create({
   infoLabel: { fontSize: font.base, fontWeight: "700", color: colors.textGray },
   infoValue: { fontSize: font.md, fontWeight: "800", color: colors.text },
 
-  qrBox: { width: 280, height: 280, alignItems: "center", justifyContent: "center", backgroundColor: colors.bgCard, borderRadius: radius["2xl"], borderWidth: 1, borderColor: colors.border, marginBottom: spacing["2"] },
+  qrBox: { width: "100%", maxWidth: 360, height: 280, alignItems: "center", justifyContent: "center", backgroundColor: colors.bgCard, borderRadius: radius["2xl"], borderWidth: 1, borderColor: colors.border, marginBottom: spacing["2"] },
   qrImage: { width: 240, height: 240 },
   hintText: { fontSize: font.sm, color: colors.textMuted, marginBottom: spacing["3"] },
 
