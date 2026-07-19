@@ -14,7 +14,6 @@ import AdminDashboard from "./AdminDashboard";
 import BizLookupBar from "../../components/admin/BizLookupBar";
 import ConfirmModal from "../../components/ConfirmModal";
 
-const ROLE_LABEL = { SUPER: "최종관리자", BIZ: "사업자관리자" };
 const MOBILE_BREAKPOINT = 768;
 const DASHBOARD_URL = "/admin/dashboard";
 
@@ -160,10 +159,7 @@ export default function AdminHome({ adminInfo, onLogout }) {
           )}
         </View>
         {isSuper && (
-          <>
-            <Text style={s.adminNm}>{adminInfo?.adminNm || adminInfo?.adminId}</Text>
-            <Text style={s.roleBadge}>{ROLE_LABEL[adminInfo?.adminRole] || adminInfo?.adminRole}</Text>
-          </>
+          <Text style={s.adminNm}>{adminInfo?.adminNm || adminInfo?.adminId}</Text>
         )}
       </View>
       <ScrollView style={s.menuScroll} contentContainerStyle={{ paddingVertical: 8 }}>
