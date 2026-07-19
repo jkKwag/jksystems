@@ -12,13 +12,8 @@ const formatRsvnDt = (iso) => {
 
 const STATUS_STYLE_KEY = { PENDING: "statusPending", CONFIRMED: "statusConfirmed", REJECTED: "statusRejected", CANCELLED: "statusCancelled", COMPLETED: "statusCompleted" };
 const isPast = (iso) => new Date(iso) <= new Date();
-const STATUS_SORT_PRIORITY = { PENDING: 0, CONFIRMED: 1 };
-const sortReservations = (list) => [...list].sort((a, b) => {
-  const pa = STATUS_SORT_PRIORITY[a.rsvnStatus] ?? 2;
-  const pb = STATUS_SORT_PRIORITY[b.rsvnStatus] ?? 2;
-  if (pa !== pb) return pa - pb;
-  return new Date(a.rsvnDt) - new Date(b.rsvnDt);
-});
+// 상태 상관없이 예약일시가 가장 최근(미래로 가장 늦은) 순으로 정렬
+const sortReservations = (list) => [...list].sort((a, b) => new Date(b.rsvnDt) - new Date(a.rsvnDt));
 
 export default function AdminReservations({ adminInfo }) {
   const bizRegNo = adminInfo?.bizRegNo;

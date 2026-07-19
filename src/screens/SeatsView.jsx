@@ -68,14 +68,8 @@ const formatRsvnDt = (iso) => {
 // 라벨(예: "예약대기")은 공통코드(RSVN_STATUS)에서 받아오고, 색상 매핑만 화면단에서 유지
 const STATUS_STYLE_KEY = { PENDING: "statusPending", CONFIRMED: "statusConfirmed", REJECTED: "statusRejected", CANCELLED: "statusCancelled", COMPLETED: "statusCompleted" };
 
-// 예약확정 > 예약대기 > 나머지(취소/반려/완료) 순으로 정렬, 같은 우선순위 안에서는 최신 예약일시 순
-const STATUS_SORT_PRIORITY = { CONFIRMED: 0, PENDING: 1 };
-const sortReservations = (list) => [...list].sort((a, b) => {
-  const pa = STATUS_SORT_PRIORITY[a.rsvnStatus] ?? 2;
-  const pb = STATUS_SORT_PRIORITY[b.rsvnStatus] ?? 2;
-  if (pa !== pb) return pa - pb;
-  return new Date(b.rsvnDt) - new Date(a.rsvnDt);
-});
+// 상태 상관없이 예약일시가 가장 최근(미래로 가장 늦은) 순으로 정렬
+const sortReservations = (list) => [...list].sort((a, b) => new Date(b.rsvnDt) - new Date(a.rsvnDt));
 
 export default function SeatsView({ visible, onClose, bizno }) {
   const today = new Date().toISOString().split("T")[0];
