@@ -18,7 +18,6 @@ export const s = StyleSheet.create({
   closedToggle: { flexDirection: "row", alignItems: "center", gap: spacing["2"] },
   closedToggleText: { fontSize: font.base, fontWeight: "700", color: colors.textGray },
 
-  timeRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing["2.5"] },
   timeLabel: { fontSize: font.sm, fontWeight: "700", color: colors.textMuted, marginBottom: 4 },
 
   rangeBox: { backgroundColor: colors.bgCard, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.borderLight, padding: spacing["3"] },

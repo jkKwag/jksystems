@@ -108,7 +108,7 @@ export default function AdminHours({ adminInfo }) {
             return (
               <View key={day} style={s.dayCard}>
                 <View style={s.dayTopRow}>
-                  <Text style={s.dayLabel}>{DAY_LABEL[day]}</Text>
+                  <Text style={s.dayLabel}>🗓️ {DAY_LABEL[day]}</Text>
                   <View style={s.closedToggle}>
                     <Text style={s.closedToggleText}>휴무</Text>
                     <Switch value={closed} onValueChange={(v) => updateDay(day, "isClosed", v ? "Y" : "N")} />
@@ -131,8 +131,9 @@ export default function AdminHours({ adminInfo }) {
                       onChangeStart={(v) => updateDay(day, "breakStartTime", v)}
                       onChangeEnd={(v) => updateDay(day, "breakEndTime", v)}
                     />
-                    <View style={s.timeRow}>
-                      <TimeField label="라스트오더" value={d.lastOrderTime} onChange={(v) => updateDay(day, "lastOrderTime", v)} />
+                    <View style={s.rangeBox}>
+                      <Text style={s.timeLabel}>라스트오더</Text>
+                      <TimeField label="라스트오더" value={d.lastOrderTime} onChange={(v) => updateDay(day, "lastOrderTime", v)} hideLabel />
                     </View>
                   </>
                 )}
