@@ -85,26 +85,29 @@ export default function AdminMenu({ adminInfo }) {
       <Text style={s.hintText}>메뉴 카드를 클릭하면 메뉴를 수정할 수 있어요.</Text>
 
       {categories.length > 0 && (
-        <View style={s.catFilterRow}>
-          <TouchableOpacity
-            style={[s.catChip, !selectedCatCd && s.catChipActive]}
-            onPress={() => setSelectedCatCd(null)}
-          >
-            <Text style={[s.catChipText, !selectedCatCd && s.catChipTextActive]}>전체 {menus.length}</Text>
-          </TouchableOpacity>
-          {categories.map(c => {
-            const count = menus.filter(m => m.bizCatCd === c.bizCatCd).length;
-            const active = selectedCatCd === c.bizCatCd;
-            return (
-              <TouchableOpacity
-                key={c.bizCatCd}
-                style={[s.catChip, active && s.catChipActive]}
-                onPress={() => setSelectedCatCd(c.bizCatCd)}
-              >
-                <Text style={[s.catChipText, active && s.catChipTextActive]}>{c.bizCatNm} {count}</Text>
-              </TouchableOpacity>
-            );
-          })}
+        <View style={s.catFilterBox}>
+          <Text style={s.catFilterLabel}>카테고리</Text>
+          <View style={s.catFilterRow}>
+            <TouchableOpacity
+              style={[s.catChip, !selectedCatCd && s.catChipActive]}
+              onPress={() => setSelectedCatCd(null)}
+            >
+              <Text style={[s.catChipText, !selectedCatCd && s.catChipTextActive]}>전체 {menus.length}</Text>
+            </TouchableOpacity>
+            {categories.map(c => {
+              const count = menus.filter(m => m.bizCatCd === c.bizCatCd).length;
+              const active = selectedCatCd === c.bizCatCd;
+              return (
+                <TouchableOpacity
+                  key={c.bizCatCd}
+                  style={[s.catChip, active && s.catChipActive]}
+                  onPress={() => setSelectedCatCd(c.bizCatCd)}
+                >
+                  <Text style={[s.catChipText, active && s.catChipTextActive]}>{c.bizCatNm} {count}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
       )}
 
