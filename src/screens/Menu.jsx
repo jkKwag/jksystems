@@ -236,51 +236,18 @@ const formatOptions = (labels) => {
   return labels.join(" · ");
 };
 
-// 저장소(디버그) 화면에서 ts(에폭 밀리초)를 눈으로 바로 읽을 수 있도록 한국시간 문자열도 같이 저장
-const toKstString = (ms) => new Date(ms).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" });
-const saveTableInfo = (bizno, tableNo) => {
-  const now = Date.now();
-  localStorage.setItem(`scaneat_table_${bizno}`, JSON.stringify({ tableNo, ts: now, tsKst: toKstString(now) }));
-};
-
 export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
   const [activeCat, setActiveCat] = useState("전체");
   const [categories, setCategories] = useState(["전체"]);
   const [menuItems, setMenuItems] = useState([]);
   const [bizInfo, setBizInfo] = useState(null);
   const [imgErrors, setImgErrors] = useState({});
-  // QR로 처음 들어올 때만 URL에 테이블번호가 붙어있고, 이후 새로고침/이동
-  // 시엔 사라지므로 한 번 들어오면 매장별로 저장해두고 계속 사용한다.
-  // 단, 2시간 동안 활동(방문)이 없으면 다른 손님 자리일 수 있으니 초기화한다.
-  const TABLE_EXPIRY_MS = 2 * 60 * 60 * 1000;
+  // QR에 테이블번호가 붙어있는 세션에서만 사용. 새로고침/이동 시 URL의
+  // 쿼리파라미터가 사라지면 그대로 초기화됨 (더 이상 저장해두지 않음).
   const [tableNo, setTableNo] = useState(tableNoFromUrl || null);
   useEffect(() => {
-    if (Platform.OS !== "web" || !bizno) return;
-    const key = `scaneat_table_${bizno}`;
-    if (tableNoFromUrl) {
-      saveTableInfo(bizno, tableNoFromUrl);
-      setTableNo(tableNoFromUrl);
-      return;
-    }
-    try {
-      const saved = JSON.parse(localStorage.getItem(key) || "null");
-      if (saved && Date.now() - saved.ts < TABLE_EXPIRY_MS) {
-        saveTableInfo(bizno, saved.tableNo);
-        setTableNo(saved.tableNo);
-      } else {
-        localStorage.removeItem(key);
-        setTableNo(null);
-      }
-    } catch {
-      setTableNo(null);
-    }
-  }, [bizno, tableNoFromUrl]);
-
-  // 장바구니에 담는 행위를 "활동"으로 보고 테이블번호 만료 타이머 갱신
-  const touchTableActivity = () => {
-    if (Platform.OS !== "web" || !bizno || !tableNo) return;
-    saveTableInfo(bizno, tableNo);
-  };
+    setTableNo(tableNoFromUrl || null);
+  }, [tableNoFromUrl]);
 
   // 결제 안 된(PENDING) 주문 목록. 새로고침해도 안 없어지도록 화면 상태에
   // 두지 않고, 매번 서버(GET /api/order)에서 다시 불러와 진짜 값(source of
@@ -416,7 +383,6 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
   const grandTotal = cartTotal + pendingTotal;
 
   const addToCart = (item) => {
-    touchTableActivity();
     // item.quantity는 MenuDetail에서 선택한 "담을 개수"일 뿐, 장바구니에
     // 저장된 뒤에는 의미가 없는 값이라 보관하면 +버튼을 누를 때마다
     // 그 값만큼 재추가되는 버그가 생김 → 저장 전에 떼어냄
