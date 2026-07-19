@@ -17,8 +17,6 @@ const toForm = (biz) => ({
   addrDtl: biz?.addrDtl || "",
 });
 
-const OPR_STT_LABEL = { O: "영업중", C: "휴업", D: "폐업" };
-
 export default function AdminBizList({ adminInfo, onSelectBiz }) {
   const activeBizRegNo = adminInfo?.bizRegNo;
   const isSuper = adminInfo?.adminRole === "SUPER";
@@ -29,6 +27,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [industries, setIndustries] = useState([]);
+  const [oprSttCodes, setOprSttCodes] = useState([]);
 
   const [expandedKey, setExpandedKey] = useState(null); // null | bizRegNo | "__new__"
   const [form, setForm] = useState(emptyForm);
@@ -59,6 +58,10 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
     (async () => {
       const list = await api.industry.list();
       setIndustries(Array.isArray(list) ? list : []);
+    })();
+    (async () => {
+      const list = await api.commonCode.list("OPR_STT_CD");
+      setOprSttCodes(Array.isArray(list) ? list : []);
     })();
   }, []);
 
@@ -156,7 +159,9 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
         <View style={s.fieldRow}>
           <Text style={s.fieldLabel}>영업상태</Text>
           <View style={s.readonlyBox}>
-            <Text style={s.readonlyText}>{OPR_STT_LABEL[biz.bizStatus] || biz.bizStatus || "-"}</Text>
+            <Text style={s.readonlyText}>
+              {oprSttCodes.find(c => c.cd === biz.bizStatus)?.cdNm || biz.bizStatus || "-"}
+            </Text>
           </View>
         </View>
       )}
