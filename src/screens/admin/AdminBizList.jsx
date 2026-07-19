@@ -5,16 +5,19 @@ import api from "../../lib/api";
 import ConfirmModal from "../../components/ConfirmModal";
 
 const PAGE_SIZE = 10;
-const emptyForm = { bizRegNo: "", bizNm: "", telNo: "", indCd: "", addr: "", addrDtl: "" };
+const emptyForm = { bizRegNo: "", bizNm: "", repNm: "", telNo: "", indCd: "", addr: "", addrDtl: "" };
 
 const toForm = (biz) => ({
   bizRegNo: biz?.bizRegNo || "",
   bizNm: biz?.bizNm || "",
+  repNm: biz?.repNm || "",
   telNo: biz?.telNo || "",
   indCd: biz?.indCd || "",
   addr: biz?.addr || "",
   addrDtl: biz?.addrDtl || "",
 });
+
+const OPR_STT_LABEL = { O: "영업중", C: "휴업", D: "폐업" };
 
 export default function AdminBizList({ adminInfo, onSelectBiz }) {
   const activeBizRegNo = adminInfo?.bizRegNo;
@@ -81,6 +84,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
   const submit = async () => {
     const isEdit = expandedKey !== "__new__";
     if (!isEdit && !form.bizRegNo.trim()) { setFormError("사업자등록번호를 입력해주세요."); return; }
+    if (!isEdit && !form.repNm.trim()) { setFormError("대표자명을 입력해주세요."); return; }
     if (!form.bizNm.trim()) { setFormError("사업장명을 입력해주세요."); return; }
     setFormError("");
     setSaving(true);
@@ -92,6 +96,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
       addr: form.addr.trim() || null,
       addrDtl: form.addrDtl.trim() || null,
     };
+    if (!isEdit) payload.repNm = form.repNm.trim();
     const { data, error } = isEdit
       ? await api.biz.update(expandedKey, payload)
       : await api.biz.create(payload);
@@ -122,6 +127,19 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
         <Text style={s.fieldLabel}>사업장명</Text>
         <TextInput style={s.fieldInp} placeholder="사업장명 입력" value={form.bizNm} onChangeText={update("bizNm")} />
       </View>
+      {expandedKey === "__new__" ? (
+        <View style={s.fieldRow}>
+          <Text style={s.fieldLabel}>대표자명</Text>
+          <TextInput style={s.fieldInp} placeholder="대표자명 입력" value={form.repNm} onChangeText={update("repNm")} />
+        </View>
+      ) : (
+        <View style={s.fieldRow}>
+          <Text style={s.fieldLabel}>대표자명</Text>
+          <View style={s.readonlyBox}>
+            <Text style={s.readonlyText}>{biz?.repNm || "-"}</Text>
+          </View>
+        </View>
+      )}
       <View style={s.fieldRow}>
         <Text style={s.fieldLabel}>전화번호</Text>
         <TextInput style={s.fieldInp} placeholder="선택" value={form.telNo} onChangeText={update("telNo")} keyboardType="phone-pad" />
@@ -135,20 +153,12 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
         </View>
       </View>
       {biz && (
-        <>
-          <View style={s.fieldRow}>
-            <Text style={s.fieldLabel}>대표자명</Text>
-            <View style={s.readonlyBox}>
-              <Text style={s.readonlyText}>{biz.repNm || "-"}</Text>
-            </View>
+        <View style={s.fieldRow}>
+          <Text style={s.fieldLabel}>영업상태</Text>
+          <View style={s.readonlyBox}>
+            <Text style={s.readonlyText}>{OPR_STT_LABEL[biz.bizStatus] || biz.bizStatus || "-"}</Text>
           </View>
-          <View style={s.fieldRow}>
-            <Text style={s.fieldLabel}>영업상태</Text>
-            <View style={s.readonlyBox}>
-              <Text style={s.readonlyText}>{biz.bizStatus || "-"}</Text>
-            </View>
-          </View>
-        </>
+        </View>
       )}
       <View style={s.fieldRow}>
         <Text style={s.fieldLabel}>주소</Text>
