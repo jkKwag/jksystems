@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Switch, Platform } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Switch } from "react-native";
 import { s } from "../../styles/admin/AdminHours.styles";
-import { colors, radius, font, spacing } from "../../styles/theme";
 import api from "../../lib/api";
 import ConfirmModal from "../../components/ConfirmModal";
+import TimeField from "../../components/admin/TimeDialField";
 
 const DAY_ORDER = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 const DAY_LABEL = { MON: "월요일", TUE: "화요일", WED: "수요일", THU: "목요일", FRI: "금요일", SAT: "토요일", SUN: "일요일" };
@@ -12,59 +12,14 @@ const toHHMM = (v) => (v ? v.slice(0, 5) : "");
 
 const emptyDay = () => ({ isClosed: "N", openTime: "", closeTime: "", breakStartTime: "", breakEndTime: "", lastOrderTime: "" });
 
-// 브라우저 기본 시간 선택 UI(모바일: 휠/시계 피커, 데스크탑: 시/분 스피너) 사용.
-// 브라우저 기본 파란색(accent-color/포커스 링) 대신 scaneat 톤으로 맞춤
-const nativeTimeInputStyle = {
-  borderWidth: 1,
-  borderColor: colors.borderLight,
-  borderRadius: radius.md,
-  paddingHorizontal: spacing["3"],
-  paddingVertical: spacing["3"],
-  fontSize: font.md,
-  color: colors.text,
-  backgroundColor: colors.slate50,
-  width: "100%",
-  boxSizing: "border-box",
-  fontFamily: "inherit",
-  accentColor: colors.accent,
-  outline: "none",
-};
-
-function HourMinuteSelect({ value, onChange }) {
-  const [focused, setFocused] = useState(false);
-
-  if (Platform.OS !== "web") {
-    return <Text style={s.timeInp}>{value || "-"}</Text>;
-  }
-  return (
-    <input
-      type="time"
-      value={value || ""}
-      onChange={(e) => onChange(e.target.value)}
-      onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
-      style={{ ...nativeTimeInputStyle, borderColor: focused ? colors.accent : colors.borderLight }}
-    />
-  );
-}
-
-function TimeField({ label, value, onChange }) {
-  return (
-    <View style={s.timeField}>
-      <Text style={s.timeLabel}>{label}</Text>
-      <HourMinuteSelect value={value} onChange={onChange} />
-    </View>
-  );
-}
-
 function TimeRangeField({ label, startValue, endValue, onChangeStart, onChangeEnd }) {
   return (
     <View style={s.rangeBox}>
       <Text style={s.timeLabel}>{label}</Text>
       <View style={s.rangeRow}>
-        <View style={s.rangeField}><HourMinuteSelect value={startValue} onChange={onChangeStart} /></View>
+        <View style={s.rangeField}><TimeField label={`${label} 시작`} value={startValue} onChange={onChangeStart} hideLabel /></View>
         <Text style={s.rangeTilde}>~</Text>
-        <View style={s.rangeField}><HourMinuteSelect value={endValue} onChange={onChangeEnd} /></View>
+        <View style={s.rangeField}><TimeField label={`${label} 종료`} value={endValue} onChange={onChangeEnd} hideLabel /></View>
       </View>
     </View>
   );
