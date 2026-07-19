@@ -10,10 +10,11 @@ const STATUS_LABEL = { PENDING: "주문접수", PAID: "결제완료", CANCELED: 
 const STATUS_STYLE_KEY = { PENDING: "statusPending", PAID: "statusPaid", CANCELED: "statusCanceled" };
 
 const pad = (n) => String(n).padStart(2, "0");
+const DAY_KR = ["일", "월", "화", "수", "목", "금", "토"];
 
 const formatDt = (iso) => {
   const d = new Date(iso);
-  return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())}(${DAY_KR[d.getDay()]}) ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 
 const toDateStr = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
