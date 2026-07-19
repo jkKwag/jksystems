@@ -107,7 +107,7 @@ export default function AdminHours({ adminInfo }) {
             const d = form[day];
             const closed = d.isClosed === "Y";
             return (
-              <View key={day} style={[s.dayCard, { borderLeftColor: DAY_COLOR[day] }]}>
+              <View key={day} style={[s.dayCard, { borderTopColor: DAY_COLOR[day] }]}>
                 <View style={s.dayTopRow}>
                   <View style={s.dayLabelRow}>
                     <View style={[s.dayDot, { backgroundColor: DAY_COLOR[day] }]} />
