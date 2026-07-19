@@ -82,6 +82,8 @@ export const s = StyleSheet.create({
   rsvnInput: { backgroundColor: colors.slate800, borderRadius: radius.md, paddingHorizontal: spacing["3.5"], paddingVertical: spacing["2.5"], borderWidth: 1, borderColor: colors.slate700, justifyContent: "center" },
   rsvnDateText: { fontSize: font.lg, color: colors.white },
   rsvnDatePlaceholder: { fontSize: font.lg, color: colors.slate500 },
+  rsvnClosedBox: { flexDirection: "row", alignItems: "center", gap: spacing["1.5"], backgroundColor: colors.redPaleBg, borderWidth: 1, borderColor: colors.red, borderRadius: radius.lg, paddingVertical: spacing["2.5"], paddingHorizontal: spacing["3"] },
+  rsvnClosedText: { fontSize: font.lg, fontWeight: "800", color: colors.redDark },
 
   calOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.7)", justifyContent: "center", alignItems: "center", padding: spacing["5"] },
   calBox: { width: "100%", maxWidth: 360, borderRadius: radius["2xl"], overflow: "hidden", backgroundColor: colors.slate800 },

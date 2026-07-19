@@ -156,6 +156,7 @@ export default function SeatsView({ visible, onClose, bizno }) {
     : undefined;
 
   const dayHour = rsvnDate ? hoursByDay[getDayCode(rsvnDate)] : null;
+  const isDayClosed = dayHour?.isClosed === "Y";
   const closeMin = dayHour?.closeTime ? toMinutes(dayHour.closeTime) : null;
   const timeSlots = rsvnDate
     ? filterByAdvance(buildTimeSlots(dayHour, rsvnStd?.timeUnitMin), rsvnDate, rsvnStd?.minAdvanceHours)
@@ -461,7 +462,13 @@ export default function SeatsView({ visible, onClose, bizno }) {
                   <View style={s.rsvnField}>
                     <Text style={s.rsvnLabel}>🕐 시간</Text>
                     {timeSlots.length === 0 ? (
-                      <Text style={s.rsvnDatePlaceholder}>선택한 날짜엔 예약 가능한 시간이 없어요</Text>
+                      isDayClosed ? (
+                        <View style={s.rsvnClosedBox}>
+                          <Text style={s.rsvnClosedText}>🚫 매장 휴무일 입니다</Text>
+                        </View>
+                      ) : (
+                        <Text style={s.rsvnDatePlaceholder}>선택한 날짜엔 예약 가능한 시간이 없어요</Text>
+                      )
                     ) : (
                       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.timeScroll}>
                         {timeSlots.map(t => {
