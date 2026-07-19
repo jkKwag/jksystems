@@ -7,8 +7,6 @@ import TimeField from "../../components/admin/TimeDialField";
 
 const DAY_ORDER = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 const DAY_LABEL = { MON: "월요일", TUE: "화요일", WED: "수요일", THU: "목요일", FRI: "금요일", SAT: "토요일", SUN: "일요일" };
-const DAY_COLOR = { MON: "#2a78d6", TUE: "#008300", WED: "#e87ba4", THU: "#eda100", FRI: "#1baf7a", SAT: "#4a3aa7", SUN: "#e34948" };
-
 const toHHMM = (v) => (v ? v.slice(0, 5) : "");
 
 const emptyDay = () => ({ isClosed: "N", openTime: "", closeTime: "", breakStartTime: "", breakEndTime: "", lastOrderTime: "" });
@@ -107,10 +105,10 @@ export default function AdminHours({ adminInfo }) {
             const d = form[day];
             const closed = d.isClosed === "Y";
             return (
-              <View key={day} style={[s.dayCard, { borderTopColor: DAY_COLOR[day] }]}>
+              <View key={day} style={s.dayCard}>
                 <View style={s.dayTopRow}>
                   <View style={s.dayLabelRow}>
-                    <View style={[s.dayDot, { backgroundColor: DAY_COLOR[day] }]} />
+                    <View style={s.dayDot} />
                     <Text style={s.dayLabel}>{DAY_LABEL[day]}</Text>
                   </View>
                   <View style={s.closedToggle}>
