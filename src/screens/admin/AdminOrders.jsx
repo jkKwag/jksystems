@@ -11,7 +11,7 @@ const STATUS_STYLE_KEY = { PENDING: "statusPending", PAID: "statusPaid", CANCELE
 
 const formatDt = (iso) => {
   const d = new Date(iso);
-  return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 };
 
 const pad = (n) => String(n).padStart(2, "0");
