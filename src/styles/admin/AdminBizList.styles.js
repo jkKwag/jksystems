@@ -13,7 +13,7 @@ export const s = StyleSheet.create({
 
   list: { gap: spacing["2.5"], paddingBottom: spacing["10"] },
   cardColumn: { gap: spacing["1.5"] },
-  card: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: colors.bgCard, borderRadius: radius["2xl"], padding: spacing["4"], borderWidth: 1, borderColor: colors.border, gap: spacing["3"] },
+  card: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: colors.slate50, borderRadius: radius["2xl"], padding: spacing["4"], borderWidth: 1, borderColor: colors.border, gap: spacing["3"] },
   cardInfo: { flex: 1, gap: 2 },
   bizNm: { fontSize: font.xl, fontWeight: "800", color: colors.text },
   meta: { fontSize: font.base, color: colors.textSecondary, fontWeight: "600" },
@@ -25,7 +25,7 @@ export const s = StyleSheet.create({
   moreBtn: { alignItems: "center", paddingVertical: spacing["3"], borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bgCard },
   moreBtnText: { fontSize: font.md, fontWeight: "700", color: colors.textGray },
 
-  editSection: { backgroundColor: colors.slate50, borderRadius: radius["2xl"], borderWidth: 1, borderColor: colors.borderLight, padding: spacing["4"], gap: spacing["3"] },
+  editSection: { backgroundColor: colors.bgCard, borderRadius: radius["2xl"], borderWidth: 1, borderColor: colors.borderLight, padding: spacing["4"], gap: spacing["3"] },
   fieldRow: {},
   fieldLabel: { fontSize: font.base, fontWeight: "700", color: colors.textGray, marginBottom: spacing["1.5"] },
   fieldInp: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"], fontSize: font.md, color: colors.text, backgroundColor: colors.bgCard },
