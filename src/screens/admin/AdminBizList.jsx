@@ -44,6 +44,11 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
       setBizList(biz ? [biz] : []);
       setHasMore(false);
       setLoaded(true);
+      // 사업자관리자는 본인 사업장 하나뿐이라 바로 상세를 펼쳐서 보여줌
+      if (!isSuper && biz) {
+        setForm(toForm(biz));
+        setExpandedKey(biz.bizRegNo);
+      }
       return;
     }
     const result = await api.biz.list(0, PAGE_SIZE);
