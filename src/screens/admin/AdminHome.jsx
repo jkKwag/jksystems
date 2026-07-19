@@ -126,7 +126,7 @@ export default function AdminHome({ adminInfo, onLogout }) {
     })();
   }, [adminInfo?.bizRegNo]);
 
-  const brandTitle = bizNm || "CampRoad 관리자";
+  const brandTitle = isSuper ? "SUPER관리자" : (bizNm || "CampRoad 관리자");
 
   const toggle = (menuCd) => {
     setExpanded(prev => {
@@ -159,8 +159,12 @@ export default function AdminHome({ adminInfo, onLogout }) {
             </TouchableOpacity>
           )}
         </View>
-        <Text style={s.adminNm}>{adminInfo?.adminNm || adminInfo?.adminId}</Text>
-        <Text style={s.roleBadge}>{ROLE_LABEL[adminInfo?.adminRole] || adminInfo?.adminRole}</Text>
+        {isSuper && (
+          <>
+            <Text style={s.adminNm}>{adminInfo?.adminNm || adminInfo?.adminId}</Text>
+            <Text style={s.roleBadge}>{ROLE_LABEL[adminInfo?.adminRole] || adminInfo?.adminRole}</Text>
+          </>
+        )}
       </View>
       <ScrollView style={s.menuScroll} contentContainerStyle={{ paddingVertical: 8 }}>
         {!loaded ? (
