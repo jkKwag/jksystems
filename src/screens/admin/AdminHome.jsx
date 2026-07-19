@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, useWindowDimensions } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, useWindowDimensions, Platform } from "react-native";
 import { s } from "../../styles/admin/AdminHome.styles";
 import api from "../../lib/api";
 import AdminReservations from "./AdminReservations";
@@ -16,6 +16,10 @@ import ConfirmModal from "../../components/ConfirmModal";
 
 const MOBILE_BREAKPOINT = 768;
 const DASHBOARD_URL = "/admin/dashboard";
+
+const HEADER_GRADIENT = Platform.OS === "web"
+  ? { background: "linear-gradient(135deg, #0f172a 0%, #14532d 100%)" }
+  : {};
 
 // menu_url -> 실제 구현된 화면 컴포넌트. 없는 항목은 준비중 플레이스홀더로 표시.
 const MENU_SCREENS = {
@@ -149,7 +153,7 @@ export default function AdminHome({ adminInfo, onLogout }) {
 
   const Sidebar = () => (
     <View style={isMobile ? s.sidebarMobile : s.sidebar}>
-      <View style={s.sidebarHeader}>
+      <View style={[s.sidebarHeader, HEADER_GRADIENT]}>
         <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
           <Text style={s.brand}>{brandTitle}</Text>
           {isMobile && (
@@ -181,7 +185,7 @@ export default function AdminHome({ adminInfo, onLogout }) {
     <View style={isMobile ? s.containerMobile : s.container}>
       {isMobile ? (
         <>
-          <View style={s.topBar}>
+          <View style={[s.topBar, HEADER_GRADIENT]}>
             <TouchableOpacity style={s.hamburgerBtn} onPress={() => setShowMenu(true)}>
               <Text style={s.hamburgerBtnText}>☰</Text>
             </TouchableOpacity>

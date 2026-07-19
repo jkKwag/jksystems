@@ -15,12 +15,13 @@ const emptyDay = () => ({ isClosed: "N", openTime: "", closeTime: "", breakStart
 // 브라우저 기본 시간 선택 UI(모바일: 휠/시계 피커, 데스크탑: 시/분 스피너) 사용
 const nativeTimeInputStyle = {
   borderWidth: 1,
-  borderColor: colors.border,
+  borderColor: colors.borderLight,
   borderRadius: radius.md,
   paddingHorizontal: spacing["3"],
   paddingVertical: spacing["3"],
   fontSize: font.md,
   color: colors.text,
+  backgroundColor: colors.slate50,
   width: "100%",
   boxSizing: "border-box",
   fontFamily: "inherit",
