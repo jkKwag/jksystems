@@ -12,15 +12,22 @@ export default function BizLookupBar({ value, onChangeText, onLookup, resultText
 
   return (
     <View style={s.bar}>
-      <TextInput
-        style={s.input}
-        placeholder="사업자등록번호로 사업장 조회"
-        placeholderTextColor="#94a3b8"
-        value={value}
-        onChangeText={onChangeText}
-        onSubmitEditing={submit}
-        keyboardType="number-pad"
-      />
+      <View style={s.inputWrap}>
+        <TextInput
+          style={s.input}
+          placeholder="사업자등록번호로 사업장 조회"
+          placeholderTextColor="#94a3b8"
+          value={value}
+          onChangeText={onChangeText}
+          onSubmitEditing={submit}
+          keyboardType="number-pad"
+        />
+        {!!value && (
+          <TouchableOpacity style={s.clearBtn} onPress={() => onChangeText("")}>
+            <Text style={s.clearBtnText}>✕</Text>
+          </TouchableOpacity>
+        )}
+      </View>
       <TouchableOpacity style={s.btn} onPress={submit}>
         <Text style={s.btnText}>조회</Text>
       </TouchableOpacity>
