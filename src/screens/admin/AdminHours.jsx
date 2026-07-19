@@ -12,26 +12,44 @@ const toHHMM = (v) => (v ? v.slice(0, 5) : "");
 
 const emptyDay = () => ({ isClosed: "N", openTime: "", closeTime: "", breakStartTime: "", breakEndTime: "", lastOrderTime: "" });
 
-// 자유 텍스트 입력 대신 브라우저 기본 시간 선택 UI(시/분 스피너)만 쓰도록 native time input 사용
-const nativeTimeInputStyle = {
+// 자유 텍스트 입력을 막고 시/분을 목록에서 고르기만 하도록 select 두 개로 구성
+const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
+const MINUTES = ["00", "10", "20", "30", "40", "50"];
+
+const timeSelectStyle = {
+  flex: 1,
   borderWidth: 1,
   borderColor: colors.border,
   borderRadius: radius.md,
-  paddingHorizontal: spacing["3"],
-  paddingVertical: spacing["2"],
+  paddingHorizontal: spacing["2.5"],
+  paddingVertical: spacing["3"],
   fontSize: font.md,
   color: colors.text,
-  width: "100%",
+  backgroundColor: colors.bgCard,
   boxSizing: "border-box",
   fontFamily: "inherit",
 };
 
 function TimeField({ label, value, onChange }) {
+  const [h, m] = value ? value.split(":") : ["", ""];
+
+  const setHour = (nh) => onChange(nh ? `${nh}:${m || "00"}` : "");
+  const setMinute = (nm) => { if (h) onChange(`${h}:${nm}`); };
+
   return (
     <View style={s.timeField}>
       <Text style={s.timeLabel}>{label}</Text>
       {Platform.OS === "web" ? (
-        <input type="time" value={value || ""} onChange={(e) => onChange(e.target.value)} style={nativeTimeInputStyle} />
+        <View style={s.timeSelectRow}>
+          <select value={h} onChange={(e) => setHour(e.target.value)} style={timeSelectStyle}>
+            <option value="">--</option>
+            {HOURS.map(hh => <option key={hh} value={hh}>{hh}시</option>)}
+          </select>
+          <select value={m} onChange={(e) => setMinute(e.target.value)} style={timeSelectStyle} disabled={!h}>
+            <option value="">--</option>
+            {MINUTES.map(mm => <option key={mm} value={mm}>{mm}분</option>)}
+          </select>
+        </View>
       ) : (
         <Text style={s.timeInp}>{value || "-"}</Text>
       )}

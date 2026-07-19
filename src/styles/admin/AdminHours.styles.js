@@ -19,9 +19,10 @@ export const s = StyleSheet.create({
   closedToggleText: { fontSize: font.base, fontWeight: "700", color: colors.textGray },
 
   timeRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing["2.5"] },
-  timeField: { flexGrow: 1, minWidth: 100 },
+  timeField: { flexGrow: 1, minWidth: 140 },
   timeLabel: { fontSize: font.sm, fontWeight: "700", color: colors.textMuted, marginBottom: 4 },
-  timeInp: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: spacing["2.5"], paddingVertical: spacing["2"], fontSize: font.md, color: colors.text },
+  timeSelectRow: { flexDirection: "row", gap: spacing["1.5"] },
+  timeInp: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: spacing["2.5"], paddingVertical: spacing["3"], fontSize: font.md, color: colors.text },
 
   error: { fontSize: font.sm, color: "#ef4444", fontWeight: "600", marginBottom: spacing["2"] },
 
