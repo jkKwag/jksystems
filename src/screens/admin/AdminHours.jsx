@@ -1,16 +1,43 @@
 import { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Switch } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Switch, Platform } from "react-native";
 import { s } from "../../styles/admin/AdminHours.styles";
+import { colors, radius, font, spacing } from "../../styles/theme";
 import api from "../../lib/api";
 import ConfirmModal from "../../components/ConfirmModal";
 
 const DAY_ORDER = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 const DAY_LABEL = { MON: "월요일", TUE: "화요일", WED: "수요일", THU: "목요일", FRI: "금요일", SAT: "토요일", SUN: "일요일" };
-const TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
 const toHHMM = (v) => (v ? v.slice(0, 5) : "");
 
 const emptyDay = () => ({ isClosed: "N", openTime: "", closeTime: "", breakStartTime: "", breakEndTime: "", lastOrderTime: "" });
+
+// 자유 텍스트 입력 대신 브라우저 기본 시간 선택 UI(시/분 스피너)만 쓰도록 native time input 사용
+const nativeTimeInputStyle = {
+  borderWidth: 1,
+  borderColor: colors.border,
+  borderRadius: radius.md,
+  paddingHorizontal: spacing["3"],
+  paddingVertical: spacing["2"],
+  fontSize: font.md,
+  color: colors.text,
+  width: "100%",
+  boxSizing: "border-box",
+  fontFamily: "inherit",
+};
+
+function TimeField({ label, value, onChange }) {
+  return (
+    <View style={s.timeField}>
+      <Text style={s.timeLabel}>{label}</Text>
+      {Platform.OS === "web" ? (
+        <input type="time" value={value || ""} onChange={(e) => onChange(e.target.value)} style={nativeTimeInputStyle} />
+      ) : (
+        <Text style={s.timeInp}>{value || "-"}</Text>
+      )}
+    </View>
+  );
+}
 
 export default function AdminHours({ adminInfo }) {
   const bizRegNo = adminInfo?.bizRegNo;
@@ -47,25 +74,7 @@ export default function AdminHours({ adminInfo }) {
     setForm(prev => ({ ...prev, [day]: { ...prev[day], [field]: value } }));
   };
 
-  const validateTime = (label, day, value) => {
-    if (!value) return null;
-    if (!TIME_RE.test(value)) return `${DAY_LABEL[day]} ${label} 시간은 HH:mm 형식으로 입력해주세요 (예: 09:00).`;
-    return null;
-  };
-
   const submit = async () => {
-    for (const day of DAY_ORDER) {
-      const d = form[day];
-      if (d.isClosed === "Y") continue;
-      const errs = [
-        validateTime("영업시작", day, d.openTime),
-        validateTime("영업종료", day, d.closeTime),
-        validateTime("브레이크 시작", day, d.breakStartTime),
-        validateTime("브레이크 종료", day, d.breakEndTime),
-        validateTime("라스트오더", day, d.lastOrderTime),
-      ].filter(Boolean);
-      if (errs.length > 0) { setError(errs[0]); return; }
-    }
     setError("");
     setSaving(true);
     const hours = DAY_ORDER.map(day => {
@@ -123,28 +132,15 @@ export default function AdminHours({ adminInfo }) {
                 {!closed && (
                   <>
                     <View style={s.timeRow}>
-                      <View style={s.timeField}>
-                        <Text style={s.timeLabel}>영업시작</Text>
-                        <TextInput style={s.timeInp} placeholder="09:00" value={d.openTime} onChangeText={(v) => updateDay(day, "openTime", v)} />
-                      </View>
-                      <View style={s.timeField}>
-                        <Text style={s.timeLabel}>영업종료</Text>
-                        <TextInput style={s.timeInp} placeholder="22:00" value={d.closeTime} onChangeText={(v) => updateDay(day, "closeTime", v)} />
-                      </View>
+                      <TimeField label="영업시작" value={d.openTime} onChange={(v) => updateDay(day, "openTime", v)} />
+                      <TimeField label="영업종료" value={d.closeTime} onChange={(v) => updateDay(day, "closeTime", v)} />
                     </View>
                     <View style={s.timeRow}>
-                      <View style={s.timeField}>
-                        <Text style={s.timeLabel}>브레이크 시작</Text>
-                        <TextInput style={s.timeInp} placeholder="선택" value={d.breakStartTime} onChangeText={(v) => updateDay(day, "breakStartTime", v)} />
-                      </View>
-                      <View style={s.timeField}>
-                        <Text style={s.timeLabel}>브레이크 종료</Text>
-                        <TextInput style={s.timeInp} placeholder="선택" value={d.breakEndTime} onChangeText={(v) => updateDay(day, "breakEndTime", v)} />
-                      </View>
-                      <View style={s.timeField}>
-                        <Text style={s.timeLabel}>라스트오더</Text>
-                        <TextInput style={s.timeInp} placeholder="선택" value={d.lastOrderTime} onChangeText={(v) => updateDay(day, "lastOrderTime", v)} />
-                      </View>
+                      <TimeField label="브레이크 시작" value={d.breakStartTime} onChange={(v) => updateDay(day, "breakStartTime", v)} />
+                      <TimeField label="브레이크 종료" value={d.breakEndTime} onChange={(v) => updateDay(day, "breakEndTime", v)} />
+                    </View>
+                    <View style={s.timeRow}>
+                      <TimeField label="라스트오더" value={d.lastOrderTime} onChange={(v) => updateDay(day, "lastOrderTime", v)} />
                     </View>
                   </>
                 )}
