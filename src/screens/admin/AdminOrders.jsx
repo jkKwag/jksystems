@@ -9,12 +9,13 @@ import PickupBadge from "../../components/PickupBadge";
 const STATUS_LABEL = { PENDING: "주문접수", PAID: "결제완료", CANCELED: "취소" };
 const STATUS_STYLE_KEY = { PENDING: "statusPending", PAID: "statusPaid", CANCELED: "statusCanceled" };
 
+const pad = (n) => String(n).padStart(2, "0");
+
 const formatDt = (iso) => {
   const d = new Date(iso);
-  return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 
-const pad = (n) => String(n).padStart(2, "0");
 const toDateStr = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 const addDays = (dateStr, n) => {
   const d = new Date(`${dateStr}T00:00:00`);
@@ -23,7 +24,7 @@ const addDays = (dateStr, n) => {
 };
 const formatDateLabel = (dateStr) => {
   const d = new Date(`${dateStr}T00:00:00`);
-  return `${d.getMonth() + 1}/${d.getDate()}`;
+  return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())}`;
 };
 
 const CAL_THEME = {
