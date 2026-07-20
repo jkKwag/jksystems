@@ -6,10 +6,12 @@ import api from "../../lib/api";
 import OrderTypeBadge from "../../components/OrderTypeBadge";
 import PickupBadge from "../../components/PickupBadge";
 
-const STATUS_LABEL = { PENDING: "주문접수", PAID: "결제완료", CANCELED: "취소" };
-const STATUS_STYLE_KEY = { PENDING: "statusPending", PAID: "statusPaid", CANCELED: "statusCanceled" };
-const STATUS_FILTERS = ["ALL", "PENDING", "PAID", "CANCELED"];
-const STATUS_FILTER_LABEL = { ALL: "전체", ...STATUS_LABEL };
+const STATUS_STYLE_KEY = { RECEIVED: "statusReceived", PREPARING: "statusPreparing", READY: "statusReady", CANCELED: "statusCanceled" };
+const STATUS_FILTERS = ["ALL", "RECEIVED", "PREPARING", "READY", "CANCELED"];
+const NEXT_STATUS = { RECEIVED: "PREPARING", PREPARING: "READY" };
+const NEXT_STATUS_LABEL = { RECEIVED: "준비중 처리", PREPARING: "준비완료 처리" };
+
+const PAY_STATUS_STYLE_KEY = { DONE: "payDone", CANCELED: "payCanceled" };
 
 const pad = (n) => String(n).padStart(2, "0");
 const DAY_KR = ["일", "월", "화", "수", "목", "금", "토"];
@@ -54,6 +56,9 @@ export default function AdminOrders({ adminInfo }) {
   const [dateTo, setDateTo] = useState(todayStr);
   const [calTarget, setCalTarget] = useState(null); // null | "from" | "to"
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [orderStatusLabels, setOrderStatusLabels] = useState({});
+  const [payStatusLabels, setPayStatusLabels] = useState({});
+  const [busyOrderNo, setBusyOrderNo] = useState(null);
 
   const load = async (from = dateFrom, to = dateTo) => {
     if (!bizRegNo) { setLoaded(true); return; }
@@ -64,6 +69,31 @@ export default function AdminOrders({ adminInfo }) {
   };
 
   useEffect(() => { load(); }, [bizRegNo]);
+
+  useEffect(() => {
+    (async () => {
+      const list = await api.commonCode.list("ORDER_STT_CD");
+      const map = {};
+      (Array.isArray(list) ? list : []).forEach(c => { map[c.cd] = c.cdNm; });
+      setOrderStatusLabels(map);
+    })();
+    (async () => {
+      const list = await api.commonCode.list("PAY_STT_CD");
+      const map = {};
+      (Array.isArray(list) ? list : []).forEach(c => { map[c.cd] = c.cdNm; });
+      setPayStatusLabels(map);
+    })();
+  }, []);
+
+  const advanceStatus = async (order) => {
+    const next = NEXT_STATUS[order.status];
+    if (!next) return;
+    setBusyOrderNo(order.orderNo);
+    const { data, error } = await api.order.updateStatus(order.orderNo, { status: next });
+    setBusyOrderNo(null);
+    if (error || !data) return;
+    setOrders(prev => prev.map(o => o.orderNo === data.orderNo ? data : o));
+  };
 
   const pickDate = (dateString) => {
     if (calTarget === "from") {
@@ -117,7 +147,7 @@ export default function AdminOrders({ adminInfo }) {
               onPress={() => setStatusFilter(status)}
             >
               <Text style={[s.statusChipText, statusFilter === status && s.statusChipTextActive]}>
-                {STATUS_FILTER_LABEL[status]}
+                {status === "ALL" ? "전체" : (orderStatusLabels[status] || status)}
               </Text>
             </TouchableOpacity>
           ))}
@@ -152,8 +182,13 @@ export default function AdminOrders({ adminInfo }) {
             <View key={order.orderNo} style={s.card}>
               <View style={s.cardTopRow}>
                 <Text style={s.dt}>{formatDt(order.regDt)}</Text>
-                <View style={[s.statusBadge, s[STATUS_STYLE_KEY[order.status]]]}>
-                  <Text style={s.statusBadgeText}>{STATUS_LABEL[order.status] || order.status}</Text>
+                <View style={s.badgeRow}>
+                  <Text style={[s.payStatusText, s[PAY_STATUS_STYLE_KEY[order.paymentStatus]] || s.payUnpaid]}>
+                    {order.paymentStatus ? (payStatusLabels[order.paymentStatus] || order.paymentStatus) : "미결제"}
+                  </Text>
+                  <View style={[s.statusBadge, s[STATUS_STYLE_KEY[order.status]]]}>
+                    <Text style={s.statusBadgeText}>{orderStatusLabels[order.status] || order.status}</Text>
+                  </View>
                 </View>
               </View>
 
@@ -185,6 +220,18 @@ export default function AdminOrders({ adminInfo }) {
                 <Text style={s.totalAmount}>₩{Number(order.totalAmount || 0).toLocaleString()}</Text>
               </View>
               <Text style={s.orderNo}>주문번호 {order.orderNo}</Text>
+
+              {!!NEXT_STATUS[order.status] && (
+                <TouchableOpacity
+                  style={s.advanceBtn}
+                  onPress={() => advanceStatus(order)}
+                  disabled={busyOrderNo === order.orderNo}
+                >
+                  {busyOrderNo === order.orderNo
+                    ? <ActivityIndicator color="#fff" size="small" />
+                    : <Text style={s.advanceBtnText}>{NEXT_STATUS_LABEL[order.status]}</Text>}
+                </TouchableOpacity>
+              )}
             </View>
           ))}
         </ScrollView>

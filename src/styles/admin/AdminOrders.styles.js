@@ -43,9 +43,20 @@ export const s = StyleSheet.create({
   totalAmount: { fontSize: font["2xl"], fontWeight: "900", color: colors.accent },
   orderNo: { fontSize: font.sm, color: colors.textMuted, fontFamily: Platform.OS === "web" ? "monospace" : undefined },
 
+  badgeRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"] },
+
   statusBadge: { borderRadius: radius.pill, paddingHorizontal: spacing["2.5"], paddingVertical: 4 },
   statusBadgeText: { fontSize: font.sm, fontWeight: "800", color: colors.white },
-  statusPending: { backgroundColor: "#f59e0b" },
-  statusPaid: { backgroundColor: "#22c55e" },
+  statusReceived: { backgroundColor: "#3b82f6" },
+  statusPreparing: { backgroundColor: "#f59e0b" },
+  statusReady: { backgroundColor: "#22c55e" },
   statusCanceled: { backgroundColor: "#94a3b8" },
+
+  payStatusText: { fontSize: font.sm, fontWeight: "700" },
+  payDone: { color: colors.green },
+  payCanceled: { color: "#ef4444" },
+  payUnpaid: { color: colors.textMuted },
+
+  advanceBtn: { alignItems: "center", justifyContent: "center", backgroundColor: colors.primary, borderRadius: radius.md, paddingVertical: spacing["2.5"], marginTop: spacing["1"] },
+  advanceBtnText: { fontSize: font.md, fontWeight: "800", color: colors.white },
 });

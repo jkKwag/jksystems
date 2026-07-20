@@ -113,6 +113,7 @@ const api = {
     listByBiz: (bizRegNo, from, to) => get(`/api/order/biz/${bizRegNo}${from && to ? `?from=${from}&to=${to}` : ""}`),
     get: (orderNo) => get(`/api/order/${orderNo}`),
     post: (body) => post(`/api/order`, body),
+    updateStatus: (orderNo, body) => put(`/api/order/${orderNo}/status`, body),
   },
   payment: {
     confirm: (body) => post(`/api/payment/confirm`, body),

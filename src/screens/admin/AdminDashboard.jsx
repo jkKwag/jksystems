@@ -3,8 +3,8 @@ import { View, Text, ScrollView, ActivityIndicator, Animated, TouchableOpacity }
 import { s } from "../../styles/admin/AdminDashboard.styles";
 import api from "../../lib/api";
 
-const ORDER_STATUS_LABEL = { PENDING: "주문접수", PAID: "결제완료", CANCELED: "취소" };
-const ORDER_STATUS_COLOR = { PENDING: "#f59e0b", PAID: "#22c55e", CANCELED: "#94a3b8" };
+const ORDER_STATUS_LABEL = { RECEIVED: "주문접수", PREPARING: "준비중", READY: "준비완료", CANCELED: "주문취소" };
+const ORDER_STATUS_COLOR = { RECEIVED: "#3b82f6", PREPARING: "#f59e0b", READY: "#22c55e", CANCELED: "#94a3b8" };
 const RSVN_STATUS_LABEL = { PENDING: "대기", CONFIRMED: "확정", REJECTED: "거절", CANCELLED: "취소", COMPLETED: "완료" };
 const RSVN_STATUS_COLOR = { PENDING: "#f59e0b", CONFIRMED: "#22c55e", REJECTED: "#ef4444", CANCELLED: "#94a3b8", COMPLETED: "#64748b" };
 
@@ -106,7 +106,7 @@ export default function AdminDashboard({ adminInfo, onNavigate }) {
   const points = revenueByDay.map((v, i) => ({ ...linePoint(i, v, maxRevenue, pointGap), value: v, date: days[i] }));
   const chartWidth = days.length * pointGap;
 
-  const orderStatusCounts = ["PENDING", "PAID", "CANCELED"].map(st => ({
+  const orderStatusCounts = ["RECEIVED", "PREPARING", "READY", "CANCELED"].map(st => ({
     st, count: orders.filter(o => o.status === st).length,
   }));
   const rsvnStatusCounts = ["PENDING", "CONFIRMED", "REJECTED", "CANCELLED", "COMPLETED"].map(st => ({

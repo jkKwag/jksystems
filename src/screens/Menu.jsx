@@ -249,9 +249,10 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
     setTableNo(tableNoFromUrl || null);
   }, [tableNoFromUrl]);
 
-  // 결제 안 된(PENDING) 주문 목록. 새로고침해도 안 없어지도록 화면 상태에
+  // 결제 안 된 주문 목록. 새로고침해도 안 없어지도록 화면 상태에
   // 두지 않고, 매번 서버(GET /api/order)에서 다시 불러와 진짜 값(source of
-  // truth)을 유지한다.
+  // truth)을 유지한다. 결제여부는 order.status가 아니라 paymentStatus로 판단
+  // (주문상태는 조리진행상태, 결제여부와는 별개 개념).
   const [pendingOrders, setPendingOrders] = useState([]);
 
   const refreshPendingOrders = async () => {
@@ -259,7 +260,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
     if (!uuid || !bizno) return;
     const orders = await api.order.list(uuid);
     if (!Array.isArray(orders)) return;
-    setPendingOrders(orders.filter(o => o.bizRegNo === bizno && o.status === "PENDING"));
+    setPendingOrders(orders.filter(o => o.bizRegNo === bizno && o.status !== "CANCELED" && !o.paymentStatus));
   };
 
   useEffect(() => {
