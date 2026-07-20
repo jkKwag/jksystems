@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Platform } from "react-native";
 import { colors, radius, font, spacing } from "../theme";
 
 export const s = StyleSheet.create({
@@ -11,33 +11,59 @@ export const s = StyleSheet.create({
   center: { flex: 1, justifyContent: "center", alignItems: "center", paddingVertical: spacing["10"] },
   emptyText: { fontSize: font.md, color: colors.textMuted },
 
-  list: { gap: spacing["2.5"], paddingBottom: spacing["10"] },
-  cardColumn: { gap: spacing["1.5"] },
-  card: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: colors.slate50, borderRadius: radius["2xl"], padding: spacing["4"], borderWidth: 1, borderColor: colors.border, gap: spacing["3"] },
-  cardInfo: { flex: 1, gap: 2 },
-  bizNm: { fontSize: font.xl, fontWeight: "800", color: colors.text },
-  meta: { fontSize: font.base, color: colors.textSecondary, fontWeight: "600" },
-  addr: { fontSize: font.sm, color: colors.textMuted },
+  list: { gap: spacing["3.5"], paddingBottom: spacing["10"] },
 
-  selectBtn: { backgroundColor: colors.primary, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["2"] },
+  // ── 사업장 카드 (그라데이션 밴드 + 정보 스트립) ──
+  bizCard: { backgroundColor: colors.bgCard, borderRadius: radius["2xl"], borderWidth: 1, borderColor: colors.border, overflow: "hidden" },
+  bizCardOpen: { borderColor: colors.accent },
+
+  bizBand: { backgroundColor: colors.primary, paddingHorizontal: spacing["4.5"], paddingVertical: spacing["4"], flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing["3"] },
+  bizBandLeft: { flex: 1, minWidth: 0 },
+  bizNm: { fontSize: font.xl, fontWeight: "900", color: colors.white, marginBottom: 2 },
+  bizRegNo: { fontSize: font.sm, color: "rgba(255,255,255,0.62)", fontFamily: Platform.OS === "web" ? "monospace" : undefined },
+
+  statusPill: { flexDirection: "row", alignItems: "center", gap: spacing["1.5"], borderRadius: radius.pill, paddingHorizontal: spacing["2.5"], paddingVertical: 5, backgroundColor: "rgba(255,255,255,0.14)" },
+  statusDot: { width: 7, height: 7, borderRadius: 999 },
+  statusPillText: { fontSize: font.sm, fontWeight: "800", color: colors.white },
+
+  bizStrip: { flexDirection: "row", gap: spacing["2"], padding: spacing["3"], borderBottomWidth: 1, borderBottomColor: colors.borderLight },
+  stripTile: { flex: 1, backgroundColor: colors.slate100, borderRadius: radius.lg, paddingHorizontal: spacing["2.5"], paddingVertical: spacing["2"] },
+  stripValue: { fontSize: font.base, fontWeight: "700", color: colors.textSecondary },
+
+  bizFooter: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: spacing["4"], paddingVertical: spacing["2.5"], gap: spacing["2"] },
+  bizAddr: { flex: 1, fontSize: font.sm, color: colors.textMuted },
+  chev: { fontSize: font.lg, color: colors.slate400, fontWeight: "700" },
+  chevOpen: { color: colors.accent, transform: [{ rotate: "90deg" }] },
+
+  selectBtn: { backgroundColor: colors.primary, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"] },
   selectBtnText: { fontSize: font.sm, fontWeight: "700", color: colors.white },
 
   moreBtn: { alignItems: "center", paddingVertical: spacing["3"], borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bgCard },
   moreBtnText: { fontSize: font.md, fontWeight: "700", color: colors.textGray },
 
-  editSection: { backgroundColor: colors.bgCard, borderRadius: radius["2xl"], borderWidth: 1, borderColor: colors.borderLight, padding: spacing["4"], gap: spacing["3"] },
-  fieldRow: {},
-  fieldLabel: { fontSize: font.base, fontWeight: "700", color: colors.textGray, marginBottom: spacing["1.5"] },
-  fieldInp: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"], fontSize: font.md, color: colors.text, backgroundColor: colors.bgCard },
+  // ── 신규 등록 카드 (그라데이션 밴드 없음) ──
+  newBizCard: { backgroundColor: colors.bgCard, borderRadius: radius["2xl"], borderWidth: 1, borderColor: colors.accent, padding: spacing["4"] },
 
-  readonlyBox: { borderWidth: 1, borderColor: colors.borderLight, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"], backgroundColor: colors.slate100 },
-  readonlyText: { fontSize: font.md, fontWeight: "600", color: colors.textGray },
+  // ── 상세/편집 영역 ──
+  detailInner: { padding: spacing["4"], borderTopWidth: 1, borderTopColor: colors.borderLight, borderStyle: "dashed" },
 
-  error: { fontSize: font.sm, color: "#ef4444", fontWeight: "600" },
+  sectionTitleRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"], marginTop: spacing["4"], marginBottom: spacing["2.5"] },
+  sectionTitleRowFirst: { marginTop: 0 },
+  sectionBar: { width: 3, height: 13, borderRadius: 2, backgroundColor: colors.accent },
+  sectionTitleText: { fontSize: font.sm, fontWeight: "900", color: colors.text, textTransform: "uppercase", letterSpacing: 0.4 },
+  sectionRule: { flex: 1, height: 1, backgroundColor: colors.borderLight },
 
-  editBtnRow: { flexDirection: "row", gap: spacing["2.5"] },
+  fieldGrid: { flexDirection: "row", flexWrap: "wrap", gap: spacing["2.5"] },
+  fieldBox: { flexGrow: 1, flexBasis: "45%", borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"] },
+  fieldBoxFull: { flexBasis: "100%", borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"] },
+  fieldInput: { fontSize: font.md, fontWeight: "700", color: colors.text, padding: 0 },
+  fieldStatic: { fontSize: font.md, fontWeight: "700", color: colors.text },
+
+  error: { fontSize: font.sm, color: "#ef4444", fontWeight: "600", marginTop: spacing["3"] },
+
+  btnRow: { flexDirection: "row", gap: spacing["2.5"], marginTop: spacing["4"] },
   cancelBtn: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingVertical: spacing["2.5"], alignItems: "center", backgroundColor: colors.bgCard },
   cancelBtnText: { fontSize: font.md, fontWeight: "700", color: colors.textGray },
-  saveBtn: { flex: 1, backgroundColor: colors.primary, borderRadius: radius.md, paddingVertical: spacing["2.5"], alignItems: "center" },
+  saveBtn: { flex: 1, backgroundColor: colors.accent, borderRadius: radius.md, paddingVertical: spacing["2.5"], alignItems: "center" },
   saveBtnText: { fontSize: font.md, fontWeight: "800", color: colors.white },
 });

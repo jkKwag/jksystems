@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Platform } from "react-native";
 import { s } from "../../styles/admin/AdminBizList.styles";
 import api from "../../lib/api";
 import ConfirmModal from "../../components/ConfirmModal";
@@ -17,6 +17,10 @@ const toForm = (biz) => ({
   addr: biz?.addr || "",
   addrDtl: biz?.addrDtl || "",
 });
+
+const HEADER_GRADIENT = Platform.OS === "web"
+  ? { background: "linear-gradient(135deg, #0f172a 0%, #14532d 100%)" }
+  : {};
 
 export default function AdminBizList({ adminInfo, onSelectBiz }) {
   const activeBizRegNo = adminInfo?.bizRegNo;
@@ -90,6 +94,10 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
 
   const update = (key) => (v) => setForm(f => ({ ...f, [key]: v }));
 
+  const indNm = (indCd) => industries.find(ind => ind.indCd === indCd)?.indNm || "미지정";
+  const statusNm = (biz) => oprSttCodes.find(c => c.cd === biz?.bizStatus)?.cdNm || biz?.bizStatus || "-";
+  const isOpenStatus = (biz) => biz?.bizStatus === "O";
+
   const submit = async () => {
     const isEdit = expandedKey !== "__new__";
     if (!isEdit && !form.bizRegNo.trim()) { setFormError("사업자등록번호를 입력해주세요."); return; }
@@ -119,75 +127,74 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
     setExpandedKey(null);
   };
 
+  const SectionTitle = ({ label, first }) => (
+    <View style={[s.sectionTitleRow, first && s.sectionTitleRowFirst]}>
+      <View style={s.sectionBar} />
+      <Text style={s.sectionTitleText}>{label}</Text>
+      <View style={s.sectionRule} />
+    </View>
+  );
+
   const renderFields = (biz) => (
-    <View style={s.editSection}>
-      {expandedKey === "__new__" && (
-        <View style={s.fieldRow}>
-          <Text style={s.fieldLabel}>· 사업자등록번호</Text>
-          <TextInput
-            style={s.fieldInp}
-            placeholder="숫자만 입력 (예: 2122544531)"
-            value={form.bizRegNo}
-            onChangeText={update("bizRegNo")}
-            keyboardType="numeric"
-          />
-        </View>
-      )}
-      <View style={s.fieldRow}>
-        <Text style={s.fieldLabel}>· 사업장명</Text>
-        <TextInput style={s.fieldInp} placeholder="사업장명 입력" value={form.bizNm} onChangeText={update("bizNm")} />
-      </View>
-      {expandedKey === "__new__" ? (
-        <View style={s.fieldRow}>
-          <Text style={s.fieldLabel}>· 대표자명</Text>
-          <TextInput style={s.fieldInp} placeholder="대표자명 입력" value={form.repNm} onChangeText={update("repNm")} />
-        </View>
-      ) : (
-        <View style={s.fieldRow}>
-          <Text style={s.fieldLabel}>· 대표자명</Text>
-          <View style={s.readonlyBox}>
-            <Text style={s.readonlyText}>{biz?.repNm || "-"}</Text>
+    <View style={s.detailInner}>
+      <SectionTitle label="기본 정보" first />
+      <View style={s.fieldGrid}>
+        {expandedKey === "__new__" && (
+          <View style={s.fieldBoxFull}>
+            <TextInput
+              style={s.fieldInput}
+              placeholder="사업자등록번호 (숫자만)"
+              value={form.bizRegNo}
+              onChangeText={update("bizRegNo")}
+              keyboardType="numeric"
+            />
           </View>
+        )}
+        <View style={s.fieldBoxFull}>
+          <TextInput style={s.fieldInput} placeholder="사업장명" value={form.bizNm} onChangeText={update("bizNm")} />
         </View>
-      )}
-      <View style={s.fieldRow}>
-        <Text style={s.fieldLabel}>· 전화번호</Text>
-        <TextInput style={s.fieldInp} placeholder="선택" value={form.telNo} onChangeText={update("telNo")} keyboardType="phone-pad" />
-      </View>
-      <View style={s.fieldRow}>
-        <Text style={s.fieldLabel}>· 이메일</Text>
-        <TextInput style={s.fieldInp} placeholder="선택" value={form.emailAddr} onChangeText={update("emailAddr")} keyboardType="email-address" autoCapitalize="none" />
-      </View>
-      <View style={s.fieldRow}>
-        <Text style={s.fieldLabel}>· 업종</Text>
-        <View style={s.readonlyBox}>
-          <Text style={s.readonlyText}>
-            {industries.find(ind => ind.indCd === form.indCd)?.indNm || "미지정"}
-          </Text>
-        </View>
-      </View>
-      {biz && (
-        <View style={s.fieldRow}>
-          <Text style={s.fieldLabel}>· 영업상태</Text>
-          <View style={s.readonlyBox}>
-            <Text style={s.readonlyText}>
-              {oprSttCodes.find(c => c.cd === biz.bizStatus)?.cdNm || biz.bizStatus || "-"}
-            </Text>
+        {expandedKey === "__new__" ? (
+          <View style={s.fieldBox}>
+            <TextInput style={s.fieldInput} placeholder="대표자명" value={form.repNm} onChangeText={update("repNm")} />
           </View>
+        ) : (
+          <View style={s.fieldBox}>
+            <Text style={s.fieldStatic}>{biz?.repNm || "-"}</Text>
+          </View>
+        )}
+        <View style={s.fieldBox}>
+          <Text style={s.fieldStatic}>{indNm(form.indCd)}</Text>
         </View>
-      )}
-      <View style={s.fieldRow}>
-        <Text style={s.fieldLabel}>· 주소</Text>
-        <TextInput style={s.fieldInp} placeholder="선택" value={form.addr} onChangeText={update("addr")} />
+        {biz && (
+          <View style={s.fieldBox}>
+            <Text style={s.fieldStatic}>{statusNm(biz)}</Text>
+          </View>
+        )}
       </View>
-      <View style={s.fieldRow}>
-        <Text style={s.fieldLabel}>· 상세주소</Text>
-        <TextInput style={s.fieldInp} placeholder="선택" value={form.addrDtl} onChangeText={update("addrDtl")} />
+
+      <SectionTitle label="연락처" />
+      <View style={s.fieldGrid}>
+        <View style={s.fieldBoxFull}>
+          <TextInput style={s.fieldInput} placeholder="전화번호" value={form.telNo} onChangeText={update("telNo")} keyboardType="phone-pad" />
+        </View>
+        <View style={s.fieldBoxFull}>
+          <TextInput style={s.fieldInput} placeholder="이메일" value={form.emailAddr} onChangeText={update("emailAddr")} keyboardType="email-address" autoCapitalize="none" />
+        </View>
+      </View>
+
+      <SectionTitle label="주소" />
+      <View style={s.fieldGrid}>
+        <View style={s.fieldBoxFull}>
+          <TextInput style={s.fieldInput} placeholder="주소" value={form.addr} onChangeText={update("addr")} />
+        </View>
+        <View style={s.fieldBoxFull}>
+          <TextInput style={s.fieldInput} placeholder="상세주소" value={form.addrDtl} onChangeText={update("addrDtl")} />
+        </View>
       </View>
 
       {!!formError && <Text style={s.error}>⚠️ {formError}</Text>}
 
-      <View style={s.editBtnRow}>
+      <View style={s.btnRow}>
         <TouchableOpacity style={s.cancelBtn} onPress={() => setExpandedKey(null)} disabled={saving}>
           <Text style={s.cancelBtnText}>취소</Text>
         </TouchableOpacity>
@@ -216,7 +223,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
       ) : (
         <ScrollView contentContainerStyle={s.list}>
           {expandedKey === "__new__" && (
-            <View style={s.cardColumn}>
+            <View style={s.newBizCard}>
               {renderFields(null)}
             </View>
           )}
@@ -226,22 +233,43 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
           ) : (
             bizList.map(biz => {
               const expanded = expandedKey === biz.bizRegNo;
+              const open = isOpenStatus(biz);
               return (
-                <View key={biz.bizRegNo} style={s.cardColumn}>
-                  <TouchableOpacity style={s.card} onPress={() => toggleExpand(biz.bizRegNo, biz)} activeOpacity={0.75}>
-                    <View style={s.cardInfo}>
-                      <Text style={s.bizNm}>{biz.bizNm}</Text>
-                      <Text style={s.meta}>{biz.bizRegNo}{biz.telNo ? ` · ${biz.telNo}` : ""}</Text>
-                      {(biz.addr || biz.addrDtl) && (
-                        <Text style={s.addr} numberOfLines={1}>{[biz.addr, biz.addrDtl].filter(Boolean).join(" ")}</Text>
-                      )}
+                <View key={biz.bizRegNo} style={[s.bizCard, expanded && s.bizCardOpen]}>
+                  <TouchableOpacity onPress={() => toggleExpand(biz.bizRegNo, biz)} activeOpacity={0.85}>
+                    <View style={[s.bizBand, HEADER_GRADIENT]}>
+                      <View style={s.bizBandLeft}>
+                        <Text style={s.bizNm} numberOfLines={1}>{biz.bizNm}</Text>
+                        <Text style={s.bizRegNo}>{biz.bizRegNo}</Text>
+                      </View>
+                      <View style={s.statusPill}>
+                        <View style={[s.statusDot, { backgroundColor: open ? "#4ade80" : "#94a3b8" }]} />
+                        <Text style={s.statusPillText}>{statusNm(biz)}</Text>
+                      </View>
                     </View>
-                    {onSelectBiz && biz.bizRegNo !== activeBizRegNo && (
-                      <TouchableOpacity style={s.selectBtn} onPress={(e) => { e?.stopPropagation?.(); onSelectBiz(biz.bizRegNo); }}>
-                        <Text style={s.selectBtnText}>이 사업장 조회</Text>
-                      </TouchableOpacity>
-                    )}
+
+                    <View style={s.bizStrip}>
+                      <View style={s.stripTile}>
+                        <Text style={s.stripValue} numberOfLines={1}>{biz.telNo || "연락처 없음"}</Text>
+                      </View>
+                      <View style={s.stripTile}>
+                        <Text style={s.stripValue} numberOfLines={1}>{indNm(biz.indCd)}</Text>
+                      </View>
+                    </View>
+
+                    <View style={s.bizFooter}>
+                      <Text style={s.bizAddr} numberOfLines={1}>
+                        {[biz.addr, biz.addrDtl].filter(Boolean).join(" ") || "주소 미등록"}
+                      </Text>
+                      {onSelectBiz && biz.bizRegNo !== activeBizRegNo && (
+                        <TouchableOpacity style={s.selectBtn} onPress={(e) => { e?.stopPropagation?.(); onSelectBiz(biz.bizRegNo); }}>
+                          <Text style={s.selectBtnText}>이 사업장 조회</Text>
+                        </TouchableOpacity>
+                      )}
+                      <Text style={[s.chev, expanded && s.chevOpen]}>›</Text>
+                    </View>
                   </TouchableOpacity>
+
                   {expanded && renderFields(biz)}
                 </View>
               );
