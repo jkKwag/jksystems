@@ -16,7 +16,7 @@ export const s = StyleSheet.create({
   calOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.7)", justifyContent: "center", alignItems: "center", padding: spacing["5"] },
   calBox: { width: "100%", maxWidth: 360, borderRadius: radius["2xl"], overflow: "hidden", backgroundColor: colors.slate800 },
 
-  statusFilterBox: { backgroundColor: colors.slate200, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.slate300, padding: spacing["3.5"], marginBottom: spacing["4"] },
+  statusFilterBox: { backgroundColor: colors.slate200, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.slate300, paddingHorizontal: spacing["3.5"], paddingVertical: 7, marginBottom: spacing["4"] },
   statusFilterRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing["2"] },
   statusChip: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"], backgroundColor: colors.bgCard },
   statusChipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
