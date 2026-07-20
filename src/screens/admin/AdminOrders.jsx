@@ -91,7 +91,10 @@ export default function AdminOrders({ adminInfo }) {
     setBusyOrderNo(order.orderNo);
     const { data, error } = await api.order.updateStatus(order.orderNo, { status: next });
     setBusyOrderNo(null);
-    if (error || !data) return;
+    if (error || !data) {
+      alert(`상태 변경 실패: ${error?.message || "알 수 없는 오류"}`);
+      return;
+    }
     setOrders(prev => prev.map(o => o.orderNo === data.orderNo ? data : o));
   };
 
