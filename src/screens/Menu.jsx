@@ -315,6 +315,21 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
     return () => es.close();
   }, [bizno]);
 
+  // 화면 잠금/다른 앱 전환 중에는 SSE가 끊기거나 지연될 수 있으므로,
+  // 화면(탭)이 다시 보이는 시점에 무조건 한 번 최신 상태를 다시 불러온다.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const onVisible = () => {
+      if (document.visibilityState === "visible") refreshPendingOrders();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onVisible);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onVisible);
+    };
+  }, [bizno]);
+
   // 서버 이벤트 없이도 시간이 지나면(3시간 경과 / 준비완료 10분 경과) 화면에서 사라지도록 주기적으로 점검
   useEffect(() => {
     const timer = setInterval(() => {
