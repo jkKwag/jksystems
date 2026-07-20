@@ -5,7 +5,8 @@ export const s = StyleSheet.create({
   container: { flex: 1, width: "100%", padding: spacing["5"] },
   headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: spacing["4"] },
   title: { fontSize: font["3xl"], fontWeight: "900", color: colors.text },
-  addBtn: { backgroundColor: colors.primary, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"] },
+  addBtn: { backgroundColor: colors.primary, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"], outlineStyle: "none" },
+  noOutline: { outlineStyle: "none" },
   addBtnText: { fontSize: font.md, fontWeight: "700", color: colors.white },
 
   center: { flex: 1, justifyContent: "center", alignItems: "center", paddingVertical: spacing["10"] },
@@ -35,10 +36,10 @@ export const s = StyleSheet.create({
   chev: { fontSize: font.lg, color: colors.slate400, fontWeight: "700" },
   chevOpen: { color: colors.accent, transform: [{ rotate: "90deg" }] },
 
-  selectBtn: { backgroundColor: colors.primary, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"] },
+  selectBtn: { backgroundColor: colors.primary, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"], outlineStyle: "none" },
   selectBtnText: { fontSize: font.sm, fontWeight: "700", color: colors.white },
 
-  moreBtn: { alignItems: "center", paddingVertical: spacing["3"], borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bgCard },
+  moreBtn: { alignItems: "center", paddingVertical: spacing["3"], borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bgCard, outlineStyle: "none" },
   moreBtnText: { fontSize: font.md, fontWeight: "700", color: colors.textGray },
 
   // ── 신규 등록 카드 (그라데이션 밴드 없음) ──
@@ -62,8 +63,8 @@ export const s = StyleSheet.create({
   error: { fontSize: font.sm, color: "#ef4444", fontWeight: "600", marginTop: spacing["3"] },
 
   btnRow: { flexDirection: "row", gap: spacing["2.5"], marginTop: spacing["4"] },
-  cancelBtn: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingVertical: spacing["2.5"], alignItems: "center", backgroundColor: colors.bgCard },
+  cancelBtn: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingVertical: spacing["2.5"], alignItems: "center", backgroundColor: colors.bgCard, outlineStyle: "none" },
   cancelBtnText: { fontSize: font.md, fontWeight: "700", color: colors.textGray },
-  saveBtn: { flex: 1, backgroundColor: colors.accent, borderRadius: radius.md, paddingVertical: spacing["2.5"], alignItems: "center" },
+  saveBtn: { flex: 1, backgroundColor: colors.accent, borderRadius: radius.md, paddingVertical: spacing["2.5"], alignItems: "center", outlineStyle: "none" },
   saveBtnText: { fontSize: font.md, fontWeight: "800", color: colors.white },
 });

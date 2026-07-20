@@ -236,7 +236,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
               const open = isOpenStatus(biz);
               return (
                 <View key={biz.bizRegNo} style={[s.bizCard, expanded && s.bizCardOpen]}>
-                  <TouchableOpacity onPress={() => toggleExpand(biz.bizRegNo, biz)} activeOpacity={0.85}>
+                  <TouchableOpacity style={s.noOutline} onPress={() => toggleExpand(biz.bizRegNo, biz)} activeOpacity={0.85}>
                     <View style={[s.bizBand, HEADER_GRADIENT]}>
                       <View style={s.bizBandLeft}>
                         <Text style={s.bizNm} numberOfLines={1}>{biz.bizNm}</Text>
