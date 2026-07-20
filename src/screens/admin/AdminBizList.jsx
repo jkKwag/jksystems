@@ -18,8 +18,8 @@ const toForm = (biz) => ({
   addrDtl: biz?.addrDtl || "",
 });
 
-const HEADER_GRADIENT = Platform.OS === "web"
-  ? { background: "linear-gradient(135deg, #0f172a 0%, #14532d 100%)" }
+const BAND_GRADIENT = Platform.OS === "web"
+  ? { background: "linear-gradient(135deg, #334155 0%, #15803d 100%)" }
   : {};
 
 export default function AdminBizList({ adminInfo, onSelectBiz }) {
@@ -237,7 +237,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
               return (
                 <View key={biz.bizRegNo} style={[s.bizCard, expanded && s.bizCardOpen]}>
                   <TouchableOpacity style={s.noOutline} onPress={() => toggleExpand(biz.bizRegNo, biz)} activeOpacity={0.85}>
-                    <View style={[s.bizBand, HEADER_GRADIENT]}>
+                    <View style={[s.bizBand, BAND_GRADIENT]}>
                       <View style={s.bizBandLeft}>
                         <Text style={s.bizNm} numberOfLines={1}>{biz.bizNm}</Text>
                         <Text style={s.bizRegNo}>{biz.bizRegNo}</Text>

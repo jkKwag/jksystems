@@ -18,7 +18,7 @@ export const s = StyleSheet.create({
   bizCard: { backgroundColor: colors.bgCard, borderRadius: radius["2xl"], borderWidth: 1, borderColor: colors.border, overflow: "hidden" },
   bizCardOpen: { borderColor: colors.accent },
 
-  bizBand: { backgroundColor: colors.primary, paddingHorizontal: spacing["4.5"], paddingVertical: spacing["4"], flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing["3"] },
+  bizBand: { backgroundColor: colors.slate700, paddingHorizontal: spacing["4.5"], paddingVertical: spacing["4"], flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing["3"] },
   bizBandLeft: { flex: 1, minWidth: 0 },
   bizNm: { fontSize: font.xl, fontWeight: "900", color: colors.white, marginBottom: 2 },
   bizRegNo: { fontSize: font.sm, color: "rgba(255,255,255,0.62)", fontFamily: Platform.OS === "web" ? "monospace" : undefined },
