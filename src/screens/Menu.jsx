@@ -289,6 +289,8 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
   // 조리진행상태(주문접수/준비중/준비완료)는 결제 여부와 무관하게 진행되므로
   // 결제 전 주문("주문만 하기")도 포함한다.
   const [activeOrders, setActiveOrders] = useState([]);
+  // 주문 현황 바에서 "메뉴명 외 N건" 링크를 눌렀을 때 상세 내역을 보여줄 주문 (null이면 안 보임)
+  const [orderDetailPopup, setOrderDetailPopup] = useState(null);
 
   const refreshPendingOrders = async () => {
     const uuid = getUuid();
@@ -613,7 +615,17 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
               const curIdx = orderStepIndex(order.status);
               return (
                 <View key={order.orderNo} style={s.orderStatusRow}>
-                  <Text style={s.orderStatusOrderLabel}>주문{oi + 1}</Text>
+                  <View style={s.orderStatusHeaderRow}>
+                    <View style={s.orderStatusOrderBadge}>
+                      <Text style={s.orderStatusOrderBadgeText}>주문{oi + 1}</Text>
+                    </View>
+                    <TouchableOpacity onPress={() => setOrderDetailPopup(order)}>
+                      <Text style={s.orderStatusSummaryLink}>
+                        {order.items?.[0]?.menuNm || ""}
+                        {order.items?.length > 1 ? ` 외 ${order.items.length - 1}건` : ""}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                   <View style={s.orderStatusSteps}>
                     {ORDER_STEPS.map((step, i) => {
                       const isDone = i <= curIdx;
@@ -637,6 +649,39 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
           </View>
         );
       })()}
+
+      {/* 주문 현황의 "메뉴명 외 N건" 클릭 시 나오는 메뉴/수량/금액 상세 레이어 */}
+      <Modal visible={!!orderDetailPopup} transparent animationType="fade" onRequestClose={() => setOrderDetailPopup(null)}>
+        <TouchableOpacity style={s.confirmOverlay} activeOpacity={1} onPress={() => setOrderDetailPopup(null)}>
+          <TouchableOpacity activeOpacity={1} style={s.orderDetailPopupBox} onPress={() => {}}>
+            <Text style={s.orderDetailPopupTitle}>주문 내역</Text>
+            {(orderDetailPopup?.items || []).map(item => {
+              const optionsTotal = (item.options || []).reduce((sum, o) => sum + Number(o.addPrice || 0), 0);
+              const lineTotal = (Number(item.price || 0) + optionsTotal) * Number(item.qty || 1);
+              return (
+                <View key={item.orderSeq} style={s.orderDetailPopupRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={s.orderDetailPopupMenuName}>{item.menuNm} x{item.qty}</Text>
+                    {item.options?.filter(o => o.optNm).map(o => (
+                      <Text key={o.optCd} style={s.orderDetailPopupOption}>
+                        {o.optNm}{Number(o.addPrice || 0) > 0 ? ` (+₩${Number(o.addPrice).toLocaleString()})` : ""}
+                      </Text>
+                    ))}
+                  </View>
+                  <Text style={s.orderDetailPopupPrice}>₩{lineTotal.toLocaleString()}</Text>
+                </View>
+              );
+            })}
+            <View style={s.orderDetailPopupTotalRow}>
+              <Text style={s.orderDetailPopupTotalLabel}>총 금액</Text>
+              <Text style={s.orderDetailPopupTotalValue}>₩{Number(orderDetailPopup?.totalAmount || 0).toLocaleString()}</Text>
+            </View>
+            <TouchableOpacity style={s.orderDetailPopupCloseBtn} onPress={() => setOrderDetailPopup(null)}>
+              <Text style={s.orderDetailPopupCloseBtnText}>닫기</Text>
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
 
       {/* 카테고리 탭 */}
       <View style={s.catBar}>
