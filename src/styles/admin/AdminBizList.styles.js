@@ -17,7 +17,7 @@ export const s = StyleSheet.create({
   // ── 사업장 카드 (메뉴관리 카테고리 톤 밴드 + 정보 스트립) ──
   bizCard: { backgroundColor: colors.bgCard, borderRadius: radius["2xl"], borderWidth: 1, borderColor: colors.slate300, overflow: "hidden" },
 
-  bizBand: { backgroundColor: colors.slate200, borderBottomWidth: 1, borderBottomColor: colors.slate300, paddingHorizontal: spacing["4.5"], paddingVertical: spacing["4"], flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing["3"] },
+  bizBand: { backgroundColor: colors.slate200, borderBottomWidth: 1, borderBottomColor: colors.slate300, paddingHorizontal: spacing["4.5"], paddingVertical: spacing["2"], flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing["3"] },
   bizBandLeft: { flex: 1, minWidth: 0 },
   bizNm: { fontSize: font.xl, fontWeight: "900", color: "#15803d", marginBottom: 2 },
   bizRegNo: { fontSize: font.sm, color: colors.textGray, fontFamily: Platform.OS === "web" ? "monospace" : undefined },
