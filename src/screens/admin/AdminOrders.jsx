@@ -100,11 +100,16 @@ export default function AdminOrders({ adminInfo }) {
       return;
     }
     setBusyOrderNo(null);
-    alert(`디버그: data=${JSON.stringify(data)} / error=${JSON.stringify(error)}`);
     if (error || !data) {
+      alert(`디버그: data=${JSON.stringify(data)} / error=${JSON.stringify(error)}`);
       return;
     }
-    setOrders(prev => prev.map(o => o.orderNo === data.orderNo ? data : o));
+    setOrders(prev => {
+      const matched = prev.some(o => o.orderNo === data.orderNo);
+      const next2 = prev.map(o => o.orderNo === data.orderNo ? data : o);
+      alert(`디버그: 매칭됨=${matched} / prev건수=${prev.length} / next건수=${next2.length} / statusFilter=${statusFilter}`);
+      return next2;
+    });
   };
 
   const pickDate = (dateString) => {
