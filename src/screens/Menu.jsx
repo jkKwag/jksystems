@@ -285,7 +285,9 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
   // truth)을 유지한다. 결제여부는 order.status가 아니라 paymentStatus로 판단
   // (주문상태는 조리진행상태, 결제여부와는 별개 개념).
   const [pendingOrders, setPendingOrders] = useState([]);
-  // 결제 완료됐고 아직 진행 중(준비완료 전 또는 막 준비완료된)인 주문 - 상단 진행상태 바에 표시
+  // 취소되지 않고 아직 만료되지 않은 주문 - 상단 진행상태 바에 표시.
+  // 조리진행상태(주문접수/준비중/준비완료)는 결제 여부와 무관하게 진행되므로
+  // 결제 전 주문("주문만 하기")도 포함한다.
   const [activeOrders, setActiveOrders] = useState([]);
 
   const refreshPendingOrders = async () => {
@@ -295,7 +297,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
     if (!Array.isArray(orders)) return;
     const bizOrders = orders.filter(o => o.bizRegNo === bizno && o.status !== "CANCELED" && !isOrderExpired(o));
     setPendingOrders(bizOrders.filter(o => !o.paymentStatus));
-    setActiveOrders(bizOrders.filter(o => !!o.paymentStatus));
+    setActiveOrders(bizOrders);
   };
 
   useEffect(() => {
