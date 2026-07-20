@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Platform } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator } from "react-native";
 import { s } from "../../styles/admin/AdminBizList.styles";
 import api from "../../lib/api";
 import ConfirmModal from "../../components/ConfirmModal";
@@ -17,10 +17,6 @@ const toForm = (biz) => ({
   addr: biz?.addr || "",
   addrDtl: biz?.addrDtl || "",
 });
-
-const BAND_GRADIENT = Platform.OS === "web"
-  ? { background: "linear-gradient(135deg, #64748b 0%, #22c55e 100%)" }
-  : {};
 
 export default function AdminBizList({ adminInfo, onSelectBiz }) {
   const activeBizRegNo = adminInfo?.bizRegNo;
@@ -245,7 +241,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
               return (
                 <View key={biz.bizRegNo} style={[s.bizCard, expanded && s.bizCardOpen]}>
                   <TouchableOpacity style={s.noOutline} onPress={() => toggleExpand(biz.bizRegNo, biz)} activeOpacity={0.85}>
-                    <View style={[s.bizBand, BAND_GRADIENT]}>
+                    <View style={s.bizBand}>
                       <View style={s.bizBandLeft}>
                         <Text style={s.bizNm} numberOfLines={1}>{biz.bizNm}</Text>
                         <Text style={s.bizRegNo}>{biz.bizRegNo}</Text>

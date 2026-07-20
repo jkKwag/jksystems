@@ -14,18 +14,18 @@ export const s = StyleSheet.create({
 
   list: { gap: spacing["3.5"], paddingBottom: spacing["10"] },
 
-  // ── 사업장 카드 (그라데이션 밴드 + 정보 스트립) ──
+  // ── 사업장 카드 (메뉴관리 카테고리 톤 밴드 + 정보 스트립) ──
   bizCard: { backgroundColor: colors.bgCard, borderRadius: radius["2xl"], borderWidth: 1, borderColor: colors.border, overflow: "hidden" },
   bizCardOpen: { borderColor: colors.accent },
 
-  bizBand: { backgroundColor: colors.slate700, paddingHorizontal: spacing["4.5"], paddingVertical: spacing["4"], flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing["3"] },
+  bizBand: { backgroundColor: colors.slate200, borderBottomWidth: 1, borderBottomColor: colors.slate300, paddingHorizontal: spacing["4.5"], paddingVertical: spacing["4"], flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing["3"] },
   bizBandLeft: { flex: 1, minWidth: 0 },
-  bizNm: { fontSize: font.xl, fontWeight: "900", color: colors.white, marginBottom: 2 },
-  bizRegNo: { fontSize: font.sm, color: "rgba(255,255,255,0.62)", fontFamily: Platform.OS === "web" ? "monospace" : undefined },
+  bizNm: { fontSize: font.xl, fontWeight: "900", color: colors.text, marginBottom: 2 },
+  bizRegNo: { fontSize: font.sm, color: colors.textGray, fontFamily: Platform.OS === "web" ? "monospace" : undefined },
 
-  statusPill: { flexDirection: "row", alignItems: "center", gap: spacing["1.5"], borderRadius: radius.pill, paddingHorizontal: spacing["2.5"], paddingVertical: 5, backgroundColor: "rgba(255,255,255,0.14)" },
+  statusPill: { flexDirection: "row", alignItems: "center", gap: spacing["1.5"], borderRadius: radius.pill, paddingHorizontal: spacing["2.5"], paddingVertical: 5, backgroundColor: colors.bgCard, borderWidth: 1, borderColor: colors.slate300 },
   statusDot: { width: 7, height: 7, borderRadius: 999 },
-  statusPillText: { fontSize: font.sm, fontWeight: "800", color: colors.white },
+  statusPillText: { fontSize: font.sm, fontWeight: "800", color: colors.textGray },
 
   bizStrip: { flexDirection: "row", gap: spacing["2"], padding: spacing["3"], borderBottomWidth: 1, borderBottomColor: colors.borderLight },
   stripTile: { flex: 1, backgroundColor: colors.slate100, borderRadius: radius.lg, paddingHorizontal: spacing["2.5"], paddingVertical: spacing["2"] },
