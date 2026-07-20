@@ -108,18 +108,20 @@ export default function AdminOrders({ adminInfo }) {
         </TouchableOpacity>
       </View>
 
-      <View style={s.statusFilterRow}>
-        {STATUS_FILTERS.map(status => (
-          <TouchableOpacity
-            key={status}
-            style={[s.statusChip, statusFilter === status && s.statusChipActive]}
-            onPress={() => setStatusFilter(status)}
-          >
-            <Text style={[s.statusChipText, statusFilter === status && s.statusChipTextActive]}>
-              {STATUS_FILTER_LABEL[status]}
-            </Text>
-          </TouchableOpacity>
-        ))}
+      <View style={s.statusFilterBox}>
+        <View style={s.statusFilterRow}>
+          {STATUS_FILTERS.map(status => (
+            <TouchableOpacity
+              key={status}
+              style={[s.statusChip, statusFilter === status && s.statusChipActive]}
+              onPress={() => setStatusFilter(status)}
+            >
+              <Text style={[s.statusChipText, statusFilter === status && s.statusChipTextActive]}>
+                {STATUS_FILTER_LABEL[status]}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
 
       {calTarget && (
