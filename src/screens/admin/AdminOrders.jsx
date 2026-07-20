@@ -89,27 +89,13 @@ export default function AdminOrders({ adminInfo }) {
     const next = NEXT_STATUS[order.status];
     if (!next) return;
     setBusyOrderNo(order.orderNo);
-    let data, error;
-    try {
-      const res = await api.order.updateStatus(order.orderNo, { status: next });
-      data = res.data;
-      error = res.error;
-    } catch (e) {
-      alert(`디버그: updateStatus 호출 중 예외 발생 - ${e?.message || e}`);
-      setBusyOrderNo(null);
-      return;
-    }
+    const { data, error } = await api.order.updateStatus(order.orderNo, { status: next });
     setBusyOrderNo(null);
     if (error || !data) {
-      alert(`디버그: data=${JSON.stringify(data)} / error=${JSON.stringify(error)}`);
+      alert(`상태 변경 실패: ${error?.message || "알 수 없는 오류"}`);
       return;
     }
-    setOrders(prev => {
-      const matched = prev.some(o => o.orderNo === data.orderNo);
-      const next2 = prev.map(o => o.orderNo === data.orderNo ? data : o);
-      alert(`디버그: 매칭됨=${matched} / prev건수=${prev.length} / next건수=${next2.length} / statusFilter=${statusFilter}`);
-      return next2;
-    });
+    setOrders(prev => prev.map(o => o.orderNo === data.orderNo ? data : o));
   };
 
   const pickDate = (dateString) => {
