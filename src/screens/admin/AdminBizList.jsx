@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator 
 import { s } from "../../styles/admin/AdminBizList.styles";
 import api from "../../lib/api";
 import ConfirmModal from "../../components/ConfirmModal";
+import { formatBizRegNo } from "../../lib/formatBizRegNo";
 
 const PAGE_SIZE = 10;
 const emptyForm = { bizRegNo: "", bizNm: "", repNm: "", telNo: "", emailAddr: "", indCd: "", addr: "", addrDtl: "" };
@@ -244,7 +245,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
                     <View style={s.bizBand}>
                       <View style={s.bizBandLeft}>
                         <Text style={s.bizNm} numberOfLines={1}>{biz.bizNm}</Text>
-                        <Text style={s.bizRegNo}>{biz.bizRegNo}</Text>
+                        <Text style={s.bizRegNo}>{formatBizRegNo(biz.bizRegNo)}</Text>
                       </View>
                       <View style={s.statusPill}>
                         <View style={[s.statusDot, { backgroundColor: open ? "#4ade80" : "#94a3b8" }]} />

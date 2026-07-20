@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { View, Text, Image, ActivityIndicator, TouchableOpacity, Platform } from "react-native";
 import { s } from "../../styles/admin/AdminBizQr.styles";
 import api from "../../lib/api";
+import { formatBizRegNo } from "../../lib/formatBizRegNo";
 
 const MENU_BASE_URL = "https://www.jkscaneat.com/menu";
 
@@ -65,7 +66,7 @@ export default function AdminBizQr({ adminInfo }) {
         </View>
         <View style={s.infoRow}>
           <Text style={s.infoLabel}>사업자등록번호</Text>
-          <Text style={s.infoValue}>{bizRegNo}</Text>
+          <Text style={s.infoValue}>{formatBizRegNo(bizRegNo)}</Text>
         </View>
       </View>
 
