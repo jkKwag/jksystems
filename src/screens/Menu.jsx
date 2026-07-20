@@ -304,13 +304,19 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
     refreshPendingOrders();
   }, [bizno]);
 
-  // 주문상태 변경을 실시간으로 받기 (폴링 대신 SSE) - 서버가 상태 바뀔 때마다 밀어줌
+  // 주문상태 변경을 실시간으로 받기 (SSE) - 서버가 상태 바뀔 때마다 밀어줌
   useEffect(() => {
     const uuid = getUuid();
     if (!uuid || !bizno || typeof EventSource === "undefined") return;
     const es = new EventSource(api.order.streamUrl(uuid));
     es.addEventListener("order-status", refreshPendingOrders);
     return () => es.close();
+  }, [bizno]);
+
+  // SSE가 프록시/네트워크 사정으로 끊기거나 이벤트가 지연되는 경우를 대비한 보조 폴링
+  useEffect(() => {
+    const timer = setInterval(refreshPendingOrders, 15000);
+    return () => clearInterval(timer);
   }, [bizno]);
 
   // 서버 이벤트 없이도 시간이 지나면(3시간 경과 / 준비완료 10분 경과) 화면에서 사라지도록 주기적으로 점검
