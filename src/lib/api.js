@@ -114,6 +114,7 @@ const api = {
     get: (orderNo) => get(`/api/order/${orderNo}`),
     post: (body) => post(`/api/order`, body),
     updateStatus: (orderNo, body) => put(`/api/order/${orderNo}/status`, body),
+    streamUrl: (uuid) => `${BASE}/api/order/stream?uuid=${uuid}`,
   },
   payment: {
     confirm: (body) => post(`/api/payment/confirm`, body),

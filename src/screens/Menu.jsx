@@ -281,13 +281,14 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
     refreshPendingOrders();
   }, [bizno]);
 
-  // 진행 중인 주문이 있으면 주기적으로 상태 갱신 (준비중->준비완료 등 변화를 반영)
+  // 주문상태 변경을 실시간으로 받기 (폴링 대신 SSE) - 서버가 상태 바뀔 때마다 밀어줌
   useEffect(() => {
-    const hasInProgress = activeOrders.some(o => o.status !== "READY");
-    if (!hasInProgress) return;
-    const timer = setInterval(refreshPendingOrders, 20000);
-    return () => clearInterval(timer);
-  }, [bizno, activeOrders]);
+    const uuid = getUuid();
+    if (!uuid || !bizno || typeof EventSource === "undefined") return;
+    const es = new EventSource(api.order.streamUrl(uuid));
+    es.addEventListener("order-status", refreshPendingOrders);
+    return () => es.close();
+  }, [bizno]);
 
   // 결제내역 (서버가 최근 2일치만 내려줌). "내 스캔 목록" 버튼 옆에 조건부로 노출됨
   const [recentPayments, setRecentPayments] = useState([]);
