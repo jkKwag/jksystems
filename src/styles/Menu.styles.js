@@ -46,6 +46,17 @@ export const s = StyleSheet.create({
   seatBtnText: { fontSize: font.sm, fontWeight: "700", color: colors.indigo },
   bizAddr: { fontSize: font.base, color: colors.textMuted, marginTop: 2 },
 
+  orderStatusBar: { backgroundColor: colors.accentLight, borderBottomWidth: 1, borderBottomColor: colors.border, paddingHorizontal: spacing["4"], paddingVertical: spacing["2.5"] },
+  orderStatusBarTitle: { fontSize: font.sm, fontWeight: "800", color: colors.textGray, marginBottom: spacing["1.5"] },
+  orderStatusSteps: { flexDirection: "row", alignItems: "center" },
+  orderStatusStepWrap: { flexDirection: "row", alignItems: "center", flex: 1 },
+  orderStatusDot: { width: 9, height: 9, borderRadius: 999, backgroundColor: colors.slate300 },
+  orderStatusDotActive: { backgroundColor: colors.accent },
+  orderStatusStepText: { fontSize: font.sm, fontWeight: "700", color: colors.textFaint, marginLeft: spacing["1"] },
+  orderStatusStepTextActive: { color: colors.accent },
+  orderStatusLine: { flex: 1, height: 2, backgroundColor: colors.slate300, marginHorizontal: spacing["1.5"] },
+  orderStatusLineActive: { backgroundColor: colors.accent },
+
   catBar: { backgroundColor: colors.bgCard, borderBottomWidth: 1, borderBottomColor: colors.borderLight, flexShrink: 0, flexDirection: "row", paddingHorizontal: spacing["1"] },
   catItem: { paddingHorizontal: spacing["3"], paddingVertical: 11, position: "relative" },
   catText: { fontSize: font.md, fontWeight: "700", color: colors.textFaint },

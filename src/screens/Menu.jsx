@@ -12,6 +12,16 @@ import { s } from "../styles/Menu.styles";
 
 const TOSS_CLIENT_KEY = process.env.EXPO_PUBLIC_TOSS_CLIENT_KEY || "test_ck_vZnjEJeQVxexx5pMqG4brPmOoBN0";
 
+const ORDER_STEPS = [
+  { key: "RECEIVED", label: "주문접수" },
+  { key: "PREPARING", label: "준비중" },
+  { key: "READY", label: "준비완료" },
+];
+const orderStepIndex = (status) => Math.max(0, ORDER_STEPS.findIndex(s => s.key === status));
+// 여러 건이 진행 중이면 가장 덜 진행된 상태를 대표로 보여줌 (모든 주문이 준비완료 돼야 진짜 끝난 것이므로)
+const representativeStepIndex = (orders) =>
+  orders.reduce((min, o) => Math.min(min, orderStepIndex(o.status)), ORDER_STEPS.length - 1);
+
 function getUuid() {
   if (Platform.OS !== "web") return null;
   let uuid = localStorage.getItem("scaneat_uuid");
@@ -254,18 +264,30 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
   // truth)을 유지한다. 결제여부는 order.status가 아니라 paymentStatus로 판단
   // (주문상태는 조리진행상태, 결제여부와는 별개 개념).
   const [pendingOrders, setPendingOrders] = useState([]);
+  // 결제 완료됐고 아직 진행 중(준비완료 전 또는 막 준비완료된)인 주문 - 상단 진행상태 바에 표시
+  const [activeOrders, setActiveOrders] = useState([]);
 
   const refreshPendingOrders = async () => {
     const uuid = getUuid();
     if (!uuid || !bizno) return;
     const orders = await api.order.list(uuid);
     if (!Array.isArray(orders)) return;
-    setPendingOrders(orders.filter(o => o.bizRegNo === bizno && o.status !== "CANCELED" && !o.paymentStatus));
+    const bizOrders = orders.filter(o => o.bizRegNo === bizno && o.status !== "CANCELED");
+    setPendingOrders(bizOrders.filter(o => !o.paymentStatus));
+    setActiveOrders(bizOrders.filter(o => !!o.paymentStatus));
   };
 
   useEffect(() => {
     refreshPendingOrders();
   }, [bizno]);
+
+  // 진행 중인 주문이 있으면 주기적으로 상태 갱신 (준비중->준비완료 등 변화를 반영)
+  useEffect(() => {
+    const hasInProgress = activeOrders.some(o => o.status !== "READY");
+    if (!hasInProgress) return;
+    const timer = setInterval(refreshPendingOrders, 20000);
+    return () => clearInterval(timer);
+  }, [bizno, activeOrders]);
 
   // 결제내역 (서버가 최근 2일치만 내려줌). "내 스캔 목록" 버튼 옆에 조건부로 노출됨
   const [recentPayments, setRecentPayments] = useState([]);
@@ -548,6 +570,30 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
           </Text>
         )}
       </View>
+
+      {activeOrders.length > 0 && (() => {
+        const curIdx = representativeStepIndex(activeOrders);
+        return (
+          <View style={s.orderStatusBar}>
+            <Text style={s.orderStatusBarTitle}>
+              주문 현황{activeOrders.length > 1 ? ` (${activeOrders.length}건)` : ""}
+            </Text>
+            <View style={s.orderStatusSteps}>
+              {ORDER_STEPS.map((step, i) => (
+                <View key={step.key} style={s.orderStatusStepWrap}>
+                  <View style={[s.orderStatusDot, i <= curIdx && s.orderStatusDotActive]} />
+                  <Text style={[s.orderStatusStepText, i <= curIdx && s.orderStatusStepTextActive]}>
+                    {step.label}
+                  </Text>
+                  {i < ORDER_STEPS.length - 1 && (
+                    <View style={[s.orderStatusLine, i < curIdx && s.orderStatusLineActive]} />
+                  )}
+                </View>
+              ))}
+            </View>
+          </View>
+        );
+      })()}
 
       {/* 카테고리 탭 */}
       <View style={s.catBar}>
