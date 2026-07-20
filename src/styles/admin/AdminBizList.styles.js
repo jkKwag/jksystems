@@ -15,7 +15,7 @@ export const s = StyleSheet.create({
   list: { gap: spacing["3.5"], paddingBottom: spacing["10"] },
 
   // ── 사업장 카드 (메뉴관리 카테고리 톤 밴드 + 정보 스트립) ──
-  bizCard: { backgroundColor: colors.bgCard, borderRadius: radius["2xl"], borderWidth: 1, borderColor: colors.border, overflow: "hidden" },
+  bizCard: { backgroundColor: colors.bgCard, borderRadius: radius["2xl"], borderWidth: 1, borderColor: colors.slate300, overflow: "hidden" },
   bizCardOpen: { borderColor: colors.accent },
 
   bizBand: { backgroundColor: colors.slate200, borderBottomWidth: 1, borderBottomColor: colors.slate300, paddingHorizontal: spacing["4.5"], paddingVertical: spacing["4"], flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing["3"] },
@@ -55,8 +55,8 @@ export const s = StyleSheet.create({
   sectionRule: { flex: 1, height: 1, backgroundColor: colors.borderLight },
 
   fieldGrid: { flexDirection: "row", flexWrap: "wrap", gap: spacing["2.5"] },
-  fieldBox: { flexGrow: 1, flexBasis: "45%", borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"] },
-  fieldBoxFull: { flexBasis: "100%", borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"] },
+  fieldBox: { flexGrow: 1, flexBasis: "45%", borderWidth: 1, borderColor: colors.slate300, borderRadius: radius.lg, paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"] },
+  fieldBoxFull: { flexBasis: "100%", borderWidth: 1, borderColor: colors.slate300, borderRadius: radius.lg, paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"] },
   fieldBoxFocused: { borderColor: colors.accent },
   fieldInput: { fontSize: font.md, fontWeight: "700", color: colors.text, padding: 0, outlineStyle: "none" },
   fieldStatic: { fontSize: font.md, fontWeight: "700", color: colors.text },
