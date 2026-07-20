@@ -20,7 +20,7 @@ const ORDER_STEPS = [
 const orderStepIndex = (status) => Math.max(0, ORDER_STEPS.findIndex(s => s.key === status));
 
 const STUCK_ORDER_MAX_AGE_MS = 3 * 60 * 60 * 1000; // 상태 무관, 주문 후 3시간 지나면 숨김 (오래 안 바뀌는 이상케이스 안전장치)
-const READY_HIDE_DELAY_MS = 10 * 60 * 1000; // 준비완료 후 10분 지나면 숨김
+const READY_HIDE_DELAY_MS = 30 * 60 * 1000; // 준비완료 후 30분 지나면 숨김
 const isOrderExpired = (order) => {
   const now = Date.now();
   if (order.regDt && now - new Date(order.regDt).getTime() > STUCK_ORDER_MAX_AGE_MS) return true;
@@ -625,7 +625,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
         const sortedOrders = [...activeOrders].sort((a, b) => new Date(a.regDt) - new Date(b.regDt));
         return (
           <View style={s.orderStatusBar}>
-            <Text style={s.orderStatusBarTitle}>주문 현황</Text>
+            <Text style={s.orderStatusBarTitle}>주문진행 현황</Text>
             {sortedOrders.map((order, oi) => {
               const curIdx = orderStepIndex(order.status);
               return (
