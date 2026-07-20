@@ -52,7 +52,7 @@ export const s = StyleSheet.create({
   orderStatusHeaderRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"], marginBottom: spacing["1"] },
   orderStatusOrderBadge: { backgroundColor: colors.accent, borderRadius: radius.sm, paddingHorizontal: spacing["2"], paddingVertical: 2 },
   orderStatusOrderBadgeText: { fontSize: font.sm, fontWeight: "800", color: colors.white },
-  orderStatusSummaryLink: { fontSize: font.sm, fontWeight: "700", color: colors.textSecondary, textDecorationLine: "underline" },
+  orderStatusSummaryLink: { fontSize: font.sm, fontWeight: "400", color: colors.textSecondary, textDecorationLine: "underline" },
   orderStatusSteps: { flexDirection: "row", alignItems: "center" },
   orderStatusStepWrap: { flexDirection: "row", alignItems: "center", flex: 1 },
   orderStatusDot: { width: 9, height: 9, borderRadius: 999, backgroundColor: colors.slate300 },
