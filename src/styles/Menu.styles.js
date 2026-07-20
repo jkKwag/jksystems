@@ -48,6 +48,8 @@ export const s = StyleSheet.create({
 
   orderStatusBar: { backgroundColor: colors.accentLight, borderBottomWidth: 1, borderBottomColor: colors.border, paddingHorizontal: spacing["4"], paddingVertical: spacing["2.5"] },
   orderStatusBarTitle: { fontSize: font.sm, fontWeight: "800", color: colors.textGray, marginBottom: spacing["1.5"] },
+  orderStatusRow: { marginBottom: spacing["1.5"] },
+  orderStatusOrderLabel: { fontSize: font.sm, fontWeight: "800", color: colors.textSecondary, marginBottom: 3 },
   orderStatusSteps: { flexDirection: "row", alignItems: "center" },
   orderStatusStepWrap: { flexDirection: "row", alignItems: "center", flex: 1 },
   orderStatusDot: { width: 9, height: 9, borderRadius: 999, backgroundColor: colors.slate300 },

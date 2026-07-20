@@ -18,9 +18,21 @@ const ORDER_STEPS = [
   { key: "READY", label: "준비완료" },
 ];
 const orderStepIndex = (status) => Math.max(0, ORDER_STEPS.findIndex(s => s.key === status));
-// 여러 건이 진행 중이면 가장 덜 진행된 상태를 대표로 보여줌 (모든 주문이 준비완료 돼야 진짜 끝난 것이므로)
-const representativeStepIndex = (orders) =>
-  orders.reduce((min, o) => Math.min(min, orderStepIndex(o.status)), ORDER_STEPS.length - 1);
+
+function BlinkingText({ style, children }) {
+  const opacity = useRef(new Animated.Value(1)).current;
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacity, { toValue: 0.35, duration: 650, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 1, duration: 650, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, []);
+  return <Animated.Text style={[style, { opacity }]}>{children}</Animated.Text>;
+}
 
 function getUuid() {
   if (Platform.OS !== "web") return null;
@@ -573,25 +585,35 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
       </View>
 
       {activeOrders.length > 0 && (() => {
-        const curIdx = representativeStepIndex(activeOrders);
+        const sortedOrders = [...activeOrders].sort((a, b) => new Date(a.regDt) - new Date(b.regDt));
         return (
           <View style={s.orderStatusBar}>
-            <Text style={s.orderStatusBarTitle}>
-              주문 현황{activeOrders.length > 1 ? ` (${activeOrders.length}건)` : ""}
-            </Text>
-            <View style={s.orderStatusSteps}>
-              {ORDER_STEPS.map((step, i) => (
-                <View key={step.key} style={s.orderStatusStepWrap}>
-                  <View style={[s.orderStatusDot, i <= curIdx && s.orderStatusDotActive]} />
-                  <Text style={[s.orderStatusStepText, i <= curIdx && s.orderStatusStepTextActive]}>
-                    {step.label}
-                  </Text>
-                  {i < ORDER_STEPS.length - 1 && (
-                    <View style={[s.orderStatusLine, i < curIdx && s.orderStatusLineActive]} />
-                  )}
+            <Text style={s.orderStatusBarTitle}>주문 현황</Text>
+            {sortedOrders.map((order, oi) => {
+              const curIdx = orderStepIndex(order.status);
+              return (
+                <View key={order.orderNo} style={s.orderStatusRow}>
+                  <Text style={s.orderStatusOrderLabel}>주문{oi + 1}</Text>
+                  <View style={s.orderStatusSteps}>
+                    {ORDER_STEPS.map((step, i) => {
+                      const isDone = i <= curIdx;
+                      const StepText = i === curIdx ? BlinkingText : Text;
+                      return (
+                        <View key={step.key} style={s.orderStatusStepWrap}>
+                          <View style={[s.orderStatusDot, isDone && s.orderStatusDotActive]} />
+                          <StepText style={[s.orderStatusStepText, isDone && s.orderStatusStepTextActive]}>
+                            {step.label}
+                          </StepText>
+                          {i < ORDER_STEPS.length - 1 && (
+                            <View style={[s.orderStatusLine, i < curIdx && s.orderStatusLineActive]} />
+                          )}
+                        </View>
+                      );
+                    })}
+                  </View>
                 </View>
-              ))}
-            </View>
+              );
+            })}
           </View>
         );
       })()}
