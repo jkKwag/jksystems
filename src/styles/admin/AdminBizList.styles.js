@@ -19,7 +19,7 @@ export const s = StyleSheet.create({
 
   bizBand: { backgroundColor: colors.slate200, borderBottomWidth: 1, borderBottomColor: colors.slate300, paddingHorizontal: spacing["4.5"], paddingVertical: spacing["4"], flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing["3"] },
   bizBandLeft: { flex: 1, minWidth: 0 },
-  bizNm: { fontSize: font.xl, fontWeight: "900", color: colors.accent, marginBottom: 2 },
+  bizNm: { fontSize: font.xl, fontWeight: "900", color: "#4ade80", marginBottom: 2 },
   bizRegNo: { fontSize: font.sm, color: colors.textGray, fontFamily: Platform.OS === "web" ? "monospace" : undefined },
 
   statusPill: { flexDirection: "row", alignItems: "center", gap: spacing["1.5"], borderRadius: radius.pill, paddingHorizontal: spacing["2.5"], paddingVertical: 5, backgroundColor: colors.bgCard, borderWidth: 1, borderColor: colors.slate300 },
