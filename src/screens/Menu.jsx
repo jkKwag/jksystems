@@ -28,7 +28,7 @@ const isOrderExpired = (order) => {
   return false;
 };
 
-function BlinkingText({ style, children }) {
+function useBlinkOpacity() {
   const opacity = useRef(new Animated.Value(1)).current;
   useEffect(() => {
     const loop = Animated.loop(
@@ -40,7 +40,17 @@ function BlinkingText({ style, children }) {
     loop.start();
     return () => loop.stop();
   }, []);
+  return opacity;
+}
+
+function BlinkingText({ style, children }) {
+  const opacity = useBlinkOpacity();
   return <Animated.Text style={[style, { opacity }]}>{children}</Animated.Text>;
+}
+
+function BlinkingView({ style, children }) {
+  const opacity = useBlinkOpacity();
+  return <Animated.View style={[style, { opacity }]}>{children}</Animated.View>;
 }
 
 function getUuid() {
@@ -644,10 +654,12 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                   <View style={s.orderStatusSteps}>
                     {ORDER_STEPS.map((step, i) => {
                       const isDone = i <= curIdx;
-                      const StepText = (i === curIdx && curIdx < ORDER_STEPS.length - 1) ? BlinkingText : Text;
+                      const isBlinking = i === curIdx && curIdx < ORDER_STEPS.length - 1;
+                      const StepText = isBlinking ? BlinkingText : Text;
+                      const DotWrap = isBlinking ? BlinkingView : View;
                       return (
                         <View key={step.key} style={s.orderStatusStepWrap}>
-                          <View style={[s.orderStatusDot, isDone && s.orderStatusDotActive]} />
+                          <DotWrap style={[s.orderStatusDot, isDone && s.orderStatusDotActive]} />
                           <StepText style={[s.orderStatusStepText, isDone && s.orderStatusStepTextActive]}>
                             {step.label}
                           </StepText>
