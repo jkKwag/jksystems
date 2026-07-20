@@ -19,6 +19,15 @@ const ORDER_STEPS = [
 ];
 const orderStepIndex = (status) => Math.max(0, ORDER_STEPS.findIndex(s => s.key === status));
 
+const STUCK_ORDER_MAX_AGE_MS = 3 * 60 * 60 * 1000; // 상태 무관, 주문 후 3시간 지나면 숨김 (오래 안 바뀌는 이상케이스 안전장치)
+const READY_HIDE_DELAY_MS = 10 * 60 * 1000; // 준비완료 후 10분 지나면 숨김
+const isOrderExpired = (order) => {
+  const now = Date.now();
+  if (order.regDt && now - new Date(order.regDt).getTime() > STUCK_ORDER_MAX_AGE_MS) return true;
+  if (order.status === "READY" && order.updDt && now - new Date(order.updDt).getTime() > READY_HIDE_DELAY_MS) return true;
+  return false;
+};
+
 function BlinkingText({ style, children }) {
   const opacity = useRef(new Animated.Value(1)).current;
   useEffect(() => {
@@ -284,7 +293,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
     if (!uuid || !bizno) return;
     const orders = await api.order.list(uuid);
     if (!Array.isArray(orders)) return;
-    const bizOrders = orders.filter(o => o.bizRegNo === bizno && o.status !== "CANCELED");
+    const bizOrders = orders.filter(o => o.bizRegNo === bizno && o.status !== "CANCELED" && !isOrderExpired(o));
     setPendingOrders(bizOrders.filter(o => !o.paymentStatus));
     setActiveOrders(bizOrders.filter(o => !!o.paymentStatus));
   };
@@ -301,6 +310,15 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
     es.addEventListener("order-status", refreshPendingOrders);
     return () => es.close();
   }, [bizno]);
+
+  // 서버 이벤트 없이도 시간이 지나면(3시간 경과 / 준비완료 10분 경과) 화면에서 사라지도록 주기적으로 점검
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setPendingOrders(prev => prev.filter(o => !isOrderExpired(o)));
+      setActiveOrders(prev => prev.filter(o => !isOrderExpired(o)));
+    }, 30000);
+    return () => clearInterval(timer);
+  }, []);
 
   // 결제내역 (서버가 최근 2일치만 내려줌). "내 스캔 목록" 버튼 옆에 조건부로 노출됨
   const [recentPayments, setRecentPayments] = useState([]);
@@ -597,7 +615,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                   <View style={s.orderStatusSteps}>
                     {ORDER_STEPS.map((step, i) => {
                       const isDone = i <= curIdx;
-                      const StepText = i === curIdx ? BlinkingText : Text;
+                      const StepText = (i === curIdx && curIdx < ORDER_STEPS.length - 1) ? BlinkingText : Text;
                       return (
                         <View key={step.key} style={s.orderStatusStepWrap}>
                           <View style={[s.orderStatusDot, isDone && s.orderStatusDotActive]} />
