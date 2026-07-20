@@ -8,6 +8,8 @@ import PickupBadge from "../../components/PickupBadge";
 
 const STATUS_LABEL = { PENDING: "주문접수", PAID: "결제완료", CANCELED: "취소" };
 const STATUS_STYLE_KEY = { PENDING: "statusPending", PAID: "statusPaid", CANCELED: "statusCanceled" };
+const STATUS_FILTERS = ["ALL", "PENDING", "PAID", "CANCELED"];
+const STATUS_FILTER_LABEL = { ALL: "전체", ...STATUS_LABEL };
 
 const pad = (n) => String(n).padStart(2, "0");
 const DAY_KR = ["일", "월", "화", "수", "목", "금", "토"];
@@ -51,6 +53,7 @@ export default function AdminOrders({ adminInfo }) {
   const [dateFrom, setDateFrom] = useState(addDays(todayStr, -1));
   const [dateTo, setDateTo] = useState(todayStr);
   const [calTarget, setCalTarget] = useState(null); // null | "from" | "to"
+  const [statusFilter, setStatusFilter] = useState("ALL");
 
   const load = async (from = dateFrom, to = dateTo) => {
     if (!bizRegNo) { setLoaded(true); return; }
@@ -84,6 +87,8 @@ export default function AdminOrders({ adminInfo }) {
     );
   }
 
+  const filteredOrders = statusFilter === "ALL" ? orders : orders.filter(o => o.status === statusFilter);
+
   return (
     <View style={s.container}>
       <View style={s.headerRow}>
@@ -101,6 +106,20 @@ export default function AdminOrders({ adminInfo }) {
         <TouchableOpacity style={s.dateField} onPress={() => setCalTarget("to")}>
           <Text style={s.dateFieldText}>📅 {formatDateLabel(dateTo)}</Text>
         </TouchableOpacity>
+      </View>
+
+      <View style={s.statusFilterRow}>
+        {STATUS_FILTERS.map(status => (
+          <TouchableOpacity
+            key={status}
+            style={[s.statusChip, statusFilter === status && s.statusChipActive]}
+            onPress={() => setStatusFilter(status)}
+          >
+            <Text style={[s.statusChipText, statusFilter === status && s.statusChipTextActive]}>
+              {STATUS_FILTER_LABEL[status]}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
       {calTarget && (
@@ -123,11 +142,11 @@ export default function AdminOrders({ adminInfo }) {
 
       {!loaded ? (
         <ActivityIndicator style={{ marginTop: 40 }} color="#f97316" />
-      ) : orders.length === 0 ? (
+      ) : filteredOrders.length === 0 ? (
         <View style={s.center}><Text style={s.emptyText}>주문 내역이 없습니다</Text></View>
       ) : (
         <ScrollView contentContainerStyle={s.list}>
-          {orders.map(order => (
+          {filteredOrders.map(order => (
             <View key={order.orderNo} style={s.card}>
               <View style={s.cardTopRow}>
                 <Text style={s.dt}>{formatDt(order.regDt)}</Text>
