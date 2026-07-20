@@ -19,7 +19,7 @@ const toForm = (biz) => ({
 });
 
 const BAND_GRADIENT = Platform.OS === "web"
-  ? { background: "linear-gradient(135deg, #334155 0%, #15803d 100%)" }
+  ? { background: "linear-gradient(135deg, #64748b 0%, #22c55e 100%)" }
   : {};
 
 export default function AdminBizList({ adminInfo, onSelectBiz }) {
@@ -39,6 +39,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
   const [alertMsg, setAlertMsg] = useState(null);
+  const [focusedField, setFocusedField] = useState(null);
 
   const load = async () => {
     setLoaded(false);
@@ -127,6 +128,12 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
     setExpandedKey(null);
   };
 
+  const focusHandlers = (key) => ({
+    onFocus: () => setFocusedField(key),
+    onBlur: () => setFocusedField(f => (f === key ? null : f)),
+  });
+  const boxStyle = (base, key) => [base, focusedField === key && s.fieldBoxFocused];
+
   const SectionTitle = ({ label, first }) => (
     <View style={[s.sectionTitleRow, first && s.sectionTitleRowFirst]}>
       <View style={s.sectionBar} />
@@ -140,22 +147,23 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
       <SectionTitle label="기본 정보" first />
       <View style={s.fieldGrid}>
         {expandedKey === "__new__" && (
-          <View style={s.fieldBoxFull}>
+          <View style={boxStyle(s.fieldBoxFull, "bizRegNo")}>
             <TextInput
               style={s.fieldInput}
               placeholder="사업자등록번호 (숫자만)"
               value={form.bizRegNo}
               onChangeText={update("bizRegNo")}
               keyboardType="numeric"
+              {...focusHandlers("bizRegNo")}
             />
           </View>
         )}
-        <View style={s.fieldBoxFull}>
-          <TextInput style={s.fieldInput} placeholder="사업장명" value={form.bizNm} onChangeText={update("bizNm")} />
+        <View style={boxStyle(s.fieldBoxFull, "bizNm")}>
+          <TextInput style={s.fieldInput} placeholder="사업장명" value={form.bizNm} onChangeText={update("bizNm")} {...focusHandlers("bizNm")} />
         </View>
         {expandedKey === "__new__" ? (
-          <View style={s.fieldBox}>
-            <TextInput style={s.fieldInput} placeholder="대표자명" value={form.repNm} onChangeText={update("repNm")} />
+          <View style={boxStyle(s.fieldBox, "repNm")}>
+            <TextInput style={s.fieldInput} placeholder="대표자명" value={form.repNm} onChangeText={update("repNm")} {...focusHandlers("repNm")} />
           </View>
         ) : (
           <View style={s.fieldBox}>
@@ -174,21 +182,21 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
 
       <SectionTitle label="연락처" />
       <View style={s.fieldGrid}>
-        <View style={s.fieldBoxFull}>
-          <TextInput style={s.fieldInput} placeholder="전화번호" value={form.telNo} onChangeText={update("telNo")} keyboardType="phone-pad" />
+        <View style={boxStyle(s.fieldBoxFull, "telNo")}>
+          <TextInput style={s.fieldInput} placeholder="전화번호" value={form.telNo} onChangeText={update("telNo")} keyboardType="phone-pad" {...focusHandlers("telNo")} />
         </View>
-        <View style={s.fieldBoxFull}>
-          <TextInput style={s.fieldInput} placeholder="이메일" value={form.emailAddr} onChangeText={update("emailAddr")} keyboardType="email-address" autoCapitalize="none" />
+        <View style={boxStyle(s.fieldBoxFull, "emailAddr")}>
+          <TextInput style={s.fieldInput} placeholder="이메일" value={form.emailAddr} onChangeText={update("emailAddr")} keyboardType="email-address" autoCapitalize="none" {...focusHandlers("emailAddr")} />
         </View>
       </View>
 
       <SectionTitle label="주소" />
       <View style={s.fieldGrid}>
-        <View style={s.fieldBoxFull}>
-          <TextInput style={s.fieldInput} placeholder="주소" value={form.addr} onChangeText={update("addr")} />
+        <View style={boxStyle(s.fieldBoxFull, "addr")}>
+          <TextInput style={s.fieldInput} placeholder="주소" value={form.addr} onChangeText={update("addr")} {...focusHandlers("addr")} />
         </View>
-        <View style={s.fieldBoxFull}>
-          <TextInput style={s.fieldInput} placeholder="상세주소" value={form.addrDtl} onChangeText={update("addrDtl")} />
+        <View style={boxStyle(s.fieldBoxFull, "addrDtl")}>
+          <TextInput style={s.fieldInput} placeholder="상세주소" value={form.addrDtl} onChangeText={update("addrDtl")} {...focusHandlers("addrDtl")} />
         </View>
       </View>
 

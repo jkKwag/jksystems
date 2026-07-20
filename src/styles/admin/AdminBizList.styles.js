@@ -57,7 +57,8 @@ export const s = StyleSheet.create({
   fieldGrid: { flexDirection: "row", flexWrap: "wrap", gap: spacing["2.5"] },
   fieldBox: { flexGrow: 1, flexBasis: "45%", borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"] },
   fieldBoxFull: { flexBasis: "100%", borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"] },
-  fieldInput: { fontSize: font.md, fontWeight: "700", color: colors.text, padding: 0 },
+  fieldBoxFocused: { borderColor: colors.accent },
+  fieldInput: { fontSize: font.md, fontWeight: "700", color: colors.text, padding: 0, outlineStyle: "none" },
   fieldStatic: { fontSize: font.md, fontWeight: "700", color: colors.text },
 
   error: { fontSize: font.sm, color: "#ef4444", fontWeight: "600", marginTop: spacing["3"] },
