@@ -46,7 +46,7 @@ export const s = StyleSheet.create({
   seatBtnText: { fontSize: font.sm, fontWeight: "700", color: colors.indigo },
   bizAddr: { fontSize: font.base, color: colors.textMuted, marginTop: 2 },
 
-  orderStatusBar: { backgroundColor: colors.accentLight, borderBottomWidth: 1, borderBottomColor: colors.border, paddingHorizontal: spacing["4"], paddingVertical: spacing["2.5"] },
+  orderStatusBar: { backgroundColor: colors.accentLight, borderRadius: radius.lg, marginHorizontal: spacing["3"], marginTop: spacing["2"], paddingHorizontal: spacing["4"], paddingVertical: spacing["2.5"] },
   orderStatusBarTitle: { fontSize: font.sm, fontWeight: "800", color: colors.textGray, marginBottom: spacing["1.5"] },
   orderStatusRow: { marginBottom: spacing["1.5"] },
   orderStatusHeaderRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"], marginBottom: spacing["1"] },
