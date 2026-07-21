@@ -6,6 +6,8 @@ import api from "../../lib/api";
 import OrderTypeBadge from "../../components/OrderTypeBadge";
 import PickupBadge from "../../components/PickupBadge";
 
+const PAY_STATUS_FILTERS = ["ALL", "DONE", "CANCELED"];
+
 const pad = (n) => String(n).padStart(2, "0");
 const DAY_KR = ["일", "월", "화", "수", "목", "금", "토"];
 
@@ -52,6 +54,17 @@ export default function AdminPayments({ adminInfo }) {
   const [dateFrom, setDateFrom] = useState(addDays(todayStr, -1));
   const [dateTo, setDateTo] = useState(todayStr);
   const [calTarget, setCalTarget] = useState(null); // null | "from" | "to"
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [payStatusLabels, setPayStatusLabels] = useState({});
+
+  useEffect(() => {
+    (async () => {
+      const list = await api.commonCode.list("PAY_STT_CD");
+      const map = {};
+      (Array.isArray(list) ? list : []).forEach(c => { map[c.cd] = c.cdNm; });
+      setPayStatusLabels(map);
+    })();
+  }, []);
 
   const load = async (from = dateFrom, to = dateTo) => {
     if (!bizRegNo) { setLoaded(true); return; }
@@ -98,6 +111,8 @@ export default function AdminPayments({ adminInfo }) {
     );
   }
 
+  const filteredPayments = statusFilter === "ALL" ? payments : payments.filter(p => p.status === statusFilter);
+
   return (
     <View style={s.container}>
       <View style={s.headerRow}>
@@ -115,6 +130,22 @@ export default function AdminPayments({ adminInfo }) {
         <TouchableOpacity style={s.dateField} onPress={() => setCalTarget("to")}>
           <Text style={s.dateFieldText}>📅 {formatDateLabel(dateTo)}</Text>
         </TouchableOpacity>
+      </View>
+
+      <View style={s.statusFilterBox}>
+        <View style={s.statusFilterRow}>
+          {PAY_STATUS_FILTERS.map(status => (
+            <TouchableOpacity
+              key={status}
+              style={[s.statusChip, statusFilter === status && s.statusChipActive]}
+              onPress={() => setStatusFilter(status)}
+            >
+              <Text style={[s.statusChipText, statusFilter === status && s.statusChipTextActive]}>
+                {status === "ALL" ? "전체" : (payStatusLabels[status] || status)}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
 
       {calTarget && (
@@ -137,11 +168,11 @@ export default function AdminPayments({ adminInfo }) {
 
       {!loaded ? (
         <ActivityIndicator style={{ marginTop: 40 }} color="#f97316" />
-      ) : payments.length === 0 ? (
+      ) : filteredPayments.length === 0 ? (
         <View style={s.center}><Text style={s.emptyText}>결제 내역이 없습니다</Text></View>
       ) : (
         <ScrollView contentContainerStyle={s.list}>
-          {payments.map(p => {
+          {filteredPayments.map(p => {
             const expanded = expandedKey === p.paymentKey;
             return (
               <View key={p.paymentKey} style={s.card}>
