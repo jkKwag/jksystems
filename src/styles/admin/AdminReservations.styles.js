@@ -41,7 +41,7 @@ export const s = StyleSheet.create({
   statusPending: { backgroundColor: "#f59e0b" },
   statusConfirmed: { backgroundColor: "#22c55e" },
   statusRejected: { backgroundColor: "#ef4444" },
-  statusCancelled: { backgroundColor: "#94a3b8" },
+  statusCancelled: { backgroundColor: colors.red },
   statusCompleted: { backgroundColor: "#64748b" },
 
   btnRow: { flexDirection: "row", gap: spacing["2.5"], marginTop: spacing["1"] },
