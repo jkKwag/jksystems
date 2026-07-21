@@ -38,9 +38,9 @@ export const s = StyleSheet.create({
   crumbPillTextCurrent: { color: colors.white },
   crumbSep: { fontSize: font.sm, color: colors.slate400 },
 
-  frontierBlock: { marginBottom: spacing["3.5"] },
+  frontierCircleRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing["2"], marginBottom: spacing["3.5"] },
   frontierCircle: {
-    alignSelf: "flex-start", flexDirection: "row", alignItems: "center", gap: spacing["1.5"],
+    flexDirection: "row", alignItems: "center", gap: spacing["1.5"],
     backgroundColor: colors.accent, borderRadius: radius.pill,
     paddingHorizontal: spacing["3.5"], paddingVertical: spacing["2"],
   },
@@ -48,7 +48,7 @@ export const s = StyleSheet.create({
   frontierCircleText: { fontSize: font.lg, fontWeight: "800", color: colors.white },
   frontierCircleArrow: { fontSize: font.sm, color: colors.white },
 
-  detailCard: { marginTop: spacing["2"], borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, padding: spacing["3.5"], backgroundColor: colors.slate50 },
+  detailCard: { marginBottom: spacing["3"], borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, padding: spacing["3.5"], backgroundColor: colors.slate50 },
   detailTopRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: spacing["2.5"] },
   detailName: { fontSize: font.lg, fontWeight: "800", color: colors.text },
   badge: { fontSize: font.sm, fontWeight: "700", borderRadius: radius.pill, paddingHorizontal: spacing["2.5"], paddingVertical: 3 },

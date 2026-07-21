@@ -126,36 +126,41 @@ export default function AdminIndCls() {
             })
           )
         ) : (
-          frontier.map(d => {
-            const hasKids = childrenOf(d.indCd).length > 0;
-            return (
-              <View key={d.indCd} style={s.frontierBlock}>
-                <TouchableOpacity
-                  style={[s.frontierCircle, d.useYn === "N" && s.frontierCircleDim]}
-                  onPress={() => drillInto(d.indCd)}
-                >
-                  <Text style={s.frontierCircleText}>{d.indNm}</Text>
-                  {hasKids && <Text style={s.frontierCircleArrow}>›</Text>}
-                </TouchableOpacity>
+          <>
+            <View style={s.frontierCircleRow}>
+              {frontier.map(d => {
+                const hasKids = childrenOf(d.indCd).length > 0;
+                return (
+                  <TouchableOpacity
+                    key={d.indCd}
+                    style={[s.frontierCircle, d.useYn === "N" && s.frontierCircleDim]}
+                    onPress={() => drillInto(d.indCd)}
+                  >
+                    <Text style={s.frontierCircleText}>{d.indNm}</Text>
+                    {hasKids && <Text style={s.frontierCircleArrow}>›</Text>}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
 
-                <View style={s.detailCard}>
-                  <View style={s.detailTopRow}>
-                    <Text style={s.detailName}>{d.indNm}</Text>
-                    <Text style={[s.badge, d.useYn === "Y" ? s.badgeOn : s.badgeOff]}>
-                      {d.useYn === "Y" ? "사용중" : "미사용"}
-                    </Text>
-                  </View>
-                  <View style={s.detailGrid}>
-                    <View style={s.detailRow}><Text style={s.detailKey}>업종코드</Text><Text style={s.detailVal}>{d.indCd}</Text></View>
-                    <View style={s.detailRow}><Text style={s.detailKey}>상위코드</Text><Text style={s.detailVal}>{d.prntCd || "-"}</Text></View>
-                    <View style={s.detailRow}><Text style={s.detailKey}>분류단계</Text><Text style={s.detailVal}>{d.clsLvl}단계</Text></View>
-                    <View style={s.detailRow}><Text style={s.detailKey}>정렬순서</Text><Text style={s.detailVal}>{d.sortOrd}</Text></View>
-                    <View style={s.detailRow}><Text style={s.detailKey}>전체경로</Text><Text style={[s.detailVal, { fontFamily: undefined }]}>{pathOf(d.indCd).map(n => n.indNm).join(" › ")}</Text></View>
-                  </View>
+            {frontier.map(d => (
+              <View key={d.indCd} style={s.detailCard}>
+                <View style={s.detailTopRow}>
+                  <Text style={s.detailName}>{d.indNm}</Text>
+                  <Text style={[s.badge, d.useYn === "Y" ? s.badgeOn : s.badgeOff]}>
+                    {d.useYn === "Y" ? "사용중" : "미사용"}
+                  </Text>
+                </View>
+                <View style={s.detailGrid}>
+                  <View style={s.detailRow}><Text style={s.detailKey}>업종코드</Text><Text style={s.detailVal}>{d.indCd}</Text></View>
+                  <View style={s.detailRow}><Text style={s.detailKey}>상위코드</Text><Text style={s.detailVal}>{d.prntCd || "-"}</Text></View>
+                  <View style={s.detailRow}><Text style={s.detailKey}>분류단계</Text><Text style={s.detailVal}>{d.clsLvl}단계</Text></View>
+                  <View style={s.detailRow}><Text style={s.detailKey}>정렬순서</Text><Text style={s.detailVal}>{d.sortOrd}</Text></View>
+                  <View style={s.detailRow}><Text style={s.detailKey}>전체경로</Text><Text style={[s.detailVal, { fontFamily: undefined }]}>{pathOf(d.indCd).map(n => n.indNm).join(" › ")}</Text></View>
                 </View>
               </View>
-            );
-          })
+            ))}
+          </>
         )}
       </ScrollView>
     </View>
