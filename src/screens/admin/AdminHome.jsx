@@ -37,7 +37,7 @@ const MENU_SCREENS = {
   "/admin/reservation-standard": AdminReservationStandard,
   "/admin/dashboard": AdminDashboard,
   "/admin/industry": AdminIndCls,
-  "/admin/accounts": AdminAccounts,
+  "/admin/biz-admin": AdminAccounts,
 };
 
 function findMenuNode(nodes, menuUrl) {
