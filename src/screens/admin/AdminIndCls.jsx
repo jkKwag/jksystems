@@ -7,15 +7,13 @@ export default function AdminIndCls() {
   const [loaded, setLoaded] = useState(false);
   const [items, setItems] = useState([]);
   const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState([]); // 단계별 선택 코드 [1단계코드, 2단계코드, ...]
-  const [expandedLeaf, setExpandedLeaf] = useState(null);
+  const [selected, setSelected] = useState([]); // 단계별 선택 경로 [1단계코드, 2단계코드, ...]
 
   const load = async () => {
     setLoaded(false);
     const list = await api.industry.list();
     setItems(Array.isArray(list) ? list : []);
     setSelected([]);
-    setExpandedLeaf(null);
     setSearch("");
     setLoaded(true);
   };
@@ -37,47 +35,21 @@ export default function AdminIndCls() {
     ? items.filter(d => d.indNm.includes(query) || d.indCd.toUpperCase().includes(query.toUpperCase())).slice(0, 10)
     : [];
 
-  // 검색 결과를 클릭하면 그 항목까지의 전체 경로를 단계별로 펼쳐서 보여줌
+  // 검색 결과를 클릭하면 그 항목까지의 전체 경로를 선택 상태로 만듦
   const goto = (d) => {
     setSearch("");
     setSelected(pathOf(d.indCd).map(n => n.indCd));
-    setExpandedLeaf(childrenOf(d.indCd).length === 0 ? d.indCd : null);
   };
 
-  // 특정 단계(li)에서 code를 선택 - 그보다 하위 단계 선택은 초기화됨
-  const selectAt = (li, code) => {
-    const next = selected.slice(0, li);
-    next.push(code);
-    setSelected(next);
-    setExpandedLeaf(childrenOf(code).length === 0 ? code : null);
-  };
+  // 하위 항목을 고르면 경로 끝에 추가
+  const pick = (code) => setSelected([...selected, code]);
 
-  // 상단 배지에서 특정 단계까지만 남기고 그보다 하위는 다시 고를 수 있게 비움
-  const truncateAt = (li) => {
-    setSelected(selected.slice(0, li));
-    setExpandedLeaf(null);
-  };
+  // 상단 배지에서 특정 단계까지만 남기고 그보다 하위는 비움 (다시 선택 가능)
+  const truncateAt = (li) => setSelected(selected.slice(0, li));
 
-  // 1단계부터 시작해서, 선택된 항목이 있으면 그 하위 단계를 계속 이어서 쌓음.
-  // 위/아래 어떤 단계 카드를 눌러도 바로 그 자리에서 다시 선택(수정)할 수 있다.
-  const levels = [];
-  {
-    let parentCode = null;
-    let depth = 0;
-    while (true) {
-      const levelItems = parentCode === null ? items.filter(x => x.clsLvl === 1) : childrenOf(parentCode);
-      if (levelItems.length === 0) break;
-      levels.push({ parentCode, items: levelItems, selectedCode: selected[depth] || null });
-      const chosen = selected[depth];
-      if (!chosen) break;
-      const kids = childrenOf(chosen);
-      if (kids.length === 0) break;
-      parentCode = chosen;
-      depth++;
-    }
-  }
-
-  const detail = expandedLeaf ? byCode[expandedLeaf] : null;
+  const currentCode = selected.length > 0 ? selected[selected.length - 1] : null;
+  const currentNode = currentCode ? byCode[currentCode] : null;
+  const pickerList = currentCode === null ? items.filter(d => d.clsLvl === 1) : childrenOf(currentCode);
 
   if (!loaded) {
     return (
@@ -151,44 +123,42 @@ export default function AdminIndCls() {
           )
         ) : (
           <>
-            {levels.map((lvl, li) => (
-              <View key={lvl.parentCode || "root"} style={s.levelCard}>
-                <Text style={s.levelTitle}>
-                  {lvl.parentCode === null ? "대분류" : `'${byCode[lvl.parentCode]?.indNm}' 하위 업종`}
-                </Text>
-                <View style={s.chipGrid}>
-                  {lvl.items.map(d => {
-                    const kids = childrenOf(d.indCd);
-                    const isSelected = lvl.selectedCode === d.indCd;
-                    return (
-                      <TouchableOpacity
-                        key={d.indCd}
-                        style={[s.chip, isSelected && s.chipExpanded, d.useYn === "N" && s.chipDim]}
-                        onPress={() => selectAt(li, d.indCd)}
-                      >
-                        <Text style={[s.chipText, isSelected && s.chipTextExpanded]}>{d.indNm}</Text>
-                        {kids.length > 0 && <Text style={[s.chipArrow, isSelected && s.chipTextExpanded]}>›</Text>}
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              </View>
-            ))}
-
-            {detail && (
+            {/* 원(배지)으로 표시된, 지금 선택된 항목 그 자체의 전체 정보 카드 - 리프가 아니어도 항상 나옴 */}
+            {currentNode && (
               <View style={s.detailCard}>
                 <View style={s.detailTopRow}>
-                  <Text style={s.detailName}>{detail.indNm}</Text>
-                  <Text style={[s.badge, detail.useYn === "Y" ? s.badgeOn : s.badgeOff]}>
-                    {detail.useYn === "Y" ? "사용중" : "미사용"}
+                  <Text style={s.detailName}>{currentNode.indNm}</Text>
+                  <Text style={[s.badge, currentNode.useYn === "Y" ? s.badgeOn : s.badgeOff]}>
+                    {currentNode.useYn === "Y" ? "사용중" : "미사용"}
                   </Text>
                 </View>
                 <View style={s.detailGrid}>
-                  <View style={s.detailRow}><Text style={s.detailKey}>업종코드</Text><Text style={s.detailVal}>{detail.indCd}</Text></View>
-                  <View style={s.detailRow}><Text style={s.detailKey}>상위코드</Text><Text style={s.detailVal}>{detail.prntCd || "-"}</Text></View>
-                  <View style={s.detailRow}><Text style={s.detailKey}>분류단계</Text><Text style={s.detailVal}>{detail.clsLvl}단계</Text></View>
-                  <View style={s.detailRow}><Text style={s.detailKey}>정렬순서</Text><Text style={s.detailVal}>{detail.sortOrd}</Text></View>
-                  <View style={s.detailRow}><Text style={s.detailKey}>전체경로</Text><Text style={[s.detailVal, { fontFamily: undefined }]}>{pathOf(detail.indCd).map(n => n.indNm).join(" › ")}</Text></View>
+                  <View style={s.detailRow}><Text style={s.detailKey}>업종코드</Text><Text style={s.detailVal}>{currentNode.indCd}</Text></View>
+                  <View style={s.detailRow}><Text style={s.detailKey}>상위코드</Text><Text style={s.detailVal}>{currentNode.prntCd || "-"}</Text></View>
+                  <View style={s.detailRow}><Text style={s.detailKey}>분류단계</Text><Text style={s.detailVal}>{currentNode.clsLvl}단계</Text></View>
+                  <View style={s.detailRow}><Text style={s.detailKey}>정렬순서</Text><Text style={s.detailVal}>{currentNode.sortOrd}</Text></View>
+                  <View style={s.detailRow}><Text style={s.detailKey}>전체경로</Text><Text style={[s.detailVal, { fontFamily: undefined }]}>{pathOf(currentNode.indCd).map(n => n.indNm).join(" › ")}</Text></View>
+                </View>
+              </View>
+            )}
+
+            {/* 다음 단계로 내려갈 수 있는 하위 항목 선택 카드 */}
+            {pickerList.length > 0 && (
+              <View style={s.levelCard}>
+                <Text style={s.levelTitle}>
+                  {currentNode ? `'${currentNode.indNm}' 하위 업종` : "대분류"}
+                </Text>
+                <View style={s.chipGrid}>
+                  {pickerList.map(d => (
+                    <TouchableOpacity
+                      key={d.indCd}
+                      style={[s.chip, d.useYn === "N" && s.chipDim]}
+                      onPress={() => pick(d.indCd)}
+                    >
+                      <Text style={s.chipText}>{d.indNm}</Text>
+                      {childrenOf(d.indCd).length > 0 && <Text style={s.chipArrow}>›</Text>}
+                    </TouchableOpacity>
+                  ))}
                 </View>
               </View>
             )}
