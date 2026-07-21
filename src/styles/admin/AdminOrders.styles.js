@@ -53,7 +53,7 @@ export const s = StyleSheet.create({
   statusReceived: { backgroundColor: "#3b82f6" },
   statusPreparing: { backgroundColor: "#f59e0b" },
   statusReady: { backgroundColor: "#22c55e" },
-  statusCanceled: { backgroundColor: "#94a3b8" },
+  statusCanceled: { backgroundColor: colors.red },
 
   payStatusText: { fontSize: font.sm, fontWeight: "700" },
   payDone: { color: colors.green },
