@@ -33,7 +33,8 @@ export const s = StyleSheet.create({
   meta: { fontSize: font.base, color: colors.textSecondary, fontWeight: "600" },
   memo: { fontSize: font.sm, color: colors.textMuted },
   rejectRsn: { fontSize: font.sm, color: "#ef4444", fontWeight: "600" },
-  rsvnNo: { fontSize: font.sm, color: colors.textMuted, fontFamily: Platform.OS === "web" ? "monospace" : undefined },
+  rsvnNoBadge: { backgroundColor: colors.primary, borderRadius: radius.md, paddingVertical: spacing["2"], alignItems: "center", marginTop: spacing["1"] },
+  rsvnNoBadgeText: { fontSize: font.md, fontWeight: "900", color: colors.accent, fontFamily: Platform.OS === "web" ? "monospace" : undefined },
 
   statusBadge: { borderRadius: radius.pill, paddingHorizontal: spacing["2.5"], paddingVertical: 4 },
   statusBadgeText: { fontSize: font.sm, fontWeight: "800", color: colors.white },

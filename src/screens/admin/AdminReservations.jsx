@@ -201,7 +201,9 @@ export default function AdminReservations({ adminInfo }) {
                 <Text style={s.meta}>{r.guestName} · {r.guestPhone || "연락처 없음"} · {r.partySize}명 · 좌석 {r.seatCd || "미지정"}</Text>
                 {r.memo ? <Text style={s.memo}>메모: {r.memo}</Text> : null}
                 {r.rsvnStatus === "REJECTED" && r.rejectRsn ? <Text style={s.rejectRsn}>거절사유: {r.rejectRsn}</Text> : null}
-                <Text style={s.rsvnNo}>예약번호 {r.rsvnNo}</Text>
+                <View style={s.rsvnNoBadge}>
+                  <Text style={s.rsvnNoBadgeText}>예약번호 {r.rsvnNo}</Text>
+                </View>
 
                 {r.rsvnStatus === "PENDING" && (
                   <View style={s.btnRow}>
