@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from "react-native";
 import { s } from "../../styles/admin/AdminAccounts.styles";
 import api from "../../lib/api";
+import { formatBizRegNo } from "../../lib/formatBizRegNo";
 
 const pad = (n) => String(n).padStart(2, "0");
 const formatDt = (iso) => {
@@ -14,9 +15,21 @@ const ROLE_LABEL = { SUPER: "최고관리자", BIZ: "사업장관리자" };
 
 // 직원(tb_biz 하위 1:M) 테이블이 아직 없어서 화면 형태만 미리 보여주는 정적 시안 데이터
 const STAFF_PREVIEW = [
-  { empId: "EMP0001", empNm: "이서연", position: "홀 매니저", mobileTel: "010-2222-3333", onDuty: true, hireDt: "2025-11-03" },
-  { empId: "EMP0002", empNm: "박도현", position: "주방", mobileTel: "010-4444-5555", onDuty: true, hireDt: "2026-01-20" },
-  { empId: "EMP0003", empNm: "최민아", position: "홀 서빙", mobileTel: "010-6666-7777", onDuty: false, hireDt: "2025-06-15" },
+  {
+    empId: "EMP0001", empNm: "이서연", position: "홀 매니저", mobileTel: "010-2222-3333",
+    onDuty: true, hireDt: "2025-11-03", email: "seoyeon.lee@example.com", dept: "홀 운영팀",
+    memo: "오픈 시간대 주 담당, 신입 교육 담당",
+  },
+  {
+    empId: "EMP0002", empNm: "박도현", position: "주방", mobileTel: "010-4444-5555",
+    onDuty: true, hireDt: "2026-01-20", email: "dohyun.park@example.com", dept: "주방팀",
+    memo: "메인 조리 담당",
+  },
+  {
+    empId: "EMP0003", empNm: "최민아", position: "홀 서빙", mobileTel: "010-6666-7777",
+    onDuty: false, hireDt: "2025-06-15", email: "mina.choi@example.com", dept: "홀 운영팀",
+    memo: "2026/03/01 퇴직 처리됨",
+  },
 ];
 
 export default function AdminAccounts({ adminInfo }) {
@@ -24,6 +37,8 @@ export default function AdminAccounts({ adminInfo }) {
 
   const [loaded, setLoaded] = useState(false);
   const [users, setUsers] = useState([]);
+  const [expandedAdminId, setExpandedAdminId] = useState(null);
+  const [expandedEmpId, setExpandedEmpId] = useState(null);
 
   const load = async () => {
     if (!bizRegNo) { setLoaded(true); return; }
@@ -68,17 +83,26 @@ export default function AdminAccounts({ adminInfo }) {
             users.map(u => {
               const isSuper = u.adminRole === "SUPER";
               const isOn = u.useYn === "Y";
+              const expanded = expandedAdminId === u.adminId;
               return (
-                <View key={u.adminId} style={s.card}>
+                <TouchableOpacity
+                  key={u.adminId}
+                  style={s.card}
+                  activeOpacity={0.8}
+                  onPress={() => setExpandedAdminId(expanded ? null : u.adminId)}
+                >
                   <View style={s.cardTopRow}>
                     <View>
                       <Text style={s.adminNm}>{u.adminNm || "이름 미등록"}</Text>
                       <Text style={s.adminId}>{u.adminId}</Text>
                     </View>
-                    <View style={[s.roleBadge, isSuper ? s.roleBadgeSuper : s.roleBadgeBiz]}>
-                      <Text style={[s.roleBadgeText, isSuper ? s.roleBadgeTextSuper : s.roleBadgeTextBiz]}>
-                        {ROLE_LABEL[u.adminRole] || u.adminRole}
-                      </Text>
+                    <View style={s.cardTopRight}>
+                      <View style={[s.roleBadge, isSuper ? s.roleBadgeSuper : s.roleBadgeBiz]}>
+                        <Text style={[s.roleBadgeText, isSuper ? s.roleBadgeTextSuper : s.roleBadgeTextBiz]}>
+                          {ROLE_LABEL[u.adminRole] || u.adminRole}
+                        </Text>
+                      </View>
+                      <Text style={[s.chev, expanded && s.chevOpen]}>›</Text>
                     </View>
                   </View>
 
@@ -94,7 +118,17 @@ export default function AdminAccounts({ adminInfo }) {
                   </View>
 
                   <Text style={s.regDt}>등록일 {formatDt(u.regDt)}</Text>
-                </View>
+
+                  {expanded && (
+                    <View style={s.detailBox}>
+                      <View style={s.detailRow}><Text style={s.detailKey}>사업자번호</Text><Text style={s.detailVal}>{formatBizRegNo(u.bizRegNo)}</Text></View>
+                      <View style={s.detailRow}><Text style={s.detailKey}>관리자ID</Text><Text style={s.detailVal}>{u.adminId}</Text></View>
+                      <View style={s.detailRow}><Text style={s.detailKey}>권한</Text><Text style={s.detailVal}>{ROLE_LABEL[u.adminRole] || u.adminRole}</Text></View>
+                      <View style={s.detailRow}><Text style={s.detailKey}>휴대전화</Text><Text style={s.detailVal}>{u.mobileTel || "-"}</Text></View>
+                      <View style={s.detailRow}><Text style={s.detailKey}>전화</Text><Text style={s.detailVal}>{u.tel || "-"}</Text></View>
+                    </View>
+                  )}
+                </TouchableOpacity>
               );
             })
           )}
@@ -105,30 +139,50 @@ export default function AdminAccounts({ adminInfo }) {
             <Text style={s.sectionBadge}>시안</Text>
           </View>
 
-          {STAFF_PREVIEW.map(emp => (
-            <View key={emp.empId} style={s.card}>
-              <View style={s.cardTopRow}>
-                <View>
-                  <Text style={s.adminNm}>{emp.empNm}</Text>
-                  <Text style={s.adminId}>{emp.empId}</Text>
+          {STAFF_PREVIEW.map(emp => {
+            const expanded = expandedEmpId === emp.empId;
+            return (
+              <TouchableOpacity
+                key={emp.empId}
+                style={s.card}
+                activeOpacity={0.8}
+                onPress={() => setExpandedEmpId(expanded ? null : emp.empId)}
+              >
+                <View style={s.cardTopRow}>
+                  <View>
+                    <Text style={s.adminNm}>{emp.empNm}</Text>
+                    <Text style={s.adminId}>{emp.empId}</Text>
+                  </View>
+                  <View style={s.cardTopRight}>
+                    <View style={[s.roleBadge, s.roleBadgePosition]}>
+                      <Text style={[s.roleBadgeText, s.roleBadgeTextPosition]}>{emp.position}</Text>
+                    </View>
+                    <Text style={[s.chev, expanded && s.chevOpen]}>›</Text>
+                  </View>
                 </View>
-                <View style={[s.roleBadge, s.roleBadgePosition]}>
-                  <Text style={[s.roleBadgeText, s.roleBadgeTextPosition]}>{emp.position}</Text>
-                </View>
-              </View>
 
-              <View style={s.metaRow}>
-                <Text style={s.meta}>{emp.mobileTel}</Text>
-                <Text style={s.metaDot}>·</Text>
-                <View style={s.useBadge}>
-                  <View style={[s.useDot, emp.onDuty ? s.useDotOn : s.useDotOff]} />
-                  <Text style={s.useText}>{emp.onDuty ? "재직중" : "퇴직"}</Text>
+                <View style={s.metaRow}>
+                  <Text style={s.meta}>{emp.mobileTel}</Text>
+                  <Text style={s.metaDot}>·</Text>
+                  <View style={s.useBadge}>
+                    <View style={[s.useDot, emp.onDuty ? s.useDotOn : s.useDotOff]} />
+                    <Text style={s.useText}>{emp.onDuty ? "재직중" : "퇴직"}</Text>
+                  </View>
                 </View>
-              </View>
 
-              <Text style={s.regDt}>입사일 {formatDt(emp.hireDt)}</Text>
-            </View>
-          ))}
+                <Text style={s.regDt}>입사일 {formatDt(emp.hireDt)}</Text>
+
+                {expanded && (
+                  <View style={s.detailBox}>
+                    <View style={s.detailRow}><Text style={s.detailKey}>소속</Text><Text style={s.detailVal}>{emp.dept}</Text></View>
+                    <View style={s.detailRow}><Text style={s.detailKey}>이메일</Text><Text style={s.detailVal}>{emp.email}</Text></View>
+                    <View style={s.detailRow}><Text style={s.detailKey}>휴대전화</Text><Text style={s.detailVal}>{emp.mobileTel}</Text></View>
+                    <View style={s.detailRow}><Text style={s.detailKey}>메모</Text><Text style={s.detailVal}>{emp.memo}</Text></View>
+                  </View>
+                )}
+              </TouchableOpacity>
+            );
+          })}
         </ScrollView>
       )}
     </View>

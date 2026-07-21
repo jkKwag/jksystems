@@ -24,6 +24,9 @@ export const s = StyleSheet.create({
   roleBadgeTextPosition: { color: colors.accent },
   card: { backgroundColor: colors.bgCard, borderRadius: radius["2xl"], padding: spacing["4"], gap: spacing["1.5"], borderWidth: 1, borderColor: colors.border },
   cardTopRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  cardTopRight: { flexDirection: "row", alignItems: "center", gap: spacing["2"] },
+  chev: { fontSize: font.lg, color: colors.slate400, fontWeight: "700" },
+  chevOpen: { transform: [{ rotate: "90deg" }] },
   adminNm: { fontSize: font.xl, fontWeight: "900", color: colors.text },
   adminId: { fontSize: font.sm, color: colors.textMuted, fontFamily: Platform.OS === "web" ? "monospace" : undefined, marginTop: 2 },
 
@@ -45,4 +48,9 @@ export const s = StyleSheet.create({
   metaDot: { fontSize: font.base, color: colors.slate300 },
 
   regDt: { fontSize: font.sm, color: colors.textMuted, marginTop: spacing["1"] },
+
+  detailBox: { marginTop: spacing["2"], paddingTop: spacing["2.5"], borderTopWidth: 1, borderTopColor: colors.borderLight, gap: spacing["1.5"] },
+  detailRow: { flexDirection: "row", gap: spacing["3"] },
+  detailKey: { width: 72, fontSize: font.base, fontWeight: "600", color: colors.textMuted },
+  detailVal: { flex: 1, fontSize: font.base, fontWeight: "600", color: colors.textSecondary },
 });
