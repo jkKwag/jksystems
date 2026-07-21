@@ -7,13 +7,13 @@ export default function AdminIndCls() {
   const [loaded, setLoaded] = useState(false);
   const [items, setItems] = useState([]);
   const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState([]); // 단계별 선택 경로 [1단계코드, 2단계코드, ...]
+  const [path, setPath] = useState([]); // 지금까지 눌러서 들어온 경로 [1단계코드, 2단계코드, ...]
 
   const load = async () => {
     setLoaded(false);
     const list = await api.industry.list();
     setItems(Array.isArray(list) ? list : []);
-    setSelected([]);
+    setPath([]);
     setSearch("");
     setLoaded(true);
   };
@@ -35,38 +35,25 @@ export default function AdminIndCls() {
     ? items.filter(d => d.indNm.includes(query) || d.indCd.toUpperCase().includes(query.toUpperCase())).slice(0, 10)
     : [];
 
-  // 검색 결과를 클릭하면 그 항목까지의 전체 경로를 선택 상태로 만듦
+  // 검색 결과를 클릭하면 그 항목이 지금 보고 있는 목록(frontier)에 나타나도록 경로를 맞춰줌
   const goto = (d) => {
     setSearch("");
-    setSelected(pathOf(d.indCd).map(n => n.indCd));
+    setPath(childrenOf(d.indCd).length > 0 ? pathOf(d.indCd).map(n => n.indCd) : pathOf(d.indCd).slice(0, -1).map(n => n.indCd));
   };
 
-  // 특정 단계(depth)에서 code를 선택 - 그보다 하위 단계 선택은 초기화됨(하위는 새로 골라야 하니까)
-  const selectAt = (depth, code) => setSelected([...selected.slice(0, depth), code]);
+  // 동그라미를 누르면(자식이 있을 때만) 그 하위로 들어감 - 지금 보이던 목록은 그 하위 목록으로 교체됨
+  const drillInto = (code) => {
+    if (childrenOf(code).length === 0) return; // 자식 없으면(리프) 아무 동작 없음 - 이미 자기 카드가 보이는 중
+    setPath([...path, code]);
+  };
 
-  // 상단 배지에서 특정 단계까지만 남기고 그보다 하위는 비움 (다시 선택 가능)
-  const truncateAt = (li) => setSelected(selected.slice(0, li));
+  // 상단 배지에서 특정 단계까지만 남기고 그 이후는 다시 조회하도록 되돌림
+  const truncateAt = (li) => setPath(path.slice(0, li));
 
-  // 1단계부터 시작해서 "그 단계 선택 카드 -> 선택된 항목 상세 카드"를 반복해서 쌓는다.
-  // 한 단계를 선택해도 그 단계의 선택 카드는 사라지지 않고 그대로 남아, 언제든 다시 눌러 바꿀 수 있다.
-  const sections = [];
-  {
-    let parentCode = null;
-    let depth = 0;
-    while (true) {
-      const levelItems = parentCode === null ? items.filter(x => x.clsLvl === 1) : childrenOf(parentCode);
-      if (levelItems.length === 0) break;
-      const selCode = selected[depth] || null;
-      sections.push({ kind: "picker", parentNode: parentCode ? byCode[parentCode] : null, items: levelItems, selectedCode: selCode, depth });
-      if (!selCode) break;
-      const node = byCode[selCode];
-      sections.push({ kind: "detail", node });
-      const kids = childrenOf(selCode);
-      if (kids.length === 0) break;
-      parentCode = selCode;
-      depth++;
-    }
-  }
+  // 지금 보고 있는 목록 (frontier): 맨 처음엔 1단계 전체, 경로가 있으면 그 마지막 항목의 자식들
+  const frontier = path.length === 0
+    ? items.filter(d => d.clsLvl === 1)
+    : childrenOf(path[path.length - 1]);
 
   if (!loaded) {
     return (
@@ -97,19 +84,19 @@ export default function AdminIndCls() {
         />
       </View>
 
-      {!searching && selected.length > 0 && (
+      {!searching && path.length > 0 && (
         <View style={s.crumbsRow}>
           <TouchableOpacity style={s.crumbPill} onPress={() => truncateAt(0)}>
             <Text style={s.crumbPillText}>대분류</Text>
           </TouchableOpacity>
-          {selected.map((code, i) => (
+          {path.map((code, i) => (
             <View key={code} style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
               <Text style={s.crumbSep}>›</Text>
               <TouchableOpacity
-                style={[s.crumbPill, i === selected.length - 1 && s.crumbPillCurrent]}
+                style={[s.crumbPill, i === path.length - 1 && s.crumbPillCurrent]}
                 onPress={() => truncateAt(i + 1)}
               >
-                <Text style={[s.crumbPillText, i === selected.length - 1 && s.crumbPillTextCurrent]}>
+                <Text style={[s.crumbPillText, i === path.length - 1 && s.crumbPillTextCurrent]}>
                   {byCode[code]?.indNm}
                 </Text>
               </TouchableOpacity>
@@ -139,48 +126,32 @@ export default function AdminIndCls() {
             })
           )
         ) : (
-          sections.map((sec, idx) => {
-            if (sec.kind === "picker") {
-              return (
-                <View key={`picker-${sec.depth}`} style={s.levelCard}>
-                  <Text style={s.levelTitle}>
-                    {sec.parentNode ? `'${sec.parentNode.indNm}' 하위 업종` : "대분류"}
-                  </Text>
-                  <View style={s.chipGrid}>
-                    {sec.items.map(d => {
-                      const isSelected = sec.selectedCode === d.indCd;
-                      return (
-                        <TouchableOpacity
-                          key={d.indCd}
-                          style={[s.chip, isSelected && s.chipExpanded, d.useYn === "N" && s.chipDim]}
-                          onPress={() => selectAt(sec.depth, d.indCd)}
-                        >
-                          <Text style={[s.chipText, isSelected && s.chipTextExpanded]}>{d.indNm}</Text>
-                          {childrenOf(d.indCd).length > 0 && (
-                            <Text style={[s.chipArrow, isSelected && s.chipTextExpanded]}>›</Text>
-                          )}
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                </View>
-              );
-            }
-            const detail = sec.node;
+          frontier.map(d => {
+            const hasKids = childrenOf(d.indCd).length > 0;
             return (
-              <View key={`detail-${detail.indCd}`} style={s.detailCard}>
-                <View style={s.detailTopRow}>
-                  <Text style={s.detailName}>{detail.indNm}</Text>
-                  <Text style={[s.badge, detail.useYn === "Y" ? s.badgeOn : s.badgeOff]}>
-                    {detail.useYn === "Y" ? "사용중" : "미사용"}
-                  </Text>
-                </View>
-                <View style={s.detailGrid}>
-                  <View style={s.detailRow}><Text style={s.detailKey}>업종코드</Text><Text style={s.detailVal}>{detail.indCd}</Text></View>
-                  <View style={s.detailRow}><Text style={s.detailKey}>상위코드</Text><Text style={s.detailVal}>{detail.prntCd || "-"}</Text></View>
-                  <View style={s.detailRow}><Text style={s.detailKey}>분류단계</Text><Text style={s.detailVal}>{detail.clsLvl}단계</Text></View>
-                  <View style={s.detailRow}><Text style={s.detailKey}>정렬순서</Text><Text style={s.detailVal}>{detail.sortOrd}</Text></View>
-                  <View style={s.detailRow}><Text style={s.detailKey}>전체경로</Text><Text style={[s.detailVal, { fontFamily: undefined }]}>{pathOf(detail.indCd).map(n => n.indNm).join(" › ")}</Text></View>
+              <View key={d.indCd} style={s.frontierBlock}>
+                <TouchableOpacity
+                  style={[s.frontierCircle, d.useYn === "N" && s.frontierCircleDim]}
+                  onPress={() => drillInto(d.indCd)}
+                >
+                  <Text style={s.frontierCircleText}>{d.indNm}</Text>
+                  {hasKids && <Text style={s.frontierCircleArrow}>›</Text>}
+                </TouchableOpacity>
+
+                <View style={s.detailCard}>
+                  <View style={s.detailTopRow}>
+                    <Text style={s.detailName}>{d.indNm}</Text>
+                    <Text style={[s.badge, d.useYn === "Y" ? s.badgeOn : s.badgeOff]}>
+                      {d.useYn === "Y" ? "사용중" : "미사용"}
+                    </Text>
+                  </View>
+                  <View style={s.detailGrid}>
+                    <View style={s.detailRow}><Text style={s.detailKey}>업종코드</Text><Text style={s.detailVal}>{d.indCd}</Text></View>
+                    <View style={s.detailRow}><Text style={s.detailKey}>상위코드</Text><Text style={s.detailVal}>{d.prntCd || "-"}</Text></View>
+                    <View style={s.detailRow}><Text style={s.detailKey}>분류단계</Text><Text style={s.detailVal}>{d.clsLvl}단계</Text></View>
+                    <View style={s.detailRow}><Text style={s.detailKey}>정렬순서</Text><Text style={s.detailVal}>{d.sortOrd}</Text></View>
+                    <View style={s.detailRow}><Text style={s.detailKey}>전체경로</Text><Text style={[s.detailVal, { fontFamily: undefined }]}>{pathOf(d.indCd).map(n => n.indNm).join(" › ")}</Text></View>
+                  </View>
                 </View>
               </View>
             );

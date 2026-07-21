@@ -38,22 +38,17 @@ export const s = StyleSheet.create({
   crumbPillTextCurrent: { color: colors.white },
   crumbSep: { fontSize: font.sm, color: colors.slate400 },
 
-  levelCard: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, padding: spacing["3.5"], backgroundColor: colors.bgCard, marginBottom: spacing["3"] },
-  levelTitle: { fontSize: font.sm, fontWeight: "700", color: colors.textMuted, marginBottom: spacing["2.5"] },
-
-  chipGrid: { flexDirection: "row", flexWrap: "wrap", gap: spacing["2"] },
-  chip: {
-    flexDirection: "row", alignItems: "center", gap: spacing["1.5"],
-    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bgCard,
-    borderRadius: radius.pill, paddingHorizontal: spacing["3.5"], paddingVertical: spacing["2.5"],
+  frontierBlock: { marginBottom: spacing["3.5"] },
+  frontierCircle: {
+    alignSelf: "flex-start", flexDirection: "row", alignItems: "center", gap: spacing["1.5"],
+    backgroundColor: colors.accent, borderRadius: radius.pill,
+    paddingHorizontal: spacing["3.5"], paddingVertical: spacing["2"],
   },
-  chipExpanded: { borderColor: colors.accent, backgroundColor: colors.accentLight },
-  chipDim: { opacity: 0.5 },
-  chipText: { fontSize: font.lg, fontWeight: "600", color: colors.textSecondary },
-  chipTextExpanded: { color: colors.accent },
-  chipArrow: { fontSize: font.sm, color: colors.slate400 },
+  frontierCircleDim: { opacity: 0.5 },
+  frontierCircleText: { fontSize: font.lg, fontWeight: "800", color: colors.white },
+  frontierCircleArrow: { fontSize: font.sm, color: colors.white },
 
-  detailCard: { marginTop: spacing["3"], borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, padding: spacing["3.5"], backgroundColor: colors.slate50 },
+  detailCard: { marginTop: spacing["2"], borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, padding: spacing["3.5"], backgroundColor: colors.slate50 },
   detailTopRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: spacing["2.5"] },
   detailName: { fontSize: font.lg, fontWeight: "800", color: colors.text },
   badge: { fontSize: font.sm, fontWeight: "700", borderRadius: radius.pill, paddingHorizontal: spacing["2.5"], paddingVertical: 3 },
