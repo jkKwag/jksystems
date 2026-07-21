@@ -30,6 +30,13 @@ export const s = StyleSheet.create({
   stripTile: { flex: 1, backgroundColor: colors.slate100, borderRadius: radius.lg, paddingHorizontal: spacing["2.5"], paddingVertical: spacing["2"] },
   stripValue: { fontSize: font.base, fontWeight: "700", color: colors.textSecondary },
 
+  indPathRow: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 4 },
+  indPathPill: { borderRadius: radius.pill, paddingHorizontal: spacing["2.5"], paddingVertical: 4, backgroundColor: colors.bgCard, borderWidth: 1, borderColor: colors.border },
+  indPathPillCurrent: { backgroundColor: colors.accent, borderColor: colors.accent },
+  indPathPillText: { fontSize: font.sm, fontWeight: "700", color: colors.textGray },
+  indPathPillTextCurrent: { color: colors.white },
+  indPathSep: { fontSize: font.sm, color: colors.slate400 },
+
   bizFooter: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: spacing["4"], paddingVertical: spacing["2.5"], gap: spacing["2"] },
   bizAddr: { flex: 1, fontSize: font.sm, color: colors.textMuted },
   chev: { fontSize: font.lg, color: colors.slate400, fontWeight: "700" },

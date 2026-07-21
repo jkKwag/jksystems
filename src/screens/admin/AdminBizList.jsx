@@ -93,6 +93,13 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
   const update = (key) => (v) => setForm(f => ({ ...f, [key]: v }));
 
   const indNm = (indCd) => industries.find(ind => ind.indCd === indCd)?.indNm || "미지정";
+  const byIndCd = Object.fromEntries(industries.map(d => [d.indCd, d]));
+  const indPathOf = (indCd) => {
+    const path = [];
+    let cur = byIndCd[indCd];
+    while (cur) { path.unshift(cur); cur = cur.prntCd ? byIndCd[cur.prntCd] : null; }
+    return path;
+  };
   const statusNm = (biz) => oprSttCodes.find(c => c.cd === biz?.bizStatus)?.cdNm || biz?.bizStatus || "-";
   const isOpenStatus = (biz) => biz?.bizStatus === "O";
 
@@ -255,10 +262,23 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
 
                     <View style={s.bizStrip}>
                       <View style={s.stripTile}>
-                        <Text style={s.stripValue} numberOfLines={1}>{biz.telNo || "연락처 없음"}</Text>
-                      </View>
-                      <View style={s.stripTile}>
-                        <Text style={s.stripValue} numberOfLines={1}>{indNm(biz.indCd)}</Text>
+                        {indPathOf(biz.indCd).length === 0 ? (
+                          <Text style={s.stripValue} numberOfLines={1}>미지정</Text>
+                        ) : (
+                          <View style={s.indPathRow}>
+                            {indPathOf(biz.indCd).map((node, i, arr) => {
+                              const isLast = i === arr.length - 1;
+                              return (
+                                <View key={node.indCd} style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+                                  {i > 0 && <Text style={s.indPathSep}>›</Text>}
+                                  <View style={[s.indPathPill, isLast && s.indPathPillCurrent]}>
+                                    <Text style={[s.indPathPillText, isLast && s.indPathPillTextCurrent]}>{node.indNm}</Text>
+                                  </View>
+                                </View>
+                              );
+                            })}
+                          </View>
+                        )}
                       </View>
                     </View>
 
