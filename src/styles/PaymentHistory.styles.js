@@ -19,8 +19,13 @@ export const s = StyleSheet.create({
 
   card: { backgroundColor: colors.bgCard, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.borderMedium, padding: spacing["3.5"], marginBottom: spacing["3"] },
   cardTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: spacing["1.5"] },
+  cardTopLeft: { flexDirection: "row", alignItems: "center", gap: spacing["2"] },
   bizName: { fontSize: font.xl, fontWeight: "800", color: colors.primary },
   amount: { fontSize: font["2xl"], fontWeight: "900", color: colors.accent },
+  amountCanceled: { color: colors.red, textDecorationLine: "line-through" },
+
+  cancelBadge: { backgroundColor: colors.red, borderRadius: radius.pill, paddingHorizontal: spacing["2.5"], paddingVertical: 3 },
+  cancelBadgeText: { fontSize: font.sm, fontWeight: "800", color: colors.white },
 
   cardMeta: { flexDirection: "row", alignItems: "center", gap: spacing["1.5"] },
   metaText: { fontSize: font.base, color: colors.slate400 },
@@ -47,4 +52,5 @@ export const s = StyleSheet.create({
   itemName: { fontSize: font.md, fontWeight: "700", color: colors.textSecondary },
   itemOptions: { fontSize: font.sm, color: colors.slate400, marginTop: 1 },
   itemPrice: { fontSize: font.md, fontWeight: "700", color: colors.textSecondary },
+  itemPriceCanceled: { color: colors.red, textDecorationLine: "line-through" },
 });

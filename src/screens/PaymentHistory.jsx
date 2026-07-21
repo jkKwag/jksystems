@@ -59,11 +59,19 @@ export default function PaymentHistory({ visible, onClose, payments, bizNameMap 
             ) : (
               payments.map(p => {
                 const expanded = expandedKey === p.paymentKey;
+                const canceled = p.status === "CANCELED";
                 return (
                   <View key={p.paymentKey} style={s.card}>
                     <View style={s.cardTop}>
-                      <Text style={s.bizName}>{bizNameMap?.[p.bizRegNo] || "가맹점"}</Text>
-                      <Text style={s.amount}>₩{Number(p.totalAmount || 0).toLocaleString()}</Text>
+                      <View style={s.cardTopLeft}>
+                        <Text style={s.bizName}>{bizNameMap?.[p.bizRegNo] || "가맹점"}</Text>
+                        {canceled && (
+                          <View style={s.cancelBadge}>
+                            <Text style={s.cancelBadgeText}>결제취소</Text>
+                          </View>
+                        )}
+                      </View>
+                      <Text style={[s.amount, canceled && s.amountCanceled]}>₩{Number(p.totalAmount || 0).toLocaleString()}</Text>
                     </View>
                     <View style={s.cardMeta}>
                       <Text style={s.metaText}>{formatDt(p.approvedDt)}</Text>
@@ -115,7 +123,7 @@ export default function PaymentHistory({ visible, onClose, payments, bizNameMap 
                                         </Text>
                                       ))}
                                     </View>
-                                    <Text style={s.itemPrice}>₩{lineTotal.toLocaleString()}</Text>
+                                    <Text style={[s.itemPrice, canceled && s.itemPriceCanceled]}>₩{lineTotal.toLocaleString()}</Text>
                                   </View>
                                 );
                               })}
