@@ -53,6 +53,34 @@ function BlinkingView({ style, children }) {
   return <Animated.View style={[style, { opacity }]}>{children}</Animated.View>;
 }
 
+// 왼쪽에서 오른쪽으로 순서대로 깜빡여 다음 단계로 흘러가는 느낌을 주는 연결선
+function FlowingLine() {
+  const segments = useRef([0, 1, 2].map(() => new Animated.Value(0.3))).current;
+  useEffect(() => {
+    const total = 900;
+    const block = 300;
+    const dur = 150;
+    const loops = segments.map((v, i) => Animated.loop(
+      Animated.sequence([
+        Animated.delay(i * block),
+        Animated.timing(v, { toValue: 1, duration: dur, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+        Animated.timing(v, { toValue: 0.3, duration: dur, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+        Animated.delay(total - (i + 1) * block),
+      ])
+    ));
+    loops.forEach(l => l.start());
+    return () => loops.forEach(l => l.stop());
+  }, []);
+  return (
+    <View style={s.orderStatusFlowWrap}>
+      {segments.map((opacity, i) => (
+        <Animated.View key={i} style={[s.orderStatusFlowSegment, { opacity }]} />
+      ))}
+      <View style={[s.orderStatusArrowHead, s.orderStatusArrowHeadActive]} />
+    </View>
+  );
+}
+
 function getUuid() {
   if (Platform.OS !== "web") return null;
   let uuid = localStorage.getItem("scaneat_uuid");
@@ -664,10 +692,14 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                             {step.label}
                           </StepText>
                           {i < ORDER_STEPS.length - 1 && (
-                            <View style={s.orderStatusLineWrap}>
-                              <View style={[s.orderStatusLine, i < curIdx && s.orderStatusLineActive]} />
-                              <View style={[s.orderStatusArrowHead, i < curIdx && s.orderStatusArrowHeadActive]} />
-                            </View>
+                            isBlinking ? (
+                              <FlowingLine />
+                            ) : (
+                              <View style={s.orderStatusLineWrap}>
+                                <View style={[s.orderStatusLine, i < curIdx && s.orderStatusLineActive]} />
+                                <View style={[s.orderStatusArrowHead, i < curIdx && s.orderStatusArrowHeadActive]} />
+                              </View>
+                            )
                           )}
                         </View>
                       );
