@@ -7,13 +7,15 @@ export default function AdminIndCls() {
   const [loaded, setLoaded] = useState(false);
   const [items, setItems] = useState([]);
   const [search, setSearch] = useState("");
-  const [path, setPath] = useState([]); // 확정된(선택된) 경로 [1단계코드, 2단계코드, ...]
+  const [path, setPath] = useState([]); // 하위가 있어서 그 안으로 들어간(드릴다운) 경로
+  const [pickedLeaf, setPickedLeaf] = useState(null); // 지금 보고 있는 목록에서 리프를 선택해 하나만 남긴 상태
 
   const load = async () => {
     setLoaded(false);
     const list = await api.industry.list();
     setItems(Array.isArray(list) ? list : []);
     setPath([]);
+    setPickedLeaf(null);
     setSearch("");
     setLoaded(true);
   };
@@ -35,26 +37,43 @@ export default function AdminIndCls() {
     ? items.filter(d => d.indNm.includes(query) || d.indCd.toUpperCase().includes(query.toUpperCase())).slice(0, 10)
     : [];
 
-  // 검색 결과를 클릭하면 그 항목까지를 확정된 경로로 만듦
+  // 검색 결과를 클릭하면: 하위가 있으면 그 안으로 들어가고, 리프면 그 형제 목록에서 하나만 남김
   const goto = (d) => {
     setSearch("");
-    setPath(pathOf(d.indCd).map(n => n.indCd));
+    if (childrenOf(d.indCd).length > 0) {
+      setPath(pathOf(d.indCd).map(n => n.indCd));
+      setPickedLeaf(null);
+    } else {
+      setPath(pathOf(d.indCd).slice(0, -1).map(n => n.indCd));
+      setPickedLeaf(d.indCd);
+    }
   };
 
-  // 아직 선택 안 된(중립) 원을 누르면 그 항목 하나만 확정되고, 형제 항목들은 사라짐
-  const pick = (code) => setPath([...path, code]);
+  // 항목을 누름: 하위가 있으면 그 안으로 드릴다운(목록이 하위 전체로 교체됨), 리프면 그 목록에서 하나만 남김
+  const select = (d) => {
+    if (childrenOf(d.indCd).length > 0) {
+      setPath([...path, d.indCd]);
+      setPickedLeaf(null);
+    } else {
+      setPickedLeaf(d.indCd);
+    }
+  };
 
-  // 상단 배지에서 특정 단계까지만 남기고 그 이후는 다시 선택하도록 되돌림
-  const truncateAt = (li) => setPath(path.slice(0, li));
+  // 상단 배지에서 특정 단계까지만 남기고 되돌림
+  const truncateAt = (li) => {
+    setPath(path.slice(0, li));
+    setPickedLeaf(null);
+  };
 
-  // 확정된 항목들 - 각각 선택된 원 + 자기 상세카드
-  const confirmedNodes = path.map(code => byCode[code]).filter(Boolean);
   const lastCode = path.length > 0 ? path[path.length - 1] : null;
 
-  // 아직 선택하지 않은, 지금 고를 수 있는 목록 (중립 상태 원, 카드 없음)
-  const openList = lastCode === null
+  // 지금 보고 있는 목록: 맨 처음엔 1단계 전체, 경로가 있으면 마지막으로 들어간 항목의 하위 전체
+  const currentList = lastCode === null
     ? items.filter(d => d.clsLvl === 1)
     : childrenOf(lastCode);
+
+  // 리프를 하나 선택했으면 그 하나만, 아니면 전체 목록을 보여줌
+  const displayList = pickedLeaf ? currentList.filter(d => d.indCd === pickedLeaf) : currentList;
 
   if (!loaded) {
     return (
@@ -85,7 +104,7 @@ export default function AdminIndCls() {
         />
       </View>
 
-      {!searching && path.length > 0 && (
+      {!searching && (path.length > 0 || pickedLeaf) && (
         <View style={s.crumbsRow}>
           <TouchableOpacity style={s.crumbPill} onPress={() => truncateAt(0)}>
             <Text style={s.crumbPillText}>대분류</Text>
@@ -93,16 +112,19 @@ export default function AdminIndCls() {
           {path.map((code, i) => (
             <View key={code} style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
               <Text style={s.crumbSep}>›</Text>
-              <TouchableOpacity
-                style={[s.crumbPill, i === path.length - 1 && s.crumbPillCurrent]}
-                onPress={() => truncateAt(i + 1)}
-              >
-                <Text style={[s.crumbPillText, i === path.length - 1 && s.crumbPillTextCurrent]}>
-                  {byCode[code]?.indNm}
-                </Text>
+              <TouchableOpacity style={s.crumbPill} onPress={() => truncateAt(i + 1)}>
+                <Text style={s.crumbPillText}>{byCode[code]?.indNm}</Text>
               </TouchableOpacity>
             </View>
           ))}
+          {pickedLeaf && (
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+              <Text style={s.crumbSep}>›</Text>
+              <View style={[s.crumbPill, s.crumbPillCurrent]}>
+                <Text style={[s.crumbPillText, s.crumbPillTextCurrent]}>{byCode[pickedLeaf]?.indNm}</Text>
+              </View>
+            </View>
+          )}
         </View>
       )}
 
@@ -128,47 +150,39 @@ export default function AdminIndCls() {
           )
         ) : (
           <>
-            {/* 확정된 단계들 - 각 단계마다 선택된 원 하나 + 그 상세카드 */}
-            {confirmedNodes.map(node => (
-              <View key={node.indCd}>
-                <View style={s.frontierCircleRow}>
-                  <View style={[s.frontierCircle, node.useYn === "N" && s.frontierCircleDim]}>
-                    <Text style={s.frontierCircleText}>{node.indNm}</Text>
-                  </View>
-                </View>
-                <View style={s.detailCard}>
-                  <View style={s.detailTopRow}>
-                    <Text style={s.detailName}>{node.indNm}</Text>
-                    <Text style={[s.badge, node.useYn === "Y" ? s.badgeOn : s.badgeOff]}>
-                      {node.useYn === "Y" ? "사용중" : "미사용"}
-                    </Text>
-                  </View>
-                  <View style={s.detailGrid}>
-                    <View style={s.detailRow}><Text style={s.detailKey}>업종코드</Text><Text style={s.detailVal}>{node.indCd}</Text></View>
-                    <View style={s.detailRow}><Text style={s.detailKey}>상위코드</Text><Text style={s.detailVal}>{node.prntCd || "-"}</Text></View>
-                    <View style={s.detailRow}><Text style={s.detailKey}>분류단계</Text><Text style={s.detailVal}>{node.clsLvl}단계</Text></View>
-                    <View style={s.detailRow}><Text style={s.detailKey}>정렬순서</Text><Text style={s.detailVal}>{node.sortOrd}</Text></View>
-                    <View style={s.detailRow}><Text style={s.detailKey}>전체경로</Text><Text style={[s.detailVal, { fontFamily: undefined }]}>{pathOf(node.indCd).map(n => n.indNm).join(" › ")}</Text></View>
-                  </View>
-                </View>
-              </View>
-            ))}
-
-            {/* 아직 선택 안 된 다음 단계 후보들 - 중립 상태, 카드 없음 */}
-            {openList.length > 0 && (
-              <View style={s.frontierCircleRow}>
-                {openList.map(d => (
+            <View style={s.frontierCircleRow}>
+              {displayList.map(d => {
+                const hasKids = childrenOf(d.indCd).length > 0;
+                return (
                   <TouchableOpacity
                     key={d.indCd}
                     style={[s.frontierCircleNeutral, d.useYn === "N" && s.frontierCircleDim]}
-                    onPress={() => pick(d.indCd)}
+                    onPress={() => select(d)}
                   >
                     <Text style={s.frontierCircleNeutralText}>{d.indNm}</Text>
-                    {childrenOf(d.indCd).length > 0 && <Text style={s.frontierCircleNeutralArrow}>›</Text>}
+                    {hasKids && <Text style={s.frontierCircleNeutralArrow}>›</Text>}
                   </TouchableOpacity>
-                ))}
+                );
+              })}
+            </View>
+
+            {displayList.map(d => (
+              <View key={d.indCd} style={s.detailCard}>
+                <View style={s.detailTopRow}>
+                  <Text style={s.detailName}>{d.indNm}</Text>
+                  <Text style={[s.badge, d.useYn === "Y" ? s.badgeOn : s.badgeOff]}>
+                    {d.useYn === "Y" ? "사용중" : "미사용"}
+                  </Text>
+                </View>
+                <View style={s.detailGrid}>
+                  <View style={s.detailRow}><Text style={s.detailKey}>업종코드</Text><Text style={s.detailVal}>{d.indCd}</Text></View>
+                  <View style={s.detailRow}><Text style={s.detailKey}>상위코드</Text><Text style={s.detailVal}>{d.prntCd || "-"}</Text></View>
+                  <View style={s.detailRow}><Text style={s.detailKey}>분류단계</Text><Text style={s.detailVal}>{d.clsLvl}단계</Text></View>
+                  <View style={s.detailRow}><Text style={s.detailKey}>정렬순서</Text><Text style={s.detailVal}>{d.sortOrd}</Text></View>
+                  <View style={s.detailRow}><Text style={s.detailKey}>전체경로</Text><Text style={[s.detailVal, { fontFamily: undefined }]}>{pathOf(d.indCd).map(n => n.indNm).join(" › ")}</Text></View>
+                </View>
               </View>
-            )}
+            ))}
           </>
         )}
       </ScrollView>
