@@ -58,6 +58,6 @@ export const s = StyleSheet.create({
 
   detailGrid: { gap: spacing["1.5"] },
   detailRow: { flexDirection: "row", gap: spacing["3"] },
-  detailKey: { width: 64, fontSize: font.base, fontWeight: "600", color: colors.textMuted },
+  detailKey: { width: 84, fontSize: font.base, fontWeight: "600", color: colors.textMuted },
   detailVal: { flex: 1, fontSize: font.base, fontWeight: "600", color: colors.textSecondary, fontFamily: Platform.OS === "web" ? "monospace" : undefined },
 });

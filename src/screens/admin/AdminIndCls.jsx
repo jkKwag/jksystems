@@ -109,14 +109,17 @@ export default function AdminIndCls() {
           <TouchableOpacity style={s.crumbPill} onPress={() => truncateAt(0)}>
             <Text style={s.crumbPillText}>대분류</Text>
           </TouchableOpacity>
-          {path.map((code, i) => (
-            <View key={code} style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-              <Text style={s.crumbSep}>›</Text>
-              <TouchableOpacity style={s.crumbPill} onPress={() => truncateAt(i + 1)}>
-                <Text style={s.crumbPillText}>{byCode[code]?.indNm}</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
+          {path.map((code, i) => {
+            const isLast = !pickedLeaf && i === path.length - 1;
+            return (
+              <View key={code} style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                <Text style={s.crumbSep}>›</Text>
+                <TouchableOpacity style={[s.crumbPill, isLast && s.crumbPillCurrent]} onPress={() => truncateAt(i + 1)}>
+                  <Text style={[s.crumbPillText, isLast && s.crumbPillTextCurrent]}>{byCode[code]?.indNm}</Text>
+                </TouchableOpacity>
+              </View>
+            );
+          })}
           {pickedLeaf && (
             <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
               <Text style={s.crumbSep}>›</Text>
@@ -176,7 +179,8 @@ export default function AdminIndCls() {
                 </View>
                 <View style={s.detailGrid}>
                   <View style={s.detailRow}><Text style={s.detailKey}>업종코드</Text><Text style={s.detailVal}>{d.indCd}</Text></View>
-                  <View style={s.detailRow}><Text style={s.detailKey}>상위코드</Text><Text style={s.detailVal}>{d.prntCd || "-"}</Text></View>
+                  <View style={s.detailRow}><Text style={s.detailKey}>상위업종코드</Text><Text style={s.detailVal}>{d.prntCd || "-"}</Text></View>
+                  <View style={s.detailRow}><Text style={s.detailKey}>상위업종명</Text><Text style={[s.detailVal, { fontFamily: undefined }]}>{d.prntCd ? (byCode[d.prntCd]?.indNm || "-") : "-"}</Text></View>
                   <View style={s.detailRow}><Text style={s.detailKey}>분류단계</Text><Text style={s.detailVal}>{d.clsLvl}단계</Text></View>
                   <View style={s.detailRow}><Text style={s.detailKey}>정렬순서</Text><Text style={s.detailVal}>{d.sortOrd}</Text></View>
                   <View style={s.detailRow}><Text style={s.detailKey}>전체경로</Text><Text style={[s.detailVal, { fontFamily: undefined }]}>{pathOf(d.indCd).map(n => n.indNm).join(" › ")}</Text></View>
