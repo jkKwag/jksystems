@@ -13,6 +13,15 @@ export const s = StyleSheet.create({
   emptyText: { fontSize: font.md, color: colors.textMuted, textAlign: "center" },
 
   list: { gap: spacing["3"], paddingBottom: spacing["10"] },
+
+  sectionTitleRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"], marginTop: spacing["5"], marginBottom: spacing["2.5"] },
+  sectionTitleRowFirst: { marginTop: 0 },
+  sectionTitleText: { fontSize: font.lg, fontWeight: "800", color: colors.textSecondary },
+  sectionCount: { fontSize: font.sm, fontWeight: "700", color: colors.textMuted, backgroundColor: colors.slate100, borderRadius: radius.pill, paddingHorizontal: spacing["2"], paddingVertical: 2 },
+  sectionBadge: { marginLeft: "auto", fontSize: font.xs, fontWeight: "800", color: colors.accent, backgroundColor: colors.accentLight, borderRadius: radius.pill, paddingHorizontal: spacing["2"], paddingVertical: 2 },
+
+  roleBadgePosition: { backgroundColor: colors.accentLight },
+  roleBadgeTextPosition: { color: colors.accent },
   card: { backgroundColor: colors.bgCard, borderRadius: radius["2xl"], padding: spacing["4"], gap: spacing["1.5"], borderWidth: 1, borderColor: colors.border },
   cardTopRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   adminNm: { fontSize: font.xl, fontWeight: "900", color: colors.text },
