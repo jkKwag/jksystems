@@ -64,4 +64,5 @@ export const s = StyleSheet.create({
   itemName: { fontSize: font.md, fontWeight: "700", color: colors.textSecondary },
   itemOptions: { fontSize: font.sm, color: colors.slate400, marginTop: 1 },
   itemPrice: { fontSize: font.md, fontWeight: "700", color: colors.textSecondary },
+  itemPriceCanceled: { color: colors.red, textDecorationLine: "line-through" },
 });

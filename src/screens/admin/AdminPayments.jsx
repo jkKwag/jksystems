@@ -235,7 +235,7 @@ export default function AdminPayments({ adminInfo }) {
                                   </Text>
                                 ))}
                               </View>
-                              <Text style={s.itemPrice}>₩{lineTotal.toLocaleString()}</Text>
+                              <Text style={[s.itemPrice, canceled && s.itemPriceCanceled]}>₩{lineTotal.toLocaleString()}</Text>
                             </View>
                           );
                         })}
