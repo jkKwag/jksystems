@@ -21,6 +21,9 @@ export const s = StyleSheet.create({
     paddingLeft: spacing["10"], fontSize: font.lg, color: colors.text,
   },
 
+  countRow: { marginBottom: spacing["2"] },
+  countText: { fontSize: font.sm, fontWeight: "700", color: colors.textMuted },
+
   resultRow: { flexDirection: "row", alignItems: "center", gap: spacing["2.5"], paddingVertical: spacing["2.5"], paddingHorizontal: spacing["2.5"], borderRadius: radius.lg },
   resultMain: { flex: 1 },
   resultName: { fontSize: font.lg, fontWeight: "700", color: colors.text },
@@ -31,7 +34,13 @@ export const s = StyleSheet.create({
     fontFamily: Platform.OS === "web" ? "monospace" : undefined,
   },
 
-  levelCard: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, padding: spacing["3.5"], backgroundColor: colors.bgCard, marginBottom: spacing["3"] },
+  crumbsRow: { flexDirection: "row", alignItems: "center", flexWrap: "wrap", gap: spacing["1.5"], marginBottom: spacing["3"], minHeight: 22 },
+  crumbPill: { borderRadius: radius.pill, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"], backgroundColor: colors.slate100, borderWidth: 1, borderColor: colors.border },
+  crumbPillCurrent: { backgroundColor: colors.accent, borderColor: colors.accent },
+  crumbPillText: { fontSize: font.sm, fontWeight: "700", color: colors.textGray },
+  crumbPillTextCurrent: { color: colors.white },
+  crumbSep: { fontSize: font.sm, color: colors.slate400 },
+
   levelTitle: { fontSize: font.sm, fontWeight: "700", color: colors.textMuted, marginBottom: spacing["2.5"] },
 
   chipGrid: { flexDirection: "row", flexWrap: "wrap", gap: spacing["2"] },
