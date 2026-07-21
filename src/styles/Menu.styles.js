@@ -57,7 +57,7 @@ export const s = StyleSheet.create({
   orderStatusStepWrap: { flexDirection: "row", alignItems: "center", flex: 1 },
   orderStatusDot: { width: 13, height: 13, borderRadius: 999, backgroundColor: colors.slate300 },
   orderStatusDotActive: { backgroundColor: colors.accent },
-  orderStatusStepText: { fontSize: font.md, fontWeight: "700", color: colors.textFaint, marginLeft: spacing["1.5"], width: 60 },
+  orderStatusStepText: { fontSize: font.md, fontWeight: "700", color: colors.textFaint, marginLeft: spacing["1.5"] },
   orderStatusStepTextActive: { color: colors.accent },
   orderStatusLineWrap: { flex: 1, flexDirection: "row", alignItems: "center", marginHorizontal: spacing["1.5"] },
   orderStatusLine: { flex: 1, height: 3, backgroundColor: colors.slate300 },
