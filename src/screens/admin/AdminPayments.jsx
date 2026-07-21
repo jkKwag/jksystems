@@ -5,6 +5,7 @@ import { s } from "../../styles/admin/AdminPayments.styles";
 import api from "../../lib/api";
 import OrderTypeBadge from "../../components/OrderTypeBadge";
 import PickupBadge from "../../components/PickupBadge";
+import ConfirmModal from "../../components/ConfirmModal";
 
 const PAY_STATUS_FILTERS = ["ALL", "DONE", "CANCELED"];
 
@@ -56,6 +57,8 @@ export default function AdminPayments({ adminInfo }) {
   const [calTarget, setCalTarget] = useState(null); // null | "from" | "to"
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [payStatusLabels, setPayStatusLabels] = useState({});
+  const [cancelTarget, setCancelTarget] = useState(null);
+  const [canceling, setCanceling] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -101,6 +104,15 @@ export default function AdminPayments({ adminInfo }) {
     const sorted = orders.filter(Boolean).sort((a, b) => new Date(b.regDt) - new Date(a.regDt));
     setOrderDetails(prev => ({ ...prev, [p.paymentKey]: sorted }));
     setLoadingKey(null);
+  };
+
+  const cancelPayment = async () => {
+    if (!cancelTarget) return;
+    setCanceling(true);
+    await api.payment.cancel(cancelTarget, { cancelReason: "관리자 요청에 의한 취소" });
+    setCanceling(false);
+    setCancelTarget(null);
+    load();
   };
 
   if (!bizRegNo) {
@@ -195,6 +207,11 @@ export default function AdminPayments({ adminInfo }) {
                       <Text style={[s.actionBtnText, s.receiptBtnText]}>영수증 보기</Text>
                     </TouchableOpacity>
                   )}
+                  {p.status === "DONE" && (
+                    <TouchableOpacity style={[s.actionBtn, s.cancelBtn]} onPress={() => setCancelTarget(p.paymentKey)}>
+                      <Text style={[s.actionBtnText, s.cancelBtnText]}>취소요청</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
 
                 {expanded && (
@@ -235,12 +252,21 @@ export default function AdminPayments({ adminInfo }) {
                     )}
                   </View>
                 )}
-                <Text style={s.paymentKey}>결제키 {p.paymentKey}</Text>
               </View>
             );
           })}
         </ScrollView>
       )}
+
+      <ConfirmModal
+        visible={!!cancelTarget}
+        message={canceling ? "취소 처리 중입니다..." : "결제를 취소하시겠습니까?\n이 작업은 되돌릴 수 없습니다."}
+        confirmText="취소요청"
+        cancelText="닫기"
+        danger
+        onConfirm={cancelPayment}
+        onCancel={() => setCancelTarget(null)}
+      />
     </View>
   );
 }

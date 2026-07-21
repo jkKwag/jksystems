@@ -1,4 +1,4 @@
-import { StyleSheet, Platform } from "react-native";
+import { StyleSheet } from "react-native";
 import { colors, radius, font, spacing } from "../theme";
 
 export const s = StyleSheet.create({
@@ -41,6 +41,8 @@ export const s = StyleSheet.create({
   actionBtnText: { fontSize: font.base, fontWeight: "700", color: colors.textSecondary },
   receiptBtn: { borderColor: colors.blue, backgroundColor: colors.bluePaleBg },
   receiptBtnText: { color: colors.blue },
+  cancelBtn: { borderColor: colors.red, backgroundColor: colors.redPaleBg },
+  cancelBtnText: { color: colors.redDark },
 
   detailBox: { marginTop: spacing["1"], paddingTop: spacing["3"], borderTopWidth: 1, borderTopColor: colors.borderLight },
   detailLoading: { fontSize: font.base, color: colors.slate400, textAlign: "center", paddingVertical: spacing["2"] },
@@ -57,6 +59,4 @@ export const s = StyleSheet.create({
   itemName: { fontSize: font.md, fontWeight: "700", color: colors.textSecondary },
   itemOptions: { fontSize: font.sm, color: colors.slate400, marginTop: 1 },
   itemPrice: { fontSize: font.md, fontWeight: "700", color: colors.textSecondary },
-
-  paymentKey: { fontSize: font.sm, color: colors.textMuted, marginTop: spacing["1"], fontFamily: Platform.OS === "web" ? "monospace" : undefined },
 });

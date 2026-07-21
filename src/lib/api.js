@@ -123,6 +123,7 @@ const api = {
     get: (paymentKey) => get(`/api/payment/${paymentKey}`),
     list: (uuid) => get(`/api/payment?uuid=${uuid}`),
     listByBiz: (bizRegNo, from, to) => get(`/api/payment/biz/${bizRegNo}${from && to ? `?from=${from}&to=${to}` : ""}`),
+    cancel: (paymentKey, body) => post(`/api/payment/${paymentKey}/cancel`, body),
   },
 };
 
