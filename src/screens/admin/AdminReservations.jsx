@@ -38,6 +38,7 @@ const CAL_THEME = {
 };
 
 const STATUS_STYLE_KEY = { PENDING: "statusPending", CONFIRMED: "statusConfirmed", REJECTED: "statusRejected", CANCELLED: "statusCancelled", COMPLETED: "statusCompleted" };
+const RSVN_STATUS_FILTERS = ["ALL", "PENDING", "CONFIRMED", "REJECTED", "CANCELLED", "COMPLETED"];
 const isPast = (iso) => new Date(iso) <= new Date();
 // 상태 상관없이 예약일시가 가장 최근(미래로 가장 늦은) 순으로 정렬
 const sortReservations = (list) => [...list].sort((a, b) => new Date(b.rsvnDt) - new Date(a.rsvnDt));
@@ -57,6 +58,7 @@ export default function AdminReservations({ adminInfo }) {
   const [dateFrom, setDateFrom] = useState(addDays(todayStr, -1));
   const [dateTo, setDateTo] = useState(todayStr);
   const [calTarget, setCalTarget] = useState(null); // null | "from" | "to"
+  const [statusFilter, setStatusFilter] = useState("ALL");
 
   const load = async (from = dateFrom, to = dateTo) => {
     if (!bizRegNo) { setLoaded(true); return; }
@@ -125,6 +127,8 @@ export default function AdminReservations({ adminInfo }) {
     );
   }
 
+  const filteredReservations = statusFilter === "ALL" ? reservations : reservations.filter(r => r.rsvnStatus === statusFilter);
+
   return (
     <View style={s.container}>
       <View style={s.headerRow}>
@@ -142,6 +146,22 @@ export default function AdminReservations({ adminInfo }) {
         <TouchableOpacity style={s.dateField} onPress={() => setCalTarget("to")}>
           <Text style={s.dateFieldText}>📅 {formatDateLabel(dateTo)}</Text>
         </TouchableOpacity>
+      </View>
+
+      <View style={s.statusFilterBox}>
+        <View style={s.statusFilterRow}>
+          {RSVN_STATUS_FILTERS.map(status => (
+            <TouchableOpacity
+              key={status}
+              style={[s.statusChip, statusFilter === status && s.statusChipActive]}
+              onPress={() => setStatusFilter(status)}
+            >
+              <Text style={[s.statusChipText, statusFilter === status && s.statusChipTextActive]}>
+                {status === "ALL" ? "전체" : (statusLabels[status] || status)}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
 
       {calTarget && (
@@ -164,11 +184,11 @@ export default function AdminReservations({ adminInfo }) {
 
       {!loaded ? (
         <ActivityIndicator style={{ marginTop: 40 }} color="#f97316" />
-      ) : reservations.length === 0 ? (
+      ) : filteredReservations.length === 0 ? (
         <View style={s.center}><Text style={s.emptyText}>예약 내역이 없습니다</Text></View>
       ) : (
         <ScrollView contentContainerStyle={s.list}>
-          {reservations.map(r => {
+          {filteredReservations.map(r => {
             const busy = busyRsvnNo === r.rsvnNo;
             return (
               <View key={r.rsvnNo} style={s.card}>
