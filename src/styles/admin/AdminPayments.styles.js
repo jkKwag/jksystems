@@ -29,8 +29,13 @@ export const s = StyleSheet.create({
   list: { gap: spacing["3"], paddingBottom: spacing["10"] },
   card: { backgroundColor: colors.bgCard, borderRadius: radius["2xl"], padding: spacing["4"], gap: spacing["1.5"], borderWidth: 1, borderColor: colors.border },
   cardTopRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  cardTopLeft: { flexDirection: "row", alignItems: "center", gap: spacing["2"] },
   dt: { fontSize: font.xl, fontWeight: "900", color: colors.primary },
   amount: { fontSize: font["2xl"], fontWeight: "900", color: colors.accent },
+  amountCanceled: { color: colors.red, textDecorationLine: "line-through" },
+
+  cancelBadge: { backgroundColor: colors.red, borderRadius: radius.pill, paddingHorizontal: spacing["2.5"], paddingVertical: 3 },
+  cancelBadgeText: { fontSize: font.sm, fontWeight: "800", color: colors.white },
 
   metaRow: { flexDirection: "row", alignItems: "center", gap: spacing["1.5"] },
   meta: { fontSize: font.base, color: colors.textSecondary, fontWeight: "600" },

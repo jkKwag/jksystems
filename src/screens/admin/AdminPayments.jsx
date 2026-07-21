@@ -49,9 +49,7 @@ export default function AdminPayments({ adminInfo }) {
 
   const [loaded, setLoaded] = useState(false);
   const [payments, setPayments] = useState([]);
-  const [expandedKey, setExpandedKey] = useState(null);
   const [orderDetails, setOrderDetails] = useState({});
-  const [loadingKey, setLoadingKey] = useState(null);
   const [dateFrom, setDateFrom] = useState(addDays(todayStr, -1));
   const [dateTo, setDateTo] = useState(todayStr);
   const [calTarget, setCalTarget] = useState(null); // null | "from" | "to"
@@ -73,10 +71,15 @@ export default function AdminPayments({ adminInfo }) {
     if (!bizRegNo) { setLoaded(true); return; }
     setLoaded(false);
     const list = await api.payment.listByBiz(bizRegNo, from, to);
-    setPayments(Array.isArray(list) ? list : []);
-    setExpandedKey(null);
+    const arr = Array.isArray(list) ? list : [];
+    setPayments(arr);
     setOrderDetails({});
     setLoaded(true);
+    arr.forEach(async (p) => {
+      const orders = await Promise.all((p.orderNos || []).map(no => api.order.get(no)));
+      const sorted = orders.filter(Boolean).sort((a, b) => new Date(b.regDt) - new Date(a.regDt));
+      setOrderDetails(prev => ({ ...prev, [p.paymentKey]: sorted }));
+    });
   };
 
   useEffect(() => { load(); }, [bizRegNo]);
@@ -93,17 +96,6 @@ export default function AdminPayments({ adminInfo }) {
       setCalTarget(null);
       load(dateFrom, nextTo);
     }
-  };
-
-  const toggleExpand = async (p) => {
-    if (expandedKey === p.paymentKey) { setExpandedKey(null); return; }
-    setExpandedKey(p.paymentKey);
-    if (orderDetails[p.paymentKey]) return;
-    setLoadingKey(p.paymentKey);
-    const orders = await Promise.all((p.orderNos || []).map(no => api.order.get(no)));
-    const sorted = orders.filter(Boolean).sort((a, b) => new Date(b.regDt) - new Date(a.regDt));
-    setOrderDetails(prev => ({ ...prev, [p.paymentKey]: sorted }));
-    setLoadingKey(null);
   };
 
   const cancelPayment = async () => {
@@ -185,12 +177,19 @@ export default function AdminPayments({ adminInfo }) {
       ) : (
         <ScrollView contentContainerStyle={s.list}>
           {filteredPayments.map(p => {
-            const expanded = expandedKey === p.paymentKey;
+            const canceled = p.status === "CANCELED";
             return (
               <View key={p.paymentKey} style={s.card}>
                 <View style={s.cardTopRow}>
-                  <Text style={s.dt}>{formatDt(p.approvedDt)}</Text>
-                  <Text style={s.amount}>₩{Number(p.totalAmount || 0).toLocaleString()}</Text>
+                  <View style={s.cardTopLeft}>
+                    <Text style={s.dt}>{formatDt(p.approvedDt)}</Text>
+                    {canceled && (
+                      <View style={s.cancelBadge}>
+                        <Text style={s.cancelBadgeText}>결제취소</Text>
+                      </View>
+                    )}
+                  </View>
+                  <Text style={[s.amount, canceled && s.amountCanceled]}>₩{Number(p.totalAmount || 0).toLocaleString()}</Text>
                 </View>
                 <View style={s.metaRow}>
                   <Text style={s.meta}>{p.method || "결제"}</Text>
@@ -199,9 +198,6 @@ export default function AdminPayments({ adminInfo }) {
                 </View>
 
                 <View style={s.actionRow}>
-                  <TouchableOpacity style={s.actionBtn} onPress={() => toggleExpand(p)}>
-                    <Text style={s.actionBtnText}>{expanded ? "접기 ▴" : "상세보기 ▾"}</Text>
-                  </TouchableOpacity>
                   {!!p.pg?.receiptUrl && (
                     <TouchableOpacity style={[s.actionBtn, s.receiptBtn]} onPress={() => Linking.openURL(p.pg.receiptUrl)}>
                       <Text style={[s.actionBtnText, s.receiptBtnText]}>영수증 보기</Text>
@@ -214,44 +210,40 @@ export default function AdminPayments({ adminInfo }) {
                   )}
                 </View>
 
-                {expanded && (
-                  <View style={s.detailBox}>
-                    {loadingKey === p.paymentKey ? (
-                      <Text style={s.detailLoading}>불러오는 중...</Text>
-                    ) : (orderDetails[p.paymentKey] || []).length === 0 ? (
-                      <Text style={s.detailLoading}>주문 상세를 불러올 수 없습니다</Text>
-                    ) : (
-                      orderDetails[p.paymentKey].map((order, oi) => (
-                        <View key={order.orderNo} style={[s.orderBlock, oi > 0 && s.orderBlockDivider]}>
-                          <View style={s.orderBadgeRow}>
-                            <View style={s.orderBadge}>
-                              <Text style={s.orderBadgeText}>주문{orderDetails[p.paymentKey].length - oi}</Text>
-                            </View>
-                            <OrderTypeBadge isTakeout={order.orderTypCd === "TAKEOUT"} textStyle={s.orderTypText} />
+                <View style={s.detailBox}>
+                  {(orderDetails[p.paymentKey] || []).length === 0 ? (
+                    <Text style={s.detailLoading}>불러오는 중...</Text>
+                  ) : (
+                    orderDetails[p.paymentKey].map((order, oi) => (
+                      <View key={order.orderNo} style={[s.orderBlock, oi > 0 && s.orderBlockDivider]}>
+                        <View style={s.orderBadgeRow}>
+                          <View style={s.orderBadge}>
+                            <Text style={s.orderBadgeText}>주문{orderDetails[p.paymentKey].length - oi}</Text>
                           </View>
-                          {order.items?.map(item => {
-                            const optionsTotal = (item.options || []).reduce((sum, o) => sum + Number(o.addPrice || 0), 0);
-                            const lineTotal = (Number(item.price || 0) + optionsTotal) * Number(item.qty || 1);
-                            return (
-                              <View key={item.orderSeq} style={s.itemRow}>
-                                <View style={{ flex: 1 }}>
-                                  <Text style={s.itemName}>{item.menuNm} x{item.qty}</Text>
-                                  {item.options?.filter(o => o.optNm).map(o => (
-                                    <Text key={o.optCd} style={s.itemOptions}>
-                                      {o.optNm}{Number(o.addPrice || 0) > 0 ? ` (+₩${Number(o.addPrice).toLocaleString()})` : ""}
-                                    </Text>
-                                  ))}
-                                </View>
-                                <Text style={s.itemPrice}>₩{lineTotal.toLocaleString()}</Text>
-                              </View>
-                            );
-                          })}
-                          <PickupBadge pickupNo={order.pickupNo} />
+                          <OrderTypeBadge isTakeout={order.orderTypCd === "TAKEOUT"} textStyle={s.orderTypText} />
                         </View>
-                      ))
-                    )}
-                  </View>
-                )}
+                        {order.items?.map(item => {
+                          const optionsTotal = (item.options || []).reduce((sum, o) => sum + Number(o.addPrice || 0), 0);
+                          const lineTotal = (Number(item.price || 0) + optionsTotal) * Number(item.qty || 1);
+                          return (
+                            <View key={item.orderSeq} style={s.itemRow}>
+                              <View style={{ flex: 1 }}>
+                                <Text style={s.itemName}>{item.menuNm} x{item.qty}</Text>
+                                {item.options?.filter(o => o.optNm).map(o => (
+                                  <Text key={o.optCd} style={s.itemOptions}>
+                                    {o.optNm}{Number(o.addPrice || 0) > 0 ? ` (+₩${Number(o.addPrice).toLocaleString()})` : ""}
+                                  </Text>
+                                ))}
+                              </View>
+                              <Text style={s.itemPrice}>₩{lineTotal.toLocaleString()}</Text>
+                            </View>
+                          );
+                        })}
+                        <PickupBadge pickupNo={order.pickupNo} />
+                      </View>
+                    ))
+                  )}
+                </View>
               </View>
             );
           })}
