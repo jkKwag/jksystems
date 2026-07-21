@@ -57,7 +57,7 @@ export const s = StyleSheet.create({
   orderStatusStepWrap: { flexDirection: "row", alignItems: "center", flex: 1 },
   orderStatusDot: { width: 13, height: 13, borderRadius: 999, backgroundColor: colors.slate300 },
   orderStatusDotActive: { backgroundColor: colors.accent },
-  orderStatusStepText: { fontSize: font.md, fontWeight: "700", color: colors.textFaint, marginLeft: spacing["1.5"] },
+  orderStatusStepText: { fontSize: font.md, fontWeight: "700", color: colors.textFaint, marginLeft: spacing["1.5"], width: 60 },
   orderStatusStepTextActive: { color: colors.accent },
   orderStatusLineWrap: { flex: 1, flexDirection: "row", alignItems: "center", marginHorizontal: spacing["1.5"] },
   orderStatusLine: { flex: 1, height: 3, backgroundColor: colors.slate300 },
@@ -74,7 +74,7 @@ export const s = StyleSheet.create({
     borderLeftColor: colors.slate300,
   },
   orderStatusArrowHeadActive: { borderLeftColor: colors.accent },
-  orderStatusFlowWrap: { flex: 1, flexDirection: "row", alignItems: "center", marginHorizontal: spacing["1.5"] },
+  orderStatusFlowWrap: { flex: 1, flexDirection: "row", alignItems: "center", marginHorizontal: spacing["1.5"], gap: 2 },
   orderStatusFlowSegment: { flex: 1, height: 3, borderRadius: 2, backgroundColor: colors.accent },
 
   orderDetailPopupBox: { backgroundColor: colors.bgCard, borderRadius: radius["3xl"], padding: spacing["5"], width: 300, maxHeight: 420, shadowColor: colors.black, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 20, elevation: 20 },

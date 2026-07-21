@@ -54,12 +54,13 @@ function BlinkingView({ style, children }) {
 }
 
 // 왼쪽에서 오른쪽으로 순서대로 깜빡이다 화살촉까지 도달하면 화살촉도 깜빡이는 연결선
+const FLOW_DASH_COUNT = 5;
 function FlowingLine() {
-  const stages = useRef([0, 1, 2, 3].map(() => new Animated.Value(0.3))).current;
+  const stages = useRef(Array.from({ length: FLOW_DASH_COUNT + 1 }, () => new Animated.Value(0.3))).current;
   useEffect(() => {
-    const total = 1600;
     const block = 400;
     const dur = 200;
+    const total = block * stages.length;
     const loops = stages.map((v, i) => Animated.loop(
       Animated.sequence([
         Animated.delay(i * block),
@@ -73,10 +74,10 @@ function FlowingLine() {
   }, []);
   return (
     <View style={s.orderStatusFlowWrap}>
-      {stages.slice(0, 3).map((opacity, i) => (
+      {stages.slice(0, FLOW_DASH_COUNT).map((opacity, i) => (
         <Animated.View key={i} style={[s.orderStatusFlowSegment, { opacity }]} />
       ))}
-      <Animated.View style={{ opacity: stages[3] }}>
+      <Animated.View style={{ opacity: stages[FLOW_DASH_COUNT] }}>
         <View style={[s.orderStatusArrowHead, s.orderStatusArrowHeadActive]} />
       </Animated.View>
     </View>
