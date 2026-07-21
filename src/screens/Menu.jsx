@@ -53,14 +53,14 @@ function BlinkingView({ style, children }) {
   return <Animated.View style={[style, { opacity }]}>{children}</Animated.View>;
 }
 
-// 왼쪽에서 오른쪽으로 순서대로 깜빡여 다음 단계로 흘러가는 느낌을 주는 연결선
+// 왼쪽에서 오른쪽으로 순서대로 깜빡이다 화살촉까지 도달하면 화살촉도 깜빡이는 연결선
 function FlowingLine() {
-  const segments = useRef([0, 1, 2].map(() => new Animated.Value(0.3))).current;
+  const stages = useRef([0, 1, 2, 3].map(() => new Animated.Value(0.3))).current;
   useEffect(() => {
-    const total = 900;
-    const block = 300;
-    const dur = 150;
-    const loops = segments.map((v, i) => Animated.loop(
+    const total = 1600;
+    const block = 400;
+    const dur = 200;
+    const loops = stages.map((v, i) => Animated.loop(
       Animated.sequence([
         Animated.delay(i * block),
         Animated.timing(v, { toValue: 1, duration: dur, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
@@ -73,10 +73,12 @@ function FlowingLine() {
   }, []);
   return (
     <View style={s.orderStatusFlowWrap}>
-      {segments.map((opacity, i) => (
+      {stages.slice(0, 3).map((opacity, i) => (
         <Animated.View key={i} style={[s.orderStatusFlowSegment, { opacity }]} />
       ))}
-      <View style={[s.orderStatusArrowHead, s.orderStatusArrowHeadActive]} />
+      <Animated.View style={{ opacity: stages[3] }}>
+        <View style={[s.orderStatusArrowHead, s.orderStatusArrowHeadActive]} />
+      </Animated.View>
     </View>
   );
 }
