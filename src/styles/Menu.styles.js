@@ -74,7 +74,7 @@ export const s = StyleSheet.create({
     borderLeftColor: colors.slate300,
   },
   orderStatusArrowHeadActive: { borderLeftColor: colors.accent },
-  orderStatusFlowWrap: { flex: 1, flexDirection: "row", alignItems: "center", marginHorizontal: spacing["1.5"], gap: 2 },
+  orderStatusFlowWrap: { flex: 1, flexDirection: "row", alignItems: "center", marginHorizontal: spacing["1.5"], gap: 1 },
   orderStatusFlowSegment: { flex: 1, height: 3, borderRadius: 2, backgroundColor: colors.accent },
 
   orderDetailPopupBox: { backgroundColor: colors.bgCard, borderRadius: radius["3xl"], padding: spacing["5"], width: 300, maxHeight: 420, shadowColor: colors.black, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 20, elevation: 20 },
