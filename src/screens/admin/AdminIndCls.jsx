@@ -7,14 +7,14 @@ export default function AdminIndCls() {
   const [loaded, setLoaded] = useState(false);
   const [items, setItems] = useState([]);
   const [search, setSearch] = useState("");
-  const [browseCode, setBrowseCode] = useState(null); // null = 대분류 목록
+  const [selected, setSelected] = useState([]); // 단계별 선택 코드 [1단계코드, 2단계코드, ...]
   const [expandedLeaf, setExpandedLeaf] = useState(null);
 
   const load = async () => {
     setLoaded(false);
     const list = await api.industry.list();
     setItems(Array.isArray(list) ? list : []);
-    setBrowseCode(null);
+    setSelected([]);
     setExpandedLeaf(null);
     setSearch("");
     setLoaded(true);
@@ -37,20 +37,38 @@ export default function AdminIndCls() {
     ? items.filter(d => d.indNm.includes(query) || d.indCd.toUpperCase().includes(query.toUpperCase())).slice(0, 10)
     : [];
 
+  // 검색 결과를 클릭하면 그 항목까지의 전체 경로를 단계별로 펼쳐서 보여줌
   const goto = (d) => {
     setSearch("");
-    if (childrenOf(d.indCd).length > 0) {
-      setBrowseCode(d.indCd);
-      setExpandedLeaf(null);
-    } else {
-      setBrowseCode(d.prntCd);
-      setExpandedLeaf(d.indCd);
-    }
+    setSelected(pathOf(d.indCd).map(n => n.indCd));
+    setExpandedLeaf(childrenOf(d.indCd).length === 0 ? d.indCd : null);
   };
 
-  const browseList = browseCode === null
-    ? items.filter(d => d.clsLvl === 1)
-    : childrenOf(browseCode);
+  // 특정 단계(li)에서 code를 선택 - 그보다 하위 단계 선택은 초기화됨
+  const selectAt = (li, code) => {
+    const next = selected.slice(0, li);
+    next.push(code);
+    setSelected(next);
+    setExpandedLeaf(childrenOf(code).length === 0 ? code : null);
+  };
+
+  // 1단계부터 시작해서, 선택된 항목이 있으면 그 하위 단계를 이어서 쌓아 보여줌
+  const levels = [];
+  {
+    let parentCode = null;
+    let depth = 0;
+    while (true) {
+      const levelItems = parentCode === null ? items.filter(x => x.clsLvl === 1) : childrenOf(parentCode);
+      if (levelItems.length === 0) break;
+      levels.push({ parentCode, items: levelItems, selectedCode: selected[depth] || null });
+      const chosen = selected[depth];
+      if (!chosen) break;
+      const kids = childrenOf(chosen);
+      if (kids.length === 0) break;
+      parentCode = chosen;
+      depth++;
+    }
+  }
 
   const detail = expandedLeaf ? byCode[expandedLeaf] : null;
 
@@ -105,48 +123,29 @@ export default function AdminIndCls() {
           )
         ) : (
           <>
-            <View style={s.countRow}>
-              <Text style={s.countText}>총 {browseList.length}개</Text>
-            </View>
-
-            <View style={s.crumbsRow}>
-              <TouchableOpacity onPress={() => { setBrowseCode(null); setExpandedLeaf(null); }}>
-                <Text style={[s.crumbBtnText, browseCode === null && s.crumbBtnTextCurrent]}>대분류</Text>
-              </TouchableOpacity>
-              {browseCode && pathOf(browseCode).map(node => (
-                <View key={node.indCd} style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Text style={s.crumbSep}>›</Text>
-                  <TouchableOpacity onPress={() => { setBrowseCode(node.indCd); setExpandedLeaf(null); }}>
-                    <Text style={[s.crumbBtnText, node.indCd === browseCode && s.crumbBtnTextCurrent]}>{node.indNm}</Text>
-                  </TouchableOpacity>
+            {levels.map((lvl, li) => (
+              <View key={lvl.parentCode || "root"} style={s.levelCard}>
+                <Text style={s.levelTitle}>
+                  {lvl.parentCode === null ? "대분류" : `'${byCode[lvl.parentCode]?.indNm}' 하위 업종`}
+                </Text>
+                <View style={s.chipGrid}>
+                  {lvl.items.map(d => {
+                    const kids = childrenOf(d.indCd);
+                    const isSelected = lvl.selectedCode === d.indCd;
+                    return (
+                      <TouchableOpacity
+                        key={d.indCd}
+                        style={[s.chip, isSelected && s.chipExpanded, d.useYn === "N" && s.chipDim]}
+                        onPress={() => selectAt(li, d.indCd)}
+                      >
+                        <Text style={[s.chipText, isSelected && s.chipTextExpanded]}>{d.indNm}</Text>
+                        {kids.length > 0 && <Text style={s.chipArrow}>›</Text>}
+                      </TouchableOpacity>
+                    );
+                  })}
                 </View>
-              ))}
-            </View>
-
-            <Text style={s.levelTitle}>
-              {browseCode === null ? "대분류" : `'${byCode[browseCode]?.indNm}' 하위 업종`}
-            </Text>
-
-            <View style={s.chipGrid}>
-              {browseList.map(d => {
-                const kids = childrenOf(d.indCd);
-                const isLeaf = kids.length === 0;
-                const isExpanded = isLeaf && expandedLeaf === d.indCd;
-                return (
-                  <TouchableOpacity
-                    key={d.indCd}
-                    style={[s.chip, isExpanded && s.chipExpanded, d.useYn === "N" && s.chipDim]}
-                    onPress={() => {
-                      if (kids.length) { setBrowseCode(d.indCd); setExpandedLeaf(null); }
-                      else { setExpandedLeaf(expandedLeaf === d.indCd ? null : d.indCd); }
-                    }}
-                  >
-                    <Text style={[s.chipText, isExpanded && s.chipTextExpanded]}>{d.indNm}</Text>
-                    {kids.length > 0 && <Text style={s.chipArrow}>›</Text>}
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+              </View>
+            ))}
 
             {detail && (
               <View style={s.detailCard}>
