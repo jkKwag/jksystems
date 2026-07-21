@@ -38,10 +38,13 @@ export const s = StyleSheet.create({
   itemName: { fontSize: font.md, fontWeight: "700", color: colors.textSecondary },
   itemOptions: { fontSize: font.sm, color: colors.slate400, marginTop: 1 },
   itemPrice: { fontSize: font.md, fontWeight: "700", color: colors.textSecondary },
+  itemPriceCanceled: { color: colors.red, textDecorationLine: "line-through" },
 
   cardBottomRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: spacing["1"] },
   totalAmount: { fontSize: font["2xl"], fontWeight: "900", color: colors.accent },
-  orderNo: { fontSize: font.sm, color: colors.textMuted, fontFamily: Platform.OS === "web" ? "monospace" : undefined },
+  totalAmountCanceled: { color: colors.red, textDecorationLine: "line-through" },
+  orderNoBadge: { backgroundColor: colors.primary, borderRadius: radius.md, paddingVertical: spacing["2"], alignItems: "center", marginTop: spacing["1"] },
+  orderNoBadgeText: { fontSize: font.md, fontWeight: "900", color: colors.accent, fontFamily: Platform.OS === "web" ? "monospace" : undefined },
 
   badgeRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"] },
 

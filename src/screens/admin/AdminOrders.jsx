@@ -181,7 +181,9 @@ export default function AdminOrders({ adminInfo }) {
         <View style={s.center}><Text style={s.emptyText}>주문 내역이 없습니다</Text></View>
       ) : (
         <ScrollView contentContainerStyle={s.list}>
-          {filteredOrders.map(order => (
+          {filteredOrders.map(order => {
+            const payCanceled = order.paymentStatus === "CANCELED";
+            return (
             <View key={order.orderNo} style={s.card}>
               <View style={s.cardTopRow}>
                 <Text style={s.dt}>{formatDt(order.regDt)}</Text>
@@ -213,16 +215,18 @@ export default function AdminOrders({ adminInfo }) {
                         </Text>
                       ))}
                     </View>
-                    <Text style={s.itemPrice}>₩{lineTotal.toLocaleString()}</Text>
+                    <Text style={[s.itemPrice, payCanceled && s.itemPriceCanceled]}>₩{lineTotal.toLocaleString()}</Text>
                   </View>
                 );
               })}
 
               <View style={s.cardBottomRow}>
                 {order.pickupNo ? <PickupBadge pickupNo={order.pickupNo} /> : <View />}
-                <Text style={s.totalAmount}>₩{Number(order.totalAmount || 0).toLocaleString()}</Text>
+                <Text style={[s.totalAmount, payCanceled && s.totalAmountCanceled]}>₩{Number(order.totalAmount || 0).toLocaleString()}</Text>
               </View>
-              <Text style={s.orderNo}>주문번호 {order.orderNo}</Text>
+              <View style={s.orderNoBadge}>
+                <Text style={s.orderNoBadgeText}>주문번호 {order.orderNo}</Text>
+              </View>
 
               {!!NEXT_STATUS[order.status] && (
                 <TouchableOpacity
@@ -236,7 +240,8 @@ export default function AdminOrders({ adminInfo }) {
                 </TouchableOpacity>
               )}
             </View>
-          ))}
+            );
+          })}
         </ScrollView>
       )}
     </View>
