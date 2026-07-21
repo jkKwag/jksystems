@@ -38,7 +38,8 @@ export const s = StyleSheet.create({
   crumbPillTextCurrent: { color: colors.white },
   crumbSep: { fontSize: font.sm, color: colors.slate400 },
 
-  frontierCircleRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing["2"], marginBottom: spacing["3.5"] },
+  frontierCircleBox: { backgroundColor: colors.slate200, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.slate300, padding: spacing["3.5"], marginBottom: spacing["3.5"] },
+  frontierCircleRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing["2"] },
   frontierCircleDim: { opacity: 0.5 },
 
   frontierCircleNeutral: {

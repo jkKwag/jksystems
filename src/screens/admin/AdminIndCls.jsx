@@ -153,20 +153,22 @@ export default function AdminIndCls() {
           )
         ) : (
           <>
-            <View style={s.frontierCircleRow}>
-              {displayList.map(d => {
-                const hasKids = childrenOf(d.indCd).length > 0;
-                return (
-                  <TouchableOpacity
-                    key={d.indCd}
-                    style={[s.frontierCircleNeutral, d.useYn === "N" && s.frontierCircleDim]}
-                    onPress={() => select(d)}
-                  >
-                    <Text style={s.frontierCircleNeutralText}>{d.indNm}</Text>
-                    {hasKids && <Text style={s.frontierCircleNeutralArrow}>›</Text>}
-                  </TouchableOpacity>
-                );
-              })}
+            <View style={s.frontierCircleBox}>
+              <View style={s.frontierCircleRow}>
+                {displayList.map(d => {
+                  const hasKids = childrenOf(d.indCd).length > 0;
+                  return (
+                    <TouchableOpacity
+                      key={d.indCd}
+                      style={[s.frontierCircleNeutral, d.useYn === "N" && s.frontierCircleDim]}
+                      onPress={() => select(d)}
+                    >
+                      <Text style={s.frontierCircleNeutralText}>{d.indNm}</Text>
+                      {hasKids && <Text style={s.frontierCircleNeutralArrow}>›</Text>}
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
             </View>
 
             {displayList.map(d => (
