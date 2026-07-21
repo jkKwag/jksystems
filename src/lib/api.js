@@ -39,6 +39,7 @@ const api = {
   admin: {
     login: (body) => post(`/api/admin/login`, body),
     menu: (role) => get(`/api/admin/menu?role=${role}`),
+    users: (bizRegNo) => get(`/api/admin/users?bizRegNo=${bizRegNo}`),
   },
   biz: {
     list: (page = 0, size = 10) => get(`/api/biz?page=${page}&size=${size}`),
