@@ -18,7 +18,6 @@ export const s = StyleSheet.create({
   sectionTitleRowFirst: { marginTop: 0 },
   sectionTitleText: { fontSize: font.lg, fontWeight: "800", color: colors.textSecondary },
   sectionCount: { fontSize: font.sm, fontWeight: "700", color: colors.textMuted, backgroundColor: colors.slate100, borderRadius: radius.pill, paddingHorizontal: spacing["2"], paddingVertical: 2 },
-  sectionBadge: { marginLeft: "auto", fontSize: font.xs, fontWeight: "800", color: colors.accent, backgroundColor: colors.accentLight, borderRadius: radius.pill, paddingHorizontal: spacing["2"], paddingVertical: 2 },
 
   roleBadgePosition: { backgroundColor: colors.accentLight },
   roleBadgeTextPosition: { color: colors.accent },

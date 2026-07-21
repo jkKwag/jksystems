@@ -60,6 +60,7 @@ const api = {
     createSeat: (bizno, body) => post(`/api/biz/${bizno}/seats`, body),
     updateSeat: (bizno, seatCd, body) => put(`/api/biz/${bizno}/seats/${seatCd}`, body),
     deleteSeat: (bizno, seatCd) => del(`/api/biz/${bizno}/seats/${seatCd}`),
+    employees: (bizno) => get(`/api/biz/${bizno}/employees`),
   },
   industry: {
     get: (indCd) => get(`/api/industry/${indCd}`),
