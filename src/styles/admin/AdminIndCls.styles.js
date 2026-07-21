@@ -48,6 +48,14 @@ export const s = StyleSheet.create({
   frontierCircleText: { fontSize: font.lg, fontWeight: "800", color: colors.white },
   frontierCircleArrow: { fontSize: font.sm, color: colors.white },
 
+  frontierCircleNeutral: {
+    flexDirection: "row", alignItems: "center", gap: spacing["1.5"],
+    backgroundColor: colors.bgCard, borderWidth: 1.5, borderColor: colors.border,
+    borderRadius: radius.pill, paddingHorizontal: spacing["3.5"], paddingVertical: spacing["2"],
+  },
+  frontierCircleNeutralText: { fontSize: font.lg, fontWeight: "700", color: colors.textSecondary },
+  frontierCircleNeutralArrow: { fontSize: font.sm, color: colors.slate400 },
+
   detailCard: { marginBottom: spacing["3"], borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, padding: spacing["3.5"], backgroundColor: colors.slate50 },
   detailTopRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: spacing["2.5"] },
   detailName: { fontSize: font.lg, fontWeight: "800", color: colors.text },
