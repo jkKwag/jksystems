@@ -54,12 +54,12 @@ export const s = StyleSheet.create({
   orderStatusOrderBadgeText: { fontSize: font.md, fontWeight: "800", color: colors.white },
   orderStatusSummaryLink: { fontSize: font.md, fontWeight: "400", color: colors.textSecondary, textDecorationLine: "underline" },
   orderStatusSteps: { flexDirection: "row", alignItems: "center" },
-  orderStatusStepWrap: { flexDirection: "row", alignItems: "center", flex: 1 },
+  orderStatusStepWrap: { flexDirection: "row", alignItems: "center" },
   orderStatusDot: { width: 13, height: 13, borderRadius: 999, backgroundColor: colors.slate300 },
   orderStatusDotActive: { backgroundColor: colors.accent },
   orderStatusStepText: { fontSize: font.md, fontWeight: "700", color: colors.textFaint, marginLeft: spacing["1.5"] },
   orderStatusStepTextActive: { color: colors.accent },
-  orderStatusLineWrap: { flex: 1, flexDirection: "row", alignItems: "center", marginHorizontal: spacing["1.5"] },
+  orderStatusLineWrap: { width: 60, flexDirection: "row", alignItems: "center", marginHorizontal: spacing["1.5"] },
   orderStatusLine: { flex: 1, height: 3, backgroundColor: colors.slate300 },
   orderStatusLineActive: { backgroundColor: colors.accent },
   orderStatusArrowHead: {
@@ -74,7 +74,7 @@ export const s = StyleSheet.create({
     borderLeftColor: colors.slate300,
   },
   orderStatusArrowHeadActive: { borderLeftColor: colors.accent },
-  orderStatusFlowWrap: { flex: 1, flexDirection: "row", alignItems: "center", marginHorizontal: spacing["1.5"], gap: 1 },
+  orderStatusFlowWrap: { width: 60, flexDirection: "row", alignItems: "center", marginHorizontal: spacing["1.5"], gap: 1 },
   orderStatusFlowSegment: { flex: 1, height: 3, borderRadius: 2, backgroundColor: colors.accent },
 
   orderDetailPopupBox: { backgroundColor: colors.bgCard, borderRadius: radius["3xl"], padding: spacing["5"], width: 300, maxHeight: 420, shadowColor: colors.black, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 20, elevation: 20 },
