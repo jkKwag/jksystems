@@ -664,7 +664,10 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                             {step.label}
                           </StepText>
                           {i < ORDER_STEPS.length - 1 && (
-                            <View style={[s.orderStatusLine, i < curIdx && s.orderStatusLineActive]} />
+                            <View style={s.orderStatusLineWrap}>
+                              <View style={[s.orderStatusLine, i < curIdx && s.orderStatusLineActive]} />
+                              <View style={[s.orderStatusArrowHead, i < curIdx && s.orderStatusArrowHeadActive]} />
+                            </View>
                           )}
                         </View>
                       );
