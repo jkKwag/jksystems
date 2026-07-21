@@ -12,6 +12,7 @@ import AdminSeats from "./AdminSeats";
 import AdminHours from "./AdminHours";
 import AdminReservationStandard from "./AdminReservationStandard";
 import AdminDashboard from "./AdminDashboard";
+import AdminIndCls from "./AdminIndCls";
 import BizLookupBar from "../../components/admin/BizLookupBar";
 import ConfirmModal from "../../components/ConfirmModal";
 
@@ -34,6 +35,7 @@ const MENU_SCREENS = {
   "/admin/hours": AdminHours,
   "/admin/reservation-standard": AdminReservationStandard,
   "/admin/dashboard": AdminDashboard,
+  "/admin/industry": AdminIndCls,
 };
 
 function findMenuNode(nodes, menuUrl) {
