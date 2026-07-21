@@ -41,15 +41,32 @@ export default function AdminIndCls() {
     setSelected(pathOf(d.indCd).map(n => n.indCd));
   };
 
-  // 하위 항목을 고르면 경로 끝에 추가
-  const pick = (code) => setSelected([...selected, code]);
+  // 특정 단계(depth)에서 code를 선택 - 그보다 하위 단계 선택은 초기화됨(하위는 새로 골라야 하니까)
+  const selectAt = (depth, code) => setSelected([...selected.slice(0, depth), code]);
 
   // 상단 배지에서 특정 단계까지만 남기고 그보다 하위는 비움 (다시 선택 가능)
   const truncateAt = (li) => setSelected(selected.slice(0, li));
 
-  const currentCode = selected.length > 0 ? selected[selected.length - 1] : null;
-  const currentNode = currentCode ? byCode[currentCode] : null;
-  const pickerList = currentCode === null ? items.filter(d => d.clsLvl === 1) : childrenOf(currentCode);
+  // 1단계부터 시작해서 "그 단계 선택 카드 -> 선택된 항목 상세 카드"를 반복해서 쌓는다.
+  // 한 단계를 선택해도 그 단계의 선택 카드는 사라지지 않고 그대로 남아, 언제든 다시 눌러 바꿀 수 있다.
+  const sections = [];
+  {
+    let parentCode = null;
+    let depth = 0;
+    while (true) {
+      const levelItems = parentCode === null ? items.filter(x => x.clsLvl === 1) : childrenOf(parentCode);
+      if (levelItems.length === 0) break;
+      const selCode = selected[depth] || null;
+      sections.push({ kind: "picker", parentNode: parentCode ? byCode[parentCode] : null, items: levelItems, selectedCode: selCode, depth });
+      if (!selCode) break;
+      const node = byCode[selCode];
+      sections.push({ kind: "detail", node });
+      const kids = childrenOf(selCode);
+      if (kids.length === 0) break;
+      parentCode = selCode;
+      depth++;
+    }
+  }
 
   if (!loaded) {
     return (
@@ -122,47 +139,52 @@ export default function AdminIndCls() {
             })
           )
         ) : (
-          <>
-            {/* 원(배지)으로 표시된, 지금 선택된 항목 그 자체의 전체 정보 카드 - 리프가 아니어도 항상 나옴 */}
-            {currentNode && (
-              <View style={s.detailCard}>
+          sections.map((sec, idx) => {
+            if (sec.kind === "picker") {
+              return (
+                <View key={`picker-${sec.depth}`} style={s.levelCard}>
+                  <Text style={s.levelTitle}>
+                    {sec.parentNode ? `'${sec.parentNode.indNm}' 하위 업종` : "대분류"}
+                  </Text>
+                  <View style={s.chipGrid}>
+                    {sec.items.map(d => {
+                      const isSelected = sec.selectedCode === d.indCd;
+                      return (
+                        <TouchableOpacity
+                          key={d.indCd}
+                          style={[s.chip, isSelected && s.chipExpanded, d.useYn === "N" && s.chipDim]}
+                          onPress={() => selectAt(sec.depth, d.indCd)}
+                        >
+                          <Text style={[s.chipText, isSelected && s.chipTextExpanded]}>{d.indNm}</Text>
+                          {childrenOf(d.indCd).length > 0 && (
+                            <Text style={[s.chipArrow, isSelected && s.chipTextExpanded]}>›</Text>
+                          )}
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </View>
+              );
+            }
+            const detail = sec.node;
+            return (
+              <View key={`detail-${detail.indCd}`} style={s.detailCard}>
                 <View style={s.detailTopRow}>
-                  <Text style={s.detailName}>{currentNode.indNm}</Text>
-                  <Text style={[s.badge, currentNode.useYn === "Y" ? s.badgeOn : s.badgeOff]}>
-                    {currentNode.useYn === "Y" ? "사용중" : "미사용"}
+                  <Text style={s.detailName}>{detail.indNm}</Text>
+                  <Text style={[s.badge, detail.useYn === "Y" ? s.badgeOn : s.badgeOff]}>
+                    {detail.useYn === "Y" ? "사용중" : "미사용"}
                   </Text>
                 </View>
                 <View style={s.detailGrid}>
-                  <View style={s.detailRow}><Text style={s.detailKey}>업종코드</Text><Text style={s.detailVal}>{currentNode.indCd}</Text></View>
-                  <View style={s.detailRow}><Text style={s.detailKey}>상위코드</Text><Text style={s.detailVal}>{currentNode.prntCd || "-"}</Text></View>
-                  <View style={s.detailRow}><Text style={s.detailKey}>분류단계</Text><Text style={s.detailVal}>{currentNode.clsLvl}단계</Text></View>
-                  <View style={s.detailRow}><Text style={s.detailKey}>정렬순서</Text><Text style={s.detailVal}>{currentNode.sortOrd}</Text></View>
-                  <View style={s.detailRow}><Text style={s.detailKey}>전체경로</Text><Text style={[s.detailVal, { fontFamily: undefined }]}>{pathOf(currentNode.indCd).map(n => n.indNm).join(" › ")}</Text></View>
+                  <View style={s.detailRow}><Text style={s.detailKey}>업종코드</Text><Text style={s.detailVal}>{detail.indCd}</Text></View>
+                  <View style={s.detailRow}><Text style={s.detailKey}>상위코드</Text><Text style={s.detailVal}>{detail.prntCd || "-"}</Text></View>
+                  <View style={s.detailRow}><Text style={s.detailKey}>분류단계</Text><Text style={s.detailVal}>{detail.clsLvl}단계</Text></View>
+                  <View style={s.detailRow}><Text style={s.detailKey}>정렬순서</Text><Text style={s.detailVal}>{detail.sortOrd}</Text></View>
+                  <View style={s.detailRow}><Text style={s.detailKey}>전체경로</Text><Text style={[s.detailVal, { fontFamily: undefined }]}>{pathOf(detail.indCd).map(n => n.indNm).join(" › ")}</Text></View>
                 </View>
               </View>
-            )}
-
-            {/* 다음 단계로 내려갈 수 있는 하위 항목 선택 카드 */}
-            {pickerList.length > 0 && (
-              <View style={s.levelCard}>
-                <Text style={s.levelTitle}>
-                  {currentNode ? `'${currentNode.indNm}' 하위 업종` : "대분류"}
-                </Text>
-                <View style={s.chipGrid}>
-                  {pickerList.map(d => (
-                    <TouchableOpacity
-                      key={d.indCd}
-                      style={[s.chip, d.useYn === "N" && s.chipDim]}
-                      onPress={() => pick(d.indCd)}
-                    >
-                      <Text style={s.chipText}>{d.indNm}</Text>
-                      {childrenOf(d.indCd).length > 0 && <Text style={s.chipArrow}>›</Text>}
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-            )}
-          </>
+            );
+          })
         )}
       </ScrollView>
     </View>
