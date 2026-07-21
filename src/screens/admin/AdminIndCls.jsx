@@ -52,6 +52,11 @@ export default function AdminIndCls() {
     ? items.filter(d => d.clsLvl === 1)
     : childrenOf(browseCode);
 
+  // 하위로 들어간 상태에서도 지금 보고 있는 상위 항목 자체를 카드 목록 맨 앞에 같이 보여줘서,
+  // 나중에 그 카드를 눌러 한 단계 위로 올라가 다른 항목으로 바꿀 수 있게 한다.
+  const currentNode = browseCode ? byCode[browseCode] : null;
+  const cardList = currentNode ? [currentNode, ...browseList] : browseList;
+
   const detail = expandedLeaf ? byCode[expandedLeaf] : null;
 
   if (!loaded) {
@@ -130,25 +135,31 @@ export default function AdminIndCls() {
             </View>
 
             <Text style={s.levelTitle}>
-              {browseCode === null ? "대분류" : `'${byCode[browseCode]?.indNm}' 하위 업종`}
+              {browseCode === null ? "대분류" : "현재 위치 및 하위 업종"}
             </Text>
 
             <View style={s.chipGrid}>
-              {browseList.map(d => {
+              {cardList.map(d => {
+                const isSelf = currentNode && d.indCd === currentNode.indCd;
                 const kids = childrenOf(d.indCd);
                 const isLeaf = kids.length === 0;
-                const isExpanded = isLeaf && expandedLeaf === d.indCd;
+                const isExpanded = isSelf || (isLeaf && expandedLeaf === d.indCd);
                 return (
                   <TouchableOpacity
                     key={d.indCd}
                     style={[s.chip, isExpanded && s.chipExpanded, d.useYn === "N" && s.chipDim]}
                     onPress={() => {
-                      if (kids.length) { setBrowseCode(d.indCd); setExpandedLeaf(null); }
+                      if (isSelf) { setBrowseCode(currentNode.prntCd || null); setExpandedLeaf(null); }
+                      else if (kids.length) { setBrowseCode(d.indCd); setExpandedLeaf(null); }
                       else { setExpandedLeaf(expandedLeaf === d.indCd ? null : d.indCd); }
                     }}
                   >
                     <Text style={[s.chipText, isExpanded && s.chipTextExpanded]}>{d.indNm}</Text>
-                    {kids.length > 0 && <Text style={s.chipArrow}>›</Text>}
+                    {isSelf ? (
+                      <Text style={[s.chipArrow, s.chipTextExpanded]}>✓</Text>
+                    ) : kids.length > 0 ? (
+                      <Text style={s.chipArrow}>›</Text>
+                    ) : null}
                   </TouchableOpacity>
                 );
               })}
