@@ -23,7 +23,8 @@ export const s = StyleSheet.create({
   emptyText: { fontSize: font.md, color: colors.textMuted, textAlign: "center" },
 
   list: { gap: spacing["3"], paddingBottom: spacing["10"] },
-  card: { flexDirection: "row", backgroundColor: colors.bgCard, borderRadius: radius["2xl"], padding: spacing["3.5"], gap: spacing["3"], borderWidth: 1, borderColor: colors.border, alignItems: "center" },
+  card: { backgroundColor: colors.bgCard, borderRadius: radius["2xl"], padding: spacing["3.5"], gap: spacing["3"], borderWidth: 1, borderColor: colors.border },
+  cardTopSection: { flexDirection: "row", alignItems: "center", gap: spacing["3"] },
 
   thumb: { width: 64, height: 64, borderRadius: radius.lg },
   thumbEmpty: { backgroundColor: colors.slate100, justifyContent: "center", alignItems: "center" },
@@ -47,4 +48,7 @@ export const s = StyleSheet.create({
   actionBtnText: { fontSize: font.sm, fontWeight: "700", color: colors.textGray },
   deleteBtn: { borderColor: "#ef4444" },
   deleteBtnText: { color: "#ef4444" },
+
+  viewOptionsBtn: { backgroundColor: colors.black, borderRadius: radius.md, paddingVertical: spacing["2"], alignItems: "center" },
+  viewOptionsBtnText: { fontSize: font.sm, fontWeight: "700", color: colors.white },
 });

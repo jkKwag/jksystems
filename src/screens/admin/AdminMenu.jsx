@@ -120,30 +120,32 @@ export default function AdminMenu({ adminInfo }) {
         <ScrollView contentContainerStyle={s.list}>
           {filteredMenus.map(menu => (
             <TouchableOpacity key={menu.menuCd} style={s.card} onPress={() => setFormTarget(menu)} activeOpacity={0.75}>
-              {menu.imgUrl ? (
-                <Image source={{ uri: menu.imgUrl }} style={s.thumb} resizeMode="cover" />
-              ) : (
-                <View style={[s.thumb, s.thumbEmpty]}><Text style={s.thumbEmptyText}>NO IMAGE</Text></View>
-              )}
-              <View style={s.cardInfo}>
-                <View style={s.cardTopRow}>
-                  <Text style={s.menuNm} numberOfLines={1}>{menu.menuNm}</Text>
-                  {menu.useYn === "N" && <View style={s.offBadge}><Text style={s.offBadgeText}>미노출</Text></View>}
-                  {menu.badge ? <View style={s.badgeChip}><Text style={s.badgeChipText}>{menu.badge}</Text></View> : null}
+              <View style={s.cardTopSection}>
+                {menu.imgUrl ? (
+                  <Image source={{ uri: menu.imgUrl }} style={s.thumb} resizeMode="cover" />
+                ) : (
+                  <View style={[s.thumb, s.thumbEmpty]}><Text style={s.thumbEmptyText}>NO IMAGE</Text></View>
+                )}
+                <View style={s.cardInfo}>
+                  <View style={s.cardTopRow}>
+                    <Text style={s.menuNm} numberOfLines={1}>{menu.menuNm}</Text>
+                    {menu.useYn === "N" && <View style={s.offBadge}><Text style={s.offBadgeText}>미노출</Text></View>}
+                    {menu.badge ? <View style={s.badgeChip}><Text style={s.badgeChipText}>{menu.badge}</Text></View> : null}
+                  </View>
+                  <Text style={s.cat}>{catNm(menu.bizCatCd)}</Text>
+                  {menu.menuDesc ? <Text style={s.desc} numberOfLines={1}>{menu.menuDesc}</Text> : null}
+                  <Text style={s.price}>₩{Number(menu.price || 0).toLocaleString()}</Text>
                 </View>
-                <Text style={s.cat}>{catNm(menu.bizCatCd)}</Text>
-                {menu.menuDesc ? <Text style={s.desc} numberOfLines={1}>{menu.menuDesc}</Text> : null}
-                <Text style={s.price}>₩{Number(menu.price || 0).toLocaleString()}</Text>
+                <View style={s.cardActions}>
+                  <Text style={s.sortOrdText}>메뉴정렬순번 {menu.sortOrd ?? "-"}</Text>
+                  <TouchableOpacity style={[s.actionBtn, s.deleteBtn]} onPress={(e) => { e?.stopPropagation?.(); setDeleteTarget(menu); }}>
+                    <Text style={[s.actionBtnText, s.deleteBtnText]}>삭제</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-              <View style={s.cardActions}>
-                <Text style={s.sortOrdText}>메뉴정렬순번 {menu.sortOrd ?? "-"}</Text>
-                <TouchableOpacity style={s.actionBtn} onPress={(e) => { e?.stopPropagation?.(); setOptionsTarget(menu); }}>
-                  <Text style={s.actionBtnText}>옵션상세</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[s.actionBtn, s.deleteBtn]} onPress={(e) => { e?.stopPropagation?.(); setDeleteTarget(menu); }}>
-                  <Text style={[s.actionBtnText, s.deleteBtnText]}>삭제</Text>
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity style={s.viewOptionsBtn} onPress={(e) => { e?.stopPropagation?.(); setOptionsTarget(menu); }}>
+                <Text style={s.viewOptionsBtnText}>옵션보기</Text>
+              </TouchableOpacity>
             </TouchableOpacity>
           ))}
         </ScrollView>
