@@ -42,6 +42,7 @@ export const s = StyleSheet.create({
   badgeChipText: { fontSize: font.xs, fontWeight: "700", color: colors.accent },
 
   cardActions: { gap: spacing["1.5"] },
+  sortOrdText: { fontSize: font.sm, fontWeight: "800", color: colors.accent, textAlign: "center" },
   actionBtn: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm, paddingHorizontal: spacing["2.5"], paddingVertical: spacing["1.5"], alignItems: "center" },
   actionBtnText: { fontSize: font.sm, fontWeight: "700", color: colors.textGray },
   deleteBtn: { borderColor: "#ef4444" },

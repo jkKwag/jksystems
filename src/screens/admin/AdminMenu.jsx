@@ -131,11 +131,12 @@ export default function AdminMenu({ adminInfo }) {
                   {menu.useYn === "N" && <View style={s.offBadge}><Text style={s.offBadgeText}>미노출</Text></View>}
                   {menu.badge ? <View style={s.badgeChip}><Text style={s.badgeChipText}>{menu.badge}</Text></View> : null}
                 </View>
-                <Text style={s.cat}>{catNm(menu.bizCatCd)} · 순번 {menu.sortOrd ?? "-"}</Text>
+                <Text style={s.cat}>{catNm(menu.bizCatCd)}</Text>
                 {menu.menuDesc ? <Text style={s.desc} numberOfLines={1}>{menu.menuDesc}</Text> : null}
                 <Text style={s.price}>₩{Number(menu.price || 0).toLocaleString()}</Text>
               </View>
               <View style={s.cardActions}>
+                <Text style={s.sortOrdText}>메뉴정렬순번 {menu.sortOrd ?? "-"}</Text>
                 <TouchableOpacity style={s.actionBtn} onPress={(e) => { e?.stopPropagation?.(); setOptionsTarget(menu); }}>
                   <Text style={s.actionBtnText}>옵션상세</Text>
                 </TouchableOpacity>
