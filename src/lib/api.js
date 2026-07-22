@@ -129,6 +129,11 @@ const api = {
     listByBiz: (bizRegNo, from, to) => get(`/api/payment/biz/${bizRegNo}${from && to ? `?from=${from}&to=${to}` : ""}`),
     cancel: (paymentKey, body) => post(`/api/payment/${paymentKey}/cancel`, body),
   },
+  dashboard: {
+    overview: () => get(`/api/dashboard/overview`),
+    revenueRanking: (limit = 5) => get(`/api/dashboard/revenue-ranking?limit=${limit}`),
+    security: () => get(`/api/dashboard/security`),
+  },
 };
 
 export default api;
