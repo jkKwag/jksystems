@@ -48,9 +48,11 @@ function resizeAndCompressImage(file, maxDim, quality) {
   });
 }
 
+const emptyFieldErrors = { bizCatCd: "", menuNm: "", price: "" };
+
 export default function MenuFormModal({ visible, initial, categories, saving, bizRegNo, onSave, onClose }) {
   const [form, setForm] = useState(emptyForm);
-  const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState(emptyFieldErrors);
   const [uploading, setUploading] = useState(false);
   const [imgStatus, setImgStatus] = useState(null); // null | "success" | "error"
   const [imgError, setImgError] = useState("");
@@ -71,14 +73,17 @@ export default function MenuFormModal({ visible, initial, categories, saving, bi
     } else {
       setForm({ ...emptyForm, bizCatCd: categories?.[0]?.bizCatCd || "" });
     }
-    setError("");
+    setFieldErrors(emptyFieldErrors);
     setImgStatus(null);
     setImgError("");
   }, [visible, initial]);
 
   if (!visible) return null;
 
-  const update = (key) => (v) => setForm(f => ({ ...f, [key]: v }));
+  const update = (key) => (v) => {
+    setForm(f => ({ ...f, [key]: v }));
+    setFieldErrors(fe => (fe[key] ? { ...fe, [key]: "" } : fe));
+  };
 
   const pickAndUploadImage = () => {
     if (Platform.OS !== "web" || !bizRegNo) return;
@@ -114,11 +119,14 @@ export default function MenuFormModal({ visible, initial, categories, saving, bi
   };
 
   const submit = () => {
-    if (!form.bizCatCd) { setError("카테고리를 선택해주세요."); return; }
-    if (!form.menuNm.trim()) { setError("메뉴명을 입력해주세요."); return; }
     const price = Number(form.price);
-    if (!form.price || Number.isNaN(price) || price < 0) { setError("가격을 올바르게 입력해주세요."); return; }
-    setError("");
+    const errors = {
+      bizCatCd: form.bizCatCd ? "" : "카테고리를 선택해주세요.",
+      menuNm: form.menuNm.trim() ? "" : "메뉴명을 입력해주세요.",
+      price: (!form.price || Number.isNaN(price) || price < 0) ? "가격을 올바르게 입력해주세요." : "",
+    };
+    setFieldErrors(errors);
+    if (Object.values(errors).some(Boolean)) return;
     onSave({
       bizCatCd: form.bizCatCd,
       menuNm: form.menuNm.trim(),
@@ -156,11 +164,13 @@ export default function MenuFormModal({ visible, initial, categories, saving, bi
                   {(!categories || categories.length === 0) && <Text style={s.noCatText}>등록된 카테고리가 없습니다</Text>}
                 </View>
               </View>
+              {!!fieldErrors.bizCatCd && <Text style={s.fieldError}>{fieldErrors.bizCatCd}</Text>}
             </View>
 
             <View>
               <Text style={s.label}>메뉴명</Text>
               <TextInput style={s.inp} placeholder="메뉴명 입력" value={form.menuNm} onChangeText={update("menuNm")} />
+              {!!fieldErrors.menuNm && <Text style={s.fieldError}>{fieldErrors.menuNm}</Text>}
             </View>
 
             <View>
@@ -172,6 +182,7 @@ export default function MenuFormModal({ visible, initial, categories, saving, bi
               <View style={{ flex: 1 }}>
                 <Text style={s.label}>가격</Text>
                 <TextInput style={s.inp} placeholder="0" value={form.price} onChangeText={update("price")} keyboardType="numeric" />
+                {!!fieldErrors.price && <Text style={s.fieldError}>{fieldErrors.price}</Text>}
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={s.label}>뱃지</Text>
@@ -219,8 +230,6 @@ export default function MenuFormModal({ visible, initial, categories, saving, bi
                 />
               </View>
             </View>
-
-            {!!error && <Text style={s.error}>⚠️ {error}</Text>}
           </ScrollView>
 
           <View style={s.btnRow}>

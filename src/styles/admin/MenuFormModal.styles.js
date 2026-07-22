@@ -31,7 +31,7 @@ export const s = StyleSheet.create({
   imgPreviewBox: { marginTop: spacing["2.5"], borderRadius: radius.lg, overflow: "hidden", backgroundColor: colors.slate100, borderWidth: 1, borderColor: colors.border },
   imgPreview: { width: "100%", height: 160 },
 
-  error: { fontSize: font.sm, color: "#ef4444", fontWeight: "600" },
+  fieldError: { fontSize: font.sm, color: "#ef4444", fontWeight: "600", marginTop: spacing["1"] },
 
   btnRow: { flexDirection: "row", gap: spacing["2.5"], marginTop: spacing["4"], paddingHorizontal: spacing["5"], paddingBottom: spacing["5"] },
   cancelBtn: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingVertical: spacing["2.5"], alignItems: "center" },
