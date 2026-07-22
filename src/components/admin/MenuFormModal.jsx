@@ -1,8 +1,13 @@
 import { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, Switch, ActivityIndicator } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, Switch, ActivityIndicator, Platform } from "react-native";
 import { s } from "../../styles/admin/MenuFormModal.styles";
 
 const emptyForm = { bizCatCd: "", menuNm: "", menuDesc: "", price: "", imgUrl: "", badge: "", sortOrd: "", useYn: "Y" };
+
+// 사이트 상단 헤더와 동일한 남색→녹색 그라데이션 (웹 전용, RN 네이티브는 primary 단색으로 대체)
+const HEADER_GRADIENT = Platform.OS === "web"
+  ? { background: "linear-gradient(135deg, #0f172a 0%, #14532d 100%)" }
+  : {};
 
 export default function MenuFormModal({ visible, initial, categories, saving, onSave, onClose }) {
   const [form, setForm] = useState(emptyForm);
@@ -53,7 +58,9 @@ export default function MenuFormModal({ visible, initial, categories, saving, on
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
       <View style={s.overlay}>
         <View style={s.card}>
-          <Text style={s.title}>{initial ? "메뉴 수정" : "새 메뉴 등록"}</Text>
+          <View style={[s.header, HEADER_GRADIENT]}>
+            <Text style={s.title}>{initial ? "메뉴 수정" : "새 메뉴 등록"}</Text>
+          </View>
 
           <ScrollView style={s.body} contentContainerStyle={{ gap: 14 }}>
             <View>
