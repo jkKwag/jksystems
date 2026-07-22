@@ -39,7 +39,6 @@ const MENU_SCREENS = {
   "/admin/dashboard": AdminDashboard,
   "/admin/industry": AdminIndCls,
   "/admin/biz-admin": AdminAccounts,
-  "/admin/super-dashboard": AdminSuperDashboard,
 };
 
 function findMenuNode(nodes, menuUrl) {
@@ -235,7 +234,9 @@ export default function AdminHome({ adminInfo, onLogout }) {
                 </View>
               );
             }
-            const ScreenComponent = MENU_SCREENS[selected.menuUrl];
+            const ScreenComponent = selected.menuUrl === DASHBOARD_URL && isSuper
+              ? AdminSuperDashboard
+              : MENU_SCREENS[selected.menuUrl];
             if (ScreenComponent) {
               return (
                 <ScreenComponent
