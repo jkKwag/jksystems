@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput } from "react-native";
+import { useState, useEffect, useRef } from "react";
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput, Animated, Easing } from "react-native";
 import { s } from "../../styles/admin/AdminAccounts.styles";
 import api from "../../lib/api";
 import { formatBizRegNo } from "../../lib/formatBizRegNo";
@@ -32,6 +32,7 @@ export default function AdminAccounts({ adminInfo }) {
   const [pwBusy, setPwBusy] = useState(false);
   const [pwTouched, setPwTouched] = useState({ current: false, next: false, confirm: false });
   const [resultMsg, setResultMsg] = useState(null);
+  const spinAnim = useRef(new Animated.Value(0)).current;
 
   const currentPwEmpty = pwTouched.current && !currentPw;
   const newPwTooShort = newPw.length < 8;
@@ -52,6 +53,18 @@ export default function AdminAccounts({ adminInfo }) {
   };
 
   useEffect(() => { load(); }, [bizRegNo]);
+
+  useEffect(() => {
+    if (loaded) return;
+    spinAnim.setValue(0);
+    const loop = Animated.loop(
+      Animated.timing(spinAnim, { toValue: 1, duration: 800, easing: Easing.linear, useNativeDriver: true })
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [loaded]);
+
+  const spin = spinAnim.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "360deg"] });
 
   const closePwModal = () => {
     setPwTarget(null);
@@ -107,7 +120,7 @@ export default function AdminAccounts({ adminInfo }) {
       <View style={s.headerRow}>
         <Text style={s.title}>계정 관리</Text>
         <TouchableOpacity style={s.refreshBtn} onPress={load}>
-          <Text style={s.refreshBtnText}>새로고침</Text>
+          <Animated.Text style={[s.refreshBtnText, { transform: [{ rotate: spin }] }]}>🔄</Animated.Text>
         </TouchableOpacity>
       </View>
       <Text style={s.sub}>이 사업장에 등록된 관리자 계정과 직원 목록입니다</Text>

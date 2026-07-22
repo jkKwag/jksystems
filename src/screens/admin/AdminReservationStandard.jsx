@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Switch } from "react-native";
+import { useState, useEffect, useRef } from "react";
+import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Switch, Animated, Easing } from "react-native";
 import { s } from "../../styles/admin/AdminReservationStandard.styles";
 import api from "../../lib/api";
 import ConfirmModal from "../../components/ConfirmModal";
@@ -18,6 +18,7 @@ export default function AdminReservationStandard({ adminInfo }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [alertMsg, setAlertMsg] = useState(null);
+  const spinAnim = useRef(new Animated.Value(0)).current;
 
   const load = async () => {
     if (!bizRegNo) { setLoaded(true); return; }
@@ -37,6 +38,18 @@ export default function AdminReservationStandard({ adminInfo }) {
   };
 
   useEffect(() => { load(); }, [bizRegNo]);
+
+  useEffect(() => {
+    if (loaded) return;
+    spinAnim.setValue(0);
+    const loop = Animated.loop(
+      Animated.timing(spinAnim, { toValue: 1, duration: 800, easing: Easing.linear, useNativeDriver: true })
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [loaded]);
+
+  const spin = spinAnim.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "360deg"] });
 
   const update = (key) => (v) => setForm(f => ({ ...f, [key]: v }));
 
@@ -78,7 +91,7 @@ export default function AdminReservationStandard({ adminInfo }) {
       <View style={s.headerRow}>
         <Text style={s.title}>예약기준 관리</Text>
         <TouchableOpacity style={s.refreshBtn} onPress={load}>
-          <Text style={s.refreshBtnText}>새로고침</Text>
+          <Animated.Text style={[s.refreshBtnText, { transform: [{ rotate: spin }] }]}>🔄</Animated.Text>
         </TouchableOpacity>
       </View>
 

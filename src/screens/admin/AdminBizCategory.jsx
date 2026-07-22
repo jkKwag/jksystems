@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from "react-native";
+import { useState, useEffect, useRef } from "react";
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Animated, Easing } from "react-native";
 import { s } from "../../styles/admin/AdminBizCategory.styles";
 import api from "../../lib/api";
 import CategoryFormModal from "../../components/admin/CategoryFormModal";
@@ -14,6 +14,7 @@ export default function AdminBizCategory({ adminInfo }) {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [alertMsg, setAlertMsg] = useState(null);
   const [saving, setSaving] = useState(false);
+  const spinAnim = useRef(new Animated.Value(0)).current;
 
   const load = async () => {
     if (!bizRegNo) { setLoaded(true); return; }
@@ -24,6 +25,18 @@ export default function AdminBizCategory({ adminInfo }) {
   };
 
   useEffect(() => { load(); }, [bizRegNo]);
+
+  useEffect(() => {
+    if (loaded) return;
+    spinAnim.setValue(0);
+    const loop = Animated.loop(
+      Animated.timing(spinAnim, { toValue: 1, duration: 800, easing: Easing.linear, useNativeDriver: true })
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [loaded]);
+
+  const spin = spinAnim.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "360deg"] });
 
   const handleSaveCategory = async (form) => {
     setSaving(true);
@@ -66,7 +79,7 @@ export default function AdminBizCategory({ adminInfo }) {
         <Text style={s.title}>카테고리 관리</Text>
         <View style={s.headerBtnRow}>
           <TouchableOpacity style={s.refreshBtn} onPress={load}>
-            <Text style={s.refreshBtnText}>새로고침</Text>
+            <Animated.Text style={[s.refreshBtnText, { transform: [{ rotate: spin }] }]}>🔄</Animated.Text>
           </TouchableOpacity>
           <TouchableOpacity style={s.addBtn} onPress={() => setFormTarget(null)}>
             <Text style={s.addBtnText}>+ 새 카테고리</Text>

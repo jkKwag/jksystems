@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, TextInput, Modal } from "react-native";
+import { useState, useEffect, useRef } from "react";
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, TextInput, Modal, Animated, Easing } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { s } from "../../styles/admin/AdminReservations.styles";
 import api from "../../lib/api";
@@ -59,6 +59,7 @@ export default function AdminReservations({ adminInfo }) {
   const [dateTo, setDateTo] = useState(todayStr);
   const [calTarget, setCalTarget] = useState(null); // null | "from" | "to"
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const spinAnim = useRef(new Animated.Value(0)).current;
 
   const load = async (from = dateFrom, to = dateTo) => {
     if (!bizRegNo) { setLoaded(true); return; }
@@ -75,6 +76,18 @@ export default function AdminReservations({ adminInfo }) {
   };
 
   useEffect(() => { load(); }, [bizRegNo]);
+
+  useEffect(() => {
+    if (loaded) return;
+    spinAnim.setValue(0);
+    const loop = Animated.loop(
+      Animated.timing(spinAnim, { toValue: 1, duration: 800, easing: Easing.linear, useNativeDriver: true })
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [loaded]);
+
+  const spin = spinAnim.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "360deg"] });
 
   const pickDate = (dateString) => {
     if (calTarget === "from") {
@@ -134,7 +147,7 @@ export default function AdminReservations({ adminInfo }) {
       <View style={s.headerRow}>
         <Text style={s.title}>예약 승인/거절</Text>
         <TouchableOpacity style={s.refreshBtn} onPress={() => load()}>
-          <Text style={s.refreshBtnText}>새로고침</Text>
+          <Animated.Text style={[s.refreshBtnText, { transform: [{ rotate: spin }] }]}>🔄</Animated.Text>
         </TouchableOpacity>
       </View>
 

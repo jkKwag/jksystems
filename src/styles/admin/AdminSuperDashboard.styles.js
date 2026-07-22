@@ -6,7 +6,8 @@ export const s = StyleSheet.create({
   content: { padding: spacing["5"], gap: spacing["3"], paddingBottom: spacing["10"] },
   headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   title: { fontSize: font["3xl"], fontWeight: "900", color: colors.text, marginBottom: spacing["1"] },
-  refreshBtnText: { fontSize: font.md, fontWeight: "700", color: colors.accent },
+  refreshBtn: { borderWidth: 1, borderColor: colors.textGray, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"] },
+  refreshBtnText: { fontSize: font.md, fontWeight: "700", color: colors.textGray },
 
   center: { flex: 1, justifyContent: "center", alignItems: "center", paddingVertical: spacing["10"] },
   emptyText: { fontSize: font.md, color: colors.textMuted, textAlign: "center" },

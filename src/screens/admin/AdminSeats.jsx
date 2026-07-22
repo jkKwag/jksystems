@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Image } from "react-native";
+import { useState, useEffect, useRef } from "react";
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Image, Animated, Easing } from "react-native";
 import { s } from "../../styles/admin/AdminSeats.styles";
 import api from "../../lib/api";
 import SeatFormModal from "../../components/admin/SeatFormModal";
@@ -15,6 +15,7 @@ export default function AdminSeats({ adminInfo }) {
   const [alertMsg, setAlertMsg] = useState(null);
   const [saving, setSaving] = useState(false);
   const [selectedCapacity, setSelectedCapacity] = useState(null); // null = 전체
+  const spinAnim = useRef(new Animated.Value(0)).current;
 
   const load = async () => {
     if (!bizRegNo) { setLoaded(true); return; }
@@ -26,6 +27,18 @@ export default function AdminSeats({ adminInfo }) {
   };
 
   useEffect(() => { load(); }, [bizRegNo]);
+
+  useEffect(() => {
+    if (loaded) return;
+    spinAnim.setValue(0);
+    const loop = Animated.loop(
+      Animated.timing(spinAnim, { toValue: 1, duration: 800, easing: Easing.linear, useNativeDriver: true })
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [loaded]);
+
+  const spin = spinAnim.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "360deg"] });
 
   const handleSaveSeat = async (form) => {
     setSaving(true);
@@ -67,7 +80,7 @@ export default function AdminSeats({ adminInfo }) {
         <Text style={s.title}>좌석 관리</Text>
         <View style={s.headerBtnRow}>
           <TouchableOpacity style={s.refreshBtn} onPress={load}>
-            <Text style={s.refreshBtnText}>새로고침</Text>
+            <Animated.Text style={[s.refreshBtnText, { transform: [{ rotate: spin }] }]}>🔄</Animated.Text>
           </TouchableOpacity>
           <TouchableOpacity style={s.addBtn} onPress={() => setFormTarget(null)}>
             <Text style={s.addBtnText}>+ 새 좌석</Text>

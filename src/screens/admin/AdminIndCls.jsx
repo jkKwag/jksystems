@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, TextInput } from "react-native";
+import { useState, useEffect, useRef } from "react";
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, TextInput, Animated, Easing } from "react-native";
 import { s } from "../../styles/admin/AdminIndCls.styles";
 import api from "../../lib/api";
 
@@ -9,6 +9,7 @@ export default function AdminIndCls() {
   const [search, setSearch] = useState("");
   const [path, setPath] = useState([]); // 하위가 있어서 그 안으로 들어간(드릴다운) 경로
   const [pickedLeaf, setPickedLeaf] = useState(null); // 지금 보고 있는 목록에서 리프를 선택해 하나만 남긴 상태
+  const spinAnim = useRef(new Animated.Value(0)).current;
 
   const load = async () => {
     setLoaded(false);
@@ -21,6 +22,18 @@ export default function AdminIndCls() {
   };
 
   useEffect(() => { load(); }, []);
+
+  useEffect(() => {
+    if (loaded) return;
+    spinAnim.setValue(0);
+    const loop = Animated.loop(
+      Animated.timing(spinAnim, { toValue: 1, duration: 800, easing: Easing.linear, useNativeDriver: true })
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [loaded]);
+
+  const spin = spinAnim.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "360deg"] });
 
   const byCode = Object.fromEntries(items.map(d => [d.indCd, d]));
   const childrenOf = (code) => items.filter(d => d.prntCd === code);
@@ -88,7 +101,7 @@ export default function AdminIndCls() {
       <View style={s.headerRow}>
         <Text style={s.title}>업종분류 조회</Text>
         <TouchableOpacity style={s.refreshBtn} onPress={load}>
-          <Text style={s.refreshBtnText}>새로고침</Text>
+          <Animated.Text style={[s.refreshBtnText, { transform: [{ rotate: spin }] }]}>🔄</Animated.Text>
         </TouchableOpacity>
       </View>
       <Text style={s.sub}>등록된 업종 코드를 검색하거나 단계별로 살펴보세요</Text>

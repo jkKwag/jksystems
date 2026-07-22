@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Switch } from "react-native";
+import { useState, useEffect, useRef } from "react";
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Switch, Animated, Easing } from "react-native";
 import { s } from "../../styles/admin/AdminHours.styles";
 import api from "../../lib/api";
 import ConfirmModal from "../../components/ConfirmModal";
@@ -32,6 +32,7 @@ export default function AdminHours({ adminInfo }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [alertMsg, setAlertMsg] = useState(null);
+  const spinAnim = useRef(new Animated.Value(0)).current;
 
   const load = async () => {
     if (!bizRegNo) { setLoaded(true); return; }
@@ -54,6 +55,18 @@ export default function AdminHours({ adminInfo }) {
   };
 
   useEffect(() => { load(); }, [bizRegNo]);
+
+  useEffect(() => {
+    if (loaded) return;
+    spinAnim.setValue(0);
+    const loop = Animated.loop(
+      Animated.timing(spinAnim, { toValue: 1, duration: 800, easing: Easing.linear, useNativeDriver: true })
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [loaded]);
+
+  const spin = spinAnim.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "360deg"] });
 
   const updateDay = (day, field, value) => {
     setForm(prev => ({ ...prev, [day]: { ...prev[day], [field]: value } }));
@@ -93,7 +106,7 @@ export default function AdminHours({ adminInfo }) {
       <View style={s.headerRow}>
         <Text style={s.title}>영업시간 관리</Text>
         <TouchableOpacity style={s.refreshBtn} onPress={load}>
-          <Text style={s.refreshBtnText}>새로고침</Text>
+          <Animated.Text style={[s.refreshBtnText, { transform: [{ rotate: spin }] }]}>🔄</Animated.Text>
         </TouchableOpacity>
       </View>
 

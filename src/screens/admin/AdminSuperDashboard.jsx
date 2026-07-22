@@ -47,8 +47,8 @@ export default function AdminSuperDashboard() {
     <ScrollView style={s.container} contentContainerStyle={s.content}>
       <View style={s.headerRow}>
         <Text style={s.title}>전체 현황 대시보드</Text>
-        <TouchableOpacity onPress={load}>
-          <Text style={s.refreshBtnText}>새로고침</Text>
+        <TouchableOpacity style={s.refreshBtn} onPress={load}>
+          <Text style={s.refreshBtnText}>🔄</Text>
         </TouchableOpacity>
       </View>
 
