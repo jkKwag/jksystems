@@ -55,7 +55,7 @@ export default function AdminSuperDashboard() {
       <View style={s.statRow}>
         <View style={s.statTile}>
           <Text style={s.statLabel}>전체 가맹점</Text>
-          <Text style={s.statValue}>{overview?.totalBizCount ?? 0}곳</Text>
+          <Text style={s.statValue}>{overview?.totalBizCount ?? 0}개</Text>
         </View>
       </View>
 
@@ -69,7 +69,7 @@ export default function AdminSuperDashboard() {
               <View key={code} style={s.statusRow}>
                 <View style={[s.statusDot, { backgroundColor: STATUS_COLOR_PALETTE[i % STATUS_COLOR_PALETTE.length] }]} />
                 <Text style={s.statusLabel}>{statusLabels[code] || code}</Text>
-                <Text style={s.statusCount}>{count}곳</Text>
+                <Text style={s.statusCount}>{count}개</Text>
               </View>
             ))
           )}
@@ -84,7 +84,7 @@ export default function AdminSuperDashboard() {
               <View key={code} style={s.statusRow}>
                 <View style={[s.statusDot, { backgroundColor: STATUS_COLOR_PALETTE[i % STATUS_COLOR_PALETTE.length] }]} />
                 <Text style={s.statusLabel}>{industryLabels[code] || code}</Text>
-                <Text style={s.statusCount}>{count}곳</Text>
+                <Text style={s.statusCount}>{count}개</Text>
               </View>
             ))
           )}
