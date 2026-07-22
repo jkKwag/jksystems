@@ -178,18 +178,6 @@ export default function MenuFormModal({ visible, initial, categories, saving, bi
               <TextInput style={[s.inp, s.inpMultiline]} placeholder="메뉴 설명 (선택)" value={form.menuDesc} onChangeText={update("menuDesc")} multiline />
             </View>
 
-            <View style={s.row}>
-              <View style={{ flex: 1 }}>
-                <Text style={s.label}>가격</Text>
-                <TextInput style={s.inp} placeholder="0" value={form.price} onChangeText={update("price")} keyboardType="numeric" />
-                {!!fieldErrors.price && <Text style={s.fieldError}>{fieldErrors.price}</Text>}
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={s.label}>뱃지</Text>
-                <TextInput style={s.inp} placeholder="인기 등 (선택)" value={form.badge} onChangeText={update("badge")} />
-              </View>
-            </View>
-
             <View>
               <View style={s.imgLabelRow}>
                 <Text style={s.label}>이미지 URL</Text>
@@ -215,6 +203,18 @@ export default function MenuFormModal({ visible, initial, categories, saving, bi
                   <Image source={{ uri: form.imgUrl }} style={s.imgPreview} resizeMode="cover" />
                 </View>
               )}
+            </View>
+
+            <View style={s.row}>
+              <View style={{ flex: 1 }}>
+                <Text style={s.label}>가격</Text>
+                <TextInput style={s.inp} placeholder="0" value={form.price} onChangeText={update("price")} keyboardType="numeric" />
+                {!!fieldErrors.price && <Text style={s.fieldError}>{fieldErrors.price}</Text>}
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={s.label}>뱃지</Text>
+                <TextInput style={s.inp} placeholder="인기 등 (선택)" value={form.badge} onChangeText={update("badge")} />
+              </View>
             </View>
 
             <View style={s.row}>
