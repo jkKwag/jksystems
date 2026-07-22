@@ -125,6 +125,7 @@ export default function AdminSeats({ adminInfo }) {
                 {seat.seatDesc ? <Text style={s.desc} numberOfLines={1}>{seat.seatDesc}</Text> : null}
               </View>
               <View style={s.cardActions}>
+                <Text style={s.sortOrdText}>좌석정렬순번 {seat.sortOrd ?? "-"}</Text>
                 <TouchableOpacity style={[s.actionBtn, s.deleteBtn]} onPress={(e) => { e?.stopPropagation?.(); setDeleteTarget(seat); }}>
                   <Text style={[s.actionBtnText, s.deleteBtnText]}>삭제</Text>
                 </TouchableOpacity>
@@ -138,6 +139,7 @@ export default function AdminSeats({ adminInfo }) {
         visible={formTarget !== undefined}
         initial={formTarget}
         saving={saving}
+        bizRegNo={bizRegNo}
         onSave={handleSaveSeat}
         onClose={() => setFormTarget(undefined)}
       />

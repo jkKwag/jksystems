@@ -76,6 +76,7 @@ const api = {
     deleteSeat: (bizno, seatCd) => del(`/api/biz/${bizno}/seats/${seatCd}`),
     employees: (bizno) => get(`/api/biz/${bizno}/employees`),
     uploadMenuImage: (bizno, formData) => postMultipart(`/api/biz/${bizno}/menu-image`, formData),
+    uploadSeatImage: (bizno, formData) => postMultipart(`/api/biz/${bizno}/seat-image`, formData),
   },
   industry: {
     get: (indCd) => get(`/api/industry/${indCd}`),
