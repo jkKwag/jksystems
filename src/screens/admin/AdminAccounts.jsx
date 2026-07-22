@@ -34,7 +34,9 @@ export default function AdminAccounts({ adminInfo }) {
   const [resultMsg, setResultMsg] = useState(null);
 
   const currentPwEmpty = pwTouched.current && !currentPw;
-  const newPwValid = newPw.length >= 8;
+  const newPwTooShort = newPw.length < 8;
+  const newPwSameAsCurrent = newPw.length > 0 && !!currentPw && newPw === currentPw;
+  const newPwValid = !newPwTooShort && !newPwSameAsCurrent;
   const newPwConfirmValid = newPwConfirm.length > 0 && newPwConfirm === newPw;
 
   const load = async () => {
@@ -306,7 +308,9 @@ export default function AdminAccounts({ adminInfo }) {
                   )}
                 </View>
                 {pwTouched.next && !newPwValid && (
-                  <Text style={s.pwFieldError}>비밀번호는 8자 이상이어야 합니다.</Text>
+                  <Text style={s.pwFieldError}>
+                    {newPwTooShort ? "비밀번호는 8자 이상이어야 합니다." : "현재 비밀번호와 다른 비밀번호를 입력해주세요."}
+                  </Text>
                 )}
               </View>
 
