@@ -97,7 +97,8 @@ export default function MenuFormModal({ visible, initial, categories, saving, bi
         const { url, error: uploadError } = await uploadToStorage("menu-image", path, blob, "image/jpeg");
         if (uploadError || !url) {
           setImgStatus("error");
-          setImgError("이미지 업로드에 실패했습니다.");
+          const detail = uploadError?.message || uploadError?.error;
+          setImgError(detail ? `이미지 업로드에 실패했습니다: ${detail}` : "이미지 업로드에 실패했습니다.");
         } else {
           update("imgUrl")(url);
           setImgStatus("success");
