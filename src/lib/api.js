@@ -35,6 +35,16 @@ async function del(path) {
   return send("DELETE", path);
 }
 
+async function postMultipart(path, formData) {
+  try {
+    const res = await fetch(`${BASE}${path}`, { method: "POST", body: formData });
+    const json = await res.json().catch(() => null);
+    if (!res.ok) return { data: null, error: json };
+    const data = typeof json?.success === "boolean" ? (json.success ? json.data : null) : json;
+    return { data, error: null };
+  } catch (e) { return { data: null, error: e }; }
+}
+
 const api = {
   admin: {
     login: (body) => post(`/api/admin/login`, body),
@@ -65,6 +75,7 @@ const api = {
     updateSeat: (bizno, seatCd, body) => put(`/api/biz/${bizno}/seats/${seatCd}`, body),
     deleteSeat: (bizno, seatCd) => del(`/api/biz/${bizno}/seats/${seatCd}`),
     employees: (bizno) => get(`/api/biz/${bizno}/employees`),
+    uploadMenuImage: (bizno, formData) => postMultipart(`/api/biz/${bizno}/menu-image`, formData),
   },
   industry: {
     get: (indCd) => get(`/api/industry/${indCd}`),

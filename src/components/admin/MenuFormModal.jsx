@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, Switch, ActivityIndicator, Image, Platform } from "react-native";
 import { s } from "../../styles/admin/MenuFormModal.styles";
-import { uploadToStorage } from "../../lib/supabase";
+import api from "../../lib/api";
 
 const emptyForm = { bizCatCd: "", menuNm: "", menuDesc: "", price: "", imgUrl: "", badge: "", sortOrd: "", useYn: "Y" };
 
@@ -93,14 +93,15 @@ export default function MenuFormModal({ visible, initial, categories, saving, bi
       setImgError("");
       try {
         const blob = await resizeAndCompressImage(file, IMAGE_MAX_DIMENSION, IMAGE_QUALITY);
-        const path = `${bizRegNo}/${Date.now()}.jpg`;
-        const { url, error: uploadError } = await uploadToStorage("menu-image", path, blob, "image/jpeg");
-        if (uploadError || !url) {
+        const formData = new FormData();
+        formData.append("file", blob, "image.jpg");
+        const { data, error: uploadError } = await api.biz.uploadMenuImage(bizRegNo, formData);
+        if (uploadError || !data?.url) {
           setImgStatus("error");
           const detail = uploadError?.message || uploadError?.error;
           setImgError(detail ? `이미지 업로드에 실패했습니다: ${detail}` : "이미지 업로드에 실패했습니다.");
         } else {
-          update("imgUrl")(url);
+          update("imgUrl")(data.url);
           setImgStatus("success");
         }
       } catch {

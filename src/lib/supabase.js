@@ -67,25 +67,6 @@ const supabase = {
 
 export default supabase;
 
-// bucket 안의 path(예: "menu-image/2122544531/1732000000000.jpg")로 파일을 업로드하고 공개 URL을 돌려준다.
-export async function uploadToStorage(bucket, path, blob, contentType) {
-  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${bucket}/${path}`, {
-    method: "POST",
-    headers: {
-      apikey: SUPABASE_KEY,
-      Authorization: `Bearer ${SUPABASE_KEY}`,
-      "Content-Type": contentType,
-      "x-upsert": "true",
-    },
-    body: blob,
-  });
-  if (!res.ok) {
-    const error = await res.json().catch(() => null);
-    return { url: null, error };
-  }
-  return { url: `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${path}`, error: null };
-}
-
 const WS_URL = SUPABASE_URL.replace("https://", "wss://") + "/realtime/v1/websocket?apikey=" + SUPABASE_KEY + "&vsn=1.0.0";
 
 export function subscribeInserts(table, filter, onInsert) {
