@@ -28,6 +28,11 @@ export default function AdminAccounts({ adminInfo }) {
   const [newPw, setNewPw] = useState("");
   const [newPwConfirm, setNewPwConfirm] = useState("");
   const [pwBusy, setPwBusy] = useState(false);
+  const [pwTouched, setPwTouched] = useState({ current: false, next: false, confirm: false });
+
+  const currentPwValid = currentPw.length > 0;
+  const newPwValid = newPw.length >= 8;
+  const newPwConfirmValid = newPwConfirm.length > 0 && newPwConfirm === newPw;
 
   const load = async () => {
     if (!bizRegNo) { setLoaded(true); return; }
@@ -48,12 +53,14 @@ export default function AdminAccounts({ adminInfo }) {
     setCurrentPw("");
     setNewPw("");
     setNewPwConfirm("");
+    setPwTouched({ current: false, next: false, confirm: false });
   };
 
   const submitPwChange = async () => {
-    if (!currentPw) { alert("현재 비밀번호를 입력해주세요."); return; }
-    if (newPw.length < 8) { alert("새 비밀번호는 8자 이상이어야 합니다."); return; }
-    if (newPw !== newPwConfirm) { alert("새 비밀번호가 서로 일치하지 않습니다."); return; }
+    if (!currentPwValid || !newPwValid || !newPwConfirmValid) {
+      setPwTouched({ current: true, next: true, confirm: true });
+      return;
+    }
     setPwBusy(true);
     const body = {
       currentPassword: currentPw,
@@ -231,30 +238,74 @@ export default function AdminAccounts({ adminInfo }) {
           <View style={s.pwOverlay}>
             <View style={s.pwCard}>
               <Text style={s.pwTitle}>{pwTarget.nm} 비밀번호 변경</Text>
-              <TextInput
-                style={s.pwInput}
-                placeholder="현재 비밀번호"
-                placeholderTextColor="#94a3b8"
-                value={currentPw}
-                onChangeText={setCurrentPw}
-                secureTextEntry
-              />
-              <TextInput
-                style={s.pwInput}
-                placeholder="새 비밀번호 (8자 이상)"
-                placeholderTextColor="#94a3b8"
-                value={newPw}
-                onChangeText={setNewPw}
-                secureTextEntry
-              />
-              <TextInput
-                style={s.pwInput}
-                placeholder="새 비밀번호 확인"
-                placeholderTextColor="#94a3b8"
-                value={newPwConfirm}
-                onChangeText={setNewPwConfirm}
-                secureTextEntry
-              />
+
+              <View style={s.pwFieldWrap}>
+                <View style={s.pwInputRow}>
+                  <TextInput
+                    style={[s.pwInput, pwTouched.current && (currentPwValid ? s.pwInputValid : s.pwInputInvalid)]}
+                    placeholder="현재 비밀번호"
+                    placeholderTextColor="#94a3b8"
+                    value={currentPw}
+                    onChangeText={setCurrentPw}
+                    onBlur={() => setPwTouched(t => ({ ...t, current: true }))}
+                    secureTextEntry
+                  />
+                  {pwTouched.current && (
+                    <Text style={[s.pwValidIcon, currentPwValid ? s.pwValidIconOk : s.pwValidIconBad]}>
+                      {currentPwValid ? "✓" : "✕"}
+                    </Text>
+                  )}
+                </View>
+                {pwTouched.current && !currentPwValid && (
+                  <Text style={s.pwFieldError}>현재 비밀번호를 입력해주세요.</Text>
+                )}
+              </View>
+
+              <View style={s.pwFieldWrap}>
+                <View style={s.pwInputRow}>
+                  <TextInput
+                    style={[s.pwInput, pwTouched.next && (newPwValid ? s.pwInputValid : s.pwInputInvalid)]}
+                    placeholder="새 비밀번호 (8자 이상)"
+                    placeholderTextColor="#94a3b8"
+                    value={newPw}
+                    onChangeText={setNewPw}
+                    onBlur={() => setPwTouched(t => ({ ...t, next: true }))}
+                    secureTextEntry
+                  />
+                  {pwTouched.next && (
+                    <Text style={[s.pwValidIcon, newPwValid ? s.pwValidIconOk : s.pwValidIconBad]}>
+                      {newPwValid ? "✓" : "✕"}
+                    </Text>
+                  )}
+                </View>
+                {pwTouched.next && !newPwValid && (
+                  <Text style={s.pwFieldError}>비밀번호는 8자 이상이어야 합니다.</Text>
+                )}
+              </View>
+
+              <View style={s.pwFieldWrap}>
+                <View style={s.pwInputRow}>
+                  <TextInput
+                    style={[s.pwInput, pwTouched.confirm && (newPwConfirmValid ? s.pwInputValid : s.pwInputInvalid)]}
+                    placeholder="새 비밀번호 확인"
+                    placeholderTextColor="#94a3b8"
+                    value={newPwConfirm}
+                    onChangeText={setNewPwConfirm}
+                    onBlur={() => setPwTouched(t => ({ ...t, confirm: true }))}
+                    secureTextEntry
+                  />
+                  {pwTouched.confirm && (
+                    <Text style={[s.pwValidIcon, newPwConfirmValid ? s.pwValidIconOk : s.pwValidIconBad]}>
+                      {newPwConfirmValid ? "✓" : "✕"}
+                    </Text>
+                  )}
+                </View>
+                {pwTouched.confirm && !newPwConfirmValid && (
+                  <Text style={s.pwFieldError}>
+                    {newPwConfirm.length === 0 ? "새 비밀번호 확인을 입력해주세요." : "비밀번호가 일치하지 않습니다."}
+                  </Text>
+                )}
+              </View>
               <View style={s.pwBtnRow}>
                 <TouchableOpacity style={s.pwCancelBtn} onPress={closePwModal} disabled={pwBusy}>
                   <Text style={s.pwCancelBtnText}>취소</Text>
