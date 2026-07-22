@@ -1,17 +1,57 @@
 import { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, Switch, ActivityIndicator, Platform } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, Switch, ActivityIndicator, Image, Platform } from "react-native";
 import { s } from "../../styles/admin/MenuFormModal.styles";
+import { uploadToStorage } from "../../lib/supabase";
 
 const emptyForm = { bizCatCd: "", menuNm: "", menuDesc: "", price: "", imgUrl: "", badge: "", sortOrd: "", useYn: "Y" };
+
+const IMAGE_MAX_DIMENSION = 1000;
+const IMAGE_QUALITY = 0.8;
 
 // 사이트 상단 헤더와 동일한 남색→녹색 그라데이션 (웹 전용, RN 네이티브는 primary 단색으로 대체)
 const HEADER_GRADIENT = Platform.OS === "web"
   ? { background: "linear-gradient(135deg, #0f172a 0%, #14532d 100%)" }
   : {};
 
-export default function MenuFormModal({ visible, initial, categories, saving, onSave, onClose }) {
+// 긴 변 기준으로 축소하고 JPEG로 압축해 업로드 용량을 줄인다 (사용자 화면 메뉴상세 이미지와 동일한 처리)
+function resizeAndCompressImage(file, maxDim, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new window.Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          if (width >= height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => (blob ? resolve(blob) : reject(new Error("이미지 변환에 실패했습니다."))),
+          "image/jpeg",
+          quality
+        );
+      };
+      img.onerror = () => reject(new Error("이미지를 불러올 수 없습니다."));
+      img.src = reader.result;
+    };
+    reader.onerror = () => reject(new Error("파일을 읽을 수 없습니다."));
+    reader.readAsDataURL(file);
+  });
+}
+
+export default function MenuFormModal({ visible, initial, categories, saving, bizRegNo, onSave, onClose }) {
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (!visible) return;
@@ -35,6 +75,33 @@ export default function MenuFormModal({ visible, initial, categories, saving, on
   if (!visible) return null;
 
   const update = (key) => (v) => setForm(f => ({ ...f, [key]: v }));
+
+  const pickAndUploadImage = () => {
+    if (Platform.OS !== "web" || !bizRegNo) return;
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      setUploading(true);
+      setError("");
+      try {
+        const blob = await resizeAndCompressImage(file, IMAGE_MAX_DIMENSION, IMAGE_QUALITY);
+        const path = `${bizRegNo}/${Date.now()}.jpg`;
+        const { url, error: uploadError } = await uploadToStorage("menu-image", path, blob, "image/jpeg");
+        if (uploadError || !url) {
+          setError("이미지 업로드에 실패했습니다.");
+        } else {
+          update("imgUrl")(url);
+        }
+      } catch {
+        setError("이미지 처리 중 오류가 발생했습니다.");
+      }
+      setUploading(false);
+    };
+    input.click();
+  };
 
   const submit = () => {
     if (!form.bizCatCd) { setError("카테고리를 선택해주세요."); return; }
@@ -103,8 +170,20 @@ export default function MenuFormModal({ visible, initial, categories, saving, on
             </View>
 
             <View>
-              <Text style={s.label}>이미지 URL</Text>
+              <View style={s.imgLabelRow}>
+                <Text style={s.label}>이미지 URL</Text>
+                <TouchableOpacity style={s.uploadBtn} onPress={pickAndUploadImage} disabled={uploading}>
+                  {uploading
+                    ? <ActivityIndicator size="small" color="#f97316" />
+                    : <Text style={s.uploadBtnText}>이미지 업로드</Text>}
+                </TouchableOpacity>
+              </View>
               <TextInput style={s.inp} placeholder="https:// (선택)" value={form.imgUrl} onChangeText={update("imgUrl")} autoCapitalize="none" />
+              {!!form.imgUrl && (
+                <View style={s.imgPreviewBox}>
+                  <Image source={{ uri: form.imgUrl }} style={s.imgPreview} resizeMode="cover" />
+                </View>
+              )}
             </View>
 
             <View style={s.row}>

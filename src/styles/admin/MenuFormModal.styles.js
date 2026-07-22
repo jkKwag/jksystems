@@ -22,6 +22,12 @@ export const s = StyleSheet.create({
   chipTextActive: { color: colors.white },
   noCatText: { fontSize: font.sm, color: colors.textMuted },
 
+  imgLabelRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  uploadBtn: { borderWidth: 1, borderColor: colors.accent, borderRadius: radius.md, paddingHorizontal: spacing["2.5"], paddingVertical: spacing["1"], marginBottom: spacing["1.5"] },
+  uploadBtnText: { fontSize: font.sm, fontWeight: "700", color: colors.accent },
+  imgPreviewBox: { marginTop: spacing["2.5"], borderRadius: radius.lg, overflow: "hidden", backgroundColor: colors.slate100, borderWidth: 1, borderColor: colors.border },
+  imgPreview: { width: "100%", height: 160 },
+
   error: { fontSize: font.sm, color: "#ef4444", fontWeight: "600" },
 
   btnRow: { flexDirection: "row", gap: spacing["2.5"], marginTop: spacing["4"], paddingHorizontal: spacing["5"], paddingBottom: spacing["5"] },

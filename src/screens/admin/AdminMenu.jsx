@@ -153,6 +153,7 @@ export default function AdminMenu({ adminInfo }) {
         initial={formTarget}
         categories={categories}
         saving={saving}
+        bizRegNo={bizRegNo}
         onSave={handleSaveMenu}
         onClose={() => setFormTarget(undefined)}
       />
