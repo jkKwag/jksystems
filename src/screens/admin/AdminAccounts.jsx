@@ -15,6 +15,8 @@ const ROLE_LABEL = { SUPER: "최고관리자", BIZ: "사업장관리자" };
 
 export default function AdminAccounts({ adminInfo }) {
   const bizRegNo = adminInfo?.bizRegNo;
+  const isSuperAdmin = adminInfo?.adminRole === "SUPER";
+  const canChangePw = (targetId) => isSuperAdmin || adminInfo?.adminId === targetId;
 
   const [loaded, setLoaded] = useState(false);
   const [users, setUsers] = useState([]);
@@ -22,6 +24,7 @@ export default function AdminAccounts({ adminInfo }) {
   const [expandedAdminId, setExpandedAdminId] = useState(null);
   const [expandedEmpId, setExpandedEmpId] = useState(null);
   const [pwTarget, setPwTarget] = useState(null); // { type: "admin"|"emp", id, nm }
+  const [currentPw, setCurrentPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [newPwConfirm, setNewPwConfirm] = useState("");
   const [pwBusy, setPwBusy] = useState(false);
@@ -42,17 +45,25 @@ export default function AdminAccounts({ adminInfo }) {
 
   const closePwModal = () => {
     setPwTarget(null);
+    setCurrentPw("");
     setNewPw("");
     setNewPwConfirm("");
   };
 
   const submitPwChange = async () => {
-    if (newPw.length < 8) { alert("비밀번호는 8자 이상이어야 합니다."); return; }
-    if (newPw !== newPwConfirm) { alert("비밀번호가 서로 일치하지 않습니다."); return; }
+    if (!currentPw) { alert("현재 비밀번호를 입력해주세요."); return; }
+    if (newPw.length < 8) { alert("새 비밀번호는 8자 이상이어야 합니다."); return; }
+    if (newPw !== newPwConfirm) { alert("새 비밀번호가 서로 일치하지 않습니다."); return; }
     setPwBusy(true);
+    const body = {
+      currentPassword: currentPw,
+      newPassword: newPw,
+      requesterId: adminInfo?.adminId,
+      requesterRole: adminInfo?.adminRole,
+    };
     const { error } = pwTarget.type === "admin"
-      ? await api.admin.changePassword(pwTarget.id, { newPassword: newPw })
-      : await api.admin.changeEmployeePassword(pwTarget.id, { newPassword: newPw });
+      ? await api.admin.changePassword(pwTarget.id, body)
+      : await api.admin.changeEmployeePassword(pwTarget.id, body);
     setPwBusy(false);
     if (error) { alert(`비밀번호 변경 실패: ${error?.message || "알 수 없는 오류"}`); return; }
     alert("비밀번호가 변경되었습니다.");
@@ -135,12 +146,14 @@ export default function AdminAccounts({ adminInfo }) {
                       <View style={s.detailRow}><Text style={s.detailKey}>권한</Text><Text style={s.detailVal}>{ROLE_LABEL[u.adminRole] || u.adminRole}</Text></View>
                       <View style={s.detailRow}><Text style={s.detailKey}>휴대전화</Text><Text style={s.detailVal}>{u.mobileTel || "-"}</Text></View>
                       <View style={s.detailRow}><Text style={s.detailKey}>전화</Text><Text style={s.detailVal}>{u.tel || "-"}</Text></View>
-                      <TouchableOpacity
-                        style={s.pwChangeBtn}
-                        onPress={() => setPwTarget({ type: "admin", id: u.adminId, nm: u.adminNm || u.adminId })}
-                      >
-                        <Text style={s.pwChangeBtnText}>비밀번호 변경</Text>
-                      </TouchableOpacity>
+                      {canChangePw(u.adminId) && (
+                        <TouchableOpacity
+                          style={s.pwChangeBtn}
+                          onPress={() => setPwTarget({ type: "admin", id: u.adminId, nm: u.adminNm || u.adminId })}
+                        >
+                          <Text style={s.pwChangeBtnText}>비밀번호 변경</Text>
+                        </TouchableOpacity>
+                      )}
                     </View>
                   )}
                 </TouchableOpacity>
@@ -196,12 +209,14 @@ export default function AdminAccounts({ adminInfo }) {
                       <View style={s.detailRow}><Text style={s.detailKey}>이메일</Text><Text style={s.detailVal}>{emp.email || "-"}</Text></View>
                       <View style={s.detailRow}><Text style={s.detailKey}>휴대전화</Text><Text style={s.detailVal}>{emp.mobileTel || "-"}</Text></View>
                       <View style={s.detailRow}><Text style={s.detailKey}>메모</Text><Text style={s.detailVal}>{emp.rmrk || "-"}</Text></View>
-                      <TouchableOpacity
-                        style={s.pwChangeBtn}
-                        onPress={() => setPwTarget({ type: "emp", id: emp.empId, nm: emp.empNm || emp.empId })}
-                      >
-                        <Text style={s.pwChangeBtnText}>비밀번호 변경</Text>
-                      </TouchableOpacity>
+                      {canChangePw(emp.empId) && (
+                        <TouchableOpacity
+                          style={s.pwChangeBtn}
+                          onPress={() => setPwTarget({ type: "emp", id: emp.empId, nm: emp.empNm || emp.empId })}
+                        >
+                          <Text style={s.pwChangeBtnText}>비밀번호 변경</Text>
+                        </TouchableOpacity>
+                      )}
                     </View>
                   )}
                 </TouchableOpacity>
@@ -216,6 +231,14 @@ export default function AdminAccounts({ adminInfo }) {
           <View style={s.pwOverlay}>
             <View style={s.pwCard}>
               <Text style={s.pwTitle}>{pwTarget.nm} 비밀번호 변경</Text>
+              <TextInput
+                style={s.pwInput}
+                placeholder="현재 비밀번호"
+                placeholderTextColor="#94a3b8"
+                value={currentPw}
+                onChangeText={setCurrentPw}
+                secureTextEntry
+              />
               <TextInput
                 style={s.pwInput}
                 placeholder="새 비밀번호 (8자 이상)"
