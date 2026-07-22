@@ -7,6 +7,7 @@ import AdminBizList from "./AdminBizList";
 import AdminBizQr from "./AdminBizQr";
 import AdminOrders from "./AdminOrders";
 import AdminPayments from "./AdminPayments";
+import AdminBizCategory from "./AdminBizCategory";
 import AdminMenu from "./AdminMenu";
 import AdminSeats from "./AdminSeats";
 import AdminHours from "./AdminHours";
@@ -32,6 +33,7 @@ const MENU_SCREENS = {
   "/admin/biz-qr": AdminBizQr,
   "/admin/orders": AdminOrders,
   "/admin/payments": AdminPayments,
+  "/admin/biz-category": AdminBizCategory,
   "/admin/menu": AdminMenu,
   "/admin/seat": AdminSeats,
   "/admin/hours": AdminHours,
