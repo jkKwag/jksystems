@@ -14,6 +14,7 @@ export default function AdminBizCategory({ adminInfo }) {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [alertMsg, setAlertMsg] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [reordering, setReordering] = useState(false);
   const spinAnim = useRef(new Animated.Value(0)).current;
 
   const load = async () => {
@@ -51,6 +52,30 @@ export default function AdminBizCategory({ adminInfo }) {
       const next = isEdit ? prev.map(c => c.bizCatCd === data.bizCatCd ? data : c) : [...prev, data];
       return [...next].sort((a, b) => (a.sortOrd ?? 999) - (b.sortOrd ?? 999));
     });
+  };
+
+  const moveCategory = async (index, direction) => {
+    if (reordering) return;
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= categories.length) return;
+    const arr = [...categories];
+    [arr[index], arr[targetIndex]] = [arr[targetIndex], arr[index]];
+    const renumbered = arr.map((c, i) => ({ ...c, sortOrd: i }));
+    setReordering(true);
+    const results = await Promise.all(renumbered.map(c => api.biz.updateCategory(bizRegNo, c.bizCatCd, {
+      catCd: c.catCd,
+      bizCatNm: c.bizCatNm,
+      sortOrd: c.sortOrd,
+      useYn: c.useYn,
+      rmrk: c.rmrk,
+    })));
+    setReordering(false);
+    if (results.some(r => r.error)) {
+      setAlertMsg("순서 변경에 실패했습니다. 다시 시도해주세요.");
+      load();
+      return;
+    }
+    setCategories(renumbered);
   };
 
   const doDelete = async () => {
@@ -96,7 +121,7 @@ export default function AdminBizCategory({ adminInfo }) {
         </View>
       ) : (
         <ScrollView contentContainerStyle={s.list}>
-          {categories.map(cat => (
+          {categories.map((cat, index) => (
             <TouchableOpacity key={cat.bizCatCd} style={s.card} onPress={() => setFormTarget(cat)} activeOpacity={0.75}>
               <View style={s.cardInfo}>
                 <View style={s.cardTopRow}>
@@ -107,6 +132,22 @@ export default function AdminBizCategory({ adminInfo }) {
                 {cat.rmrk ? <Text style={s.rmrk} numberOfLines={1}>{cat.rmrk}</Text> : null}
               </View>
               <View style={s.cardActions}>
+                <View style={s.sortBtnRow}>
+                  <TouchableOpacity
+                    style={[s.sortBtn, (index === 0 || reordering) && s.sortBtnDisabled]}
+                    disabled={index === 0 || reordering}
+                    onPress={(e) => { e?.stopPropagation?.(); moveCategory(index, -1); }}
+                  >
+                    <Text style={s.sortBtnText}>▲</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[s.sortBtn, (index === categories.length - 1 || reordering) && s.sortBtnDisabled]}
+                    disabled={index === categories.length - 1 || reordering}
+                    onPress={(e) => { e?.stopPropagation?.(); moveCategory(index, 1); }}
+                  >
+                    <Text style={s.sortBtnText}>▼</Text>
+                  </TouchableOpacity>
+                </View>
                 <Text style={s.sortOrdText}>정렬순번 {cat.sortOrd ?? "-"}</Text>
                 <TouchableOpacity style={[s.actionBtn, s.deleteBtn]} onPress={(e) => { e?.stopPropagation?.(); setDeleteTarget(cat); }}>
                   <Text style={[s.actionBtnText, s.deleteBtnText]}>삭제</Text>
