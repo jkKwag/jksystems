@@ -23,8 +23,11 @@ export const s = StyleSheet.create({
   noCatText: { fontSize: font.sm, color: colors.textMuted },
 
   imgLabelRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  imgActionRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"] },
   uploadBtn: { borderWidth: 1, borderColor: colors.accent, borderRadius: radius.md, paddingHorizontal: spacing["2.5"], paddingVertical: spacing["1"], marginBottom: spacing["1.5"] },
   uploadBtnText: { fontSize: font.sm, fontWeight: "700", color: colors.accent },
+  imgCheck: { fontSize: font.lg, fontWeight: "900", color: colors.green, marginBottom: spacing["1.5"] },
+  imgErrorText: { fontSize: font.sm, color: "#ef4444", fontWeight: "600", marginTop: spacing["1"] },
   imgPreviewBox: { marginTop: spacing["2.5"], borderRadius: radius.lg, overflow: "hidden", backgroundColor: colors.slate100, borderWidth: 1, borderColor: colors.border },
   imgPreview: { width: "100%", height: 160 },
 

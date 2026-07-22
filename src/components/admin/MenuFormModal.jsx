@@ -52,6 +52,8 @@ export default function MenuFormModal({ visible, initial, categories, saving, bi
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [imgStatus, setImgStatus] = useState(null); // null | "success" | "error"
+  const [imgError, setImgError] = useState("");
 
   useEffect(() => {
     if (!visible) return;
@@ -70,6 +72,8 @@ export default function MenuFormModal({ visible, initial, categories, saving, bi
       setForm({ ...emptyForm, bizCatCd: categories?.[0]?.bizCatCd || "" });
     }
     setError("");
+    setImgStatus(null);
+    setImgError("");
   }, [visible, initial]);
 
   if (!visible) return null;
@@ -85,18 +89,22 @@ export default function MenuFormModal({ visible, initial, categories, saving, bi
       const file = input.files?.[0];
       if (!file) return;
       setUploading(true);
-      setError("");
+      setImgStatus(null);
+      setImgError("");
       try {
         const blob = await resizeAndCompressImage(file, IMAGE_MAX_DIMENSION, IMAGE_QUALITY);
         const path = `${bizRegNo}/${Date.now()}.jpg`;
         const { url, error: uploadError } = await uploadToStorage("menu-image", path, blob, "image/jpeg");
         if (uploadError || !url) {
-          setError("이미지 업로드에 실패했습니다.");
+          setImgStatus("error");
+          setImgError("이미지 업로드에 실패했습니다.");
         } else {
           update("imgUrl")(url);
+          setImgStatus("success");
         }
       } catch {
-        setError("이미지 처리 중 오류가 발생했습니다.");
+        setImgStatus("error");
+        setImgError("이미지 처리 중 오류가 발생했습니다.");
       }
       setUploading(false);
     };
@@ -172,13 +180,23 @@ export default function MenuFormModal({ visible, initial, categories, saving, bi
             <View>
               <View style={s.imgLabelRow}>
                 <Text style={s.label}>이미지 URL</Text>
-                <TouchableOpacity style={s.uploadBtn} onPress={pickAndUploadImage} disabled={uploading}>
-                  {uploading
-                    ? <ActivityIndicator size="small" color="#f97316" />
-                    : <Text style={s.uploadBtnText}>이미지 업로드</Text>}
-                </TouchableOpacity>
+                <View style={s.imgActionRow}>
+                  {imgStatus === "success" && <Text style={s.imgCheck}>✓</Text>}
+                  <TouchableOpacity style={s.uploadBtn} onPress={pickAndUploadImage} disabled={uploading}>
+                    {uploading
+                      ? <ActivityIndicator size="small" color="#f97316" />
+                      : <Text style={s.uploadBtnText}>이미지 업로드</Text>}
+                  </TouchableOpacity>
+                </View>
               </View>
-              <TextInput style={s.inp} placeholder="https:// (선택)" value={form.imgUrl} onChangeText={update("imgUrl")} autoCapitalize="none" />
+              <TextInput
+                style={s.inp}
+                placeholder="https:// (선택)"
+                value={form.imgUrl}
+                onChangeText={(v) => { update("imgUrl")(v); setImgStatus(null); setImgError(""); }}
+                autoCapitalize="none"
+              />
+              {imgStatus === "error" && !!imgError && <Text style={s.imgErrorText}>{imgError}</Text>}
               {!!form.imgUrl && (
                 <View style={s.imgPreviewBox}>
                   <Image source={{ uri: form.imgUrl }} style={s.imgPreview} resizeMode="cover" />
