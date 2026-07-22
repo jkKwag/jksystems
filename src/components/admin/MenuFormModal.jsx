@@ -168,17 +168,6 @@ export default function MenuFormModal({ visible, initial, categories, saving, bi
             </View>
 
             <View>
-              <Text style={s.label}>메뉴명</Text>
-              <TextInput style={s.inp} placeholder="메뉴명 입력" value={form.menuNm} onChangeText={update("menuNm")} />
-              {!!fieldErrors.menuNm && <Text style={s.fieldError}>{fieldErrors.menuNm}</Text>}
-            </View>
-
-            <View>
-              <Text style={s.label}>설명</Text>
-              <TextInput style={[s.inp, s.inpMultiline]} placeholder="메뉴 설명 (선택)" value={form.menuDesc} onChangeText={update("menuDesc")} multiline />
-            </View>
-
-            <View>
               <View style={s.imgLabelRow}>
                 <Text style={s.label}>이미지 URL</Text>
                 <View style={s.imgActionRow}>
@@ -203,6 +192,17 @@ export default function MenuFormModal({ visible, initial, categories, saving, bi
                   <Image source={{ uri: form.imgUrl }} style={s.imgPreview} resizeMode="cover" />
                 </View>
               )}
+            </View>
+
+            <View>
+              <Text style={s.label}>메뉴명</Text>
+              <TextInput style={s.inp} placeholder="메뉴명 입력" value={form.menuNm} onChangeText={update("menuNm")} />
+              {!!fieldErrors.menuNm && <Text style={s.fieldError}>{fieldErrors.menuNm}</Text>}
+            </View>
+
+            <View>
+              <Text style={s.label}>설명</Text>
+              <TextInput style={[s.inp, s.inpMultiline]} placeholder="메뉴 설명 (선택)" value={form.menuDesc} onChangeText={update("menuDesc")} multiline />
             </View>
 
             <View style={s.row}>
