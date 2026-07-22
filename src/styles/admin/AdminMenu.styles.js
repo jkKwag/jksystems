@@ -6,7 +6,7 @@ export const s = StyleSheet.create({
   headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   headerBtnRow: { flexDirection: "row", gap: spacing["2"] },
   title: { fontSize: font["3xl"], fontWeight: "900", color: colors.text },
-  refreshBtn: { borderWidth: 1, borderColor: colors.textGray, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"] },
+  refreshBtn: { borderWidth: 1, borderColor: colors.accent, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"] },
   refreshBtnText: { fontSize: font.md, fontWeight: "700", color: colors.textGray },
   addBtn: { backgroundColor: colors.accent, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"] },
   addBtnText: { fontSize: font.md, fontWeight: "700", color: colors.white },
