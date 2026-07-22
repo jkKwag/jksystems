@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput } from "react-native";
 import { s } from "../../styles/admin/AdminAccounts.styles";
 import api from "../../lib/api";
 import { formatBizRegNo } from "../../lib/formatBizRegNo";
@@ -21,6 +21,10 @@ export default function AdminAccounts({ adminInfo }) {
   const [employees, setEmployees] = useState([]);
   const [expandedAdminId, setExpandedAdminId] = useState(null);
   const [expandedEmpId, setExpandedEmpId] = useState(null);
+  const [pwTarget, setPwTarget] = useState(null); // { type: "admin"|"emp", id, nm }
+  const [newPw, setNewPw] = useState("");
+  const [newPwConfirm, setNewPwConfirm] = useState("");
+  const [pwBusy, setPwBusy] = useState(false);
 
   const load = async () => {
     if (!bizRegNo) { setLoaded(true); return; }
@@ -35,6 +39,25 @@ export default function AdminAccounts({ adminInfo }) {
   };
 
   useEffect(() => { load(); }, [bizRegNo]);
+
+  const closePwModal = () => {
+    setPwTarget(null);
+    setNewPw("");
+    setNewPwConfirm("");
+  };
+
+  const submitPwChange = async () => {
+    if (newPw.length < 8) { alert("비밀번호는 8자 이상이어야 합니다."); return; }
+    if (newPw !== newPwConfirm) { alert("비밀번호가 서로 일치하지 않습니다."); return; }
+    setPwBusy(true);
+    const { error } = pwTarget.type === "admin"
+      ? await api.admin.changePassword(pwTarget.id, { newPassword: newPw })
+      : await api.admin.changeEmployeePassword(pwTarget.id, { newPassword: newPw });
+    setPwBusy(false);
+    if (error) { alert(`비밀번호 변경 실패: ${error?.message || "알 수 없는 오류"}`); return; }
+    alert("비밀번호가 변경되었습니다.");
+    closePwModal();
+  };
 
   if (!bizRegNo) {
     return (
@@ -112,6 +135,12 @@ export default function AdminAccounts({ adminInfo }) {
                       <View style={s.detailRow}><Text style={s.detailKey}>권한</Text><Text style={s.detailVal}>{ROLE_LABEL[u.adminRole] || u.adminRole}</Text></View>
                       <View style={s.detailRow}><Text style={s.detailKey}>휴대전화</Text><Text style={s.detailVal}>{u.mobileTel || "-"}</Text></View>
                       <View style={s.detailRow}><Text style={s.detailKey}>전화</Text><Text style={s.detailVal}>{u.tel || "-"}</Text></View>
+                      <TouchableOpacity
+                        style={s.pwChangeBtn}
+                        onPress={() => setPwTarget({ type: "admin", id: u.adminId, nm: u.adminNm || u.adminId })}
+                      >
+                        <Text style={s.pwChangeBtnText}>비밀번호 변경</Text>
+                      </TouchableOpacity>
                     </View>
                   )}
                 </TouchableOpacity>
@@ -167,6 +196,12 @@ export default function AdminAccounts({ adminInfo }) {
                       <View style={s.detailRow}><Text style={s.detailKey}>이메일</Text><Text style={s.detailVal}>{emp.email || "-"}</Text></View>
                       <View style={s.detailRow}><Text style={s.detailKey}>휴대전화</Text><Text style={s.detailVal}>{emp.mobileTel || "-"}</Text></View>
                       <View style={s.detailRow}><Text style={s.detailKey}>메모</Text><Text style={s.detailVal}>{emp.rmrk || "-"}</Text></View>
+                      <TouchableOpacity
+                        style={s.pwChangeBtn}
+                        onPress={() => setPwTarget({ type: "emp", id: emp.empId, nm: emp.empNm || emp.empId })}
+                      >
+                        <Text style={s.pwChangeBtnText}>비밀번호 변경</Text>
+                      </TouchableOpacity>
                     </View>
                   )}
                 </TouchableOpacity>
@@ -174,6 +209,42 @@ export default function AdminAccounts({ adminInfo }) {
             })
           )}
         </ScrollView>
+      )}
+
+      {!!pwTarget && (
+        <Modal visible transparent animationType="fade" onRequestClose={closePwModal}>
+          <View style={s.pwOverlay}>
+            <View style={s.pwCard}>
+              <Text style={s.pwTitle}>{pwTarget.nm} 비밀번호 변경</Text>
+              <TextInput
+                style={s.pwInput}
+                placeholder="새 비밀번호 (8자 이상)"
+                placeholderTextColor="#94a3b8"
+                value={newPw}
+                onChangeText={setNewPw}
+                secureTextEntry
+              />
+              <TextInput
+                style={s.pwInput}
+                placeholder="새 비밀번호 확인"
+                placeholderTextColor="#94a3b8"
+                value={newPwConfirm}
+                onChangeText={setNewPwConfirm}
+                secureTextEntry
+              />
+              <View style={s.pwBtnRow}>
+                <TouchableOpacity style={s.pwCancelBtn} onPress={closePwModal} disabled={pwBusy}>
+                  <Text style={s.pwCancelBtnText}>취소</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={s.pwConfirmBtn} onPress={submitPwChange} disabled={pwBusy}>
+                  {pwBusy
+                    ? <ActivityIndicator color="#fff" size="small" />
+                    : <Text style={s.pwConfirmBtnText}>변경하기</Text>}
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       )}
     </View>
   );

@@ -40,6 +40,8 @@ const api = {
     login: (body) => post(`/api/admin/login`, body),
     menu: (role) => get(`/api/admin/menu?role=${role}`),
     users: (bizRegNo) => get(`/api/admin/users?bizRegNo=${bizRegNo}`),
+    changePassword: (adminId, body) => put(`/api/admin/users/${adminId}/password`, body),
+    changeEmployeePassword: (empId, body) => put(`/api/admin/employees/${empId}/password`, body),
   },
   biz: {
     list: (page = 0, size = 10) => get(`/api/biz?page=${page}&size=${size}`),

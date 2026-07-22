@@ -52,4 +52,17 @@ export const s = StyleSheet.create({
   detailRow: { flexDirection: "row", gap: spacing["3"] },
   detailKey: { width: 72, fontSize: font.base, fontWeight: "600", color: colors.textMuted },
   detailVal: { flex: 1, fontSize: font.base, fontWeight: "600", color: colors.textSecondary },
+
+  pwChangeBtn: { alignSelf: "flex-start", marginTop: spacing["1"], borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"] },
+  pwChangeBtnText: { fontSize: font.sm, fontWeight: "700", color: colors.textGray },
+
+  pwOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center", padding: spacing["5"] },
+  pwCard: { width: "100%", maxWidth: 380, backgroundColor: colors.bgCard, borderRadius: radius["2xl"], padding: spacing["5"] },
+  pwTitle: { fontSize: font.xl, fontWeight: "800", color: colors.text, marginBottom: spacing["3"] },
+  pwInput: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: spacing["3"], fontSize: font.md, color: colors.text, marginBottom: spacing["3"] },
+  pwBtnRow: { flexDirection: "row", gap: spacing["2.5"], marginTop: spacing["1"] },
+  pwCancelBtn: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingVertical: spacing["2.5"], alignItems: "center" },
+  pwCancelBtnText: { fontSize: font.md, fontWeight: "700", color: colors.textGray },
+  pwConfirmBtn: { flex: 1, backgroundColor: colors.primary, borderRadius: radius.md, paddingVertical: spacing["2.5"], alignItems: "center" },
+  pwConfirmBtnText: { fontSize: font.md, fontWeight: "700", color: colors.white },
 });
