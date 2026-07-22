@@ -13,8 +13,9 @@ export const s = StyleSheet.create({
   inp: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"], fontSize: font.md, color: colors.text },
   inpMultiline: { minHeight: 70, textAlignVertical: "top" },
 
+  chipBox: { backgroundColor: colors.slate200, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.slate300, padding: spacing["3.5"] },
   chipRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing["2"] },
-  chip: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"], backgroundColor: colors.slate50 },
+  chip: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"], backgroundColor: colors.bgCard },
   chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   chipText: { fontSize: font.base, fontWeight: "700", color: colors.textGray },
   chipTextActive: { color: colors.white },

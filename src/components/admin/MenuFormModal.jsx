@@ -58,17 +58,19 @@ export default function MenuFormModal({ visible, initial, categories, saving, on
           <ScrollView style={s.body} contentContainerStyle={{ gap: 14 }}>
             <View>
               <Text style={s.label}>카테고리</Text>
-              <View style={s.chipRow}>
-                {(categories || []).map(c => (
-                  <TouchableOpacity
-                    key={c.bizCatCd}
-                    style={[s.chip, form.bizCatCd === c.bizCatCd && s.chipActive]}
-                    onPress={() => update("bizCatCd")(c.bizCatCd)}
-                  >
-                    <Text style={[s.chipText, form.bizCatCd === c.bizCatCd && s.chipTextActive]}>{c.bizCatNm}</Text>
-                  </TouchableOpacity>
-                ))}
-                {(!categories || categories.length === 0) && <Text style={s.noCatText}>등록된 카테고리가 없습니다</Text>}
+              <View style={s.chipBox}>
+                <View style={s.chipRow}>
+                  {(categories || []).map(c => (
+                    <TouchableOpacity
+                      key={c.bizCatCd}
+                      style={[s.chip, form.bizCatCd === c.bizCatCd && s.chipActive]}
+                      onPress={() => update("bizCatCd")(c.bizCatCd)}
+                    >
+                      <Text style={[s.chipText, form.bizCatCd === c.bizCatCd && s.chipTextActive]}>{c.bizCatNm}</Text>
+                    </TouchableOpacity>
+                  ))}
+                  {(!categories || categories.length === 0) && <Text style={s.noCatText}>등록된 카테고리가 없습니다</Text>}
+                </View>
               </View>
             </View>
 
