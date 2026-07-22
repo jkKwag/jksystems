@@ -42,6 +42,8 @@ const api = {
     users: (bizRegNo) => get(`/api/admin/users?bizRegNo=${bizRegNo}`),
     changePassword: (adminId, body) => put(`/api/admin/users/${adminId}/password`, body),
     changeEmployeePassword: (empId, body) => put(`/api/admin/employees/${empId}/password`, body),
+    verifyPassword: (adminId, body) => post(`/api/admin/users/${adminId}/verify-password`, body),
+    verifyEmployeePassword: (empId, body) => post(`/api/admin/employees/${empId}/verify-password`, body),
   },
   biz: {
     list: (page = 0, size = 10) => get(`/api/biz?page=${page}&size=${size}`),

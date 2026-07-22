@@ -68,6 +68,7 @@ export const s = StyleSheet.create({
   pwValidIconOk: { color: colors.green },
   pwValidIconBad: { color: colors.red },
   pwFieldError: { fontSize: font.sm, color: colors.red, marginTop: spacing["1"] },
+  pwFieldHint: { fontSize: font.sm, color: colors.textMuted, marginTop: spacing["1"] },
   pwBtnRow: { flexDirection: "row", gap: spacing["2.5"], marginTop: spacing["1"] },
   pwCancelBtn: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingVertical: spacing["2.5"], alignItems: "center" },
   pwCancelBtnText: { fontSize: font.md, fontWeight: "700", color: colors.textGray },

@@ -25,12 +25,13 @@ export default function AdminAccounts({ adminInfo }) {
   const [expandedEmpId, setExpandedEmpId] = useState(null);
   const [pwTarget, setPwTarget] = useState(null); // { type: "admin"|"emp", id, nm }
   const [currentPw, setCurrentPw] = useState("");
+  const [currentPwCheck, setCurrentPwCheck] = useState(null); // null | "checking" | "valid" | "invalid"
   const [newPw, setNewPw] = useState("");
   const [newPwConfirm, setNewPwConfirm] = useState("");
   const [pwBusy, setPwBusy] = useState(false);
   const [pwTouched, setPwTouched] = useState({ current: false, next: false, confirm: false });
 
-  const currentPwValid = currentPw.length > 0;
+  const currentPwEmpty = pwTouched.current && !currentPw;
   const newPwValid = newPw.length >= 8;
   const newPwConfirmValid = newPwConfirm.length > 0 && newPwConfirm === newPw;
 
@@ -51,13 +52,25 @@ export default function AdminAccounts({ adminInfo }) {
   const closePwModal = () => {
     setPwTarget(null);
     setCurrentPw("");
+    setCurrentPwCheck(null);
     setNewPw("");
     setNewPwConfirm("");
     setPwTouched({ current: false, next: false, confirm: false });
   };
 
+  const checkCurrentPassword = async () => {
+    setPwTouched(t => ({ ...t, current: true }));
+    if (!currentPw) { setCurrentPwCheck(null); return; }
+    setCurrentPwCheck("checking");
+    const body = { password: currentPw, requesterId: adminInfo?.adminId, requesterRole: adminInfo?.adminRole };
+    const { data, error } = pwTarget.type === "admin"
+      ? await api.admin.verifyPassword(pwTarget.id, body)
+      : await api.admin.verifyEmployeePassword(pwTarget.id, body);
+    setCurrentPwCheck(!error && data?.valid ? "valid" : "invalid");
+  };
+
   const submitPwChange = async () => {
-    if (!currentPwValid || !newPwValid || !newPwConfirmValid) {
+    if (currentPwCheck !== "valid" || !newPwValid || !newPwConfirmValid) {
       setPwTouched({ current: true, next: true, confirm: true });
       return;
     }
@@ -242,22 +255,34 @@ export default function AdminAccounts({ adminInfo }) {
               <View style={s.pwFieldWrap}>
                 <View style={s.pwInputRow}>
                   <TextInput
-                    style={[s.pwInput, pwTouched.current && (currentPwValid ? s.pwInputValid : s.pwInputInvalid)]}
+                    style={[
+                      s.pwInput,
+                      currentPwCheck === "valid" && s.pwInputValid,
+                      (currentPwCheck === "invalid" || currentPwEmpty) && s.pwInputInvalid,
+                    ]}
                     placeholder="현재 비밀번호"
                     placeholderTextColor="#94a3b8"
                     value={currentPw}
-                    onChangeText={setCurrentPw}
-                    onBlur={() => setPwTouched(t => ({ ...t, current: true }))}
+                    onChangeText={(v) => { setCurrentPw(v); setCurrentPwCheck(null); }}
+                    onBlur={checkCurrentPassword}
                     secureTextEntry
                   />
-                  {pwTouched.current && (
-                    <Text style={[s.pwValidIcon, currentPwValid ? s.pwValidIconOk : s.pwValidIconBad]}>
-                      {currentPwValid ? "✓" : "✕"}
-                    </Text>
-                  )}
+                  {currentPwCheck === "checking" ? (
+                    <ActivityIndicator style={s.pwValidIcon} size="small" color="#94a3b8" />
+                  ) : currentPwCheck === "valid" ? (
+                    <Text style={[s.pwValidIcon, s.pwValidIconOk]}>✓</Text>
+                  ) : currentPwCheck === "invalid" ? (
+                    <Text style={[s.pwValidIcon, s.pwValidIconBad]}>✕</Text>
+                  ) : null}
                 </View>
-                {pwTouched.current && !currentPwValid && (
+                {currentPwEmpty && (
                   <Text style={s.pwFieldError}>현재 비밀번호를 입력해주세요.</Text>
+                )}
+                {currentPwCheck === "checking" && (
+                  <Text style={s.pwFieldHint}>확인 중...</Text>
+                )}
+                {currentPwCheck === "invalid" && (
+                  <Text style={s.pwFieldError}>현재 비밀번호가 일치하지 않습니다.</Text>
                 )}
               </View>
 
