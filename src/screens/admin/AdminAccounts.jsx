@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, Tex
 import { s } from "../../styles/admin/AdminAccounts.styles";
 import api from "../../lib/api";
 import { formatBizRegNo } from "../../lib/formatBizRegNo";
+import ConfirmModal from "../../components/ConfirmModal";
 
 const pad = (n) => String(n).padStart(2, "0");
 const formatDt = (iso) => {
@@ -30,6 +31,7 @@ export default function AdminAccounts({ adminInfo }) {
   const [newPwConfirm, setNewPwConfirm] = useState("");
   const [pwBusy, setPwBusy] = useState(false);
   const [pwTouched, setPwTouched] = useState({ current: false, next: false, confirm: false });
+  const [resultMsg, setResultMsg] = useState(null);
 
   const currentPwEmpty = pwTouched.current && !currentPw;
   const newPwValid = newPw.length >= 8;
@@ -85,8 +87,8 @@ export default function AdminAccounts({ adminInfo }) {
       ? await api.admin.changePassword(pwTarget.id, body)
       : await api.admin.changeEmployeePassword(pwTarget.id, body);
     setPwBusy(false);
-    if (error) { alert(`비밀번호 변경 실패: ${error?.message || "알 수 없는 오류"}`); return; }
-    alert("비밀번호가 변경되었습니다.");
+    if (error) { setResultMsg(`비밀번호 변경 실패: ${error?.message || "알 수 없는 오류"}`); return; }
+    setResultMsg("비밀번호가 변경되었습니다.");
     closePwModal();
   };
 
@@ -345,6 +347,12 @@ export default function AdminAccounts({ adminInfo }) {
           </View>
         </Modal>
       )}
+
+      <ConfirmModal
+        visible={!!resultMsg}
+        message={resultMsg}
+        onConfirm={() => setResultMsg(null)}
+      />
     </View>
   );
 }
