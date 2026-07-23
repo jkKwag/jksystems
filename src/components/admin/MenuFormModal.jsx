@@ -71,7 +71,8 @@ export default function MenuFormModal({ visible, initial, categories, saving, bi
         useYn: initial.useYn || "Y",
       });
     } else {
-      setForm({ ...emptyForm, bizCatCd: categories?.[0]?.bizCatCd || "" });
+      const firstVisible = (categories || []).find(c => c.useYn !== "N");
+      setForm({ ...emptyForm, bizCatCd: firstVisible?.bizCatCd || "" });
     }
     setFieldErrors(emptyFieldErrors);
     setImgStatus(null);
@@ -152,7 +153,7 @@ export default function MenuFormModal({ visible, initial, categories, saving, bi
               <Text style={s.label}>카테고리</Text>
               <View style={s.chipBox}>
                 <View style={s.chipRow}>
-                  {(categories || []).map(c => (
+                  {(categories || []).filter(c => c.useYn !== "N" || c.bizCatCd === form.bizCatCd).map(c => (
                     <TouchableOpacity
                       key={c.bizCatCd}
                       style={[s.chip, form.bizCatCd === c.bizCatCd && s.chipActive]}

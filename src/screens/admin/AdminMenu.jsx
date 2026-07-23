@@ -121,6 +121,7 @@ export default function AdminMenu({ adminInfo }) {
   }
 
   const filteredMenus = selectedCatCd ? menus.filter(m => m.bizCatCd === selectedCatCd) : menus;
+  const visibleCategories = categories.filter(c => c.useYn !== "N");
 
   return (
     <View style={s.container}>
@@ -137,7 +138,7 @@ export default function AdminMenu({ adminInfo }) {
       </View>
       <Text style={s.hintText}>메뉴 카드를 클릭하면 메뉴를 수정할 수 있어요.</Text>
 
-      {categories.length > 0 && (
+      {visibleCategories.length > 0 && (
         <View style={s.catFilterBox}>
           <View style={s.catFilterRow}>
             <TouchableOpacity
@@ -146,7 +147,7 @@ export default function AdminMenu({ adminInfo }) {
             >
               <Text style={[s.catChipText, !selectedCatCd && s.catChipTextActive]}>전체 {menus.length}</Text>
             </TouchableOpacity>
-            {categories.map(c => {
+            {visibleCategories.map(c => {
               const count = menus.filter(m => m.bizCatCd === c.bizCatCd).length;
               const active = selectedCatCd === c.bizCatCd;
               return (
