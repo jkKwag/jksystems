@@ -86,7 +86,7 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
   const [selections,   setSelections]   = useState({});   // { [opt_grp_cd]: choiceId | choiceId[] }
   const [quantity,     setQuantity]     = useState(item?.quantity || 1);
   const [imgError,     setImgError]     = useState(false);
-  // 사이드만 추가: 기본 메뉴 가격은 빼고 선택한 옵션 가격만 담아서, 이미 결제/주문한
+  // 옵션만 추가: 기본 메뉴 가격은 빼고 선택한 옵션 가격만 담아서, 이미 결제/주문한
   // 메뉴에 옵션(사이드)만 추가로 주문하고 싶을 때 쓴다 (장바구니엔 별도 줄로 담김)
   const [sideOnly, setSideOnly] = useState(!!item?.sideOnly);
 
@@ -97,7 +97,7 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
   useEffect(() => {
     let cancelled = false;
     setOptionGroups(null);
-    // 사이드만 추가로 담긴 항목을 다시 열어 수정할 때는 item.id가 장바구니 내부용
+    // 옵션만 추가로 담긴 항목을 다시 열어 수정할 때는 item.id가 장바구니 내부용
     // 합성 코드(실제 menuCd + "_side")라서, 옵션 조회는 항상 진짜 menuCd로 해야 한다.
     const menuCd = item?.menuCd || item?.id;
     if (!menuCd) { setOptionGroups([]); return; }
@@ -141,7 +141,7 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
     }
     return sum + (g.choices.find(c => c.id === sel)?.price || 0);
   }, 0);
-  // 사이드만 추가로 한 번 담겼던 항목을 다시 열어 수정할 때는 item.price가 이미
+  // 옵션만 추가로 한 번 담겼던 항목을 다시 열어 수정할 때는 item.price가 이미
   // 0(기본가격 제외)으로 저장돼 있을 수 있어, 진짜 메뉴 단가는 menuBasePrice에 따로 보존해둔다.
   const trueBasePrice = item?.menuBasePrice ?? (item?.price || 0);
   const basePrice = sideOnly ? 0 : trueBasePrice;
@@ -179,10 +179,10 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
     });
     const hasOptions = groups.length > 0;
     if (sideOnly && optionPrice <= 0) {
-      alert("사이드만 추가하려면 가격이 있는 옵션을 선택해주세요.");
+      alert("옵션만 추가하려면 가격이 있는 옵션을 선택해주세요.");
       return;
     }
-    // 사이드만 추가로 담긴 항목을 다시 열어 수정할 때 item.id/name은 이미
+    // 옵션만 추가로 담긴 항목을 다시 열어 수정할 때 item.id/name은 이미
     // 장바구니용으로 가공된 값이라, 진짜 menuCd와 원래 메뉴명은 따로 보존해둔다.
     const realMenuCd = item.menuCd || item.id;
     const baseName = item.baseName || item.name;
@@ -192,7 +192,7 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
       id: sideOnly ? `${realMenuCd}_side` : realMenuCd,
       menuCd: realMenuCd,
       baseName,
-      name: sideOnly ? `사이드만 추가(${baseName})` : baseName,
+      name: sideOnly ? `옵션만 추가(${baseName})` : baseName,
       price: unitPrice,
       basePrice,
       menuBasePrice: trueBasePrice,
@@ -305,7 +305,7 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
               <View style={[s.checkbox, sideOnly && s.checkboxActive]}>
                 {sideOnly && <Text style={s.checkmark}>✓</Text>}
               </View>
-              <Text style={s.sideOnlyLabel}>사이드만 추가 (기본 메뉴 가격 제외, 선택한 옵션만 담겨요)</Text>
+              <Text style={s.sideOnlyLabel}>옵션만 추가 (기본 메뉴 가격 제외, 선택한 옵션만 담겨요)</Text>
             </TouchableOpacity>
           )}
         </View>
