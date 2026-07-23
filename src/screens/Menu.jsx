@@ -508,11 +508,15 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
     });
   };
 
-  // 이미 담긴 항목의 옵션을 수정한 경우: 기존 수량에 더하지 않고 그대로 교체
-  const updateCartItem = (item) => {
+  // 이미 담긴 항목의 옵션을 수정한 경우: 기존 수량에 더하지 않고 그대로 교체.
+  // "사이드만 추가" 체크 여부를 수정 중에 바꾸면 item.id(장바구니 키)가 달라지므로,
+  // 수정 전 키(oldKey)가 새 키와 다르면 예전 항목은 지워준다.
+  const updateCartItem = (item, oldKey) => {
     const { quantity: newQty = 1, totalPrice, ...storedItem } = item;
     setCart(prev => {
-      const next = { ...prev, [item.id]: { item: storedItem, quantity: newQty } };
+      const next = { ...prev };
+      if (oldKey && oldKey !== item.id) delete next[oldKey];
+      next[item.id] = { item: storedItem, quantity: newQty };
       saveCart(bizno, next);
       return next;
     });
@@ -573,9 +577,10 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
 
   const [orderSubmitting, setOrderSubmitting] = useState(false);
 
-  // 현재 장바구니 내용을 POST /api/order 요청 형식으로 변환
+  // 현재 장바구니 내용을 POST /api/order 요청 형식으로 변환.
+  // "사이드만 추가" 항목은 item.id가 장바구니 내부용 합성 코드라서, 실제 menuCd는 item.menuCd에서 가져온다.
   const buildOrderItemsPayload = () => cartItems.map(({ item, quantity }) => ({
-    menuCd: item.id,
+    menuCd: item.menuCd || item.id,
     menuNm: item.name,
     price: item.basePrice ?? item.price,
     qty: quantity,
@@ -872,7 +877,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
             onClose={() => { setSelectedItem(null); setEditingCartId(null); }}
             onAddToCart={(itemWithOptions) => {
               if (editingCartId) {
-                updateCartItem(itemWithOptions);
+                updateCartItem(itemWithOptions, editingCartId);
                 setEditingCartId(null);
               } else {
                 addToCart(itemWithOptions);

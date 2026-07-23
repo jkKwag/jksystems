@@ -73,6 +73,9 @@ export const s = StyleSheet.create({
   qtyBtnText: { fontSize: font["3xl"], fontWeight: "700", color: colors.text },
   qtyNum: { minWidth: 36, textAlign: "center", fontSize: font["2xl"], fontWeight: "900", color: colors.text },
 
+  sideOnlyRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"], marginTop: spacing["3.5"] },
+  sideOnlyLabel: { flex: 1, fontSize: font.md, fontWeight: "600", color: colors.textGray },
+
   bottomBar: {
     backgroundColor: colors.bgCard,
     borderTopWidth: 1,
