@@ -464,7 +464,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
       const pending = sessionStorage.getItem(`scaneat_pending_cart_${bizno}`);
       if (pending) { sessionStorage.removeItem(`scaneat_pending_cart_${bizno}`); return JSON.parse(pending); }
     } catch {}
-    return loadCart(bizno);
+    return {};
   });
   const [showCart, setShowCart] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -1137,6 +1137,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                     // 장바구니 스냅샷만 sessionStorage에 보관해둔다.
                     const checkoutId = `scaneat-${Date.now()}`;
                     let storedCheckout = false;
+                    let storedPendingCart = false;
                     setOrderSubmitting(true);
                     try {
                       if (!TOSS_CLIENT_KEY) { alert("토스 클라이언트 키가 없습니다 (EXPO_PUBLIC_TOSS_CLIENT_KEY)"); return; }
@@ -1153,6 +1154,11 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                           items: buildOrderItemsPayload(),
                         }));
                         storedCheckout = true;
+
+                        // 결제창으로 넘어갔다가 취소하고 돌아오는 경우에만 장바구니를 복원해준다
+                        // (일반 새로고침 시에는 그대로 비워지는 게 맞음).
+                        sessionStorage.setItem(`scaneat_pending_cart_${bizno}`, JSON.stringify(cart));
+                        storedPendingCart = true;
                       }
 
                       const { loadTossPayments, ANONYMOUS } = await import("@tosspayments/tosspayments-sdk");
@@ -1171,7 +1177,10 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                         failUrl: window.location.origin + `/payment/fail?bizno=${bizno}&biz_nm=${encodeURIComponent(bizInfo?.bizNm || "")}&checkoutId=${checkoutId}`,
                       });
                     } catch (e) {
+                      // 결제창으로 넘어가지 못하고 여기서 실패/취소된 경우엔 실제 이동이 없었으므로
+                      // 남겨둔 스냅샷을 정리한다 (다음 일반 새로고침에서 잘못 복원되지 않도록).
                       if (storedCheckout) { try { sessionStorage.removeItem(`scaneat_checkout_${checkoutId}`); } catch {} }
+                      if (storedPendingCart) { try { sessionStorage.removeItem(`scaneat_pending_cart_${bizno}`); } catch {} }
                       if (e?.code === "USER_CANCEL") { setShowPayment(false); return; }
                       alert(`[결제 오류] ${e?.message || JSON.stringify(e)}`);
                       console.error("[Toss]", e);
