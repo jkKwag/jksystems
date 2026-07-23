@@ -464,7 +464,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
       const pending = sessionStorage.getItem(`scaneat_pending_cart_${bizno}`);
       if (pending) { sessionStorage.removeItem(`scaneat_pending_cart_${bizno}`); return JSON.parse(pending); }
     } catch {}
-    return {};
+    return loadCart(bizno);
   });
   const [showCart, setShowCart] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
