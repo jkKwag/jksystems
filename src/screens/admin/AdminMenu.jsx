@@ -18,7 +18,10 @@ export default function AdminMenu({ adminInfo }) {
   const [alertMsg, setAlertMsg] = useState(null);
   const [saving, setSaving] = useState(false);
   const [selectedCatCd, setSelectedCatCd] = useState(null); // null = 전체
+  const [reordering, setReordering] = useState(false);
+  const [highlightId, setHighlightId] = useState(null);
   const spinAnim = useRef(new Animated.Value(0)).current;
+  const highlightTimer = useRef(null);
 
   const load = async () => {
     if (!bizRegNo) { setLoaded(true); return; }
@@ -71,6 +74,43 @@ export default function AdminMenu({ adminInfo }) {
     if (error) { setAlertMsg("삭제에 실패했습니다. 다시 시도해주세요."); return; }
     setMenus(prev => prev.filter(m => m.menuCd !== menuCd));
   };
+
+  const moveMenu = async (list, index, direction) => {
+    if (reordering) return;
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= list.length) return;
+    const movedMenuCd = list[index].menuCd;
+    const arr = [...list];
+    [arr[index], arr[targetIndex]] = [arr[targetIndex], arr[index]];
+    const renumbered = arr.map((m, i) => ({ ...m, sortOrd: i }));
+    setReordering(true);
+    const results = await Promise.all(renumbered.map(m => api.biz.updateMenu(bizRegNo, m.menuCd, {
+      bizCatCd: m.bizCatCd,
+      menuNm: m.menuNm,
+      menuDesc: m.menuDesc,
+      price: m.price,
+      imgUrl: m.imgUrl,
+      badge: m.badge,
+      sortOrd: m.sortOrd,
+      useYn: m.useYn,
+    })));
+    setReordering(false);
+    if (results.some(r => r.error)) {
+      setAlertMsg("순서 변경에 실패했습니다. 다시 시도해주세요.");
+      load();
+      return;
+    }
+    setMenus(prev => {
+      const renumberedMap = new Map(renumbered.map(m => [m.menuCd, m]));
+      const next = prev.map(m => renumberedMap.get(m.menuCd) || m);
+      return [...next].sort((a, b) => (a.sortOrd ?? 999) - (b.sortOrd ?? 999));
+    });
+    if (highlightTimer.current) clearTimeout(highlightTimer.current);
+    setHighlightId(movedMenuCd);
+    highlightTimer.current = setTimeout(() => setHighlightId(null), 3000);
+  };
+
+  useEffect(() => () => { if (highlightTimer.current) clearTimeout(highlightTimer.current); }, []);
 
   if (!bizRegNo) {
     return (
@@ -131,8 +171,13 @@ export default function AdminMenu({ adminInfo }) {
         </View>
       ) : (
         <ScrollView contentContainerStyle={s.list}>
-          {filteredMenus.map(menu => (
-            <TouchableOpacity key={menu.menuCd} style={s.card} onPress={() => setFormTarget(menu)} activeOpacity={0.75}>
+          {filteredMenus.map((menu, index) => (
+            <TouchableOpacity
+              key={menu.menuCd}
+              style={[s.card, highlightId === menu.menuCd && s.cardHighlight]}
+              onPress={() => setFormTarget(menu)}
+              activeOpacity={0.75}
+            >
               <View style={s.cardTopSection}>
                 {menu.imgUrl ? (
                   <Image source={{ uri: menu.imgUrl }} style={s.thumb} resizeMode="cover" />
@@ -150,6 +195,22 @@ export default function AdminMenu({ adminInfo }) {
                   <Text style={s.price}>₩{Number(menu.price || 0).toLocaleString()}</Text>
                 </View>
                 <View style={s.cardActions}>
+                  <View style={s.sortBtnRow}>
+                    <TouchableOpacity
+                      style={[s.sortBtn, (index === 0 || reordering) && s.sortBtnDisabled]}
+                      disabled={index === 0 || reordering}
+                      onPress={(e) => { e?.stopPropagation?.(); moveMenu(filteredMenus, index, -1); }}
+                    >
+                      <Text style={s.sortBtnText}>▲</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[s.sortBtn, (index === filteredMenus.length - 1 || reordering) && s.sortBtnDisabled]}
+                      disabled={index === filteredMenus.length - 1 || reordering}
+                      onPress={(e) => { e?.stopPropagation?.(); moveMenu(filteredMenus, index, 1); }}
+                    >
+                      <Text style={s.sortBtnText}>▼</Text>
+                    </TouchableOpacity>
+                  </View>
                   <Text style={s.sortOrdText}>메뉴정렬순번 {menu.sortOrd ?? "-"}</Text>
                   <TouchableOpacity style={[s.actionBtn, s.deleteBtn]} onPress={(e) => { e?.stopPropagation?.(); setDeleteTarget(menu); }}>
                     <Text style={[s.actionBtnText, s.deleteBtnText]}>삭제</Text>

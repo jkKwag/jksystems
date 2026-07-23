@@ -15,7 +15,10 @@ export default function AdminSeats({ adminInfo }) {
   const [alertMsg, setAlertMsg] = useState(null);
   const [saving, setSaving] = useState(false);
   const [selectedCapacity, setSelectedCapacity] = useState(null); // null = 전체
+  const [reordering, setReordering] = useState(false);
+  const [highlightId, setHighlightId] = useState(null);
   const spinAnim = useRef(new Animated.Value(0)).current;
+  const highlightTimer = useRef(null);
 
   const load = async () => {
     if (!bizRegNo) { setLoaded(true); return; }
@@ -62,6 +65,41 @@ export default function AdminSeats({ adminInfo }) {
     if (error) { setAlertMsg("삭제에 실패했습니다. 다시 시도해주세요."); return; }
     setSeats(prev => prev.filter(v => v.seatCd !== seatCd));
   };
+
+  const moveSeat = async (list, index, direction) => {
+    if (reordering) return;
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= list.length) return;
+    const movedSeatCd = list[index].seatCd;
+    const arr = [...list];
+    [arr[index], arr[targetIndex]] = [arr[targetIndex], arr[index]];
+    const renumbered = arr.map((v, i) => ({ ...v, sortOrd: i }));
+    setReordering(true);
+    const results = await Promise.all(renumbered.map(v => api.biz.updateSeat(bizRegNo, v.seatCd, {
+      seatNm: v.seatNm,
+      seatDesc: v.seatDesc,
+      imgUrl: v.imgUrl,
+      capacity: v.capacity,
+      sortOrd: v.sortOrd,
+      useYn: v.useYn,
+    })));
+    setReordering(false);
+    if (results.some(r => r.error)) {
+      setAlertMsg("순서 변경에 실패했습니다. 다시 시도해주세요.");
+      load();
+      return;
+    }
+    setSeats(prev => {
+      const renumberedMap = new Map(renumbered.map(v => [v.seatCd, v]));
+      const next = prev.map(v => renumberedMap.get(v.seatCd) || v);
+      return [...next].sort((a, b) => (a.sortOrd ?? 999) - (b.sortOrd ?? 999));
+    });
+    if (highlightTimer.current) clearTimeout(highlightTimer.current);
+    setHighlightId(movedSeatCd);
+    highlightTimer.current = setTimeout(() => setHighlightId(null), 3000);
+  };
+
+  useEffect(() => () => { if (highlightTimer.current) clearTimeout(highlightTimer.current); }, []);
 
   if (!bizRegNo) {
     return (
@@ -122,8 +160,13 @@ export default function AdminSeats({ adminInfo }) {
         </View>
       ) : (
         <ScrollView contentContainerStyle={s.list}>
-          {filteredSeats.map(seat => (
-            <TouchableOpacity key={seat.seatCd} style={s.card} onPress={() => setFormTarget(seat)} activeOpacity={0.75}>
+          {filteredSeats.map((seat, index) => (
+            <TouchableOpacity
+              key={seat.seatCd}
+              style={[s.card, highlightId === seat.seatCd && s.cardHighlight]}
+              onPress={() => setFormTarget(seat)}
+              activeOpacity={0.75}
+            >
               {seat.imgUrl ? (
                 <Image source={{ uri: seat.imgUrl }} style={s.thumb} resizeMode="cover" />
               ) : (
@@ -138,6 +181,22 @@ export default function AdminSeats({ adminInfo }) {
                 {seat.seatDesc ? <Text style={s.desc} numberOfLines={1}>{seat.seatDesc}</Text> : null}
               </View>
               <View style={s.cardActions}>
+                <View style={s.sortBtnRow}>
+                  <TouchableOpacity
+                    style={[s.sortBtn, (index === 0 || reordering) && s.sortBtnDisabled]}
+                    disabled={index === 0 || reordering}
+                    onPress={(e) => { e?.stopPropagation?.(); moveSeat(filteredSeats, index, -1); }}
+                  >
+                    <Text style={s.sortBtnText}>▲</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[s.sortBtn, (index === filteredSeats.length - 1 || reordering) && s.sortBtnDisabled]}
+                    disabled={index === filteredSeats.length - 1 || reordering}
+                    onPress={(e) => { e?.stopPropagation?.(); moveSeat(filteredSeats, index, 1); }}
+                  >
+                    <Text style={s.sortBtnText}>▼</Text>
+                  </TouchableOpacity>
+                </View>
                 <Text style={s.sortOrdText}>좌석정렬순번 {seat.sortOrd ?? "-"}</Text>
                 <TouchableOpacity style={[s.actionBtn, s.deleteBtn]} onPress={(e) => { e?.stopPropagation?.(); setDeleteTarget(seat); }}>
                   <Text style={[s.actionBtnText, s.deleteBtnText]}>삭제</Text>

@@ -24,6 +24,7 @@ export const s = StyleSheet.create({
 
   list: { gap: spacing["3"], paddingBottom: spacing["10"] },
   card: { backgroundColor: colors.bgCard, borderRadius: radius["2xl"], padding: spacing["3.5"], gap: spacing["3"], borderWidth: 1, borderColor: colors.border },
+  cardHighlight: { backgroundColor: colors.accentLight },
   cardTopSection: { flexDirection: "row", alignItems: "center", gap: spacing["3"] },
 
   thumb: { width: 64, height: 64, borderRadius: radius.lg },
@@ -43,6 +44,10 @@ export const s = StyleSheet.create({
   badgeChipText: { fontSize: font.xs, fontWeight: "700", color: colors.accent },
 
   cardActions: { gap: spacing["1.5"] },
+  sortBtnRow: { flexDirection: "row", gap: spacing["1"], justifyContent: "center" },
+  sortBtn: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm, paddingHorizontal: spacing["2"], paddingVertical: spacing["1"], alignItems: "center" },
+  sortBtnDisabled: { opacity: 0.35 },
+  sortBtnText: { fontSize: font.sm, fontWeight: "800", color: colors.textGray },
   sortOrdText: { fontSize: font.sm, fontWeight: "800", color: colors.text, textAlign: "center" },
   actionBtn: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm, paddingHorizontal: spacing["2.5"], paddingVertical: spacing["1.5"], alignItems: "center" },
   actionBtnText: { fontSize: font.sm, fontWeight: "700", color: colors.textGray },
