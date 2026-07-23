@@ -15,7 +15,9 @@ export default function AdminBizCategory({ adminInfo }) {
   const [alertMsg, setAlertMsg] = useState(null);
   const [saving, setSaving] = useState(false);
   const [reordering, setReordering] = useState(false);
+  const [highlightId, setHighlightId] = useState(null);
   const spinAnim = useRef(new Animated.Value(0)).current;
+  const highlightTimer = useRef(null);
 
   const load = async () => {
     if (!bizRegNo) { setLoaded(true); return; }
@@ -58,6 +60,7 @@ export default function AdminBizCategory({ adminInfo }) {
     if (reordering) return;
     const targetIndex = index + direction;
     if (targetIndex < 0 || targetIndex >= categories.length) return;
+    const movedBizCatCd = categories[index].bizCatCd;
     const arr = [...categories];
     [arr[index], arr[targetIndex]] = [arr[targetIndex], arr[index]];
     const renumbered = arr.map((c, i) => ({ ...c, sortOrd: i }));
@@ -76,7 +79,12 @@ export default function AdminBizCategory({ adminInfo }) {
       return;
     }
     setCategories(renumbered);
+    if (highlightTimer.current) clearTimeout(highlightTimer.current);
+    setHighlightId(movedBizCatCd);
+    highlightTimer.current = setTimeout(() => setHighlightId(null), 3000);
   };
+
+  useEffect(() => () => { if (highlightTimer.current) clearTimeout(highlightTimer.current); }, []);
 
   const doDelete = async () => {
     const bizCatCd = deleteTarget?.bizCatCd;
@@ -122,7 +130,12 @@ export default function AdminBizCategory({ adminInfo }) {
       ) : (
         <ScrollView contentContainerStyle={s.list}>
           {categories.map((cat, index) => (
-            <TouchableOpacity key={cat.bizCatCd} style={s.card} onPress={() => setFormTarget(cat)} activeOpacity={0.75}>
+            <TouchableOpacity
+              key={cat.bizCatCd}
+              style={[s.card, highlightId === cat.bizCatCd && s.cardHighlight]}
+              onPress={() => setFormTarget(cat)}
+              activeOpacity={0.75}
+            >
               <View style={s.cardInfo}>
                 <View style={s.cardTopRow}>
                   <Text style={s.catNm} numberOfLines={1}>{cat.bizCatNm}</Text>

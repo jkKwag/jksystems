@@ -17,6 +17,7 @@ export const s = StyleSheet.create({
 
   list: { gap: spacing["3"], paddingBottom: spacing["10"] },
   card: { flexDirection: "row", backgroundColor: colors.bgCard, borderRadius: radius["2xl"], padding: spacing["3.5"], gap: spacing["3"], borderWidth: 1, borderColor: colors.border, alignItems: "center" },
+  cardHighlight: { backgroundColor: colors.accentLight },
 
   cardInfo: { flex: 1, gap: 2 },
   cardTopRow: { flexDirection: "row", alignItems: "center", gap: spacing["1.5"], flexWrap: "wrap" },
