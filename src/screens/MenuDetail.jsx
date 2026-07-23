@@ -5,6 +5,8 @@ import {
 import { s } from "../styles/MenuDetail.styles";
 import api from "../lib/api";
 
+// 메뉴 상세 화면 (배포 캐시 확인용 주석)
+
 const sortByOrd = (arr) => [...arr].sort((a, b) => (a.sortOrd ?? 999) - (b.sortOrd ?? 999));
 
 async function fetchOptionGroups(menuCd) {
