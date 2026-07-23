@@ -186,10 +186,13 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
     // 장바구니용으로 가공된 값이라, 진짜 menuCd와 원래 메뉴명은 따로 보존해둔다.
     const realMenuCd = item.menuCd || item.id;
     const baseName = item.baseName || item.name;
+    // "옵션만 추가"는 매번 새로 담을 때마다 별도 줄로 쌓이게 한다(수량으로 합쳐지지 않음).
+    // 단, 이미 담긴 옵션만-추가 항목을 다시 열어 수정하는 경우(item.sideOnly)엔 같은 줄을 그대로 교체한다.
+    const sideId = item.sideOnly ? item.id : `${realMenuCd}_side_${Date.now()}`;
 
     onAddToCart?.({
       ...item,
-      id: sideOnly ? `${realMenuCd}_side` : realMenuCd,
+      id: sideOnly ? sideId : realMenuCd,
       menuCd: realMenuCd,
       baseName,
       name: sideOnly ? `옵션만 추가(${baseName})` : baseName,
