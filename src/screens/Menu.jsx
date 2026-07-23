@@ -1131,19 +1131,29 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                   style={[s.payNowBtn, (grandTotal === 0 || orderSubmitting) && s.payNowBtnDisabled]}
                   disabled={grandTotal === 0 || orderSubmitting}
                   onPress={async () => {
+                    // 결제 전에는 주문을 만들지 않는다 — 결제 위젯을 열었다가 취소/실패해도
+                    // 주문 테이블에 미결제 주문이 남지 않도록, 실제 결제 승인 성공 후(PaymentSuccess)에
+                    // 장바구니 내용으로 주문을 생성한다. 그때까지는 이 결제건의 orderId로
+                    // 장바구니 스냅샷만 sessionStorage에 보관해둔다.
+                    const checkoutId = `scaneat-${Date.now()}`;
+                    let storedCheckout = false;
+                    setOrderSubmitting(true);
                     try {
                       if (!TOSS_CLIENT_KEY) { alert("토스 클라이언트 키가 없습니다 (EXPO_PUBLIC_TOSS_CLIENT_KEY)"); return; }
 
-                      let orderNos = pendingOrders.map(o => o.orderNo);
+                      const existingOrderNos = pendingOrders.map(o => o.orderNo);
+                      if (existingOrderNos.length === 0 && cartItems.length === 0) { alert("결제할 주문이 없습니다."); return; }
+
                       if (cartItems.length > 0) {
-                        setOrderSubmitting(true);
-                        const newOrder = await createOrderForCart();
-                        setOrderSubmitting(false);
-                        if (!newOrder) { alert("주문 생성에 실패했습니다. 다시 시도해주세요."); return; }
-                        orderNos = [...orderNos, newOrder.orderNo];
-                        clearCart();
+                        sessionStorage.setItem(`scaneat_checkout_${checkoutId}`, JSON.stringify({
+                          uuid: getUuid(),
+                          bizRegNo: bizno,
+                          seatNo: tableNo || null,
+                          orderTypCd: orderType === "포장주문" ? "TAKEOUT" : "DINE_IN",
+                          items: buildOrderItemsPayload(),
+                        }));
+                        storedCheckout = true;
                       }
-                      if (orderNos.length === 0) { alert("결제할 주문이 없습니다."); return; }
 
                       const { loadTossPayments, ANONYMOUS } = await import("@tosspayments/tosspayments-sdk");
                       const tossPayments = await loadTossPayments(TOSS_CLIENT_KEY);
@@ -1151,20 +1161,22 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                       await payment.requestPayment({
                         method: "CARD",
                         amount: { currency: "KRW", value: grandTotal },
-                        orderId: `scaneat-${Date.now()}`,
+                        orderId: checkoutId,
                         orderName: cartItems.length === 1
                           ? cartItems[0].item.name
                           : cartItems.length > 0
                             ? `${cartItems[0].item.name} 외 ${cartItems.length - 1}건`
-                            : `주문 ${orderNos.length}건`,
-                        successUrl: window.location.origin + `/payment/success?bizno=${bizno}&biz_nm=${encodeURIComponent(bizInfo?.bizNm || "")}&orderNos=${orderNos.join(",")}`,
-                        failUrl: window.location.origin + `/payment/fail?bizno=${bizno}&biz_nm=${encodeURIComponent(bizInfo?.bizNm || "")}`,
+                            : `주문 ${existingOrderNos.length}건`,
+                        successUrl: window.location.origin + `/payment/success?bizno=${bizno}&biz_nm=${encodeURIComponent(bizInfo?.bizNm || "")}&orderNos=${existingOrderNos.join(",")}&checkoutId=${checkoutId}`,
+                        failUrl: window.location.origin + `/payment/fail?bizno=${bizno}&biz_nm=${encodeURIComponent(bizInfo?.bizNm || "")}&checkoutId=${checkoutId}`,
                       });
                     } catch (e) {
+                      if (storedCheckout) { try { sessionStorage.removeItem(`scaneat_checkout_${checkoutId}`); } catch {} }
                       if (e?.code === "USER_CANCEL") { setShowPayment(false); return; }
                       alert(`[결제 오류] ${e?.message || JSON.stringify(e)}`);
                       console.error("[Toss]", e);
                     } finally {
+                      setOrderSubmitting(false);
                       await refreshPendingOrders();
                     }
                   }}
