@@ -166,6 +166,7 @@ export const s = StyleSheet.create({
   cartItemInfo: { flex: 1 },
   cartItemNameRow: { flexDirection: "row", alignItems: "center", gap: spacing["1.5"], flexWrap: "wrap", marginBottom: spacing["1"] },
   cartItemName: { fontSize: font.lg, fontWeight: "700", color: colors.text },
+  cartItemNameLight: { fontWeight: "500" },
   optionOnlyBadge: { backgroundColor: colors.accentLight, borderRadius: radius.sm, paddingHorizontal: spacing["1.5"], paddingVertical: 2 },
   optionOnlyBadgeText: { fontSize: font.xs, fontWeight: "700", color: colors.accent },
   cartItemOptions: { fontSize: font.sm, color: colors.textGrayAlt, fontWeight: "600", marginBottom: spacing["1"] },

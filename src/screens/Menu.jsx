@@ -952,7 +952,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                   <Image source={{ uri: item.image }} style={s.cartItemImg} />
                   <View style={s.cartItemInfo}>
                     <View style={s.cartItemNameRow}>
-                      <Text style={s.cartItemName}>{item.baseName || item.name}</Text>
+                      <Text style={[s.cartItemName, item.sideOnly && s.cartItemNameLight]}>{item.baseName || item.name}</Text>
                       {item.sideOnly && (
                         <View style={s.optionOnlyBadge}>
                           <Text style={s.optionOnlyBadgeText}>옵션만 추가</Text>
