@@ -419,8 +419,8 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
     if (!bizno) return;
 
     Promise.all([api.biz.categories(bizno), api.biz.menus(bizno)]).then(([cats, menus]) => {
-      cats = cats || [];
-      menus = menus || [];
+      cats = (cats || []).filter(c => c.useYn !== "N");
+      menus = (menus || []).filter(m => m.useYn !== "N");
 
       const catMap = {};
       cats.forEach(c => { catMap[c.bizCatCd] = c.bizCatNm; });
