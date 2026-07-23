@@ -86,9 +86,6 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
   const [selections,   setSelections]   = useState({});   // { [opt_grp_cd]: choiceId | choiceId[] }
   const [quantity,     setQuantity]     = useState(item?.quantity || 1);
   const [imgError,     setImgError]     = useState(false);
-  // 옵션만 추가: 기본 메뉴 가격은 빼고 선택한 옵션 가격만 담아서, 이미 결제/주문한
-  // 메뉴에 옵션(사이드)만 추가로 주문하고 싶을 때 쓴다 (장바구니엔 별도 줄로 담김)
-  const [sideOnly, setSideOnly] = useState(!!item?.sideOnly);
 
   useEffect(() => {
     if (Platform.OS === "web") window.scrollTo(0, 0);
@@ -97,12 +94,9 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
   useEffect(() => {
     let cancelled = false;
     setOptionGroups(null);
-    // 옵션만 추가로 담긴 항목을 다시 열어 수정할 때는 item.id가 장바구니 내부용
-    // 합성 코드(실제 menuCd + "_side")라서, 옵션 조회는 항상 진짜 menuCd로 해야 한다.
-    const menuCd = item?.menuCd || item?.id;
-    if (!menuCd) { setOptionGroups([]); return; }
+    if (!item?.id) { setOptionGroups([]); return; }
 
-    fetchOptionGroups(menuCd).then(groups => {
+    fetchOptionGroups(item.id).then(groups => {
       if (cancelled) return;
       setOptionGroups(groups);
       const initial = {};
@@ -141,11 +135,7 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
     }
     return sum + (g.choices.find(c => c.id === sel)?.price || 0);
   }, 0);
-  // 옵션만 추가로 한 번 담겼던 항목을 다시 열어 수정할 때는 item.price가 이미
-  // 0(기본가격 제외)으로 저장돼 있을 수 있어, 진짜 메뉴 단가는 menuBasePrice에 따로 보존해둔다.
-  const trueBasePrice = item?.menuBasePrice ?? (item?.price || 0);
-  const basePrice = sideOnly ? 0 : trueBasePrice;
-  const unitPrice = basePrice + optionPrice;
+  const unitPrice = (item?.price || 0) + optionPrice;
   const totalPrice = unitPrice * quantity;
 
   const selectRadio = (groupId, choiceId) => {
@@ -178,29 +168,12 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
       }
     });
     const hasOptions = groups.length > 0;
-    if (sideOnly && optionPrice <= 0) {
-      alert("옵션만 추가하려면 가격이 있는 옵션을 선택해주세요.");
-      return;
-    }
-    // 옵션만 추가로 담긴 항목을 다시 열어 수정할 때 item.id/name은 이미
-    // 장바구니용으로 가공된 값이라, 진짜 menuCd와 원래 메뉴명은 따로 보존해둔다.
-    const realMenuCd = item.menuCd || item.id;
-    const baseName = item.baseName || item.name;
-    // "옵션만 추가"는 매번 새로 담을 때마다 별도 줄로 쌓이게 한다(수량으로 합쳐지지 않음).
-    // 단, 이미 담긴 옵션만-추가 항목을 다시 열어 수정하는 경우(item.sideOnly)엔 같은 줄을 그대로 교체한다.
-    const sideId = item.sideOnly ? item.id : `${realMenuCd}_side_${Date.now()}`;
 
     onAddToCart?.({
       ...item,
-      id: sideOnly ? sideId : realMenuCd,
-      menuCd: realMenuCd,
-      baseName,
-      name: sideOnly ? `옵션만 추가(${baseName})` : baseName,
       price: unitPrice,
-      basePrice,
-      menuBasePrice: trueBasePrice,
+      basePrice: item?.price || 0,
       optionPrice,
-      sideOnly,
       optionLabels: hasOptions ? optionLabels : undefined,
       optionIds: hasOptions ? optionIds : undefined,
       selectedOptions: hasOptions ? selectedOptions : undefined,
@@ -217,7 +190,7 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
         <TouchableOpacity style={s.backBtn} onPress={onClose}>
           <Text style={s.backBtnText}>← 메뉴로</Text>
         </TouchableOpacity>
-        <Text style={s.headerTitle} numberOfLines={1}>{item?.baseName || item?.name || "메뉴 상세"}</Text>
+        <Text style={s.headerTitle} numberOfLines={1}>{item?.name || "메뉴 상세"}</Text>
         <View style={{ width: 60 }} />
       </View>
 
@@ -246,9 +219,9 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
         {/* 메뉴 정보 */}
         <View style={s.infoSection}>
           <Text style={s.category}>{item?.category || ""}</Text>
-          <Text style={s.name}>{item?.baseName || item?.name || ""}</Text>
+          <Text style={s.name}>{item?.name || ""}</Text>
           <Text style={s.desc}>{item?.desc || ""}</Text>
-          <Text style={s.basePrice}>₩{trueBasePrice.toLocaleString()}</Text>
+          <Text style={s.basePrice}>₩{(item?.price || 0).toLocaleString()}</Text>
         </View>
 
         {/* 옵션 (DB: tb_biz_menu_opt_grp / tb_biz_menu_opt_choice) */}
@@ -302,15 +275,6 @@ export default function MenuDetail({ item, onClose, onAddToCart }) {
               <Text style={s.qtyBtnText}>+</Text>
             </TouchableOpacity>
           </View>
-
-          {groups.length > 0 && (
-            <TouchableOpacity style={s.sideOnlyRow} onPress={() => setSideOnly(v => !v)} activeOpacity={0.7}>
-              <View style={[s.checkbox, sideOnly && s.checkboxActive]}>
-                {sideOnly && <Text style={s.checkmark}>✓</Text>}
-              </View>
-              <Text style={s.sideOnlyLabel}>옵션만 추가 (기본 메뉴 가격 제외, 선택한 옵션만 담겨요)</Text>
-            </TouchableOpacity>
-          )}
         </View>
 
         {/* 하단 여백 (MenuDetail 바 + 장바구니 바 높이) */}
