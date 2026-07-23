@@ -168,7 +168,7 @@ export const s = StyleSheet.create({
   cartItemName: { fontSize: font.lg, fontWeight: "700", color: colors.text },
   cartItemNameLight: { fontWeight: "500" },
   optionOnlyBadge: { backgroundColor: colors.accentLight, borderRadius: radius.sm, paddingHorizontal: spacing["1.5"], paddingVertical: 2 },
-  optionOnlyBadgeText: { fontSize: font.xs, fontWeight: "700", color: colors.accent },
+  optionOnlyBadgeText: { fontSize: font.xs, fontWeight: "900", color: colors.accent },
   cartItemOptions: { fontSize: font.sm, color: colors.textGrayAlt, fontWeight: "600", marginBottom: spacing["1"] },
   cartItemBreakdown: { fontSize: font.sm, color: colors.textLight, fontWeight: "600", marginBottom: spacing["1"] },
   cartItemPrice: { fontSize: font.md, fontWeight: "800", color: colors.accent },
