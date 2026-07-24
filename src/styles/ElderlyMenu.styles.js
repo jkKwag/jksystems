@@ -15,8 +15,9 @@ export const s = StyleSheet.create({
   carouselOuter: { flex: 1, minHeight: 0, overflow: "hidden" },
   carouselClip: { flex: 1, minHeight: 0, overflow: "hidden", zIndex: 0 },
   track: { flexDirection: "row", height: "100%" },
-  slide: { height: "100%", alignItems: "center", justifyContent: "center", paddingVertical: 6, paddingHorizontal: 16 },
-  slideWithOptions: { justifyContent: "flex-start" },
+  // 옵션 유무와 상관없이 항상 위쪽 정렬 — 좌우 이동 버튼(추가 버튼 근처 고정)과
+  // 위치가 어긋나지 않도록 카드가 늘 같은 자리에서 시작하게 한다
+  slide: { height: "100%", alignItems: "center", justifyContent: "flex-start", paddingVertical: 6, paddingHorizontal: 16 },
 
   card: { backgroundColor: "#fff", borderRadius: 28, paddingVertical: 22, paddingHorizontal: 28, width: "100%", flexDirection: "column", gap: 8, shadowColor: "#000", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.35, shadowRadius: 24, elevation: 12 },
   cardWithOptions: { height: "100%", flexShrink: 1 },

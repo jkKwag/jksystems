@@ -211,7 +211,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
               const hasOptions = groups.length > 0;
               const menuSel = selections[menu.menuCd] || {};
               return (
-                <View key={menu.menuCd} style={[s.slide, { width }, hasOptions && s.slideWithOptions]}>
+                <View key={menu.menuCd} style={[s.slide, { width }]}>
                   <View style={[s.card, hasOptions && s.cardWithOptions]}>
                     <Text style={s.menuName}>{menu.menuNm}</Text>
                     <Text style={[s.menuQty, qty > 0 && s.menuQtyActive]}>
