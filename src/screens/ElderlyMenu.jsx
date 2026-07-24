@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Animated, useWindowDimensions } from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Animated, Platform, useWindowDimensions } from "react-native";
 import api from "../lib/api";
 import { s } from "../styles/ElderlyMenu.styles";
 
@@ -297,14 +297,18 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
         )}
       </View>
 
-      <View style={s.dots}>
+      <View style={[s.dots, cartCount > 0 && Platform.OS === "web" && { paddingBottom: 76 }]}>
         {menus.map((_, i) => (
           <View key={i} style={[s.dot, i === currentIndex && s.dotActive]} />
         ))}
       </View>
 
       {cartCount > 0 && (
-        <TouchableOpacity style={s.cartBar} onPress={() => setShowCartModal(true)} activeOpacity={0.85}>
+        <TouchableOpacity
+          style={[s.cartBar, Platform.OS === "web" && { position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100 }]}
+          onPress={() => setShowCartModal(true)}
+          activeOpacity={0.85}
+        >
           <View style={s.cartBadge}><Text style={s.cartBadgeText}>{cartCount}개</Text></View>
           <Text style={s.cartText}>장바구니 보기</Text>
           <Text style={s.cartPrice}>{cartTotal.toLocaleString()}원</Text>
