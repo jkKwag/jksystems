@@ -11,13 +11,59 @@ const DEMO_MENUS = [
   { menuCd: "d5", menuNm: "허브 치킨 구이", price: 18000, imgUrl: null, emoji: "🍗" },
 ];
 
+const sortByOrd = (arr) => [...arr].sort((a, b) => (a.sortOrd ?? 999) - (b.sortOrd ?? 999));
+
+async function fetchOptionGroups(menuCd) {
+  const data = await api.menu.options(menuCd);
+  if (!Array.isArray(data)) return [];
+  return sortByOrd(data.filter(g => g.useYn === "Y")).map(g => ({
+    id: g.optGrpCd,
+    label: g.optGrpNm,
+    type: g.optType,
+    required: g.requiredYn === "Y",
+    choices: sortByOrd((g.options || []).filter(c => c.useYn === "Y")).map(c => ({
+      id: c.optCd,
+      name: c.optNm,
+      price: c.addPrice,
+    })),
+  }));
+}
+
+// 선택된 옵션들의 추가금 합계
+function optionsTotalOf(groups, sel) {
+  return groups.reduce((sum, g) => {
+    const v = sel[g.id];
+    if (g.type === "C") return sum + (v || []).reduce((s, cid) => s + (g.choices.find(c => c.id === cid)?.price || 0), 0);
+    return sum + (g.choices.find(c => c.id === v)?.price || 0);
+  }, 0);
+}
+
+// 선택된 옵션들의 이름 목록 (장바구니 표시용)
+function optionLabelsOf(groups, sel) {
+  const labels = [];
+  groups.forEach(g => {
+    const v = sel[g.id];
+    if (g.type === "C") {
+      (v || []).forEach(cid => { const c = g.choices.find(c => c.id === cid); if (c) labels.push(c.name); });
+    } else {
+      const c = g.choices.find(c => c.id === v);
+      if (c) labels.push(c.name);
+    }
+  });
+  return labels;
+}
+
 export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   const { width } = useWindowDimensions();
   const [menus, setMenus] = useState([]);
-  const [cart, setCart] = useState({});
+  const [cart, setCart] = useState({}); // { [menuCd]: { qty, optionsTotal, optionLabels } }
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showCartModal, setShowCartModal] = useState(false);
+
+  // 메뉴별 옵션그룹/선택상태: { [menuCd]: group[] }, { [menuCd]: { [optGrpCd]: choiceId | choiceId[] } }
+  const [optionGroupsByMenu, setOptionGroupsByMenu] = useState({});
+  const [selections, setSelections] = useState({});
 
   const translateX = useRef(new Animated.Value(0)).current;
   const photoOpacity = useRef(new Animated.Value(1)).current;
@@ -51,6 +97,27 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
     });
   }, [bizno]);
 
+  // 메뉴 목록이 정해지면 각 메뉴의 옵션그룹을 한 번에 미리 불러온다
+  useEffect(() => {
+    if (menus.length === 0) return;
+    let cancelled = false;
+    Promise.all(menus.map(m => fetchOptionGroups(m.menuCd).then(groups => [m.menuCd, groups])))
+      .then(entries => {
+        if (cancelled) return;
+        const groupMap = {};
+        const initSel = {};
+        entries.forEach(([menuCd, groups]) => {
+          groupMap[menuCd] = groups;
+          const sel = {};
+          groups.forEach(g => { sel[g.id] = g.type === "C" ? [] : (g.choices[0]?.id || null); });
+          initSel[menuCd] = sel;
+        });
+        setOptionGroupsByMenu(groupMap);
+        setSelections(initSel);
+      });
+    return () => { cancelled = true; };
+  }, [menus]);
+
   const goTo = (newIndex) => {
     if (newIndex < 0 || newIndex >= menus.length) return;
     if (bubbleShown.current) {
@@ -65,24 +132,50 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
     Animated.timing(translateX, { toValue: -newIndex * width, duration: 280, useNativeDriver: true }).start();
   };
 
-  const addToCart = (menuCd) => setCart(prev => ({ ...prev, [menuCd]: (prev[menuCd] || 0) + 1 }));
+  const toggleOption = (menuCd, group, choiceId) => {
+    setSelections(prev => {
+      const menuSel = { ...(prev[menuCd] || {}) };
+      if (group.type === "C") {
+        const cur = menuSel[group.id] || [];
+        menuSel[group.id] = cur.includes(choiceId) ? cur.filter(x => x !== choiceId) : [...cur, choiceId];
+      } else {
+        menuSel[group.id] = choiceId;
+      }
+      return { ...prev, [menuCd]: menuSel };
+    });
+  };
+
+  // 지금 카드에서 선택돼 있는 옵션 그대로를 스냅샷으로 담는다 (+ 누를 때마다 최신 선택으로 갱신)
+  const addToCart = (menu) => {
+    const groups = optionGroupsByMenu[menu.menuCd] || [];
+    const sel = selections[menu.menuCd] || {};
+    const optionsTotal = optionsTotalOf(groups, sel);
+    const optionLabels = optionLabelsOf(groups, sel);
+    setCart(prev => ({
+      ...prev,
+      [menu.menuCd]: { qty: (prev[menu.menuCd]?.qty || 0) + 1, optionsTotal, optionLabels },
+    }));
+  };
+
   const deleteFromCart = (menuCd) => setCart(prev => { const next = { ...prev }; delete next[menuCd]; return next; });
   const removeFromCart = (menuCd) => setCart(prev => {
+    const cur = prev[menuCd];
+    if (!cur) return prev;
     const next = { ...prev };
-    if ((next[menuCd] || 0) <= 1) delete next[menuCd];
-    else next[menuCd]--;
+    if (cur.qty <= 1) delete next[menuCd];
+    else next[menuCd] = { ...cur, qty: cur.qty - 1 };
     return next;
   });
 
-  const cartCount = Object.values(cart).reduce((a, b) => a + b, 0);
+  const cartCount = Object.values(cart).reduce((a, c) => a + c.qty, 0);
 
   useEffect(() => {
     if (showCartModal && cartCount === 0) setShowCartModal(false);
   }, [cartCount, showCartModal]);
 
-  const cartTotal = Object.entries(cart).reduce((sum, [cd, qty]) => {
+  const cartTotal = Object.entries(cart).reduce((sum, [cd, c]) => {
     const menu = menus.find(m => m.menuCd === cd);
-    return sum + (menu ? menu.price * qty : 0);
+    return sum + (menu ? (Number(menu.price || 0) + (c.optionsTotal || 0)) * c.qty : 0);
   }, 0);
 
   if (loading) {
@@ -113,10 +206,13 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
         <View style={s.carouselClip}>
           <Animated.View style={[s.track, { width: width * menus.length, transform: [{ translateX }] }]}>
             {menus.map((menu) => {
-              const qty = cart[menu.menuCd] || 0;
+              const qty = cart[menu.menuCd]?.qty || 0;
+              const groups = optionGroupsByMenu[menu.menuCd] || [];
+              const hasOptions = groups.length > 0;
+              const menuSel = selections[menu.menuCd] || {};
               return (
-                <View key={menu.menuCd} style={[s.slide, { width }]}>
-                  <View style={s.card}>
+                <View key={menu.menuCd} style={[s.slide, { width }, hasOptions && s.slideWithOptions]}>
+                  <View style={[s.card, hasOptions && s.cardWithOptions]}>
                     <Text style={s.menuName}>{menu.menuNm}</Text>
                     <Text style={[s.menuQty, qty > 0 && s.menuQtyActive]}>
                       {qty > 0 ? `${qty}개 담음` : "0개"}
@@ -128,14 +224,48 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
                           <Text style={s.qtyBtnText}>−</Text>
                         </TouchableOpacity>
                         <Text style={s.qtyNum}>{qty}</Text>
-                        <TouchableOpacity style={s.qtyBtn} onPress={() => addToCart(menu.menuCd)}>
+                        <TouchableOpacity style={s.qtyBtn} onPress={() => addToCart(menu)}>
                           <Text style={s.qtyBtnText}>+</Text>
                         </TouchableOpacity>
                       </View>
                     ) : (
-                      <TouchableOpacity style={s.addBtn} onPress={() => addToCart(menu.menuCd)}>
+                      <TouchableOpacity style={s.addBtn} onPress={() => addToCart(menu)}>
                         <Text style={s.addBtnText}>추가</Text>
                       </TouchableOpacity>
+                    )}
+
+                    {/* 옵션 선택 (스크롤 영역) */}
+                    {hasOptions && (
+                      <ScrollView style={s.optionsScroll} contentContainerStyle={s.optionsScrollContent}>
+                        {groups.map(g => (
+                          <View key={g.id} style={s.optionGroupBlock}>
+                            <View style={s.optionGroupLabelRow}>
+                              <Text style={s.optionGroupLabel}>{g.label}</Text>
+                              {g.required && <View style={s.optionRequiredBadge}><Text style={s.optionRequiredText}>필수</Text></View>}
+                            </View>
+                            {g.choices.map(c => {
+                              const sel = menuSel[g.id];
+                              const checked = g.type === "C" ? (sel || []).includes(c.id) : sel === c.id;
+                              return (
+                                <TouchableOpacity
+                                  key={c.id}
+                                  style={[s.optionChoiceRow, checked && s.optionChoiceRowActive]}
+                                  onPress={() => toggleOption(menu.menuCd, g, c.id)}
+                                  activeOpacity={0.7}
+                                >
+                                  <View style={[s.optionCheckCircle, checked && s.optionCheckCircleActive]}>
+                                    {checked && <Text style={s.optionCheckMark}>✓</Text>}
+                                  </View>
+                                  <Text style={[s.optionChoiceName, checked && s.optionChoiceNameActive]}>{c.name}</Text>
+                                  {c.price > 0 && (
+                                    <Text style={s.optionChoicePrice}>+{c.price.toLocaleString()}원</Text>
+                                  )}
+                                </TouchableOpacity>
+                              );
+                            })}
+                          </View>
+                        ))}
+                      </ScrollView>
                     )}
                   </View>
                 </View>
@@ -197,9 +327,10 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
               </View>
             </View>
             <ScrollView style={s.modalList}>
-              {Object.entries(cart).map(([cd, qty]) => {
+              {Object.entries(cart).map(([cd, c]) => {
                 const menu = menus.find(m => m.menuCd === cd);
                 if (!menu) return null;
+                const unitPrice = Number(menu.price || 0) + (c.optionsTotal || 0);
                 return (
                   <View key={cd} style={s.modalItem}>
                     <View style={s.modalItemHeader}>
@@ -208,17 +339,20 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
                         <Text style={s.deleteBtnText}>✕</Text>
                       </TouchableOpacity>
                     </View>
+                    {c.optionLabels?.length > 0 && (
+                      <Text style={s.modalItemOptions} numberOfLines={1}>{c.optionLabels.join(", ")}</Text>
+                    )}
                     <View style={s.modalItemBottom}>
                       <View style={s.qtyRow}>
                         <TouchableOpacity style={s.qtyBtn} onPress={() => removeFromCart(cd)}>
                           <Text style={s.qtyBtnText}>−</Text>
                         </TouchableOpacity>
-                        <Text style={s.qtyNum}>{qty}</Text>
-                        <TouchableOpacity style={s.qtyBtn} onPress={() => addToCart(cd)}>
+                        <Text style={s.qtyNum}>{c.qty}</Text>
+                        <TouchableOpacity style={s.qtyBtn} onPress={() => addToCart(menu)}>
                           <Text style={s.qtyBtnText}>+</Text>
                         </TouchableOpacity>
                       </View>
-                      <Text style={s.modalItemPrice}>{(menu.price * qty).toLocaleString()}원</Text>
+                      <Text style={s.modalItemPrice}>{(unitPrice * c.qty).toLocaleString()}원</Text>
                     </View>
                   </View>
                 );
