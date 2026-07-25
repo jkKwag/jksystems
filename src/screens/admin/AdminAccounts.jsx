@@ -79,7 +79,7 @@ export default function AdminAccounts({ adminInfo }) {
     setPwTouched(t => ({ ...t, current: true }));
     if (!currentPw) { setCurrentPwCheck(null); return; }
     setCurrentPwCheck("checking");
-    const body = { password: currentPw, requesterId: adminInfo?.adminId, requesterRole: adminInfo?.adminRole };
+    const body = { password: currentPw };
     const { data, error } = pwTarget.type === "admin"
       ? await api.admin.verifyPassword(pwTarget.id, body)
       : await api.admin.verifyEmployeePassword(pwTarget.id, body);
@@ -92,12 +92,7 @@ export default function AdminAccounts({ adminInfo }) {
       return;
     }
     setPwBusy(true);
-    const body = {
-      currentPassword: currentPw,
-      newPassword: newPw,
-      requesterId: adminInfo?.adminId,
-      requesterRole: adminInfo?.adminRole,
-    };
+    const body = { currentPassword: currentPw, newPassword: newPw };
     const { error } = pwTarget.type === "admin"
       ? await api.admin.changePassword(pwTarget.id, body)
       : await api.admin.changeEmployeePassword(pwTarget.id, body);
