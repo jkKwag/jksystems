@@ -68,7 +68,7 @@ export const s = StyleSheet.create({
   cartBar: { backgroundColor: "#0f172a", padding: 16, paddingBottom: 20, flexDirection: "row", alignItems: "center", gap: 12, flexShrink: 0, borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.06)" },
   cartBadge: { backgroundColor: "#f59e0b", borderRadius: 10, paddingHorizontal: 14, paddingVertical: 7 },
   cartBadgeText: { color: "#fff", fontSize: 18, fontWeight: "900" },
-  cartText: { color: "#fff", fontSize: 20, fontWeight: "700", flex: 1, textAlign: "center" },
+  cartText: { color: "#fff", fontSize: 20, fontWeight: "700", flex: 1 },
   cartPrice: { color: "#f59e0b", fontSize: 24, fontWeight: "900" },
 
   modalOverlay: { justifyContent: "flex-end", zIndex: 200 },
