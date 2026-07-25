@@ -429,15 +429,11 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
               return (
                 <View key={menu.menuCd} style={[s.slide, { width }]}>
                   <View style={[s.card, hasOptions && s.cardWithOptions]}>
-                    <View style={s.cardTopRow}>
-                      <View style={s.cardTopLeft}>
-                        <Text style={s.menuName}>{menu.menuNm}</Text>
-                        <Text style={[s.menuQty, qty > 0 && s.menuQtyActive]}>
-                          {qty > 0 ? `${qty}개 담음` : "0개"}
-                        </Text>
-                      </View>
-                      <Text style={s.price}>{menu.price?.toLocaleString()}원</Text>
-                    </View>
+                    <Text style={s.menuName}>{menu.menuNm}</Text>
+                    <Text style={[s.menuQty, qty > 0 && s.menuQtyActive]}>
+                      {qty > 0 ? `${qty}개 담음` : "0개"}
+                    </Text>
+                    <Text style={s.price}>{menu.price?.toLocaleString()}원</Text>
                     {qty > 0 ? (
                       <View style={s.qtyRow}>
                         <TouchableOpacity style={s.qtyBtn} onPress={() => removeFromCart(menu.menuCd)}>
