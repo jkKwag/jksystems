@@ -471,7 +471,11 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
       ) : null}
 
       {showCartModal && (
-        <View style={[StyleSheet.absoluteFillObject, s.modalOverlay]}>
+        <View style={[
+          StyleSheet.absoluteFillObject,
+          s.modalOverlay,
+          Platform.OS === "web" && { position: "fixed", top: 0, left: 0, right: 0, bottom: 0 },
+        ]}>
           <TouchableOpacity style={s.modalBg} activeOpacity={1} onPress={() => setShowCartModal(false)} />
           <View style={s.modalSheet}>
             <View style={s.modalTitleRow}>
