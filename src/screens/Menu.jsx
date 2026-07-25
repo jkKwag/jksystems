@@ -521,7 +521,16 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
     );
     setCancelingOrder(false);
     setShowCancelConfirm(false);
-    if (results.some(r => r.error)) { alert("주문 취소에 실패했습니다. 다시 시도해주세요."); }
+    // 여러 건을 함께 취소할 때, 그 사이 주방에서 준비를 시작해버린 건은 서버가 개별적으로
+    // 거부하므로(취소 가능 건과 섞여도 나머지는 정상 취소됨) 부분 실패를 구분해서 안내한다.
+    const failCount = results.filter(r => r.error).length;
+    if (failCount > 0) {
+      alert(
+        failCount === results.length
+          ? "주문 취소에 실패했습니다. 다시 시도해주세요."
+          : `일부 주문(${failCount}건)은 이미 준비가 시작되어 취소되지 않았습니다. 나머지는 취소되었습니다.`
+      );
+    }
     await refreshPendingOrders();
     if (pendingCount <= ordersToCancel.length && cartItems.length === 0) setShowPayment(false);
   };
