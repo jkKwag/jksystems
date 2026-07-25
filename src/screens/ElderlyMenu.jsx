@@ -489,7 +489,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
           activeOpacity={0.85}
         >
           <View style={s.cartBadge}><Text style={s.cartBadgeText}>{cartCount}개</Text></View>
-          <Text style={s.cartText}>장바구니 보기</Text>
+          <Text style={s.cartText}>🛒 장바구니 보기</Text>
           <Text style={s.cartPrice}>{cartTotal.toLocaleString()}원</Text>
         </TouchableOpacity>
       ) : pendingCount > 0 ? (

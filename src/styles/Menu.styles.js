@@ -218,9 +218,11 @@ export const s = StyleSheet.create({
 
   payBtnRow: { flexDirection: "row", gap: spacing["2.5"] },
   orderOnlyBtn: { flex: 1, backgroundColor: colors.bgCard, borderWidth: 1.5, borderColor: colors.primary, borderRadius: radius["2xl"], paddingVertical: spacing["3"], alignItems: "center", justifyContent: "center" },
+  orderOnlyBtnCancel: { borderColor: "#ef4444" },
+  orderOnlyBtnTextCancel: { color: "#ef4444" },
   orderOnlyBtnDisabled: { borderColor: colors.slate300, opacity: 0.6 },
   orderOnlyBtnText: { color: colors.primary, fontSize: font.lg, fontWeight: "800" },
-  payNowBtn: { flex: 1.4, backgroundColor: colors.primary, borderRadius: radius["2xl"], paddingVertical: spacing["3"], alignItems: "center", justifyContent: "center" },
+  payNowBtn: { flex: 1, backgroundColor: colors.primary, borderRadius: radius["2xl"], paddingVertical: spacing["3"], alignItems: "center", justifyContent: "center" },
   payNowBtnDisabled: { backgroundColor: colors.slate300, opacity: 0.6 },
   payNowBtnText: { color: colors.white, fontSize: font.xl, fontWeight: "900", letterSpacing: 0.3 },
 

@@ -486,6 +486,8 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
   const [showSeats, setShowSeats] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [cancelingOrder, setCancelingOrder] = useState(false);
 
   const filtered = activeCat === "전체" ? menuItems : menuItems.filter(i => i.category === activeCat);
   const cartItems = Object.values(cart);
@@ -495,6 +497,20 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
   const pendingCount = pendingOrders.length;
   const pendingTotal = pendingOrders.reduce((sum, o) => sum + Number(o.totalAmount || 0), 0);
   const grandTotal = cartTotal + pendingTotal;
+  // 아직 주방에서 준비를 시작하지 않은(주문접수 단계) 주문만 취소할 수 있다
+  const cancelableOrders = pendingOrders.filter(o => o.status === "RECEIVED");
+
+  const cancelPendingOrders = async () => {
+    setCancelingOrder(true);
+    const results = await Promise.all(
+      cancelableOrders.map(o => api.order.updateStatus(o.orderNo, { status: "CANCELED" }))
+    );
+    setCancelingOrder(false);
+    setShowCancelConfirm(false);
+    if (results.some(r => r.error)) { alert("주문 취소에 실패했습니다. 다시 시도해주세요."); }
+    await refreshPendingOrders();
+    if (pendingCount <= cancelableOrders.length && cartItems.length === 0) setShowPayment(false);
+  };
 
   const addToCart = (item) => {
     // item.quantity는 MenuDetail에서 선택한 "담을 개수"일 뿐, 장바구니에
@@ -1029,6 +1045,25 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
         </View>
       </Modal>
 
+      {/* 주문취소 확인 */}
+      <Modal visible={showCancelConfirm} transparent animationType="fade" onRequestClose={() => setShowCancelConfirm(false)}>
+        <View style={s.confirmOverlay}>
+          <View style={s.confirmBox}>
+            <Text style={s.confirmEmoji}>⚠️</Text>
+            <Text style={s.confirmTitle}>주문취소</Text>
+            <Text style={s.confirmMsg}>접수된 주문을 취소하시겠어요?</Text>
+            <View style={s.confirmBtns}>
+              <TouchableOpacity style={s.confirmCancelBtn} onPress={() => setShowCancelConfirm(false)} disabled={cancelingOrder}>
+                <Text style={s.confirmCancelText}>닫기</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={s.confirmOkBtn} onPress={cancelPendingOrders} disabled={cancelingOrder}>
+                <Text style={s.confirmOkText}>주문취소</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       <Animated.View
         pointerEvents="none"
         style={[s.aiToast, { opacity: aiToastOpacity }, Platform.OS === "web" && { position: "fixed" }]}
@@ -1120,26 +1155,36 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                 <Text style={s.payAmtValue}>₩{grandTotal.toLocaleString()}</Text>
               </View>
               <View style={s.payBtnRow}>
-                <TouchableOpacity
-                  style={[s.orderOnlyBtn, cartItems.length === 0 && s.orderOnlyBtnDisabled]}
-                  disabled={cartItems.length === 0 || orderSubmitting}
-                  onPress={async () => {
-                    setOrderSubmitting(true);
-                    const order = await createOrderForCart();
-                    setOrderSubmitting(false);
-                    if (!order) { alert("주문 생성에 실패했습니다. 다시 시도해주세요."); return; }
-                    clearCart();
-                    setShowPayment(false);
-                    await refreshPendingOrders();
-                    alert(
-                      order.pickupNo
-                        ? `주문이 접수되었어요. 픽업번호: ${order.pickupNo}\n계속 주문하시거나, 준비되면 결제해주세요.`
-                        : "주문이 접수되었어요. 계속 주문하시거나, 준비되면 결제해주세요."
-                    );
-                  }}
-                >
-                  <Text style={s.orderOnlyBtnText}>주문만 하기</Text>
-                </TouchableOpacity>
+                {cartItems.length === 0 && pendingCount > 0 ? (
+                  <TouchableOpacity
+                    style={[s.orderOnlyBtn, s.orderOnlyBtnCancel, (cancelableOrders.length === 0 || cancelingOrder) && s.orderOnlyBtnDisabled]}
+                    disabled={cancelableOrders.length === 0 || cancelingOrder}
+                    onPress={() => setShowCancelConfirm(true)}
+                  >
+                    <Text style={[s.orderOnlyBtnText, s.orderOnlyBtnTextCancel]}>주문취소</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={[s.orderOnlyBtn, cartItems.length === 0 && s.orderOnlyBtnDisabled]}
+                    disabled={cartItems.length === 0 || orderSubmitting}
+                    onPress={async () => {
+                      setOrderSubmitting(true);
+                      const order = await createOrderForCart();
+                      setOrderSubmitting(false);
+                      if (!order) { alert("주문 생성에 실패했습니다. 다시 시도해주세요."); return; }
+                      clearCart();
+                      setShowPayment(false);
+                      await refreshPendingOrders();
+                      alert(
+                        order.pickupNo
+                          ? `주문이 접수되었어요. 픽업번호: ${order.pickupNo}\n계속 주문하시거나, 준비되면 결제해주세요.`
+                          : "주문이 접수되었어요. 계속 주문하시거나, 준비되면 결제해주세요."
+                      );
+                    }}
+                  >
+                    <Text style={s.orderOnlyBtnText}>주문만 하기</Text>
+                  </TouchableOpacity>
+                )}
 
                 <TouchableOpacity
                   style={[s.payNowBtn, (grandTotal === 0 || orderSubmitting) && s.payNowBtnDisabled]}
@@ -1204,7 +1249,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                     }
                   }}
                 >
-                  <Text style={s.payNowBtnText}>₩{grandTotal.toLocaleString()} 결제하기</Text>
+                  <Text style={s.payNowBtnText}>결제하기</Text>
                 </TouchableOpacity>
               </View>
             </View>
