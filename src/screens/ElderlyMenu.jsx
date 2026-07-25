@@ -112,13 +112,16 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
 
   // 이미 "주문하기"로 접수했지만 아직 결제 안 한 주문 (다시 들어왔을 때 결제할 수 있게)
   const [pendingOrders, setPendingOrders] = useState([]);
+  // 취소/만료되지 않은 전체 주문 (결제 여부 무관, 이미지 위 "주문현황" 뱃지용)
+  const [activeOrders, setActiveOrders] = useState([]);
   const refreshPendingOrders = async () => {
     const uuid = getUuid();
     if (!uuid || !bizno) return;
     const orders = await api.order.list(uuid);
     if (!Array.isArray(orders)) return;
-    const list = orders.filter(o => o.bizRegNo === bizno && o.status !== "CANCELED" && !o.paymentStatus && !isOrderExpired(o));
-    setPendingOrders(list);
+    const bizOrders = orders.filter(o => o.bizRegNo === bizno && o.status !== "CANCELED" && !isOrderExpired(o));
+    setPendingOrders(bizOrders.filter(o => !o.paymentStatus));
+    setActiveOrders(bizOrders);
   };
   useEffect(() => { refreshPendingOrders(); }, [bizno]);
 
@@ -342,6 +345,11 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
         ) : (
           <View style={s.photoPlaceholder}>
             <Text style={s.photoEmoji}>{currentMenu?.emoji || "🍽"}</Text>
+          </View>
+        )}
+        {activeOrders.length > 0 && (
+          <View style={s.orderStatusBadge}>
+            <Text style={s.orderStatusBadgeText}>{"주문\n" + activeOrders.length + "건"}</Text>
           </View>
         )}
       </Animated.View>
