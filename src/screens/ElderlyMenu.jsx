@@ -3,6 +3,18 @@ import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Animated, 
 import api from "../lib/api";
 import { s } from "../styles/ElderlyMenu.styles";
 
+const TOSS_CLIENT_KEY = process.env.EXPO_PUBLIC_TOSS_CLIENT_KEY || "test_ck_vZnjEJeQVxexx5pMqG4brPmOoBN0";
+
+function getUuid() {
+  if (Platform.OS !== "web") return null;
+  let uuid = localStorage.getItem("scaneat_uuid");
+  if (!uuid) {
+    uuid = crypto.randomUUID();
+    localStorage.setItem("scaneat_uuid", uuid);
+  }
+  return uuid;
+}
+
 const DEMO_MENUS = [
   { menuCd: "d1", menuNm: "된장찌개 정식", price: 9000, imgUrl: null, emoji: "🍲" },
   { menuCd: "d2", menuNm: "캠프 직화 삼겹살", price: 17000, imgUrl: null, emoji: "🥩" },
@@ -53,13 +65,39 @@ function optionLabelsOf(groups, sel) {
   return labels;
 }
 
+// 선택된 옵션들을 주문 API 형식([{id, name, price}])으로 변환
+function selectedOptionsOf(groups, sel) {
+  const result = [];
+  groups.forEach(g => {
+    const v = sel[g.id];
+    if (g.type === "C") {
+      (v || []).forEach(cid => { const c = g.choices.find(c => c.id === cid); if (c) result.push({ id: c.id, name: c.name, price: c.price || 0 }); });
+    } else {
+      const c = g.choices.find(c => c.id === v);
+      if (c) result.push({ id: c.id, name: c.name, price: c.price || 0 });
+    }
+  });
+  return result;
+}
+
+const PENDING_CART_KEY = (bizno) => `scaneat_elderly_pending_cart_${bizno}`;
+
 export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   const { width } = useWindowDimensions();
   const [menus, setMenus] = useState([]);
-  const [cart, setCart] = useState({}); // { [menuCd]: { qty, optionsTotal, optionLabels } }
+  // { [menuCd]: { qty, optionsTotal, optionLabels, selectedOptions } }
+  const [cart, setCart] = useState(() => {
+    if (Platform.OS !== "web" || !bizno) return {};
+    try {
+      const pending = sessionStorage.getItem(PENDING_CART_KEY(bizno));
+      if (pending) { sessionStorage.removeItem(PENDING_CART_KEY(bizno)); return JSON.parse(pending); }
+    } catch {}
+    return {};
+  });
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showCartModal, setShowCartModal] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   // 메뉴별 옵션그룹/선택상태: { [menuCd]: group[] }, { [menuCd]: { [optGrpCd]: choiceId | choiceId[] } }
   const [optionGroupsByMenu, setOptionGroupsByMenu] = useState({});
@@ -151,9 +189,10 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
     const sel = selections[menu.menuCd] || {};
     const optionsTotal = optionsTotalOf(groups, sel);
     const optionLabels = optionLabelsOf(groups, sel);
+    const selectedOptions = selectedOptionsOf(groups, sel);
     setCart(prev => ({
       ...prev,
-      [menu.menuCd]: { qty: (prev[menu.menuCd]?.qty || 0) + 1, optionsTotal, optionLabels },
+      [menu.menuCd]: { qty: (prev[menu.menuCd]?.qty || 0) + 1, optionsTotal, optionLabels, selectedOptions },
     }));
   };
 
@@ -177,6 +216,81 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
     const menu = menus.find(m => m.menuCd === cd);
     return sum + (menu ? (Number(menu.price || 0) + (c.optionsTotal || 0)) * c.qty : 0);
   }, 0);
+
+  // 현재 장바구니 내용을 POST /api/order 요청 형식으로 변환
+  const buildOrderItemsPayload = () => Object.entries(cart).map(([cd, c]) => {
+    const menu = menus.find(m => m.menuCd === cd);
+    return {
+      menuCd: cd,
+      menuNm: menu?.menuNm || "",
+      price: Number(menu?.price || 0),
+      qty: c.qty,
+      options: (c.selectedOptions || []).map(o => ({ optCd: o.id, optNm: o.name, addPrice: o.price || 0 })),
+    };
+  });
+
+  // "주문하기": 결제 없이 바로 주문 생성 (결제 대기 상태로 접수)
+  const orderOnly = async () => {
+    const uuid = getUuid();
+    if (!uuid || cartCount === 0) return;
+    setSubmitting(true);
+    const { data, error } = await api.order.post({
+      uuid,
+      bizRegNo: bizno,
+      seatNo: tableNo || null,
+      orderTypCd: "DINE_IN",
+      items: buildOrderItemsPayload(),
+    });
+    setSubmitting(false);
+    if (error || !data) { alert("주문 생성에 실패했습니다. 다시 시도해주세요."); return; }
+    setCart({});
+    setShowCartModal(false);
+    alert(data.pickupNo ? `주문이 접수되었어요. 픽업번호: ${data.pickupNo}` : "주문이 접수되었어요.");
+  };
+
+  // "결제하기": 결제 전에는 주문을 만들지 않는다 — 결제 취소/실패해도 미결제 주문이
+  // 남지 않도록, 결제가 실제로 승인된 뒤(PaymentSuccess)에 장바구니 내용으로 주문을 생성한다.
+  const payNow = async () => {
+    if (!TOSS_CLIENT_KEY) { alert("토스 클라이언트 키가 없습니다 (EXPO_PUBLIC_TOSS_CLIENT_KEY)"); return; }
+    if (cartCount === 0) { alert("결제할 주문이 없습니다."); return; }
+    const checkoutId = `scaneat-${Date.now()}`;
+    let storedCheckout = false;
+    let storedPendingCart = false;
+    setSubmitting(true);
+    try {
+      sessionStorage.setItem(`scaneat_checkout_${checkoutId}`, JSON.stringify({
+        uuid: getUuid(),
+        bizRegNo: bizno,
+        seatNo: tableNo || null,
+        orderTypCd: "DINE_IN",
+        items: buildOrderItemsPayload(),
+      }));
+      storedCheckout = true;
+      // 결제창으로 넘어갔다가 취소하고 돌아오는 경우에만 장바구니를 복원해준다
+      sessionStorage.setItem(PENDING_CART_KEY(bizno), JSON.stringify(cart));
+      storedPendingCart = true;
+
+      const { loadTossPayments, ANONYMOUS } = await import("@tosspayments/tosspayments-sdk");
+      const tossPayments = await loadTossPayments(TOSS_CLIENT_KEY);
+      const payment = tossPayments.payment({ customerKey: ANONYMOUS });
+      const firstMenu = menus.find(m => m.menuCd === Object.keys(cart)[0]);
+      await payment.requestPayment({
+        method: "CARD",
+        amount: { currency: "KRW", value: cartTotal },
+        orderId: checkoutId,
+        orderName: cartCount === 1 && firstMenu ? firstMenu.menuNm : `주문 ${cartCount}건`,
+        successUrl: window.location.origin + `/payment/success?bizno=${bizno}&checkoutId=${checkoutId}`,
+        failUrl: window.location.origin + `/payment/fail?bizno=${bizno}&checkoutId=${checkoutId}`,
+      });
+    } catch (e) {
+      if (storedCheckout) { try { sessionStorage.removeItem(`scaneat_checkout_${checkoutId}`); } catch {} }
+      if (storedPendingCart) { try { sessionStorage.removeItem(PENDING_CART_KEY(bizno)); } catch {} }
+      if (e?.code === "USER_CANCEL") return;
+      alert(`[결제 오류] ${e?.message || JSON.stringify(e)}`);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -364,13 +478,24 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
             </ScrollView>
             <View style={s.modalFooter}>
               <Text style={s.modalTotal}>총 {cartTotal.toLocaleString()}원</Text>
-              <TouchableOpacity
-                style={[s.modalOrderBtn, cartCount === 0 && s.modalOrderBtnDisabled]}
-                onPress={() => cartCount > 0 && setShowCartModal(false)}
-                activeOpacity={cartCount > 0 ? 0.8 : 1}
-              >
-                <Text style={s.modalOrderBtnText}>주문하기</Text>
-              </TouchableOpacity>
+              <View style={s.modalBtnCol}>
+                <TouchableOpacity
+                  style={[s.modalOrderOnlyBtn, (cartCount === 0 || submitting) && s.modalOrderBtnDisabled]}
+                  onPress={orderOnly}
+                  disabled={cartCount === 0 || submitting}
+                  activeOpacity={0.8}
+                >
+                  <Text style={s.modalOrderOnlyBtnText}>주문하기</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[s.modalPayBtn, (cartCount === 0 || submitting) && s.modalOrderBtnDisabled]}
+                  onPress={payNow}
+                  disabled={cartCount === 0 || submitting}
+                  activeOpacity={0.8}
+                >
+                  <Text style={s.modalPayBtnText}>결제하기</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </View>
