@@ -132,11 +132,17 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   const translateX = useRef(new Animated.Value(0)).current;
   const photoOpacity = useRef(new Animated.Value(1)).current;
   const orderStatusPop = useRef(new Animated.Value(0)).current;
+  const cartModalPop = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (!showOrderStatusModal) { orderStatusPop.setValue(0); return; }
     Animated.spring(orderStatusPop, { toValue: 1, useNativeDriver: true, friction: 8, tension: 60 }).start();
   }, [showOrderStatusModal]);
+
+  useEffect(() => {
+    if (!showCartModal) { cartModalPop.setValue(0); return; }
+    Animated.spring(cartModalPop, { toValue: 1, useNativeDriver: true, friction: 8, tension: 60 }).start();
+  }, [showCartModal]);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const bubbleAnim = useRef(new Animated.Value(1)).current;
   const bubbleShown = useRef(true);
@@ -495,7 +501,16 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
           Platform.OS === "web" && { position: "fixed", top: 0, left: 0, right: 0, bottom: 0 },
         ]}>
           <TouchableOpacity style={s.modalBg} activeOpacity={1} onPress={() => setShowCartModal(false)} />
-          <View style={s.modalSheet}>
+          <Animated.View
+            style={[
+              s.modalSheet,
+              Platform.OS === "web" && { transformOrigin: "bottom" },
+              {
+                opacity: cartModalPop,
+                transform: [{ scale: cartModalPop.interpolate({ inputRange: [0, 1], outputRange: [0.4, 1] }) }],
+              },
+            ]}
+          >
             <View style={s.modalTitleRow}>
               <View style={s.modalTitleLeft}>
                 {pendingCount > 0 && (
@@ -588,7 +603,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
                 </TouchableOpacity>
               </View>
             </View>
-          </View>
+          </Animated.View>
         </View>
       )}
 
