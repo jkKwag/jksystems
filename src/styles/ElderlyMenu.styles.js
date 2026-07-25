@@ -12,7 +12,7 @@ export const s = StyleSheet.create({
   photoEmoji: { fontSize: 90 },
 
   orderStatusBadge: { position: "absolute", top: 14, right: 14, backgroundColor: "#f97316", borderRadius: 14, paddingHorizontal: 14, paddingVertical: 8, shadowColor: "#000", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.3, shadowRadius: 6, elevation: 6 },
-  orderStatusBadgeText: { color: "#fff", fontSize: 16, fontWeight: "900", textAlign: "center", lineHeight: 20 },
+  orderStatusBadgeText: { color: "#fff", fontSize: 20, fontWeight: "900", textAlign: "center", lineHeight: 24 },
 
   /* 카드 + 떠 있는 화살표 컨테이너 */
   carouselOuter: { flex: 1, minHeight: 0, overflow: "hidden" },
