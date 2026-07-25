@@ -131,6 +131,12 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
 
   const translateX = useRef(new Animated.Value(0)).current;
   const photoOpacity = useRef(new Animated.Value(1)).current;
+  const orderStatusPop = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (!showOrderStatusModal) { orderStatusPop.setValue(0); return; }
+    Animated.spring(orderStatusPop, { toValue: 1, useNativeDriver: true, friction: 8, tension: 60 }).start();
+  }, [showOrderStatusModal]);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const bubbleAnim = useRef(new Animated.Value(1)).current;
   const bubbleShown = useRef(true);
@@ -593,7 +599,16 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
           Platform.OS === "web" && { position: "fixed", top: 0, left: 0, right: 0, bottom: 0 },
         ]}>
           <TouchableOpacity style={s.modalBg} activeOpacity={1} onPress={() => setShowOrderStatusModal(false)} />
-          <View style={s.modalSheet}>
+          <Animated.View
+            style={[
+              s.modalSheet,
+              Platform.OS === "web" && { transformOrigin: "top right" },
+              {
+                opacity: orderStatusPop,
+                transform: [{ scale: orderStatusPop.interpolate({ inputRange: [0, 1], outputRange: [0.4, 1] }) }],
+              },
+            ]}
+          >
             <View style={s.modalTitleRow}>
               <Text style={s.modalTitle}>주문현황</Text>
               <TouchableOpacity style={s.closeBtn} onPress={() => setShowOrderStatusModal(false)}>
@@ -621,7 +636,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
                 </View>
               ))}
             </ScrollView>
-          </View>
+          </Animated.View>
         </View>
       )}
     </View>
