@@ -19,6 +19,7 @@ export const s = StyleSheet.create({
   brand: { fontSize: font.lg, fontWeight: "900", color: colors.white },
   closeBtnText: { fontSize: font.xl, color: colors.slate300 },
   adminNm: { fontSize: font.md, color: colors.slate300, marginTop: spacing["1"] },
+  totpLink: { fontSize: font.sm, color: colors.slate300, textDecorationLine: "underline" },
   roleBadge: { fontSize: font.sm, fontWeight: "700", color: colors.accent, marginTop: 2 },
 
   menuScroll: { flex: 1 },

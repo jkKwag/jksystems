@@ -18,6 +18,7 @@ import AdminAccounts from "./AdminAccounts";
 import AdminSuperDashboard from "./AdminSuperDashboard";
 import BizLookupBar from "../../components/admin/BizLookupBar";
 import ConfirmModal from "../../components/ConfirmModal";
+import TotpSetupModal from "../../components/admin/TotpSetupModal";
 
 const MOBILE_BREAKPOINT = 768;
 const DASHBOARD_URL = "/admin/dashboard";
@@ -85,6 +86,8 @@ export default function AdminHome({ adminInfo, onLogout }) {
   const [showMenu, setShowMenu] = useState(false);
   const [bizNm, setBizNm] = useState(null);
   const [logoutStep, setLogoutStep] = useState(null); // null | "confirm" | "done"
+  const [showTotpSetup, setShowTotpSetup] = useState(false);
+  const [totpDoneMsg, setTotpDoneMsg] = useState(null);
 
   const isSuper = adminInfo?.adminRole === "SUPER";
   const [bizLookupInput, setBizLookupInput] = useState("");
@@ -164,7 +167,14 @@ export default function AdminHome({ adminInfo, onLogout }) {
     <View style={isMobile ? s.sidebarMobile : s.sidebar}>
       <View style={[s.sidebarHeader, HEADER_GRADIENT]}>
         <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-          <Text style={s.brand}>{brandTitle}</Text>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            <Text style={s.brand}>{brandTitle}</Text>
+            {isSuper && (
+              <TouchableOpacity onPress={() => setShowTotpSetup(true)}>
+                <Text style={s.totpLink}>2단계 인증 설정</Text>
+              </TouchableOpacity>
+            )}
+          </View>
           {isMobile && (
             <TouchableOpacity onPress={() => setShowMenu(false)}>
               <Text style={s.closeBtnText}>✕</Text>
@@ -270,6 +280,20 @@ export default function AdminHome({ adminInfo, onLogout }) {
         visible={logoutStep === "done"}
         message="로그아웃 되었습니다."
         onConfirm={() => { setLogoutStep(null); onLogout(); }}
+      />
+
+      <TotpSetupModal
+        visible={showTotpSetup}
+        onClose={() => setShowTotpSetup(false)}
+        onSuccess={() => {
+          setShowTotpSetup(false);
+          setTotpDoneMsg("2단계 인증이 등록되었습니다. 다음 로그인부터 인증 코드를 입력해야 해요.");
+        }}
+      />
+      <ConfirmModal
+        visible={!!totpDoneMsg}
+        message={totpDoneMsg}
+        onConfirm={() => setTotpDoneMsg(null)}
       />
     </View>
   );
