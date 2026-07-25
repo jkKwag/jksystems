@@ -364,7 +364,11 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
           </View>
         )}
         {activeOrders.length > 0 && (
-          <TouchableOpacity style={s.orderStatusBadge} onPress={() => setShowOrderStatusModal(true)} activeOpacity={0.8}>
+          <TouchableOpacity
+            style={s.orderStatusBadge}
+            onPress={() => { setShowOrderStatusModal(true); refreshPendingOrders(); }}
+            activeOpacity={0.8}
+          >
             <Text style={s.orderStatusBadgeText}>{"주문\n" + activeOrders.length + "건"}</Text>
           </TouchableOpacity>
         )}
