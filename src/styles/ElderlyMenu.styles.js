@@ -24,10 +24,12 @@ export const s = StyleSheet.create({
 
   card: { backgroundColor: "#fff", borderRadius: 28, paddingVertical: 22, paddingHorizontal: 28, width: "100%", flexDirection: "column", gap: 8, shadowColor: "#000", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.35, shadowRadius: 24, elevation: 12 },
   cardWithOptions: { height: "100%", flexShrink: 1 },
-  menuName: { fontSize: 40, fontWeight: "900", color: "#0f172a", lineHeight: 48 },
-  menuQty: { fontSize: 28, fontWeight: "800", color: "#94a3b8" },
+  cardTopRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", gap: 10 },
+  cardTopLeft: { flex: 1 },
+  menuName: { fontSize: 36, fontWeight: "900", color: "#0f172a", lineHeight: 42 },
+  menuQty: { fontSize: 24, fontWeight: "800", color: "#94a3b8" },
   menuQtyActive: { color: "#f59e0b" },
-  price: { fontSize: 48, fontWeight: "900", color: "#1d4ed8", textAlign: "center" },
+  price: { fontSize: 36, fontWeight: "900", color: "#1d4ed8", textAlign: "right" },
 
   optionsScroll: { flex: 1, marginTop: 10 },
   optionsScrollContent: { paddingBottom: 12, gap: 14 },
@@ -55,12 +57,12 @@ export const s = StyleSheet.create({
 
   /* 떠 있는 화살표 — 카드 위에 오버레이. 옵션이 길어져 카드가 늘어나도
      "추가"/수량 버튼 근처에 고정되도록 위에서부터 고정 위치로 둔다 */
-  prevBtn: { position: "absolute", left: 10, top: 210, width: 60, height: 52, alignItems: "center", justifyContent: "center", zIndex: 20 },
-  nextBtn: { position: "absolute", right: 10, top: 210, width: 60, height: 52, alignItems: "center", justifyContent: "center", zIndex: 20 },
+  prevBtn: { position: "absolute", left: 4, top: 210, width: 60, height: 52, alignItems: "center", justifyContent: "center", zIndex: 20 },
+  nextBtn: { position: "absolute", right: 4, top: 210, width: 60, height: 52, alignItems: "center", justifyContent: "center", zIndex: 20 },
   navArrow: { width: 52, height: 52, borderRadius: 26, backgroundColor: "#f59e0b", alignItems: "center", justifyContent: "center", shadowColor: "#f59e0b", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.7, shadowRadius: 12, elevation: 10 },
   navArrowText: { fontSize: 30, fontWeight: "900", color: "#fff", lineHeight: 34 },
 
-  bubble: { position: "absolute", right: 10, top: 130, width: 120, alignItems: "center", zIndex: 30 },
+  bubble: { position: "absolute", right: 4, top: 96, width: 120, alignItems: "center", zIndex: 30 },
   bubbleBox: { backgroundColor: "#f59e0b", borderRadius: 14, paddingHorizontal: 14, paddingVertical: 10 },
   bubbleText: { color: "#fff", fontSize: 15, fontWeight: "900", textAlign: "center", lineHeight: 22 },
 
