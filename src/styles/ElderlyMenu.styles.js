@@ -97,6 +97,15 @@ export const s = StyleSheet.create({
   modalItemBottom: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   modalItemPrice: { fontSize: 22, fontWeight: "900", color: "#1d4ed8" },
 
+  statusOrderBlock: { gap: 4, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: "#e2e8f0" },
+  statusHeaderRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 4 },
+  statusStateBadge: { backgroundColor: "#94a3b8", borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
+  statusStateBadgeText: { fontSize: 15, fontWeight: "800", color: "#fff" },
+  statusReceived: { backgroundColor: "#94a3b8" },
+  statusPreparing: { backgroundColor: "#f59e0b" },
+  statusReady: { backgroundColor: "#22c55e" },
+  statusPickupText: { fontSize: 17, fontWeight: "800", color: "#1d4ed8", marginTop: 4 },
+
   pendingSection: { marginTop: 8, paddingTop: 16, borderTopWidth: 2, borderTopColor: "#e2e8f0", gap: 10 },
   pendingSectionTitle: { fontSize: 18, fontWeight: "800", color: "#94a3b8" },
   pendingOrderBlock: { gap: 4, paddingVertical: 4 },

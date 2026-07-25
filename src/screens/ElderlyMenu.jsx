@@ -15,6 +15,9 @@ function getUuid() {
   return uuid;
 }
 
+const ORDER_STATUS_LABEL = { RECEIVED: "주문접수", PREPARING: "준비중", READY: "준비완료" };
+const ORDER_STATUS_STYLE_KEY = { RECEIVED: "statusReceived", PREPARING: "statusPreparing", READY: "statusReady" };
+
 const STUCK_ORDER_MAX_AGE_MS = 3 * 60 * 60 * 1000; // 상태 무관, 주문 후 3시간 지나면 숨김
 const isOrderExpired = (order) => {
   const now = Date.now();
@@ -104,6 +107,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showCartModal, setShowCartModal] = useState(false);
+  const [showOrderStatusModal, setShowOrderStatusModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   // 메뉴별 옵션그룹/선택상태: { [menuCd]: group[] }, { [menuCd]: { [optGrpCd]: choiceId | choiceId[] } }
@@ -348,9 +352,9 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
           </View>
         )}
         {activeOrders.length > 0 && (
-          <View style={s.orderStatusBadge}>
+          <TouchableOpacity style={s.orderStatusBadge} onPress={() => setShowOrderStatusModal(true)} activeOpacity={0.8}>
             <Text style={s.orderStatusBadgeText}>{"주문\n" + activeOrders.length + "건"}</Text>
-          </View>
+          </TouchableOpacity>
         )}
       </Animated.View>
 
@@ -578,6 +582,45 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
                 </TouchableOpacity>
               </View>
             </View>
+          </View>
+        </View>
+      )}
+
+      {showOrderStatusModal && (
+        <View style={[
+          StyleSheet.absoluteFillObject,
+          s.modalOverlay,
+          Platform.OS === "web" && { position: "fixed", top: 0, left: 0, right: 0, bottom: 0 },
+        ]}>
+          <TouchableOpacity style={s.modalBg} activeOpacity={1} onPress={() => setShowOrderStatusModal(false)} />
+          <View style={s.modalSheet}>
+            <View style={s.modalTitleRow}>
+              <Text style={s.modalTitle}>주문현황</Text>
+              <TouchableOpacity style={s.closeBtn} onPress={() => setShowOrderStatusModal(false)}>
+                <Text style={s.closeBtnText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={s.modalList}>
+              {[...activeOrders].sort((a, b) => new Date(a.regDt) - new Date(b.regDt)).map((order, oi) => (
+                <View key={order.orderNo} style={s.statusOrderBlock}>
+                  <View style={s.statusHeaderRow}>
+                    <View style={s.pendingOrderBadge}>
+                      <Text style={s.pendingOrderBadgeText}>주문{oi + 1}</Text>
+                    </View>
+                    <View style={[s.statusStateBadge, s[ORDER_STATUS_STYLE_KEY[order.status]]]}>
+                      <Text style={s.statusStateBadgeText}>{ORDER_STATUS_LABEL[order.status] || order.status}</Text>
+                    </View>
+                  </View>
+                  {order.items?.map(item => (
+                    <View key={item.orderSeq} style={s.pendingItemRow}>
+                      <Text style={s.pendingItemName} numberOfLines={1}>{item.menuNm}</Text>
+                      <Text style={s.pendingItemQty}>x{item.qty}</Text>
+                    </View>
+                  ))}
+                  {order.pickupNo && <Text style={s.statusPickupText}>픽업번호 {order.pickupNo}</Text>}
+                </View>
+              ))}
+            </ScrollView>
           </View>
         </View>
       )}
