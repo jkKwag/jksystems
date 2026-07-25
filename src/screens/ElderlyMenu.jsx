@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Animated, Platform, useWindowDimensions } from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Animated, Platform, ActivityIndicator, useWindowDimensions } from "react-native";
 import api from "../lib/api";
 import { s } from "../styles/ElderlyMenu.styles";
 
@@ -108,6 +108,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showCartModal, setShowCartModal] = useState(false);
   const [showOrderStatusModal, setShowOrderStatusModal] = useState(false);
+  const [statusRefreshing, setStatusRefreshing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   // 메뉴별 옵션그룹/선택상태: { [menuCd]: group[] }, { [menuCd]: { [optGrpCd]: choiceId | choiceId[] } }
@@ -366,7 +367,12 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
         {activeOrders.length > 0 && (
           <TouchableOpacity
             style={s.orderStatusBadge}
-            onPress={() => { setShowOrderStatusModal(true); refreshPendingOrders(); }}
+            onPress={async () => {
+              setShowOrderStatusModal(true);
+              setStatusRefreshing(true);
+              await refreshPendingOrders();
+              setStatusRefreshing(false);
+            }}
             activeOpacity={0.8}
           >
             <Text style={s.orderStatusBadgeText}>{"주문\n" + activeOrders.length + "건"}</Text>
@@ -641,9 +647,13 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
                     <View style={s.pendingOrderBadge}>
                       <Text style={s.pendingOrderBadgeText}>주문{oi + 1}</Text>
                     </View>
-                    <View style={[s.statusStateBadge, s[ORDER_STATUS_STYLE_KEY[order.status]]]}>
-                      <Text style={s.statusStateBadgeText}>{ORDER_STATUS_LABEL[order.status] || order.status}</Text>
-                    </View>
+                    {statusRefreshing && order.status !== "READY" ? (
+                      <ActivityIndicator size="small" color="#94a3b8" />
+                    ) : (
+                      <View style={[s.statusStateBadge, s[ORDER_STATUS_STYLE_KEY[order.status]]]}>
+                        <Text style={s.statusStateBadgeText}>{ORDER_STATUS_LABEL[order.status] || order.status}</Text>
+                      </View>
+                    )}
                   </View>
                   {order.items?.map(item => (
                     <View key={item.orderSeq} style={s.pendingItemRow}>
