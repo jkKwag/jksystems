@@ -34,6 +34,12 @@ export default function AdminAccounts({ adminInfo }) {
   const [resultMsg, setResultMsg] = useState(null);
   const spinAnim = useRef(new Animated.Value(0)).current;
 
+  const [showTotpSetup, setShowTotpSetup] = useState(false);
+  const [totpSecret, setTotpSecret] = useState(null);
+  const [totpSetupCode, setTotpSetupCode] = useState("");
+  const [totpBusy, setTotpBusy] = useState(false);
+  const [totpError, setTotpError] = useState("");
+
   const currentPwEmpty = pwTouched.current && !currentPw;
   const newPwTooShort = newPw.length < 8;
   const newPwSameAsCurrent = newPw.length > 0 && !!currentPw && newPw === currentPw;
@@ -102,6 +108,36 @@ export default function AdminAccounts({ adminInfo }) {
     closePwModal();
   };
 
+  const openTotpSetup = async () => {
+    setShowTotpSetup(true);
+    setTotpSecret(null);
+    setTotpSetupCode("");
+    setTotpError("");
+    const { data, error } = await api.admin.totpSetup();
+    if (error || !data) { setTotpError(error?.message || "비밀키 발급에 실패했습니다."); return; }
+    setTotpSecret(data.secret);
+  };
+
+  const closeTotpSetup = () => {
+    setShowTotpSetup(false);
+    setTotpSecret(null);
+    setTotpSetupCode("");
+    setTotpError("");
+  };
+
+  const confirmTotpSetup = async () => {
+    if (totpSetupCode.length !== 6) { setTotpError("6자리 코드를 입력해주세요."); return; }
+    setTotpBusy(true); setTotpError("");
+    const { error } = await api.admin.totpConfirm({ secret: totpSecret, code: totpSetupCode });
+    setTotpBusy(false);
+    if (error) { setTotpError(error?.message || "인증 코드가 올바르지 않습니다."); return; }
+    closeTotpSetup();
+    setResultMsg("2단계 인증이 등록되었습니다. 다음 로그인부터 인증 코드를 입력해야 해요.");
+  };
+
+  // 인증 앱에서 읽기 쉽게 4글자씩 띄어서 보여줌 (저장/전송 값 자체는 원본 그대로 사용)
+  const formattedSecret = totpSecret ? totpSecret.match(/.{1,4}/g).join(" ") : "";
+
   if (!bizRegNo) {
     return (
       <View style={s.center}>
@@ -114,9 +150,16 @@ export default function AdminAccounts({ adminInfo }) {
     <View style={s.container}>
       <View style={s.headerRow}>
         <Text style={s.title}>계정 관리</Text>
-        <TouchableOpacity style={s.refreshBtn} onPress={load}>
-          <Animated.Text style={[s.refreshBtnText, { transform: [{ rotate: spin }] }]}>🔄</Animated.Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+          {isSuperAdmin && (
+            <TouchableOpacity style={s.pwChangeBtn} onPress={openTotpSetup}>
+              <Text style={s.pwChangeBtnText}>2단계 인증 설정</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity style={s.refreshBtn} onPress={load}>
+            <Animated.Text style={[s.refreshBtnText, { transform: [{ rotate: spin }] }]}>🔄</Animated.Text>
+          </TouchableOpacity>
+        </View>
       </View>
       <Text style={s.sub}>이 사업장에 등록된 관리자 계정과 직원 목록입니다</Text>
 
@@ -355,6 +398,63 @@ export default function AdminAccounts({ adminInfo }) {
                     : <Text style={s.pwConfirmBtnText}>변경하기</Text>}
                 </TouchableOpacity>
               </View>
+            </View>
+          </View>
+        </Modal>
+      )}
+
+      {showTotpSetup && (
+        <Modal visible transparent animationType="fade" onRequestClose={closeTotpSetup}>
+          <View style={s.pwOverlay}>
+            <View style={s.pwCard}>
+              <Text style={s.pwTitle}>2단계 인증(TOTP) 설정</Text>
+
+              {totpSecret ? (
+                <>
+                  <Text style={s.pwFieldHint}>
+                    구글 OTP(Google Authenticator) 등 인증 앱에서 "수동 입력"으로 아래 키를 등록한 뒤,
+                    앱에 뜬 6자리 코드를 입력해주세요.
+                  </Text>
+                  <View style={s.pwFieldWrap}>
+                    <Text style={[s.pwInput, { textAlign: "center", letterSpacing: 2 }]} selectable>
+                      {formattedSecret}
+                    </Text>
+                  </View>
+                  <View style={s.pwFieldWrap}>
+                    <TextInput
+                      style={s.pwInput}
+                      placeholder="인증 앱의 6자리 코드"
+                      placeholderTextColor="#94a3b8"
+                      value={totpSetupCode}
+                      onChangeText={(v) => setTotpSetupCode(v.replace(/\D/g, "").slice(0, 6))}
+                      keyboardType="number-pad"
+                      maxLength={6}
+                    />
+                  </View>
+                  {!!totpError && <Text style={s.pwFieldError}>{totpError}</Text>}
+                  <View style={s.pwBtnRow}>
+                    <TouchableOpacity style={s.pwCancelBtn} onPress={closeTotpSetup} disabled={totpBusy}>
+                      <Text style={s.pwCancelBtnText}>취소</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={s.pwConfirmBtn} onPress={confirmTotpSetup} disabled={totpBusy}>
+                      {totpBusy
+                        ? <ActivityIndicator color="#fff" size="small" />
+                        : <Text style={s.pwConfirmBtnText}>등록하기</Text>}
+                    </TouchableOpacity>
+                  </View>
+                </>
+              ) : totpError ? (
+                <>
+                  <Text style={s.pwFieldError}>{totpError}</Text>
+                  <View style={s.pwBtnRow}>
+                    <TouchableOpacity style={s.pwCancelBtn} onPress={closeTotpSetup}>
+                      <Text style={s.pwCancelBtnText}>닫기</Text>
+                    </TouchableOpacity>
+                  </View>
+                </>
+              ) : (
+                <ActivityIndicator style={{ marginVertical: 20 }} color="#f97316" />
+              )}
             </View>
           </View>
         </Modal>

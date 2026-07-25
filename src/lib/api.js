@@ -57,6 +57,8 @@ async function postMultipart(path, formData) {
 const api = {
   admin: {
     login: (body) => post(`/api/admin/login`, body),
+    totpSetup: () => post(`/api/admin/totp/setup`, {}),
+    totpConfirm: (body) => post(`/api/admin/totp/confirm`, body),
     menu: (role) => get(`/api/admin/menu?role=${role}`),
     users: (bizRegNo) => get(`/api/admin/users?bizRegNo=${bizRegNo}`),
     changePassword: (adminId, body) => put(`/api/admin/users/${adminId}/password`, body),
