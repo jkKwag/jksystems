@@ -1175,17 +1175,20 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
               </View>
               <View style={s.payBtnRow}>
                 {cartItems.length === 0 && pendingCount > 0 ? (
+                  // 취소할 수 있는(주문접수 단계) 건이 하나도 없으면 버튼 자체를 숨긴다
+                  cancelableOrders.length > 0 && (
+                    <TouchableOpacity
+                      style={[s.orderOnlyBtn, s.orderOnlyBtnCancel, (ordersToCancel.length === 0 || cancelingOrder) && s.orderOnlyBtnDisabled]}
+                      disabled={ordersToCancel.length === 0 || cancelingOrder}
+                      onPress={() => setShowCancelConfirm(true)}
+                    >
+                      <Text style={[s.orderOnlyBtnText, s.orderOnlyBtnTextCancel]}>주문취소</Text>
+                    </TouchableOpacity>
+                  )
+                ) : cartItems.length > 0 && (
                   <TouchableOpacity
-                    style={[s.orderOnlyBtn, s.orderOnlyBtnCancel, (ordersToCancel.length === 0 || cancelingOrder) && s.orderOnlyBtnDisabled]}
-                    disabled={ordersToCancel.length === 0 || cancelingOrder}
-                    onPress={() => setShowCancelConfirm(true)}
-                  >
-                    <Text style={[s.orderOnlyBtnText, s.orderOnlyBtnTextCancel]}>주문취소</Text>
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity
-                    style={[s.orderOnlyBtn, cartItems.length === 0 && s.orderOnlyBtnDisabled]}
-                    disabled={cartItems.length === 0 || orderSubmitting}
+                    style={s.orderOnlyBtn}
+                    disabled={orderSubmitting}
                     onPress={async () => {
                       setOrderSubmitting(true);
                       const order = await createOrderForCart();
