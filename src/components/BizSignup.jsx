@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Modal, ActivityIndicator, Platform, StyleSheet } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Modal, ActivityIndicator, Platform, StyleSheet, ScrollView } from "react-native";
 import { s } from "../styles/AdminLogin.styles";
 import api from "../lib/api";
 
@@ -118,7 +118,7 @@ export default function BizSignup({ visible, onClose }) {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={handleClose}>
       <View style={s.overlay}>
-        <View style={s.card}>
+        <View style={[s.card, local.card]}>
           <View style={s.header}>
             <Text style={s.icon}>🏪</Text>
             <Text style={s.title}>사업자 가입</Text>
@@ -126,7 +126,7 @@ export default function BizSignup({ visible, onClose }) {
               {step === "form" ? "CampRoad에 매장을 등록해보세요" : step === "cert" ? "사업자등록증을 업로드해주세요" : "가입 신청 완료"}
             </Text>
           </View>
-          <View style={s.body}>
+          <ScrollView style={local.scroll} contentContainerStyle={s.body}>
             {step === "form" && (
               <>
                 <Text style={s.label}>사업자등록번호</Text>
@@ -194,7 +194,7 @@ export default function BizSignup({ visible, onClose }) {
                 </TouchableOpacity>
               </>
             )}
-          </View>
+          </ScrollView>
         </View>
       </View>
     </Modal>
@@ -202,6 +202,8 @@ export default function BizSignup({ visible, onClose }) {
 }
 
 const local = StyleSheet.create({
+  card: { maxHeight: Platform.OS === "web" ? "85vh" : "85%" },
+  scroll: { flexShrink: 1 },
   ntsResultBox: { backgroundColor: "#f0f9ff", borderWidth: 1, borderColor: "#7dd3fc", borderRadius: 12, padding: 12, marginBottom: 16 },
   ntsResultText: { fontSize: 15, color: "#0369a1", fontWeight: "600" },
   certPickBtn: { borderWidth: 1.5, borderColor: "#1d3557", borderStyle: "dashed", borderRadius: 12, padding: 16, alignItems: "center", marginBottom: 16 },
