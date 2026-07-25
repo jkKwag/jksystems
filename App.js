@@ -15,6 +15,7 @@ import Menu from "./src/screens/Menu";
 import PaymentSuccess from "./src/screens/PaymentSuccess";
 import PaymentFail from "./src/screens/PaymentFail";
 import AdminLogin from "./src/components/AdminLogin";
+import BizSignup from "./src/components/BizSignup";
 import AdminHome from "./src/screens/admin/AdminHome";
 import QrScanner from "./src/components/QrScanner";
 import { s } from "./src/styles/App.styles";
@@ -62,6 +63,7 @@ export default function App() {
   const [showQrScanner, setShowQrScanner] = useState(false);
   const badgeAnim = useRef(new Animated.Value(0)).current;
   const [showLogin, setShowLogin] = useState(false);
+  const [showBizSignup, setShowBizSignup] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
   const [menuOverlay, setMenuOverlay] = useState(null); // null | "supporters" | "qna" | "faq"
   const [menuMode, setMenuMode] = useState(null); // null | "test" | "elderly"
@@ -388,7 +390,13 @@ export default function App() {
       )}
 
       <QrScanner visible={showQrScanner} onScan={handleQrScan} onClose={() => setShowQrScanner(false)} />
-      <AdminLogin visible={showLogin} onClose={() => setShowLogin(false)} onLogin={handleLogin} />
+      <AdminLogin
+        visible={showLogin}
+        onClose={() => setShowLogin(false)}
+        onLogin={handleLogin}
+        onSignupClick={() => { setShowLogin(false); setShowBizSignup(true); }}
+      />
+      <BizSignup visible={showBizSignup} onClose={() => setShowBizSignup(false)} />
     </View>
   );
 }

@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Modal, ActivityIndicator } fro
 import { s } from "../styles/AdminLogin.styles";
 import api from "../lib/api";
 
-export default function AdminLogin({ visible, onClose, onLogin }) {
+export default function AdminLogin({ visible, onClose, onLogin, onSignupClick }) {
   const [form, setForm] = useState({ id: "", pw: "" });
   const [totpCode, setTotpCode] = useState("");
   const [totpRequired, setTotpRequired] = useState(false);
@@ -89,6 +89,13 @@ export default function AdminLogin({ visible, onClose, onLogin }) {
             <TouchableOpacity style={s.cancelBtn} onPress={onClose}>
               <Text style={s.cancelBtnText}>취소</Text>
             </TouchableOpacity>
+            {!!onSignupClick && (
+              <TouchableOpacity onPress={onSignupClick} style={{ marginTop: 14, alignItems: "center" }}>
+                <Text style={{ fontSize: 14, color: "#6b7280", textDecorationLine: "underline" }}>
+                  사업자이신가요? 신규 가입하기
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </View>

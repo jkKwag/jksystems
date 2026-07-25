@@ -91,6 +91,12 @@ const api = {
     employees: (bizno) => get(`/api/biz/${bizno}/employees`),
     uploadMenuImage: (bizno, formData) => postMultipart(`/api/biz/${bizno}/menu-image`, formData),
     uploadSeatImage: (bizno, formData) => postMultipart(`/api/biz/${bizno}/seat-image`, formData),
+    signup: (body) => post(`/api/biz/signup`, body),
+    uploadRegistrationCert: (bizno, signupToken, formData) =>
+      postMultipart(`/api/biz/${bizno}/registration-cert?signupToken=${encodeURIComponent(signupToken)}`, formData),
+    pendingApprovals: () => get(`/api/biz/approvals`),
+    approveBiz: (bizno) => put(`/api/biz/${bizno}/approve`, {}),
+    rejectBiz: (bizno, body) => put(`/api/biz/${bizno}/reject`, body),
   },
   industry: {
     get: (indCd) => get(`/api/industry/${indCd}`),
