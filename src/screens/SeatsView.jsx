@@ -101,7 +101,7 @@ export default function SeatsView({ visible, onClose, bizno }) {
   useEffect(() => {
     if (!expandedSeat || !rsvnDate || !bizno) { setOccupiedWindows([]); return; }
     (async () => {
-      const list = await api.reservation.listByBiz(bizno, rsvnDate);
+      const list = await api.reservation.availability(bizno, rsvnDate);
       const useTimeMin = rsvnStd?.useTimeMin || 90;
       const windows = (Array.isArray(list) ? list : [])
         .filter(r => r.seatCd === expandedSeat.seatCd && r.rsvnStatus !== "CANCELLED")

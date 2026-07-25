@@ -119,6 +119,8 @@ const api = {
       if (from && to) return get(`/api/reservation/biz/${bizRegNo}?from=${from}&to=${to}`);
       return get(`/api/reservation/biz/${bizRegNo}${date ? `?date=${date}` : ""}`);
     },
+    // 손님용 예약 가능시간 조회 — 이름/전화번호 없이 좌석/시간/상태만 내려주는 공개 API
+    availability: (bizRegNo, date) => get(`/api/reservation/biz/${bizRegNo}/availability?date=${date}`),
     get: (rsvnNo) => get(`/api/reservation/${rsvnNo}`),
     post: (body) => post(`/api/reservation`, body),
     put: (rsvnNo, body) => put(`/api/reservation/${rsvnNo}`, body),
