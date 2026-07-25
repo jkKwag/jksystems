@@ -205,6 +205,9 @@ export const s = StyleSheet.create({
   pendingOrderBadge: { alignSelf: "flex-start", backgroundColor: colors.accent, borderRadius: radius.sm, paddingHorizontal: spacing["2"], paddingVertical: 3 },
   pendingOrderBadgeText: { fontSize: font.sm, fontWeight: "800", color: colors.white },
   pendingOrderTypText: { fontSize: font.sm, fontWeight: "700", color: colors.textSecondary, marginLeft: "auto" },
+  cancelRadioOuter: { width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: colors.slate300, alignItems: "center", justifyContent: "center" },
+  cancelRadioOuterActive: { borderColor: "#ef4444" },
+  cancelRadioInner: { width: 10, height: 10, borderRadius: 5, backgroundColor: "#ef4444" },
 
   payTossNote: { fontSize: font.base, color: colors.slate400, textAlign: "center", marginTop: spacing["4"], fontWeight: "600" },
 

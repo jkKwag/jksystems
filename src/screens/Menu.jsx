@@ -488,6 +488,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
   const [showPayment, setShowPayment] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [cancelingOrder, setCancelingOrder] = useState(false);
+  const [selectedCancelOrders, setSelectedCancelOrders] = useState([]);
 
   const filtered = activeCat === "전체" ? menuItems : menuItems.filter(i => i.category === activeCat);
   const cartItems = Object.values(cart);
@@ -499,17 +500,30 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
   const grandTotal = cartTotal + pendingTotal;
   // 아직 주방에서 준비를 시작하지 않은(주문접수 단계) 주문만 취소할 수 있다
   const cancelableOrders = pendingOrders.filter(o => o.status === "RECEIVED");
+  // 취소 대상으로 실제 선택된 주문 (여러 건일 때 라디오로 골라낸 것)
+  const ordersToCancel = cancelableOrders.filter(o => selectedCancelOrders.includes(o.orderNo));
+
+  // 주문 목록이 바뀔 때마다 취소 가능한 주문은 기본적으로 전부 선택된 상태로 초기화
+  useEffect(() => {
+    setSelectedCancelOrders(pendingOrders.filter(o => o.status === "RECEIVED").map(o => o.orderNo));
+  }, [pendingOrders]);
+
+  const toggleCancelSelect = (orderNo) => {
+    setSelectedCancelOrders(prev =>
+      prev.includes(orderNo) ? prev.filter(no => no !== orderNo) : [...prev, orderNo]
+    );
+  };
 
   const cancelPendingOrders = async () => {
     setCancelingOrder(true);
     const results = await Promise.all(
-      cancelableOrders.map(o => api.order.updateStatus(o.orderNo, { status: "CANCELED" }))
+      ordersToCancel.map(o => api.order.updateStatus(o.orderNo, { status: "CANCELED" }))
     );
     setCancelingOrder(false);
     setShowCancelConfirm(false);
     if (results.some(r => r.error)) { alert("주문 취소에 실패했습니다. 다시 시도해주세요."); }
     await refreshPendingOrders();
-    if (pendingCount <= cancelableOrders.length && cartItems.length === 0) setShowPayment(false);
+    if (pendingCount <= ordersToCancel.length && cartItems.length === 0) setShowPayment(false);
   };
 
   const addToCart = (item) => {
@@ -1099,6 +1113,16 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                   {pendingOrders.map((order, oi) => (
                     <View key={order.orderNo} style={oi > 0 && s.pendingOrderGroup}>
                       <View style={s.pendingOrderBadgeRow}>
+                        {order.status === "RECEIVED" && cancelableOrders.length > 1 && (
+                          <TouchableOpacity
+                            onPress={() => toggleCancelSelect(order.orderNo)}
+                            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                          >
+                            <View style={[s.cancelRadioOuter, selectedCancelOrders.includes(order.orderNo) && s.cancelRadioOuterActive]}>
+                              {selectedCancelOrders.includes(order.orderNo) && <View style={s.cancelRadioInner} />}
+                            </View>
+                          </TouchableOpacity>
+                        )}
                         <View style={s.pendingOrderBadge}>
                           <Text style={s.pendingOrderBadgeText}>주문{pendingOrders.length - oi}</Text>
                         </View>
@@ -1138,8 +1162,8 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
               <View style={s.payBtnRow}>
                 {cartItems.length === 0 && pendingCount > 0 ? (
                   <TouchableOpacity
-                    style={[s.orderOnlyBtn, s.orderOnlyBtnCancel, (cancelableOrders.length === 0 || cancelingOrder) && s.orderOnlyBtnDisabled]}
-                    disabled={cancelableOrders.length === 0 || cancelingOrder}
+                    style={[s.orderOnlyBtn, s.orderOnlyBtnCancel, (ordersToCancel.length === 0 || cancelingOrder) && s.orderOnlyBtnDisabled]}
+                    disabled={ordersToCancel.length === 0 || cancelingOrder}
                     onPress={() => setShowCancelConfirm(true)}
                   >
                     <Text style={[s.orderOnlyBtnText, s.orderOnlyBtnTextCancel]}>주문취소</Text>
@@ -1244,7 +1268,9 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
           <View style={s.confirmBox}>
             <Text style={s.confirmEmoji}>⚠️</Text>
             <Text style={s.confirmTitle}>주문취소</Text>
-            <Text style={s.confirmMsg}>접수된 주문을 취소하시겠어요?</Text>
+            <Text style={s.confirmMsg}>
+              {ordersToCancel.length > 1 ? `선택한 주문 ${ordersToCancel.length}건을 취소하시겠어요?` : "접수된 주문을 취소하시겠어요?"}
+            </Text>
             <View style={s.confirmBtns}>
               <TouchableOpacity style={s.confirmCancelBtn} onPress={() => setShowCancelConfirm(false)} disabled={cancelingOrder}>
                 <Text style={s.confirmCancelText}>닫기</Text>
