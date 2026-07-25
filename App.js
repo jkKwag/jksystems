@@ -118,8 +118,21 @@ export default function App() {
   };
 
   useEffect(() => {
-    AsyncStorage.getItem("isAdmin").then(v => { if (v === "true") setIsAdmin(true); });
-    AsyncStorage.getItem("adminInfo").then(v => { if (v) setAdminInfo(JSON.parse(v)); });
+    (async () => {
+      const [storedIsAdmin, storedToken, storedInfo] = await Promise.all([
+        AsyncStorage.getItem("isAdmin"),
+        AsyncStorage.getItem("adminToken"),
+        AsyncStorage.getItem("adminInfo"),
+      ]);
+      // 세션 토큰 도입 이전에 로그인해있던 세션은 토큰이 없어서 이제 서버가 전부 401로
+      // 거부한다 — 화면만 로그인된 것처럼 보이는 깨진 상태로 남지 않도록 강제 로그아웃한다.
+      if (storedIsAdmin === "true" && !storedToken) {
+        await AsyncStorage.multiRemove(["isAdmin", "adminInfo", "adminToken"]);
+        return;
+      }
+      if (storedIsAdmin === "true") setIsAdmin(true);
+      if (storedInfo) setAdminInfo(JSON.parse(storedInfo));
+    })();
   }, []);
 
   useEffect(() => {
