@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput, Animated, Easing } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, TextInput, Animated, Easing, Image } from "react-native";
+import QRCode from "qrcode";
 import { s } from "../../styles/admin/AdminAccounts.styles";
 import api from "../../lib/api";
 import { formatBizRegNo } from "../../lib/formatBizRegNo";
@@ -36,9 +37,11 @@ export default function AdminAccounts({ adminInfo }) {
 
   const [showTotpSetup, setShowTotpSetup] = useState(false);
   const [totpSecret, setTotpSecret] = useState(null);
+  const [totpQrDataUrl, setTotpQrDataUrl] = useState(null);
   const [totpSetupCode, setTotpSetupCode] = useState("");
   const [totpBusy, setTotpBusy] = useState(false);
   const [totpError, setTotpError] = useState("");
+  const [showManualKey, setShowManualKey] = useState(false);
 
   const currentPwEmpty = pwTouched.current && !currentPw;
   const newPwTooShort = newPw.length < 8;
@@ -111,16 +114,24 @@ export default function AdminAccounts({ adminInfo }) {
   const openTotpSetup = async () => {
     setShowTotpSetup(true);
     setTotpSecret(null);
+    setTotpQrDataUrl(null);
     setTotpSetupCode("");
     setTotpError("");
+    setShowManualKey(false);
     const { data, error } = await api.admin.totpSetup();
     if (error || !data) { setTotpError(error?.message || "비밀키 발급에 실패했습니다."); return; }
     setTotpSecret(data.secret);
+    try {
+      setTotpQrDataUrl(await QRCode.toDataURL(data.otpauthUri));
+    } catch {
+      setShowManualKey(true); // QR 생성에 실패해도 수동 입력으로는 등록할 수 있게
+    }
   };
 
   const closeTotpSetup = () => {
     setShowTotpSetup(false);
     setTotpSecret(null);
+    setTotpQrDataUrl(null);
     setTotpSetupCode("");
     setTotpError("");
   };
@@ -412,14 +423,26 @@ export default function AdminAccounts({ adminInfo }) {
               {totpSecret ? (
                 <>
                   <Text style={s.pwFieldHint}>
-                    구글 OTP(Google Authenticator) 등 인증 앱에서 "수동 입력"으로 아래 키를 등록한 뒤,
+                    구글 OTP(Google Authenticator) 등 인증 앱으로 아래 QR코드를 스캔한 뒤,
                     앱에 뜬 6자리 코드를 입력해주세요.
                   </Text>
-                  <View style={s.pwFieldWrap}>
-                    <Text style={[s.pwInput, { textAlign: "center", letterSpacing: 2 }]} selectable>
-                      {formattedSecret}
+                  {totpQrDataUrl && (
+                    <View style={{ alignItems: "center", marginVertical: 12 }}>
+                      <Image source={{ uri: totpQrDataUrl }} style={{ width: 200, height: 200 }} />
+                    </View>
+                  )}
+                  <TouchableOpacity onPress={() => setShowManualKey(v => !v)}>
+                    <Text style={[s.pwFieldHint, { textAlign: "center", textDecorationLine: "underline" }]}>
+                      {showManualKey ? "키 숨기기" : "QR을 스캔할 수 없나요? 직접 입력하기"}
                     </Text>
-                  </View>
+                  </TouchableOpacity>
+                  {showManualKey && (
+                    <View style={s.pwFieldWrap}>
+                      <Text style={[s.pwInput, { textAlign: "center", letterSpacing: 2 }]} selectable>
+                        {formattedSecret}
+                      </Text>
+                    </View>
+                  )}
                   <View style={s.pwFieldWrap}>
                     <TextInput
                       style={s.pwInput}
