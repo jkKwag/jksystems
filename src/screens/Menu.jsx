@@ -1122,15 +1122,20 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                   {pendingOrders.map((order, oi) => (
                     <View key={order.orderNo} style={oi > 0 && s.pendingOrderGroup}>
                       <View style={s.pendingOrderBadgeRow}>
-                        {order.status === "RECEIVED" && cancelableOrders.length > 1 && (
-                          <TouchableOpacity
-                            onPress={() => toggleCancelSelect(order.orderNo)}
-                            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                          >
-                            <View style={[s.cancelRadioOuter, selectedCancelOrders.includes(order.orderNo) && s.cancelRadioOuterActive]}>
-                              {selectedCancelOrders.includes(order.orderNo) && <View style={s.cancelRadioInner} />}
-                            </View>
-                          </TouchableOpacity>
+                        {pendingOrders.length > 1 && (
+                          order.status === "RECEIVED" ? (
+                            <TouchableOpacity
+                              onPress={() => toggleCancelSelect(order.orderNo)}
+                              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                            >
+                              <View style={[s.cancelRadioOuter, selectedCancelOrders.includes(order.orderNo) && s.cancelRadioOuterActive]}>
+                                {selectedCancelOrders.includes(order.orderNo) && <View style={s.cancelRadioInner} />}
+                              </View>
+                            </TouchableOpacity>
+                          ) : (
+                            // 주문접수 단계가 지나 취소할 수 없는 건은 선택 불가 상태로만 표시
+                            <View style={[s.cancelRadioOuter, s.cancelRadioOuterDisabled]} />
+                          )
                         )}
                         <View style={s.pendingOrderBadge}>
                           <Text style={s.pendingOrderBadgeText}>주문{pendingOrders.length - oi}</Text>
