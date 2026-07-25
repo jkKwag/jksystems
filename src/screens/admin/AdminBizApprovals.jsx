@@ -85,6 +85,7 @@ export default function AdminBizApprovals() {
 
                 <View>
                   <View style={s.detailRow}><Text style={s.detailKey}>전화</Text><Text style={s.detailVal}>{biz.telNo || "-"}</Text></View>
+                  <View style={s.detailRow}><Text style={s.detailKey}>휴대폰</Text><Text style={s.detailVal}>{biz.mobileTel || "-"}</Text></View>
                   <View style={s.detailRow}><Text style={s.detailKey}>이메일</Text><Text style={s.detailVal}>{biz.emailAddr || "-"}</Text></View>
                   <View style={s.detailRow}><Text style={s.detailKey}>주소</Text><Text style={s.detailVal}>{[biz.addr, biz.addrDtl].filter(Boolean).join(" ") || "-"}</Text></View>
                 </View>

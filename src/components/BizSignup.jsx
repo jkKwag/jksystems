@@ -6,9 +6,55 @@ import api from "../lib/api";
 const IMAGE_MAX_DIMENSION = 1400;
 const IMAGE_QUALITY = 0.85;
 
+// 대표자명/주소는 나중에 사업자등록증 이미지 인식으로 채울 예정이라 가입 폼에서는 받지 않는다.
 const emptyForm = {
-  bizRegNo: "", bizNm: "", repNm: "", telNo: "", emailAddr: "", addr: "", addrDtl: "",
+  bizRegNo: "", bizNm: "", telNo: "", mobileTel: "", emailAddr: "",
   adminId: "", password: "", passwordConfirm: "",
+};
+
+const digitsOnly = (v) => v.replace(/\D/g, "");
+
+// 필드별 유효성 검사 — 값이 비어있으면 required 필드만 에러, 나머지는 형식만 검사
+const validators = {
+  bizRegNo: (v) => {
+    if (!v.trim()) return "사업자등록번호를 입력해주세요.";
+    if (digitsOnly(v).length !== 10) return "사업자등록번호는 숫자 10자리여야 합니다.";
+    return "";
+  },
+  bizNm: (v) => (!v.trim() ? "상호명을 입력해주세요." : ""),
+  telNo: (v) => {
+    if (!v.trim()) return "";
+    return digitsOnly(v).length >= 9 && digitsOnly(v).length <= 11 ? "" : "전화번호 형식이 올바르지 않습니다.";
+  },
+  mobileTel: (v) => {
+    if (!v.trim()) return "";
+    return /^01[0-9]{8,9}$/.test(digitsOnly(v)) ? "" : "휴대폰번호 형식이 올바르지 않습니다. (예: 01012345678)";
+  },
+  emailAddr: (v) => {
+    if (!v.trim()) return "";
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? "" : "이메일 형식이 올바르지 않습니다.";
+  },
+  adminId: (v) => {
+    if (!v.trim()) return "관리자 아이디를 입력해주세요.";
+    return /^[a-zA-Z0-9_]{4,20}$/.test(v.trim()) ? "" : "아이디는 영문/숫자/_ 4~20자여야 합니다.";
+  },
+  password: (v) => {
+    if (!v) return "비밀번호를 입력해주세요.";
+    return v.length >= 8 ? "" : "비밀번호는 8자 이상이어야 합니다.";
+  },
+  passwordConfirm: (v, form) => {
+    if (!v) return "비밀번호를 다시 입력해주세요.";
+    return v === form.password ? "" : "비밀번호가 일치하지 않습니다.";
+  },
+};
+
+const validateAll = (form) => {
+  const errors = {};
+  Object.keys(validators).forEach((key) => {
+    const msg = validators[key](form[key], form);
+    if (msg) errors[key] = msg;
+  });
+  return errors;
 };
 
 // 메뉴 이미지 업로드와 동일한 방식으로 리사이즈/압축 (사업자등록증은 글자를 읽어야 해서 조금 더 크게)
@@ -40,6 +86,7 @@ function resizeAndCompressImage(file, maxDim, quality) {
 export default function BizSignup({ visible, onClose }) {
   const [step, setStep] = useState("form"); // form | cert | done
   const [form, setForm] = useState(emptyForm);
+  const [touched, setTouched] = useState({});
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [signupResult, setSignupResult] = useState(null); // { bizRegNo, signupToken, ntsStatus }
@@ -47,10 +94,15 @@ export default function BizSignup({ visible, onClose }) {
   const [certUploading, setCertUploading] = useState(false);
 
   const update = (key) => (v) => setForm(f => ({ ...f, [key]: v }));
+  const markTouched = (key) => () => setTouched(t => ({ ...t, [key]: true }));
+
+  const fieldErrors = validateAll(form);
+  const errorFor = (key) => (touched[key] ? fieldErrors[key] : "");
 
   const reset = () => {
     setStep("form");
     setForm(emptyForm);
+    setTouched({});
     setError("");
     setSignupResult(null);
     setCertUploaded(false);
@@ -58,25 +110,38 @@ export default function BizSignup({ visible, onClose }) {
 
   const handleClose = () => { reset(); onClose(); };
 
+  const Field = ({ field, label, placeholder, keyboardType, secureTextEntry, autoCapitalize }) => (
+    <>
+      <Text style={s.label}>{label}</Text>
+      <TextInput
+        style={[s.inp, !!errorFor(field) && local.inpError]}
+        placeholder={placeholder}
+        value={form[field]}
+        onChangeText={update(field)}
+        onBlur={markTouched(field)}
+        keyboardType={keyboardType}
+        secureTextEntry={secureTextEntry}
+        autoCapitalize={autoCapitalize}
+      />
+      {!!errorFor(field) && <Text style={local.fieldErrorText}>{errorFor(field)}</Text>}
+    </>
+  );
+
   const submitSignup = async () => {
-    if (!form.bizRegNo.trim() || !form.bizNm.trim() || !form.repNm.trim()) {
-      setError("사업자등록번호, 상호명, 대표자명을 입력해주세요."); return;
+    const errors = validateAll(form);
+    setTouched(Object.fromEntries(Object.keys(validators).map(k => [k, true])));
+    if (Object.keys(errors).length > 0) {
+      setError("입력값을 다시 확인해주세요.");
+      return;
     }
-    if (!form.adminId.trim() || !form.password) {
-      setError("관리자 아이디와 비밀번호를 입력해주세요."); return;
-    }
-    if (form.password.length < 8) { setError("비밀번호는 8자 이상이어야 합니다."); return; }
-    if (form.password !== form.passwordConfirm) { setError("비밀번호가 일치하지 않습니다."); return; }
 
     setLoading(true); setError("");
     const { data, error: apiError } = await api.biz.signup({
-      bizRegNo: form.bizRegNo.trim(),
+      bizRegNo: digitsOnly(form.bizRegNo),
       bizNm: form.bizNm.trim(),
-      repNm: form.repNm.trim(),
       telNo: form.telNo.trim() || null,
+      mobileTel: form.mobileTel.trim() || null,
       emailAddr: form.emailAddr.trim() || null,
-      addr: form.addr.trim() || null,
-      addrDtl: form.addrDtl.trim() || null,
       adminId: form.adminId.trim(),
       password: form.password,
     });
@@ -129,26 +194,14 @@ export default function BizSignup({ visible, onClose }) {
           <ScrollView style={local.scroll} contentContainerStyle={s.body}>
             {step === "form" && (
               <>
-                <Text style={s.label}>사업자등록번호</Text>
-                <TextInput style={s.inp} placeholder="숫자만 입력" value={form.bizRegNo} onChangeText={update("bizRegNo")} keyboardType="numeric" />
-                <Text style={s.label}>상호명</Text>
-                <TextInput style={s.inp} placeholder="상호명 입력" value={form.bizNm} onChangeText={update("bizNm")} />
-                <Text style={s.label}>대표자명</Text>
-                <TextInput style={s.inp} placeholder="대표자명 입력" value={form.repNm} onChangeText={update("repNm")} />
-                <Text style={s.label}>전화번호</Text>
-                <TextInput style={s.inp} placeholder="전화번호 입력" value={form.telNo} onChangeText={update("telNo")} keyboardType="phone-pad" />
-                <Text style={s.label}>이메일</Text>
-                <TextInput style={s.inp} placeholder="이메일 입력" value={form.emailAddr} onChangeText={update("emailAddr")} autoCapitalize="none" keyboardType="email-address" />
-                <Text style={s.label}>주소</Text>
-                <TextInput style={s.inp} placeholder="주소 입력" value={form.addr} onChangeText={update("addr")} />
-                <Text style={s.label}>상세주소</Text>
-                <TextInput style={s.inp} placeholder="상세주소 입력" value={form.addrDtl} onChangeText={update("addrDtl")} />
-                <Text style={s.label}>관리자 아이디</Text>
-                <TextInput style={s.inp} placeholder="로그인에 사용할 아이디" value={form.adminId} onChangeText={update("adminId")} autoCapitalize="none" />
-                <Text style={s.label}>비밀번호</Text>
-                <TextInput style={s.inp} placeholder="8자 이상" value={form.password} onChangeText={update("password")} secureTextEntry />
-                <Text style={s.label}>비밀번호 확인</Text>
-                <TextInput style={s.inp} placeholder="비밀번호 재입력" value={form.passwordConfirm} onChangeText={update("passwordConfirm")} secureTextEntry />
+                <Field field="bizRegNo" label="사업자등록번호" placeholder="숫자만 입력" keyboardType="numeric" />
+                <Field field="bizNm" label="상호명" placeholder="상호명 입력" />
+                <Field field="telNo" label="전화번호" placeholder="전화번호 입력 (선택)" keyboardType="phone-pad" />
+                <Field field="mobileTel" label="휴대폰번호" placeholder="휴대폰번호 입력 (선택)" keyboardType="phone-pad" />
+                <Field field="emailAddr" label="이메일" placeholder="이메일 입력 (선택)" keyboardType="email-address" autoCapitalize="none" />
+                <Field field="adminId" label="관리자 아이디" placeholder="로그인에 사용할 아이디" autoCapitalize="none" />
+                <Field field="password" label="비밀번호" placeholder="8자 이상" secureTextEntry />
+                <Field field="passwordConfirm" label="비밀번호 확인" placeholder="비밀번호 재입력" secureTextEntry />
 
                 {!!error && <View style={s.errorBox}><Text style={s.errorText}>⚠️ {error}</Text></View>}
                 <TouchableOpacity style={[s.loginBtn, { opacity: loading ? 0.7 : 1 }]} onPress={submitSignup} disabled={loading}>
@@ -204,6 +257,8 @@ export default function BizSignup({ visible, onClose }) {
 const local = StyleSheet.create({
   card: { maxHeight: Platform.OS === "web" ? "85vh" : "85%" },
   scroll: { flexShrink: 1 },
+  inpError: { borderColor: "#ef4444" },
+  fieldErrorText: { fontSize: 13, color: "#ef4444", marginTop: -10, marginBottom: 12 },
   ntsResultBox: { backgroundColor: "#f0f9ff", borderWidth: 1, borderColor: "#7dd3fc", borderRadius: 12, padding: 12, marginBottom: 16 },
   ntsResultText: { fontSize: 15, color: "#0369a1", fontWeight: "600" },
   certPickBtn: { borderWidth: 1.5, borderColor: "#1d3557", borderStyle: "dashed", borderRadius: 12, padding: 16, alignItems: "center", marginBottom: 16 },
