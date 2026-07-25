@@ -90,6 +90,14 @@ export const s = StyleSheet.create({
   deleteBtnText: { fontSize: 16, fontWeight: "900", color: "#ef4444" },
   modalItemBottom: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   modalItemPrice: { fontSize: 22, fontWeight: "900", color: "#1d4ed8" },
+
+  pendingSection: { marginTop: 8, paddingTop: 16, borderTopWidth: 2, borderTopColor: "#e2e8f0", gap: 10 },
+  pendingSectionTitle: { fontSize: 18, fontWeight: "800", color: "#94a3b8" },
+  pendingOrderBlock: { gap: 4, paddingVertical: 4 },
+  pendingItemRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  pendingItemName: { flex: 1, fontSize: 19, fontWeight: "700", color: "#334155" },
+  pendingItemQty: { fontSize: 19, fontWeight: "800", color: "#64748b" },
+
   modalFooter: { paddingTop: 18, borderTopWidth: 2, borderTopColor: "#e2e8f0", gap: 14 },
   modalTotal: { fontSize: 24, fontWeight: "900", color: "#0f172a", textAlign: "center" },
   modalBtnCol: { gap: 12 },

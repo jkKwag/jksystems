@@ -15,6 +15,13 @@ function getUuid() {
   return uuid;
 }
 
+const STUCK_ORDER_MAX_AGE_MS = 3 * 60 * 60 * 1000; // 상태 무관, 주문 후 3시간 지나면 숨김
+const isOrderExpired = (order) => {
+  const now = Date.now();
+  if (order.regDt && now - new Date(order.regDt).getTime() > STUCK_ORDER_MAX_AGE_MS) return true;
+  return false;
+};
+
 const DEMO_MENUS = [
   { menuCd: "d1", menuNm: "된장찌개 정식", price: 9000, imgUrl: null, emoji: "🍲" },
   { menuCd: "d2", menuNm: "캠프 직화 삼겹살", price: 17000, imgUrl: null, emoji: "🥩" },
@@ -102,6 +109,18 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   // 메뉴별 옵션그룹/선택상태: { [menuCd]: group[] }, { [menuCd]: { [optGrpCd]: choiceId | choiceId[] } }
   const [optionGroupsByMenu, setOptionGroupsByMenu] = useState({});
   const [selections, setSelections] = useState({});
+
+  // 이미 "주문하기"로 접수했지만 아직 결제 안 한 주문 (다시 들어왔을 때 결제할 수 있게)
+  const [pendingOrders, setPendingOrders] = useState([]);
+  const refreshPendingOrders = async () => {
+    const uuid = getUuid();
+    if (!uuid || !bizno) return;
+    const orders = await api.order.list(uuid);
+    if (!Array.isArray(orders)) return;
+    const list = orders.filter(o => o.bizRegNo === bizno && o.status !== "CANCELED" && !o.paymentStatus && !isOrderExpired(o));
+    setPendingOrders(list);
+  };
+  useEffect(() => { refreshPendingOrders(); }, [bizno]);
 
   const translateX = useRef(new Animated.Value(0)).current;
   const photoOpacity = useRef(new Animated.Value(1)).current;
@@ -209,13 +228,17 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   const cartCount = Object.values(cart).reduce((a, c) => a + c.qty, 0);
 
   useEffect(() => {
-    if (showCartModal && cartCount === 0) setShowCartModal(false);
-  }, [cartCount, showCartModal]);
+    if (showCartModal && cartCount === 0 && pendingOrders.length === 0) setShowCartModal(false);
+  }, [cartCount, pendingOrders.length, showCartModal]);
 
   const cartTotal = Object.entries(cart).reduce((sum, [cd, c]) => {
     const menu = menus.find(m => m.menuCd === cd);
     return sum + (menu ? (Number(menu.price || 0) + (c.optionsTotal || 0)) * c.qty : 0);
   }, 0);
+
+  const pendingCount = pendingOrders.length;
+  const pendingTotal = pendingOrders.reduce((sum, o) => sum + Number(o.totalAmount || 0), 0);
+  const grandTotal = cartTotal + pendingTotal;
 
   // 현재 장바구니 내용을 POST /api/order 요청 형식으로 변환
   const buildOrderItemsPayload = () => Object.entries(cart).map(([cd, c]) => {
@@ -229,7 +252,8 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
     };
   });
 
-  // "주문하기": 결제 없이 바로 주문 생성 (결제 대기 상태로 접수)
+  // "주문하기": 결제 없이 바로 주문 생성 (결제 대기 상태로 접수) — 나중에 이 화면에
+  // 다시 들어오면 pendingOrders로 잡혀서 하단 바에서 바로 결제할 수 있다.
   const orderOnly = async () => {
     const uuid = getUuid();
     if (!uuid || cartCount === 0) return;
@@ -245,41 +269,47 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
     if (error || !data) { alert("주문 생성에 실패했습니다. 다시 시도해주세요."); return; }
     setCart({});
     setShowCartModal(false);
+    await refreshPendingOrders();
     alert(data.pickupNo ? `주문이 접수되었어요. 픽업번호: ${data.pickupNo}` : "주문이 접수되었어요.");
   };
 
-  // "결제하기": 결제 전에는 주문을 만들지 않는다 — 결제 취소/실패해도 미결제 주문이
+  // "결제하기": 결제 전에는 새 주문을 만들지 않는다 — 결제 취소/실패해도 미결제 주문이
   // 남지 않도록, 결제가 실제로 승인된 뒤(PaymentSuccess)에 장바구니 내용으로 주문을 생성한다.
+  // 이미 "주문하기"로 접수해둔 결제 대기 주문(pendingOrders)이 있으면 함께 결제한다.
   const payNow = async () => {
     if (!TOSS_CLIENT_KEY) { alert("토스 클라이언트 키가 없습니다 (EXPO_PUBLIC_TOSS_CLIENT_KEY)"); return; }
-    if (cartCount === 0) { alert("결제할 주문이 없습니다."); return; }
+    if (cartCount === 0 && pendingCount === 0) { alert("결제할 주문이 없습니다."); return; }
     const checkoutId = `scaneat-${Date.now()}`;
+    const existingOrderNos = pendingOrders.map(o => o.orderNo);
     let storedCheckout = false;
     let storedPendingCart = false;
     setSubmitting(true);
     try {
-      sessionStorage.setItem(`scaneat_checkout_${checkoutId}`, JSON.stringify({
-        uuid: getUuid(),
-        bizRegNo: bizno,
-        seatNo: tableNo || null,
-        orderTypCd: "DINE_IN",
-        items: buildOrderItemsPayload(),
-      }));
-      storedCheckout = true;
-      // 결제창으로 넘어갔다가 취소하고 돌아오는 경우에만 장바구니를 복원해준다
-      sessionStorage.setItem(PENDING_CART_KEY(bizno), JSON.stringify(cart));
-      storedPendingCart = true;
+      if (cartCount > 0) {
+        sessionStorage.setItem(`scaneat_checkout_${checkoutId}`, JSON.stringify({
+          uuid: getUuid(),
+          bizRegNo: bizno,
+          seatNo: tableNo || null,
+          orderTypCd: "DINE_IN",
+          items: buildOrderItemsPayload(),
+        }));
+        storedCheckout = true;
+        // 결제창으로 넘어갔다가 취소하고 돌아오는 경우에만 장바구니를 복원해준다
+        sessionStorage.setItem(PENDING_CART_KEY(bizno), JSON.stringify(cart));
+        storedPendingCart = true;
+      }
 
       const { loadTossPayments, ANONYMOUS } = await import("@tosspayments/tosspayments-sdk");
       const tossPayments = await loadTossPayments(TOSS_CLIENT_KEY);
       const payment = tossPayments.payment({ customerKey: ANONYMOUS });
       const firstMenu = menus.find(m => m.menuCd === Object.keys(cart)[0]);
+      const orderCountForName = cartCount > 0 ? cartCount : pendingCount;
       await payment.requestPayment({
         method: "CARD",
-        amount: { currency: "KRW", value: cartTotal },
+        amount: { currency: "KRW", value: grandTotal },
         orderId: checkoutId,
-        orderName: cartCount === 1 && firstMenu ? firstMenu.menuNm : `주문 ${cartCount}건`,
-        successUrl: window.location.origin + `/payment/success?bizno=${bizno}&checkoutId=${checkoutId}`,
+        orderName: cartCount === 1 && firstMenu ? firstMenu.menuNm : `주문 ${orderCountForName}건`,
+        successUrl: window.location.origin + `/payment/success?bizno=${bizno}&orderNos=${existingOrderNos.join(",")}&checkoutId=${checkoutId}`,
         failUrl: window.location.origin + `/payment/fail?bizno=${bizno}&checkoutId=${checkoutId}`,
       });
     } catch (e) {
@@ -289,6 +319,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
       alert(`[결제 오류] ${e?.message || JSON.stringify(e)}`);
     } finally {
       setSubmitting(false);
+      await refreshPendingOrders();
     }
   };
 
@@ -411,13 +442,13 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
         )}
       </View>
 
-      <View style={[s.dots, cartCount > 0 && Platform.OS === "web" && { paddingBottom: 76 }]}>
+      <View style={[s.dots, (cartCount > 0 || pendingCount > 0) && Platform.OS === "web" && { paddingBottom: 76 }]}>
         {menus.map((_, i) => (
           <View key={i} style={[s.dot, i === currentIndex && s.dotActive]} />
         ))}
       </View>
 
-      {cartCount > 0 && (
+      {cartCount > 0 ? (
         <TouchableOpacity
           style={[s.cartBar, Platform.OS === "web" && { position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100 }]}
           onPress={() => setShowCartModal(true)}
@@ -427,18 +458,30 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
           <Text style={s.cartText}>장바구니 보기</Text>
           <Text style={s.cartPrice}>{cartTotal.toLocaleString()}원</Text>
         </TouchableOpacity>
-      )}
+      ) : pendingCount > 0 ? (
+        <TouchableOpacity
+          style={[s.cartBar, Platform.OS === "web" && { position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 100 }]}
+          onPress={() => setShowCartModal(true)}
+          activeOpacity={0.85}
+        >
+          <View style={s.cartBadge}><Text style={s.cartBadgeText}>{pendingCount}건</Text></View>
+          <Text style={s.cartText}>결제 대기 중 · 결제하기</Text>
+          <Text style={s.cartPrice}>{pendingTotal.toLocaleString()}원</Text>
+        </TouchableOpacity>
+      ) : null}
 
       {showCartModal && (
         <View style={[StyleSheet.absoluteFillObject, s.modalOverlay]}>
           <TouchableOpacity style={s.modalBg} activeOpacity={1} onPress={() => setShowCartModal(false)} />
           <View style={s.modalSheet}>
             <View style={s.modalTitleRow}>
-              <Text style={s.modalTitle}>장바구니</Text>
+              <Text style={s.modalTitle}>{cartCount > 0 ? "장바구니" : "결제 대기 중"}</Text>
               <View style={s.modalTitleActions}>
-                <TouchableOpacity style={s.trashBtn} onPress={() => { setCart({}); setShowCartModal(false); }}>
-                  <Text style={s.trashBtnIcon}>🗑️</Text>
-                </TouchableOpacity>
+                {cartCount > 0 && (
+                  <TouchableOpacity style={s.trashBtn} onPress={() => setCart({})}>
+                    <Text style={s.trashBtnIcon}>🗑️</Text>
+                  </TouchableOpacity>
+                )}
                 <TouchableOpacity style={s.closeBtn} onPress={() => setShowCartModal(false)}>
                   <Text style={s.closeBtnText}>✕</Text>
                 </TouchableOpacity>
@@ -475,9 +518,25 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
                   </View>
                 );
               })}
+
+              {pendingCount > 0 && (
+                <View style={s.pendingSection}>
+                  <Text style={s.pendingSectionTitle}>이미 주문한 내역 ({pendingCount}건, 결제 대기)</Text>
+                  {pendingOrders.map(order => (
+                    <View key={order.orderNo} style={s.pendingOrderBlock}>
+                      {order.items?.map(item => (
+                        <View key={item.orderSeq} style={s.pendingItemRow}>
+                          <Text style={s.pendingItemName} numberOfLines={1}>{item.menuNm}</Text>
+                          <Text style={s.pendingItemQty}>x{item.qty}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  ))}
+                </View>
+              )}
             </ScrollView>
             <View style={s.modalFooter}>
-              <Text style={s.modalTotal}>총 {cartTotal.toLocaleString()}원</Text>
+              <Text style={s.modalTotal}>총 {grandTotal.toLocaleString()}원</Text>
               <View style={s.modalBtnCol}>
                 <TouchableOpacity
                   style={[s.modalOrderOnlyBtn, (cartCount === 0 || submitting) && s.modalOrderBtnDisabled]}
@@ -488,9 +547,9 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
                   <Text style={s.modalOrderOnlyBtnText}>주문하기</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[s.modalPayBtn, (cartCount === 0 || submitting) && s.modalOrderBtnDisabled]}
+                  style={[s.modalPayBtn, (cartCount === 0 && pendingCount === 0 || submitting) && s.modalOrderBtnDisabled]}
                   onPress={payNow}
-                  disabled={cartCount === 0 || submitting}
+                  disabled={(cartCount === 0 && pendingCount === 0) || submitting}
                   activeOpacity={0.8}
                 >
                   <Text style={s.modalPayBtnText}>결제하기</Text>
