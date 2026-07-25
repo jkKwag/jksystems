@@ -1045,25 +1045,6 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
         </View>
       </Modal>
 
-      {/* 주문취소 확인 */}
-      <Modal visible={showCancelConfirm} transparent animationType="fade" onRequestClose={() => setShowCancelConfirm(false)}>
-        <View style={s.confirmOverlay}>
-          <View style={s.confirmBox}>
-            <Text style={s.confirmEmoji}>⚠️</Text>
-            <Text style={s.confirmTitle}>주문취소</Text>
-            <Text style={s.confirmMsg}>접수된 주문을 취소하시겠어요?</Text>
-            <View style={s.confirmBtns}>
-              <TouchableOpacity style={s.confirmCancelBtn} onPress={() => setShowCancelConfirm(false)} disabled={cancelingOrder}>
-                <Text style={s.confirmCancelText}>닫기</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={s.confirmOkBtn} onPress={cancelPendingOrders} disabled={cancelingOrder}>
-                <Text style={s.confirmOkText}>주문취소</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
       <Animated.View
         pointerEvents="none"
         style={[s.aiToast, { opacity: aiToastOpacity }, Platform.OS === "web" && { position: "fixed" }]}
@@ -1252,6 +1233,25 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                   <Text style={s.payNowBtnText}>결제하기</Text>
                 </TouchableOpacity>
               </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* 주문취소 확인 — 결제 모달 위에 떠야 하므로 그 뒤에 배치 */}
+      <Modal visible={showCancelConfirm} transparent animationType="fade" onRequestClose={() => setShowCancelConfirm(false)}>
+        <View style={s.confirmOverlay}>
+          <View style={s.confirmBox}>
+            <Text style={s.confirmEmoji}>⚠️</Text>
+            <Text style={s.confirmTitle}>주문취소</Text>
+            <Text style={s.confirmMsg}>접수된 주문을 취소하시겠어요?</Text>
+            <View style={s.confirmBtns}>
+              <TouchableOpacity style={s.confirmCancelBtn} onPress={() => setShowCancelConfirm(false)} disabled={cancelingOrder}>
+                <Text style={s.confirmCancelText}>닫기</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={s.confirmOkBtn} onPress={cancelPendingOrders} disabled={cancelingOrder}>
+                <Text style={s.confirmOkText}>주문취소</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
