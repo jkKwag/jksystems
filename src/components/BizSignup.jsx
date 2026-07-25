@@ -83,6 +83,27 @@ function resizeAndCompressImage(file, maxDim, quality) {
   });
 }
 
+// 컴포넌트 함수 안에서 인라인으로 정의하면 매 렌더(키 입력마다)마다 새 컴포넌트로 취급되어
+// TextInput이 언마운트/재마운트되면서 포커스(모바일에서는 키보드)가 날아간다 — 반드시 밖에 둬야 함.
+function Field({ field, label, placeholder, keyboardType, secureTextEntry, autoCapitalize, value, error, onChangeText, onBlur }) {
+  return (
+    <>
+      <Text style={s.label}>{label}</Text>
+      <TextInput
+        style={[s.inp, !!error && local.inpError]}
+        placeholder={placeholder}
+        value={value}
+        onChangeText={onChangeText}
+        onBlur={onBlur}
+        keyboardType={keyboardType}
+        secureTextEntry={secureTextEntry}
+        autoCapitalize={autoCapitalize}
+      />
+      {!!error && <Text style={local.fieldErrorText}>{error}</Text>}
+    </>
+  );
+}
+
 export default function BizSignup({ visible, onClose }) {
   const [step, setStep] = useState("form"); // form | cert | done
   const [form, setForm] = useState(emptyForm);
@@ -109,23 +130,6 @@ export default function BizSignup({ visible, onClose }) {
   };
 
   const handleClose = () => { reset(); onClose(); };
-
-  const Field = ({ field, label, placeholder, keyboardType, secureTextEntry, autoCapitalize }) => (
-    <>
-      <Text style={s.label}>{label}</Text>
-      <TextInput
-        style={[s.inp, !!errorFor(field) && local.inpError]}
-        placeholder={placeholder}
-        value={form[field]}
-        onChangeText={update(field)}
-        onBlur={markTouched(field)}
-        keyboardType={keyboardType}
-        secureTextEntry={secureTextEntry}
-        autoCapitalize={autoCapitalize}
-      />
-      {!!errorFor(field) && <Text style={local.fieldErrorText}>{errorFor(field)}</Text>}
-    </>
-  );
 
   const submitSignup = async () => {
     const errors = validateAll(form);
@@ -194,14 +198,22 @@ export default function BizSignup({ visible, onClose }) {
           <ScrollView style={local.scroll} contentContainerStyle={s.body}>
             {step === "form" && (
               <>
-                <Field field="bizRegNo" label="사업자등록번호" placeholder="숫자만 입력" keyboardType="numeric" />
-                <Field field="bizNm" label="상호명" placeholder="상호명 입력" />
-                <Field field="telNo" label="전화번호" placeholder="전화번호 입력 (선택)" keyboardType="phone-pad" />
-                <Field field="mobileTel" label="휴대폰번호" placeholder="휴대폰번호 입력 (선택)" keyboardType="phone-pad" />
-                <Field field="emailAddr" label="이메일" placeholder="이메일 입력 (선택)" keyboardType="email-address" autoCapitalize="none" />
-                <Field field="adminId" label="관리자 아이디" placeholder="로그인에 사용할 아이디" autoCapitalize="none" />
-                <Field field="password" label="비밀번호" placeholder="8자 이상" secureTextEntry />
-                <Field field="passwordConfirm" label="비밀번호 확인" placeholder="비밀번호 재입력" secureTextEntry />
+                <Field field="bizRegNo" label="사업자등록번호" placeholder="숫자만 입력" keyboardType="numeric"
+                  value={form.bizRegNo} error={errorFor("bizRegNo")} onChangeText={update("bizRegNo")} onBlur={markTouched("bizRegNo")} />
+                <Field field="bizNm" label="상호명" placeholder="상호명 입력"
+                  value={form.bizNm} error={errorFor("bizNm")} onChangeText={update("bizNm")} onBlur={markTouched("bizNm")} />
+                <Field field="telNo" label="전화번호" placeholder="전화번호 입력 (선택)" keyboardType="phone-pad"
+                  value={form.telNo} error={errorFor("telNo")} onChangeText={update("telNo")} onBlur={markTouched("telNo")} />
+                <Field field="mobileTel" label="휴대폰번호" placeholder="휴대폰번호 입력 (선택)" keyboardType="phone-pad"
+                  value={form.mobileTel} error={errorFor("mobileTel")} onChangeText={update("mobileTel")} onBlur={markTouched("mobileTel")} />
+                <Field field="emailAddr" label="이메일" placeholder="이메일 입력 (선택)" keyboardType="email-address" autoCapitalize="none"
+                  value={form.emailAddr} error={errorFor("emailAddr")} onChangeText={update("emailAddr")} onBlur={markTouched("emailAddr")} />
+                <Field field="adminId" label="관리자 아이디" placeholder="로그인에 사용할 아이디" autoCapitalize="none"
+                  value={form.adminId} error={errorFor("adminId")} onChangeText={update("adminId")} onBlur={markTouched("adminId")} />
+                <Field field="password" label="비밀번호" placeholder="8자 이상" secureTextEntry
+                  value={form.password} error={errorFor("password")} onChangeText={update("password")} onBlur={markTouched("password")} />
+                <Field field="passwordConfirm" label="비밀번호 확인" placeholder="비밀번호 재입력" secureTextEntry
+                  value={form.passwordConfirm} error={errorFor("passwordConfirm")} onChangeText={update("passwordConfirm")} onBlur={markTouched("passwordConfirm")} />
 
                 {!!error && <View style={s.errorBox}><Text style={s.errorText}>⚠️ {error}</Text></View>}
                 <TouchableOpacity style={[s.loginBtn, { opacity: loading ? 0.7 : 1 }]} onPress={submitSignup} disabled={loading}>
