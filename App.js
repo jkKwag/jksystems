@@ -181,6 +181,7 @@ export default function App() {
   const handleLogin = async (admin) => {
     await AsyncStorage.setItem("isAdmin", "true");
     await AsyncStorage.setItem("adminInfo", JSON.stringify(admin));
+    if (admin?.token) await AsyncStorage.setItem("adminToken", admin.token);
     setIsAdmin(true);
     setAdminInfo(admin);
     setShowLogin(false);
@@ -189,6 +190,7 @@ export default function App() {
   const handleLogout = async () => {
     await AsyncStorage.removeItem("isAdmin");
     await AsyncStorage.removeItem("adminInfo");
+    await AsyncStorage.removeItem("adminToken");
     setIsAdmin(false);
     setAdminInfo(null);
   };

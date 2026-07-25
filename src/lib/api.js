@@ -1,8 +1,17 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 const BASE = "https://api.jkscaneat.com";
+
+// 관리자 로그인 시 발급된 세션 토큰이 있으면 매 요청에 실어 보낸다.
+// (서버는 아직 이 토큰을 검증하지 않지만, 검증 로직이 붙었을 때 그대로 동작하도록 미리 배관해둠)
+async function authHeaders() {
+  const token = await AsyncStorage.getItem("adminToken");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 async function get(path) {
   try {
-    const res = await fetch(`${BASE}${path}`);
+    const res = await fetch(`${BASE}${path}`, { headers: await authHeaders() });
     if (!res.ok) return null;
     const json = await res.json();
     return typeof json?.success === "boolean" ? (json.success ? json.data : null) : json;
@@ -13,7 +22,7 @@ async function send(method, path, body) {
   try {
     const res = await fetch(`${BASE}${path}`, {
       method,
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(await authHeaders()) },
       body: JSON.stringify(body),
     });
     const json = await res.json().catch(() => null);
@@ -37,7 +46,7 @@ async function del(path) {
 
 async function postMultipart(path, formData) {
   try {
-    const res = await fetch(`${BASE}${path}`, { method: "POST", body: formData });
+    const res = await fetch(`${BASE}${path}`, { method: "POST", headers: await authHeaders(), body: formData });
     const json = await res.json().catch(() => null);
     if (!res.ok) return { data: null, error: json };
     const data = typeof json?.success === "boolean" ? (json.success ? json.data : null) : json;
