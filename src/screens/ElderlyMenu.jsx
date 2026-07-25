@@ -479,7 +479,14 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
           <TouchableOpacity style={s.modalBg} activeOpacity={1} onPress={() => setShowCartModal(false)} />
           <View style={s.modalSheet}>
             <View style={s.modalTitleRow}>
-              <Text style={s.modalTitle}>{cartCount > 0 ? "장바구니" : "결제 대기 중"}</Text>
+              <View style={s.modalTitleLeft}>
+                {pendingCount > 0 && (
+                  <View style={s.tossLogo}>
+                    <Text style={s.tossLogoText}>toss</Text>
+                  </View>
+                )}
+                <Text style={s.modalTitle}>{cartCount > 0 ? "장바구니" : "결제 대기 중"}</Text>
+              </View>
               <View style={s.modalTitleActions}>
                 {cartCount > 0 && (
                   <TouchableOpacity style={s.trashBtn} onPress={() => setCart({})}>
@@ -526,8 +533,11 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
               {pendingCount > 0 && (
                 <View style={s.pendingSection}>
                   <Text style={s.pendingSectionTitle}>이미 주문한 내역 ({pendingCount}건, 결제 대기)</Text>
-                  {pendingOrders.map(order => (
+                  {pendingOrders.map((order, oi) => (
                     <View key={order.orderNo} style={s.pendingOrderBlock}>
+                      <View style={s.pendingOrderBadge}>
+                        <Text style={s.pendingOrderBadgeText}>주문{pendingOrders.length - oi}</Text>
+                      </View>
                       {order.items?.map(item => (
                         <View key={item.orderSeq} style={s.pendingItemRow}>
                           <Text style={s.pendingItemName} numberOfLines={1}>{item.menuNm}</Text>
