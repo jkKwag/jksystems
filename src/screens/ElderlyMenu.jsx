@@ -110,6 +110,9 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   const [showOrderStatusModal, setShowOrderStatusModal] = useState(false);
   const [statusRefreshing, setStatusRefreshing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [cancelingOrder, setCancelingOrder] = useState(false);
+  const [selectedCancelOrders, setSelectedCancelOrders] = useState([]);
 
   // 메뉴별 옵션그룹/선택상태: { [menuCd]: group[] }, { [menuCd]: { [optGrpCd]: choiceId | choiceId[] } }
   const [optionGroupsByMenu, setOptionGroupsByMenu] = useState({});
@@ -259,6 +262,40 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   const pendingCount = pendingOrders.length;
   const pendingTotal = pendingOrders.reduce((sum, o) => sum + Number(o.totalAmount || 0), 0);
   const grandTotal = cartTotal + pendingTotal;
+  // 아직 주방에서 준비를 시작하지 않은(주문접수 단계) 주문만 취소할 수 있다
+  const cancelableOrders = pendingOrders.filter(o => o.status === "RECEIVED");
+  // 취소 대상으로 실제 선택된 주문 (여러 건일 때 라디오로 골라낸 것)
+  const ordersToCancel = cancelableOrders.filter(o => selectedCancelOrders.includes(o.orderNo));
+
+  // 주문 목록이 바뀔 때마다 취소 가능한 주문은 기본적으로 전부 선택된 상태로 초기화
+  useEffect(() => {
+    setSelectedCancelOrders(pendingOrders.filter(o => o.status === "RECEIVED").map(o => o.orderNo));
+  }, [pendingOrders]);
+
+  const toggleCancelSelect = (orderNo) => {
+    setSelectedCancelOrders(prev =>
+      prev.includes(orderNo) ? prev.filter(no => no !== orderNo) : [...prev, orderNo]
+    );
+  };
+
+  const cancelPendingOrders = async () => {
+    setCancelingOrder(true);
+    const results = await Promise.all(
+      ordersToCancel.map(o => api.order.updateStatus(o.orderNo, { status: "CANCELED" }))
+    );
+    setCancelingOrder(false);
+    setShowCancelConfirm(false);
+    const failCount = results.filter(r => r.error).length;
+    if (failCount > 0) {
+      alert(
+        failCount === results.length
+          ? "주문 취소에 실패했습니다. 다시 시도해주세요."
+          : `일부 주문(${failCount}건)은 이미 준비가 시작되어 취소되지 않았습니다. 나머지는 취소되었습니다.`
+      );
+    }
+    await refreshPendingOrders();
+    if (pendingCount <= ordersToCancel.length && cartCount === 0) setShowCartModal(false);
+  };
 
   // 현재 장바구니 내용을 POST /api/order 요청 형식으로 변환
   const buildOrderItemsPayload = () => Object.entries(cart).map(([cd, c]) => {
@@ -578,8 +615,25 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
                   <Text style={s.pendingSectionTitle}>이미 주문한 내역 ({pendingCount}건, 결제 대기)</Text>
                   {pendingOrders.map((order, oi) => (
                     <View key={order.orderNo} style={s.pendingOrderBlock}>
-                      <View style={s.pendingOrderBadge}>
-                        <Text style={s.pendingOrderBadgeText}>주문{pendingOrders.length - oi}</Text>
+                      <View style={s.pendingOrderBadgeRow}>
+                        {pendingOrders.length > 1 && (
+                          order.status === "RECEIVED" ? (
+                            <TouchableOpacity
+                              onPress={() => toggleCancelSelect(order.orderNo)}
+                              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                            >
+                              <View style={[s.cancelRadioOuter, selectedCancelOrders.includes(order.orderNo) && s.cancelRadioOuterActive]}>
+                                {selectedCancelOrders.includes(order.orderNo) && <View style={s.cancelRadioInner} />}
+                              </View>
+                            </TouchableOpacity>
+                          ) : (
+                            // 주문접수 단계가 지나 취소할 수 없는 건은 선택 불가 상태로만 표시
+                            <View style={[s.cancelRadioOuter, s.cancelRadioOuterDisabled]} />
+                          )
+                        )}
+                        <View style={s.pendingOrderBadge}>
+                          <Text style={s.pendingOrderBadgeText}>주문{pendingOrders.length - oi}</Text>
+                        </View>
                       </View>
                       {order.items?.map(item => (
                         <View key={item.orderSeq} style={s.pendingItemRow}>
@@ -595,14 +649,28 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
             <View style={s.modalFooter}>
               <Text style={s.modalTotal}>총 {grandTotal.toLocaleString()}원</Text>
               <View style={s.modalBtnCol}>
-                <TouchableOpacity
-                  style={[s.modalOrderOnlyBtn, (cartCount === 0 || submitting) && s.modalOrderBtnDisabled]}
-                  onPress={orderOnly}
-                  disabled={cartCount === 0 || submitting}
-                  activeOpacity={0.8}
-                >
-                  <Text style={s.modalOrderOnlyBtnText}>주문하기</Text>
-                </TouchableOpacity>
+                {cartCount === 0 && pendingCount > 0 ? (
+                  // 취소할 수 있는(주문접수 단계) 건이 하나도 없으면 버튼 자체를 숨긴다
+                  cancelableOrders.length > 0 && (
+                    <TouchableOpacity
+                      style={[s.modalOrderOnlyBtn, s.modalOrderOnlyBtnCancel, (ordersToCancel.length === 0 || cancelingOrder) && s.modalOrderBtnDisabled]}
+                      onPress={() => setShowCancelConfirm(true)}
+                      disabled={ordersToCancel.length === 0 || cancelingOrder}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={[s.modalOrderOnlyBtnText, s.modalOrderOnlyBtnTextCancel]}>주문취소</Text>
+                    </TouchableOpacity>
+                  )
+                ) : cartCount > 0 && (
+                  <TouchableOpacity
+                    style={s.modalOrderOnlyBtn}
+                    onPress={orderOnly}
+                    disabled={submitting}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={s.modalOrderOnlyBtnText}>주문하기</Text>
+                  </TouchableOpacity>
+                )}
                 <TouchableOpacity
                   style={[s.modalPayBtn, (cartCount === 0 && pendingCount === 0 || submitting) && s.modalOrderBtnDisabled]}
                   onPress={payNow}
@@ -614,6 +682,31 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
               </View>
             </View>
           </Animated.View>
+        </View>
+      )}
+
+      {/* 주문취소 확인 — 장바구니 모달 위에 떠야 하므로 그 뒤에 배치 */}
+      {showCancelConfirm && (
+        <View style={[
+          StyleSheet.absoluteFillObject,
+          s.confirmOverlay,
+          Platform.OS === "web" && { position: "fixed", top: 0, left: 0, right: 0, bottom: 0 },
+        ]}>
+          <View style={s.confirmBox}>
+            <Text style={s.confirmEmoji}>⚠️</Text>
+            <Text style={s.confirmTitle}>주문취소</Text>
+            <Text style={s.confirmMsg}>
+              {ordersToCancel.length > 1 ? `선택한 주문 ${ordersToCancel.length}건을 취소하시겠어요?` : "접수된 주문을 취소하시겠어요?"}
+            </Text>
+            <View style={s.confirmBtns}>
+              <TouchableOpacity style={s.confirmCancelBtn} onPress={() => setShowCancelConfirm(false)} disabled={cancelingOrder}>
+                <Text style={s.confirmCancelText}>닫기</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={s.confirmOkBtn} onPress={cancelPendingOrders} disabled={cancelingOrder}>
+                <Text style={s.confirmOkText}>주문취소</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
       )}
 
