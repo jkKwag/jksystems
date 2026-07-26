@@ -57,6 +57,19 @@ function findMenuNode(nodes, menuUrl) {
   return null;
 }
 
+// 대시보드가 없는 권한을 위한 기본 화면: 메뉴 순서상 가장 먼저 나오는, 실제 구현된 화면을 찾는다.
+function findFirstScreen(nodes) {
+  for (const node of nodes) {
+    if (node.children?.length) {
+      const found = findFirstScreen(node.children);
+      if (found) return found;
+    } else if (node.menuUrl && MENU_SCREENS[node.menuUrl]) {
+      return node;
+    }
+  }
+  return null;
+}
+
 function MenuNode({ node, depth, expanded, onToggle, selectedCd, onSelect }) {
   const hasChildren = node.children && node.children.length > 0;
   const isOpen = expanded.has(node.menuCd);
@@ -130,7 +143,12 @@ export default function AdminHome({ adminInfo, onLogout }) {
       setMenuTree(list);
       setExpanded(new Set(list.map(m => m.menuCd)));
       const dashboard = list.find(m => m.menuUrl === DASHBOARD_URL);
-      if (dashboard) setSelected(dashboard);
+      if (dashboard) {
+        setSelected(dashboard);
+      } else {
+        const firstScreen = findFirstScreen(list);
+        if (firstScreen) setSelected(firstScreen);
+      }
       setLoaded(true);
     })();
   }, [adminInfo?.adminRole]);
