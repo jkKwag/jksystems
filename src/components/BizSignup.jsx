@@ -224,6 +224,9 @@ export default function BizSignup({ visible, onClose }) {
     <Modal visible={visible} transparent animationType="fade" onRequestClose={handleClose}>
       <View style={s.overlay}>
         <View style={[s.card, local.card]}>
+          <TouchableOpacity style={local.closeBtn} onPress={handleClose}>
+            <Text style={local.closeBtnText}>✕</Text>
+          </TouchableOpacity>
           <View style={[s.header, local.headerPad]}>
             <Text style={s.title}>사업자 가입</Text>
             {step !== "form" && (
@@ -350,6 +353,13 @@ export default function BizSignup({ visible, onClose }) {
 const local = StyleSheet.create({
   card: { maxHeight: Platform.OS === "web" ? "85vh" : "85%" },
   headerPad: { paddingTop: 16, paddingBottom: 16 },
+  closeBtn: {
+    position: "absolute", top: 14, right: 14, zIndex: 10,
+    width: 28, height: 28, borderRadius: 14,
+    alignItems: "center", justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.15)",
+  },
+  closeBtnText: { color: "#ffffff", fontSize: 16, fontWeight: "700" },
   scroll: { flexShrink: 1 },
   sectionCard: { backgroundColor: "#f8fafc", borderWidth: 1, borderColor: "#e2e8f0", borderRadius: 14, padding: 16, marginBottom: 16 },
   sectionTitle: { fontSize: 13, fontWeight: "800", color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 12 },
