@@ -13,7 +13,7 @@ const formatDt = (iso) => {
   return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())}`;
 };
 
-const ROLE_LABEL = { SUPER: "최고관리자", BIZ: "사업장관리자" };
+const ROLE_LABEL = { SUPER: "최고관리자", BIZ: "사업장관리자", PROV_ADMIN: "임시관리자" };
 
 export default function AdminAccounts({ adminInfo }) {
   const bizRegNo = adminInfo?.bizRegNo;
