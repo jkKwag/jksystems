@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { View, Text, TextInput, TouchableOpacity, Modal, ActivityIndicator, StyleSheet } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Modal, ActivityIndicator } from "react-native";
 import { s } from "../styles/AdminLogin.styles";
 import api from "../lib/api";
 
@@ -38,13 +38,6 @@ export default function AdminLogin({ visible, onClose, onLogin, onSignupClick })
       <View style={s.overlay}>
         <View style={s.card}>
           <View style={s.header}>
-            <View style={local.logoRow}>
-              <View style={local.logoBox}>
-                <Text style={local.logoJK}>JK</Text>
-                <View style={local.logoLine} />
-              </View>
-              <Text style={local.logoTitle}><Text style={local.logoTitleAccent}>Scan</Text>eat</Text>
-            </View>
             <Text style={s.title}>관리자 로그인</Text>
             <Text style={s.sub}>JK Scaneat 관리자 전용 페이지입니다</Text>
           </View>
@@ -109,12 +102,3 @@ export default function AdminLogin({ visible, onClose, onLogin, onSignupClick })
     </Modal>
   );
 }
-
-const local = StyleSheet.create({
-  logoRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 14 },
-  logoBox: { width: 36, height: 36, borderRadius: 10, backgroundColor: "#0f172a", borderWidth: 1.5, borderColor: "#f97316", justifyContent: "center", alignItems: "center", gap: 2 },
-  logoJK: { fontSize: 13, fontWeight: "900", color: "#f97316", letterSpacing: -1 },
-  logoLine: { width: 20, height: 1.5, backgroundColor: "#f97316", opacity: 0.5 },
-  logoTitle: { fontSize: 24, fontWeight: "900", color: "#ffffff", letterSpacing: -0.5 },
-  logoTitleAccent: { color: "#f97316" },
-});
