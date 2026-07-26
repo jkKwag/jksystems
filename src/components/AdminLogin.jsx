@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { View, Text, TextInput, TouchableOpacity, Modal, ActivityIndicator } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Modal, ActivityIndicator, StyleSheet } from "react-native";
 import { s } from "../styles/AdminLogin.styles";
 import api from "../lib/api";
 
@@ -37,9 +37,12 @@ export default function AdminLogin({ visible, onClose, onLogin, onSignupClick })
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={s.overlay}>
         <View style={s.card}>
+          <TouchableOpacity style={local.closeBtn} onPress={onClose}>
+            <Text style={local.closeBtnText}>✕</Text>
+          </TouchableOpacity>
           <View style={s.header}>
-            <Text style={s.title}>관리자 로그인</Text>
-            <Text style={s.sub}>JK Scaneat 관리자 전용 페이지입니다</Text>
+            <Text style={s.title}>사업자 로그인</Text>
+            <Text style={s.sub}>JK Scaneat 사업자 전용 페이지입니다</Text>
           </View>
           <View style={s.body}>
             <Text style={s.label}>이메일</Text>
@@ -83,12 +86,14 @@ export default function AdminLogin({ visible, onClose, onLogin, onSignupClick })
               </>
             )}
             {!!error && <View style={s.errorBox}><Text style={s.errorText}>⚠️ {error}</Text></View>}
-            <TouchableOpacity style={[s.loginBtn, { opacity: loading ? 0.7 : 1 }]} onPress={handleLogin} disabled={loading}>
-              {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.loginBtnText}>로그인</Text>}
-            </TouchableOpacity>
-            <TouchableOpacity style={s.cancelBtn} onPress={onClose}>
-              <Text style={s.cancelBtnText}>취소</Text>
-            </TouchableOpacity>
+            <View style={local.btnRow}>
+              <TouchableOpacity style={[s.loginBtn, local.btnRowItem, { opacity: loading ? 0.7 : 1 }]} onPress={handleLogin} disabled={loading}>
+                {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.loginBtnText}>로그인</Text>}
+              </TouchableOpacity>
+              <TouchableOpacity style={[s.cancelBtn, local.btnRowItem]} onPress={onClose}>
+                <Text style={s.cancelBtnText}>취소</Text>
+              </TouchableOpacity>
+            </View>
             {!!onSignupClick && (
               <TouchableOpacity onPress={onSignupClick} style={{ marginTop: 14, alignItems: "center" }}>
                 <Text style={{ fontSize: 14, color: "#6b7280", textDecorationLine: "underline" }}>
@@ -102,3 +107,15 @@ export default function AdminLogin({ visible, onClose, onLogin, onSignupClick })
     </Modal>
   );
 }
+
+const local = StyleSheet.create({
+  closeBtn: {
+    position: "absolute", top: 14, right: 14, zIndex: 10,
+    width: 28, height: 28, borderRadius: 14,
+    alignItems: "center", justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.15)",
+  },
+  closeBtnText: { color: "#ffffff", fontSize: 16, fontWeight: "700" },
+  btnRow: { flexDirection: "row", gap: 10 },
+  btnRowItem: { flex: 1, marginBottom: 0 },
+});
