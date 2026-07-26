@@ -23,7 +23,7 @@ const validators = {
   },
   bizNm: (v) => (!v.trim() ? "상호명을 입력해주세요." : ""),
   telNo: (v) => {
-    if (!v.trim()) return "";
+    if (!v.trim()) return "전화번호를 입력해주세요.";
     return digitsOnly(v).length >= 9 && digitsOnly(v).length <= 11 ? "" : "전화번호 형식이 올바르지 않습니다.";
   },
   mobileTel: (v) => {
@@ -224,7 +224,7 @@ export default function BizSignup({ visible, onClose }) {
     <Modal visible={visible} transparent animationType="fade" onRequestClose={handleClose}>
       <View style={s.overlay}>
         <View style={[s.card, local.card]}>
-          <View style={s.header}>
+          <View style={[s.header, local.headerPad]}>
             <Text style={s.title}>사업자 가입</Text>
             <Text style={s.sub}>
               {step === "form" ? "매장을 등록해보세요" : step === "cert" ? "사업자등록증을 업로드해주세요" : "가입 신청 완료"}
@@ -250,14 +250,14 @@ export default function BizSignup({ visible, onClose }) {
                           keyboardType="number-pad"
                           maxLength={6}
                           value={emailCode}
-                          onChangeText={setEmailCode}
+                          onChangeText={(v) => setEmailCode(digitsOnly(v).slice(0, 6))}
                         />
-                        <TouchableOpacity style={local.emailCodeBtn} onPress={verifyEmailCode} disabled={emailCodeVerifying || !emailCode.trim()}>
+                        <TouchableOpacity style={local.emailCodeBtn} onPress={verifyEmailCode} disabled={emailCodeVerifying || emailCode.length !== 6}>
                           {emailCodeVerifying ? <ActivityIndicator size="small" color="#fff" /> : <Text style={local.emailCodeBtnText}>확인</Text>}
                         </TouchableOpacity>
                       </View>
-                      <TouchableOpacity onPress={sendEmailCode} disabled={emailCodeSending}>
-                        <Text style={local.resendText}>{emailCodeSending ? "발송 중..." : "인증코드 재발송"}</Text>
+                      <TouchableOpacity style={local.resendBtn} onPress={sendEmailCode} disabled={emailCodeSending}>
+                        {emailCodeSending ? <ActivityIndicator size="small" color="#1d3557" /> : <Text style={local.resendBtnText}>인증코드 재발송</Text>}
                       </TouchableOpacity>
                     </>
                   ) : (
@@ -286,8 +286,9 @@ export default function BizSignup({ visible, onClose }) {
                     value={form.bizRegNo} error={errorFor("bizRegNo")} onChangeText={update("bizRegNo")} onBlur={markTouched("bizRegNo")} />
                   <Field field="bizNm" label="상호명" placeholder="상호명 입력"
                     value={form.bizNm} error={errorFor("bizNm")} onChangeText={update("bizNm")} onBlur={markTouched("bizNm")} />
-                  <Field field="telNo" label="전화번호" placeholder="전화번호 입력 (선택)" keyboardType="phone-pad"
-                    value={form.telNo} error={errorFor("telNo")} onChangeText={update("telNo")} onBlur={markTouched("telNo")} />
+                  <Field field="telNo" label="전화번호" placeholder="숫자만 입력" keyboardType="number-pad" maxLength={11}
+                    value={form.telNo} error={errorFor("telNo")}
+                    onChangeText={(v) => update("telNo")(digitsOnly(v).slice(0, 11))} onBlur={markTouched("telNo")} />
                 </View>
 
                 {!!error && <View style={s.errorBox}><Text style={s.errorText}>⚠️ {error}</Text></View>}
@@ -343,6 +344,7 @@ export default function BizSignup({ visible, onClose }) {
 
 const local = StyleSheet.create({
   card: { maxHeight: Platform.OS === "web" ? "85vh" : "85%" },
+  headerPad: { paddingTop: 16, paddingBottom: 16 },
   scroll: { flexShrink: 1 },
   sectionCard: { backgroundColor: "#f8fafc", borderWidth: 1, borderColor: "#e2e8f0", borderRadius: 14, padding: 16, marginBottom: 16 },
   sectionTitle: { fontSize: 13, fontWeight: "800", color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 12 },
@@ -354,7 +356,8 @@ const local = StyleSheet.create({
   emailCodeInput: { flex: 1, marginBottom: 0 },
   emailCodeBtn: { backgroundColor: "#1d3557", borderRadius: 8, paddingHorizontal: 16, paddingVertical: 12, alignItems: "center", justifyContent: "center" },
   emailCodeBtnText: { fontSize: 13, fontWeight: "700", color: "#fff" },
-  resendText: { fontSize: 12, color: "#64748b", textDecorationLine: "underline", marginBottom: 12 },
+  resendBtn: { borderWidth: 1.5, borderColor: "#94a3b8", borderRadius: 8, paddingVertical: 10, alignItems: "center", marginBottom: 12 },
+  resendBtnText: { fontSize: 13, fontWeight: "700", color: "#64748b" },
   noticeText: { fontSize: 12, color: "#94a3b8", marginTop: -10, marginBottom: 10 },
   emailVerifiedText: { fontSize: 13, fontWeight: "700", color: "#16a34a", marginBottom: 12 },
   ntsResultBox: { backgroundColor: "#f0f9ff", borderWidth: 1, borderColor: "#7dd3fc", borderRadius: 12, padding: 12, marginBottom: 16 },
