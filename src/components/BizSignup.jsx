@@ -199,7 +199,7 @@ export default function BizSignup({ visible, onClose }) {
             {step === "form" && (
               <>
                 <View style={local.sectionCard}>
-                  <Text style={local.sectionTitle}>📁 사업장 정보</Text>
+                  <Text style={local.sectionTitle}>📋 사업장 정보</Text>
                   <Field field="bizRegNo" label="사업자등록번호" placeholder="숫자만 입력" keyboardType="numeric"
                     value={form.bizRegNo} error={errorFor("bizRegNo")} onChangeText={update("bizRegNo")} onBlur={markTouched("bizRegNo")} />
                   <Field field="bizNm" label="상호명" placeholder="상호명 입력"
