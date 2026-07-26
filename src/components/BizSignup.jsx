@@ -189,10 +189,16 @@ export default function BizSignup({ visible, onClose }) {
       <View style={s.overlay}>
         <View style={[s.card, local.card]}>
           <View style={s.header}>
-            <Text style={s.icon}>🏪</Text>
+            <View style={local.logoRow}>
+              <View style={local.logoBox}>
+                <Text style={local.logoJK}>JK</Text>
+                <View style={local.logoLine} />
+              </View>
+              <Text style={local.logoTitle}><Text style={local.logoTitleAccent}>Scan</Text>eat</Text>
+            </View>
             <Text style={s.title}>사업자 가입</Text>
             <Text style={s.sub}>
-              {step === "form" ? "CampRoad에 매장을 등록해보세요" : step === "cert" ? "사업자등록증을 업로드해주세요" : "가입 신청 완료"}
+              {step === "form" ? "매장을 등록해보세요" : step === "cert" ? "사업자등록증을 업로드해주세요" : "가입 신청 완료"}
             </Text>
           </View>
           <ScrollView style={local.scroll} contentContainerStyle={s.body}>
@@ -275,6 +281,12 @@ export default function BizSignup({ visible, onClose }) {
 
 const local = StyleSheet.create({
   card: { maxHeight: Platform.OS === "web" ? "85vh" : "85%" },
+  logoRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 14 },
+  logoBox: { width: 36, height: 36, borderRadius: 10, backgroundColor: "#0f172a", borderWidth: 1.5, borderColor: "#f97316", justifyContent: "center", alignItems: "center", gap: 2 },
+  logoJK: { fontSize: 13, fontWeight: "900", color: "#f97316", letterSpacing: -1 },
+  logoLine: { width: 20, height: 1.5, backgroundColor: "#f97316", opacity: 0.5 },
+  logoTitle: { fontSize: 24, fontWeight: "900", color: "#ffffff", letterSpacing: -0.5 },
+  logoTitleAccent: { color: "#f97316" },
   scroll: { flexShrink: 1 },
   sectionCard: { backgroundColor: "#f8fafc", borderWidth: 1, borderColor: "#e2e8f0", borderRadius: 14, padding: 16, marginBottom: 16 },
   sectionTitle: { fontSize: 13, fontWeight: "800", color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 12 },
