@@ -150,12 +150,21 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
         const blob = await resizeAndCompressImage(file, IMAGE_MAX_DIMENSION, IMAGE_QUALITY);
         const formData = new FormData();
         formData.append("file", blob, "cert.jpg");
-        const { error: uploadError } = await api.biz.uploadRegistrationCert(bizRegNo, formData);
+        const { data, error: uploadError } = await api.biz.uploadRegistrationCert(bizRegNo, formData);
         if (uploadError) {
           setCertError(uploadError?.message || "사업자등록증 업로드에 실패했습니다.");
         } else {
-          const url = await api.biz.getRegistrationCertUrl(bizRegNo);
-          setCertUrl(url || null);
+          setCertUrl(data?.certUrl || null);
+          // 인식된 값 중 비어있던 항목만 채워준다 — 이미 입력된 값은 덮어쓰지 않음.
+          const extracted = data?.extracted;
+          if (extracted) {
+            setForm(f => ({
+              ...f,
+              bizNm: f.bizNm || extracted.bizNm || f.bizNm,
+              repNm: f.repNm || extracted.repNm || f.repNm,
+              addr: f.addr || extracted.addr || f.addr,
+            }));
+          }
         }
       } catch {
         setCertError("이미지 처리 중 오류가 발생했습니다.");
