@@ -198,6 +198,7 @@ export default function BizSignup({ visible, onClose }) {
           <ScrollView style={local.scroll} contentContainerStyle={s.body}>
             {step === "form" && (
               <>
+                <Text style={[local.sectionTitle, local.sectionTitleFirst]}>사업장 정보</Text>
                 <Field field="bizRegNo" label="사업자등록번호" placeholder="숫자만 입력" keyboardType="numeric"
                   value={form.bizRegNo} error={errorFor("bizRegNo")} onChangeText={update("bizRegNo")} onBlur={markTouched("bizRegNo")} />
                 <Field field="bizNm" label="상호명" placeholder="상호명 입력"
@@ -208,6 +209,8 @@ export default function BizSignup({ visible, onClose }) {
                   value={form.mobileTel} error={errorFor("mobileTel")} onChangeText={update("mobileTel")} onBlur={markTouched("mobileTel")} />
                 <Field field="emailAddr" label="이메일" placeholder="이메일 입력 (선택)" keyboardType="email-address" autoCapitalize="none"
                   value={form.emailAddr} error={errorFor("emailAddr")} onChangeText={update("emailAddr")} onBlur={markTouched("emailAddr")} />
+
+                <Text style={local.sectionTitle}>관리자 계정</Text>
                 <Field field="adminId" label="관리자 아이디" placeholder="로그인에 사용할 아이디" autoCapitalize="none"
                   value={form.adminId} error={errorFor("adminId")} onChangeText={update("adminId")} onBlur={markTouched("adminId")} />
                 <Field field="password" label="비밀번호" placeholder="8자 이상" secureTextEntry
@@ -269,6 +272,8 @@ export default function BizSignup({ visible, onClose }) {
 const local = StyleSheet.create({
   card: { maxHeight: Platform.OS === "web" ? "85vh" : "85%" },
   scroll: { flexShrink: 1 },
+  sectionTitle: { fontSize: 13, fontWeight: "800", color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8, marginTop: 4, borderTopWidth: 1, borderTopColor: "#e5e7eb", paddingTop: 14 },
+  sectionTitleFirst: { borderTopWidth: 0, paddingTop: 0 },
   inpError: { borderColor: "#ef4444" },
   fieldErrorText: { fontSize: 13, color: "#ef4444", marginTop: -10, marginBottom: 12 },
   ntsResultBox: { backgroundColor: "#f0f9ff", borderWidth: 1, borderColor: "#7dd3fc", borderRadius: 12, padding: 12, marginBottom: 16 },
