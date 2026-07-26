@@ -247,7 +247,7 @@ export default function BizSignup({ visible, onClose }) {
                     <View style={local.emailCodeRow}>
                       <TextInput
                         style={[s.inp, local.emailCodeInput]}
-                        placeholder="인증코드 6자리"
+                        placeholder="6자리 코드"
                         keyboardType="number-pad"
                         maxLength={6}
                         value={emailCode}
@@ -286,8 +286,9 @@ export default function BizSignup({ visible, onClose }) {
 
                 <View style={local.sectionCard}>
                   <Text style={local.sectionTitle}>📋 사업장 정보</Text>
-                  <Field field="bizRegNo" label="사업자등록번호" placeholder="숫자만 입력" keyboardType="numeric"
-                    value={form.bizRegNo} error={errorFor("bizRegNo")} onChangeText={update("bizRegNo")} onBlur={markTouched("bizRegNo")} />
+                  <Field field="bizRegNo" label="사업자등록번호" placeholder="숫자만 입력" keyboardType="numeric" maxLength={10}
+                    value={form.bizRegNo} error={errorFor("bizRegNo")}
+                    onChangeText={(v) => update("bizRegNo")(digitsOnly(v).slice(0, 10))} onBlur={markTouched("bizRegNo")} />
                   <Field field="bizNm" label="상호명" placeholder="상호명 입력"
                     value={form.bizNm} error={errorFor("bizNm")} onChangeText={update("bizNm")} onBlur={markTouched("bizNm")} />
                   <Field field="telNo" label="전화번호" placeholder="숫자만 입력" keyboardType="number-pad" maxLength={11}
@@ -357,7 +358,7 @@ const local = StyleSheet.create({
   emailCodeSendBtn: { borderWidth: 1.5, borderColor: "#1d3557", borderRadius: 8, paddingVertical: 10, alignItems: "center", marginBottom: 12 },
   emailCodeSendBtnText: { fontSize: 13, fontWeight: "700", color: "#1d3557" },
   emailCodeRow: { flexDirection: "row", gap: 8, alignItems: "center", marginBottom: 12 },
-  emailCodeInput: { flex: 1, marginBottom: 0 },
+  emailCodeInput: { width: 100, marginBottom: 0 },
   emailCodeBtn: { backgroundColor: "#1d3557", borderRadius: 8, paddingHorizontal: 16, paddingVertical: 12, alignItems: "center", justifyContent: "center" },
   emailCodeBtnDisabled: { backgroundColor: "#cbd5e1" },
   emailCodeBtnText: { fontSize: 13, fontWeight: "700", color: "#fff" },
