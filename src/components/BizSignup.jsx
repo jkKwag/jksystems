@@ -199,7 +199,7 @@ export default function BizSignup({ visible, onClose }) {
             {step === "form" && (
               <>
                 <View style={local.sectionCard}>
-                  <Text style={local.sectionTitle}>사업장 정보</Text>
+                  <Text style={local.sectionTitle}>📁 사업장 정보</Text>
                   <Field field="bizRegNo" label="사업자등록번호" placeholder="숫자만 입력" keyboardType="numeric"
                     value={form.bizRegNo} error={errorFor("bizRegNo")} onChangeText={update("bizRegNo")} onBlur={markTouched("bizRegNo")} />
                   <Field field="bizNm" label="상호명" placeholder="상호명 입력"
@@ -213,7 +213,7 @@ export default function BizSignup({ visible, onClose }) {
                 </View>
 
                 <View style={local.sectionCard}>
-                  <Text style={local.sectionTitle}>관리자 계정</Text>
+                  <Text style={local.sectionTitle}>🔐 관리자 계정</Text>
                   <Field field="adminId" label="관리자 아이디" placeholder="로그인에 사용할 아이디" autoCapitalize="none"
                     value={form.adminId} error={errorFor("adminId")} onChangeText={update("adminId")} onBlur={markTouched("adminId")} />
                   <Field field="password" label="비밀번호" placeholder="8자 이상" secureTextEntry
