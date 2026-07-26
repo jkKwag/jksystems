@@ -361,7 +361,7 @@ const local = StyleSheet.create({
   },
   closeBtnText: { color: "#ffffff", fontSize: 16, fontWeight: "700" },
   scroll: { flexShrink: 1 },
-  sectionCard: { backgroundColor: "#f8fafc", borderWidth: 1, borderColor: "#e2e8f0", borderRadius: 14, padding: 16, marginBottom: 16 },
+  sectionCard: { backgroundColor: "#f0f9ff", borderWidth: 1, borderColor: "#7dd3fc", borderRadius: 14, padding: 16, marginBottom: 16 },
   sectionTitle: { fontSize: 13, fontWeight: "800", color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 12 },
   inpError: { borderColor: "#ef4444" },
   fieldErrorText: { fontSize: 13, color: "#ef4444", marginTop: -10, marginBottom: 12 },
