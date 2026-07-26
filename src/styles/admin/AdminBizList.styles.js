@@ -69,6 +69,11 @@ export const s = StyleSheet.create({
 
   error: { fontSize: font.sm, color: "#ef4444", fontWeight: "600", marginTop: spacing["3"] },
 
+  certImage: { width: "100%", height: 240, borderRadius: radius.lg, backgroundColor: colors.slate100, marginTop: spacing["1"] },
+  certMissing: { fontSize: font.sm, color: colors.slate400, marginTop: spacing["1"] },
+  certUploadBtn: { borderWidth: 1.5, borderColor: colors.primary, borderStyle: "dashed", borderRadius: radius.lg, paddingVertical: spacing["3"], alignItems: "center", marginTop: spacing["2.5"] },
+  certUploadBtnText: { fontSize: font.md, fontWeight: "700", color: colors.primary },
+
   btnRow: { flexDirection: "row", gap: spacing["2.5"], marginTop: spacing["4"] },
   cancelBtn: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingVertical: spacing["2.5"], alignItems: "center", backgroundColor: colors.bgCard, outlineStyle: "none" },
   cancelBtnText: { fontSize: font.md, fontWeight: "700", color: colors.textGray },

@@ -1,23 +1,54 @@
 import { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Image, Platform } from "react-native";
 import { s } from "../../styles/admin/AdminBizList.styles";
 import api from "../../lib/api";
 import ConfirmModal from "../../components/ConfirmModal";
 import { formatBizRegNo } from "../../lib/formatBizRegNo";
 
 const PAGE_SIZE = 10;
-const emptyForm = { bizRegNo: "", bizNm: "", repNm: "", telNo: "", emailAddr: "", indCd: "", addr: "", addrDtl: "" };
+const IMAGE_MAX_DIMENSION = 1400;
+const IMAGE_QUALITY = 0.85;
+const emptyForm = { bizRegNo: "", bizNm: "", repNm: "", telNo: "", mobileTel: "", emailAddr: "", indCd: "", addr: "", addrDtl: "" };
+
+const digitsOnly = (v) => v.replace(/\D/g, "");
 
 const toForm = (biz) => ({
   bizRegNo: biz?.bizRegNo || "",
   bizNm: biz?.bizNm || "",
   repNm: biz?.repNm || "",
   telNo: biz?.telNo || "",
+  mobileTel: biz?.mobileTel || "",
   emailAddr: biz?.emailAddr || "",
   indCd: biz?.indCd || "",
   addr: biz?.addr || "",
   addrDtl: biz?.addrDtl || "",
 });
+
+// 메뉴/좌석 이미지 업로드와 동일한 방식으로 리사이즈/압축 (사업자등록증은 글자를 읽어야 해서 조금 더 크게)
+function resizeAndCompressImage(file, maxDim, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new window.Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          if (width >= height) { height = Math.round((height * maxDim) / width); width = maxDim; }
+          else { width = Math.round((width * maxDim) / height); height = maxDim; }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("이미지 변환에 실패했습니다."))), "image/jpeg", quality);
+      };
+      img.onerror = () => reject(new Error("이미지를 불러올 수 없습니다."));
+      img.src = reader.result;
+    };
+    reader.onerror = () => reject(new Error("파일을 읽을 수 없습니다."));
+    reader.readAsDataURL(file);
+  });
+}
 
 export default function AdminBizList({ adminInfo, onSelectBiz }) {
   const activeBizRegNo = adminInfo?.bizRegNo;
@@ -37,6 +68,9 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
   const [formError, setFormError] = useState("");
   const [alertMsg, setAlertMsg] = useState(null);
   const [focusedField, setFocusedField] = useState(null);
+  const [certUrl, setCertUrl] = useState(null);
+  const [certUploading, setCertUploading] = useState(false);
+  const [certError, setCertError] = useState("");
 
   const load = async () => {
     setLoaded(false);
@@ -50,6 +84,8 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
       if (!isSuper && biz) {
         setForm(toForm(biz));
         setExpandedKey(biz.bizRegNo);
+        const url = await api.biz.getRegistrationCertUrl(biz.bizRegNo);
+        setCertUrl(url || null);
       }
       return;
     }
@@ -87,10 +123,46 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
     if (expandedKey === key) { setExpandedKey(null); return; }
     setForm(biz ? toForm(biz) : emptyForm);
     setFormError("");
+    setCertUrl(null);
+    setCertError("");
     setExpandedKey(key);
+    if (biz) {
+      (async () => {
+        const url = await api.biz.getRegistrationCertUrl(biz.bizRegNo);
+        setCertUrl(url || null);
+      })();
+    }
   };
 
   const update = (key) => (v) => setForm(f => ({ ...f, [key]: v }));
+
+  const pickAndUploadCert = (bizRegNo) => {
+    if (Platform.OS !== "web" || !bizRegNo) return;
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      setCertUploading(true); setCertError("");
+      try {
+        const blob = await resizeAndCompressImage(file, IMAGE_MAX_DIMENSION, IMAGE_QUALITY);
+        const formData = new FormData();
+        formData.append("file", blob, "cert.jpg");
+        const { error: uploadError } = await api.biz.uploadRegistrationCert(bizRegNo, formData);
+        if (uploadError) {
+          setCertError(uploadError?.message || "사업자등록증 업로드에 실패했습니다.");
+        } else {
+          const url = await api.biz.getRegistrationCertUrl(bizRegNo);
+          setCertUrl(url || null);
+        }
+      } catch {
+        setCertError("이미지 처리 중 오류가 발생했습니다.");
+      }
+      setCertUploading(false);
+    };
+    input.click();
+  };
 
   const indNm = (indCd) => industries.find(ind => ind.indCd === indCd)?.indNm || "미지정";
   const byIndCd = Object.fromEntries(industries.map(d => [d.indCd, d]));
@@ -115,6 +187,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
       bizNm: form.bizNm.trim(),
       repNm: form.repNm.trim(),
       telNo: form.telNo.trim() || null,
+      mobileTel: form.mobileTel.trim(),
       emailAddr: form.emailAddr.trim() || null,
       indCd: form.indCd || null,
       addr: form.addr.trim() || null,
@@ -165,15 +238,9 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
         <View style={boxStyle(s.fieldBoxFull, "bizNm")}>
           <TextInput style={s.fieldInput} placeholder="사업장명" value={form.bizNm} onChangeText={update("bizNm")} {...focusHandlers("bizNm")} />
         </View>
-        {expandedKey === "__new__" ? (
-          <View style={boxStyle(s.fieldBox, "repNm")}>
-            <TextInput style={s.fieldInput} placeholder="대표자명" value={form.repNm} onChangeText={update("repNm")} {...focusHandlers("repNm")} />
-          </View>
-        ) : (
-          <View style={s.fieldBox}>
-            <Text style={s.fieldStatic}>{biz?.repNm || "-"}</Text>
-          </View>
-        )}
+        <View style={boxStyle(s.fieldBox, "repNm")}>
+          <TextInput style={s.fieldInput} placeholder="대표자명" value={form.repNm} onChangeText={update("repNm")} {...focusHandlers("repNm")} />
+        </View>
         <View style={s.fieldBox}>
           <Text style={s.fieldStatic}>{indNm(form.indCd)}</Text>
         </View>
@@ -186,8 +253,12 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
 
       <SectionTitle label="연락처" />
       <View style={s.fieldGrid}>
-        <View style={boxStyle(s.fieldBoxFull, "telNo")}>
+        <View style={boxStyle(s.fieldBox, "telNo")}>
           <TextInput style={s.fieldInput} placeholder="전화번호" value={form.telNo} onChangeText={update("telNo")} keyboardType="phone-pad" {...focusHandlers("telNo")} />
+        </View>
+        <View style={boxStyle(s.fieldBox, "mobileTel")}>
+          <TextInput style={s.fieldInput} placeholder="휴대폰번호 (숫자만)" value={form.mobileTel}
+            onChangeText={(v) => update("mobileTel")(digitsOnly(v).slice(0, 11))} keyboardType="number-pad" maxLength={11} {...focusHandlers("mobileTel")} />
         </View>
         <View style={boxStyle(s.fieldBoxFull, "emailAddr")}>
           <TextInput style={s.fieldInput} placeholder="이메일" value={form.emailAddr} onChangeText={update("emailAddr")} keyboardType="email-address" autoCapitalize="none" {...focusHandlers("emailAddr")} />
@@ -203,6 +274,23 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
           <TextInput style={s.fieldInput} placeholder="상세주소" value={form.addrDtl} onChangeText={update("addrDtl")} {...focusHandlers("addrDtl")} />
         </View>
       </View>
+
+      {biz && (
+        <>
+          <SectionTitle label="사업자등록증" />
+          {certUrl ? (
+            <Image source={{ uri: certUrl }} style={s.certImage} resizeMode="contain" />
+          ) : (
+            <Text style={s.certMissing}>아직 업로드된 사업자등록증이 없습니다.</Text>
+          )}
+          {!!certError && <Text style={s.error}>⚠️ {certError}</Text>}
+          <TouchableOpacity style={s.certUploadBtn} onPress={() => pickAndUploadCert(biz.bizRegNo)} disabled={certUploading}>
+            {certUploading
+              ? <ActivityIndicator color="#1d3557" />
+              : <Text style={s.certUploadBtnText}>{certUrl ? "다시 업로드" : "사업자등록증 사진 업로드"}</Text>}
+          </TouchableOpacity>
+        </>
+      )}
 
       {!!formError && <Text style={s.error}>⚠️ {formError}</Text>}
 
