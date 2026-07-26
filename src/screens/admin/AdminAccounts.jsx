@@ -184,7 +184,7 @@ export default function AdminAccounts({ adminInfo }) {
                   {expanded && (
                     <View style={s.detailBox}>
                       <View style={s.detailRow}><Text style={s.detailKey}>사업자번호</Text><Text style={s.detailVal}>{formatBizRegNo(u.bizRegNo)}</Text></View>
-                      <View style={s.detailRow}><Text style={s.detailKey}>관리자ID</Text><Text style={s.detailVal}>{u.adminId}</Text></View>
+                      <View style={s.detailRow}><Text style={s.detailKey}>이메일</Text><Text style={s.detailVal}>{u.adminId}</Text></View>
                       <View style={s.detailRow}><Text style={s.detailKey}>권한</Text><Text style={s.detailVal}>{ROLE_LABEL[u.adminRole] || u.adminRole}</Text></View>
                       <View style={s.detailRow}><Text style={s.detailKey}>휴대전화</Text><Text style={s.detailVal}>{u.mobileTel || "-"}</Text></View>
                       <View style={s.detailRow}><Text style={s.detailKey}>전화</Text><Text style={s.detailVal}>{u.tel || "-"}</Text></View>
@@ -248,7 +248,8 @@ export default function AdminAccounts({ adminInfo }) {
                   {expanded && (
                     <View style={s.detailBox}>
                       <View style={s.detailRow}><Text style={s.detailKey}>소속</Text><Text style={s.detailVal}>{emp.deptNm || "-"}</Text></View>
-                      <View style={s.detailRow}><Text style={s.detailKey}>이메일</Text><Text style={s.detailVal}>{emp.email || "-"}</Text></View>
+                      <View style={s.detailRow}><Text style={s.detailKey}>로그인 이메일</Text><Text style={s.detailVal}>{emp.empId}</Text></View>
+                      <View style={s.detailRow}><Text style={s.detailKey}>연락처 이메일</Text><Text style={s.detailVal}>{emp.email || "-"}</Text></View>
                       <View style={s.detailRow}><Text style={s.detailKey}>휴대전화</Text><Text style={s.detailVal}>{emp.mobileTel || "-"}</Text></View>
                       <View style={s.detailRow}><Text style={s.detailKey}>메모</Text><Text style={s.detailVal}>{emp.rmrk || "-"}</Text></View>
                       {canChangePw(emp.empId) && (
