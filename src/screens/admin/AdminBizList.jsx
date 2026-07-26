@@ -259,7 +259,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
           {certUrl ? (
             <Image source={{ uri: certUrl }} style={s.certImage} resizeMode="contain" />
           ) : (
-            <Text style={s.certMissing}>아직 업로드된 사업자등록증이 없습니다.</Text>
+            <Text style={s.certMissing}>사업자등록증 업로드 시 사업자 기본정보가 채워집니다.</Text>
           )}
           {!!certError && <Text style={s.error}>⚠️ {certError}</Text>}
           <TouchableOpacity style={s.certUploadBtn} onPress={() => pickAndUploadCert(biz.bizRegNo)} disabled={certUploading}>
