@@ -226,9 +226,11 @@ export default function BizSignup({ visible, onClose }) {
         <View style={[s.card, local.card]}>
           <View style={[s.header, local.headerPad]}>
             <Text style={s.title}>사업자 가입</Text>
-            <Text style={s.sub}>
-              {step === "form" ? "매장을 등록해보세요" : step === "cert" ? "사업자등록증을 업로드해주세요" : "가입 신청 완료"}
-            </Text>
+            {step !== "form" && (
+              <Text style={s.sub}>
+                {step === "cert" ? "사업자등록증을 업로드해주세요" : "가입 신청 완료"}
+              </Text>
+            )}
           </View>
           <ScrollView style={local.scroll} contentContainerStyle={s.body}>
             {step === "form" && (
@@ -242,24 +244,26 @@ export default function BizSignup({ visible, onClose }) {
                   {emailVerified ? (
                     <Text style={local.emailVerifiedText}>✓ 이메일 인증 완료</Text>
                   ) : emailCodeSent ? (
-                    <>
-                      <View style={local.emailCodeRow}>
-                        <TextInput
-                          style={[s.inp, local.emailCodeInput]}
-                          placeholder="인증코드 6자리"
-                          keyboardType="number-pad"
-                          maxLength={6}
-                          value={emailCode}
-                          onChangeText={(v) => setEmailCode(digitsOnly(v).slice(0, 6))}
-                        />
-                        <TouchableOpacity style={local.emailCodeBtn} onPress={verifyEmailCode} disabled={emailCodeVerifying || emailCode.length !== 6}>
-                          {emailCodeVerifying ? <ActivityIndicator size="small" color="#fff" /> : <Text style={local.emailCodeBtnText}>확인</Text>}
-                        </TouchableOpacity>
-                      </View>
-                      <TouchableOpacity style={local.resendBtn} onPress={sendEmailCode} disabled={emailCodeSending}>
-                        {emailCodeSending ? <ActivityIndicator size="small" color="#1d3557" /> : <Text style={local.resendBtnText}>인증코드 재발송</Text>}
+                    <View style={local.emailCodeRow}>
+                      <TextInput
+                        style={[s.inp, local.emailCodeInput]}
+                        placeholder="인증코드 6자리"
+                        keyboardType="number-pad"
+                        maxLength={6}
+                        value={emailCode}
+                        onChangeText={(v) => setEmailCode(digitsOnly(v).slice(0, 6))}
+                      />
+                      <TouchableOpacity
+                        style={[local.emailCodeBtn, emailCode.length !== 6 && local.emailCodeBtnDisabled]}
+                        onPress={verifyEmailCode}
+                        disabled={emailCodeVerifying || emailCode.length !== 6}
+                      >
+                        {emailCodeVerifying ? <ActivityIndicator size="small" color="#fff" /> : <Text style={local.emailCodeBtnText}>확인</Text>}
                       </TouchableOpacity>
-                    </>
+                      <TouchableOpacity style={local.resendBtn} onPress={sendEmailCode} disabled={emailCodeSending}>
+                        {emailCodeSending ? <ActivityIndicator size="small" color="#1d3557" /> : <Text style={local.resendBtnText}>재발송</Text>}
+                      </TouchableOpacity>
+                    </View>
                   ) : (
                     <TouchableOpacity
                       style={[local.emailCodeSendBtn, (!normalizedAdminEmail || !!validators.adminId(form.adminId)) && { opacity: 0.5 }]}
@@ -352,11 +356,12 @@ const local = StyleSheet.create({
   fieldErrorText: { fontSize: 13, color: "#ef4444", marginTop: -10, marginBottom: 12 },
   emailCodeSendBtn: { borderWidth: 1.5, borderColor: "#1d3557", borderRadius: 8, paddingVertical: 10, alignItems: "center", marginBottom: 12 },
   emailCodeSendBtnText: { fontSize: 13, fontWeight: "700", color: "#1d3557" },
-  emailCodeRow: { flexDirection: "row", gap: 8, alignItems: "center", marginBottom: 6 },
+  emailCodeRow: { flexDirection: "row", gap: 8, alignItems: "center", marginBottom: 12 },
   emailCodeInput: { flex: 1, marginBottom: 0 },
   emailCodeBtn: { backgroundColor: "#1d3557", borderRadius: 8, paddingHorizontal: 16, paddingVertical: 12, alignItems: "center", justifyContent: "center" },
+  emailCodeBtnDisabled: { backgroundColor: "#cbd5e1" },
   emailCodeBtnText: { fontSize: 13, fontWeight: "700", color: "#fff" },
-  resendBtn: { borderWidth: 1.5, borderColor: "#94a3b8", borderRadius: 8, paddingVertical: 10, alignItems: "center", marginBottom: 12 },
+  resendBtn: { borderWidth: 1.5, borderColor: "#94a3b8", borderRadius: 8, paddingHorizontal: 14, paddingVertical: 12, alignItems: "center", justifyContent: "center" },
   resendBtnText: { fontSize: 13, fontWeight: "700", color: "#64748b" },
   noticeText: { fontSize: 12, color: "#94a3b8", marginTop: -10, marginBottom: 10 },
   emailVerifiedText: { fontSize: 13, fontWeight: "700", color: "#16a34a", marginBottom: 12 },
