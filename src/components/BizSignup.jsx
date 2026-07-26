@@ -114,11 +114,24 @@ export default function BizSignup({ visible, onClose }) {
   const [certUploaded, setCertUploaded] = useState(false);
   const [certUploading, setCertUploading] = useState(false);
 
+  // 이메일 인증 — 어떤 이메일에 코드를 보냈는지/어떤 이메일이 인증됐는지를 값으로 들고 있다가
+  // 매번 지금 입력된 adminId랑 비교한다. 그래야 인증 후 이메일을 바꾸면 자동으로 재인증이 걸린다.
+  const [emailCodeSentFor, setEmailCodeSentFor] = useState("");
+  const [emailCodeVerifiedFor, setEmailCodeVerifiedFor] = useState("");
+  const [emailCode, setEmailCode] = useState("");
+  const [emailCodeSending, setEmailCodeSending] = useState(false);
+  const [emailCodeVerifying, setEmailCodeVerifying] = useState(false);
+  const [emailCodeError, setEmailCodeError] = useState("");
+
   const update = (key) => (v) => setForm(f => ({ ...f, [key]: v }));
   const markTouched = (key) => () => setTouched(t => ({ ...t, [key]: true }));
 
   const fieldErrors = validateAll(form);
   const errorFor = (key) => (touched[key] ? fieldErrors[key] : "");
+
+  const normalizedAdminEmail = form.adminId.trim().toLowerCase();
+  const emailCodeSent = !!normalizedAdminEmail && emailCodeSentFor === normalizedAdminEmail;
+  const emailVerified = !!normalizedAdminEmail && emailCodeVerifiedFor === normalizedAdminEmail;
 
   const reset = () => {
     setStep("form");
@@ -127,6 +140,29 @@ export default function BizSignup({ visible, onClose }) {
     setError("");
     setSignupResult(null);
     setCertUploaded(false);
+    setEmailCodeSentFor("");
+    setEmailCodeVerifiedFor("");
+    setEmailCode("");
+    setEmailCodeError("");
+  };
+
+  const sendEmailCode = async () => {
+    if (validators.adminId(form.adminId)) { setTouched(t => ({ ...t, adminId: true })); return; }
+    setEmailCodeSending(true); setEmailCodeError("");
+    const { error: apiError } = await api.biz.sendEmailCode({ email: normalizedAdminEmail });
+    setEmailCodeSending(false);
+    if (apiError) { setEmailCodeError(apiError?.message || "인증코드 발송에 실패했습니다."); return; }
+    setEmailCodeSentFor(normalizedAdminEmail);
+    setEmailCode("");
+  };
+
+  const verifyEmailCode = async () => {
+    if (!emailCode.trim()) { setEmailCodeError("인증코드를 입력해주세요."); return; }
+    setEmailCodeVerifying(true); setEmailCodeError("");
+    const { error: apiError } = await api.biz.verifyEmailCode({ email: normalizedAdminEmail, code: emailCode.trim() });
+    setEmailCodeVerifying(false);
+    if (apiError) { setEmailCodeError(apiError?.message || "인증코드가 올바르지 않습니다."); return; }
+    setEmailCodeVerifiedFor(normalizedAdminEmail);
   };
 
   const handleClose = () => { reset(); onClose(); };
@@ -136,6 +172,10 @@ export default function BizSignup({ visible, onClose }) {
     setTouched(Object.fromEntries(Object.keys(validators).map(k => [k, true])));
     if (Object.keys(errors).length > 0) {
       setError("입력값을 다시 확인해주세요.");
+      return;
+    }
+    if (!emailVerified) {
+      setError("이메일 인증을 먼저 완료해주세요.");
       return;
     }
 
@@ -220,6 +260,39 @@ export default function BizSignup({ visible, onClose }) {
                   <Text style={local.sectionTitle}>🔐 관리자 계정</Text>
                   <Field field="adminId" label="이메일" placeholder="로그인에 사용할 이메일" keyboardType="email-address" autoCapitalize="none"
                     value={form.adminId} error={errorFor("adminId")} onChangeText={update("adminId")} onBlur={markTouched("adminId")} />
+
+                  {emailVerified ? (
+                    <Text style={local.emailVerifiedText}>✓ 이메일 인증 완료</Text>
+                  ) : emailCodeSent ? (
+                    <>
+                      <View style={local.emailCodeRow}>
+                        <TextInput
+                          style={[s.inp, local.emailCodeInput]}
+                          placeholder="인증코드 6자리"
+                          keyboardType="number-pad"
+                          maxLength={6}
+                          value={emailCode}
+                          onChangeText={setEmailCode}
+                        />
+                        <TouchableOpacity style={local.emailCodeBtn} onPress={verifyEmailCode} disabled={emailCodeVerifying || !emailCode.trim()}>
+                          {emailCodeVerifying ? <ActivityIndicator size="small" color="#fff" /> : <Text style={local.emailCodeBtnText}>확인</Text>}
+                        </TouchableOpacity>
+                      </View>
+                      <TouchableOpacity onPress={sendEmailCode} disabled={emailCodeSending}>
+                        <Text style={local.resendText}>{emailCodeSending ? "발송 중..." : "인증코드 재발송"}</Text>
+                      </TouchableOpacity>
+                    </>
+                  ) : (
+                    <TouchableOpacity
+                      style={[local.emailCodeSendBtn, (!normalizedAdminEmail || !!validators.adminId(form.adminId)) && { opacity: 0.5 }]}
+                      onPress={sendEmailCode}
+                      disabled={emailCodeSending || !normalizedAdminEmail || !!validators.adminId(form.adminId)}
+                    >
+                      {emailCodeSending ? <ActivityIndicator size="small" color="#1d3557" /> : <Text style={local.emailCodeSendBtnText}>인증코드 발송</Text>}
+                    </TouchableOpacity>
+                  )}
+                  {!!emailCodeError && <Text style={local.fieldErrorText}>{emailCodeError}</Text>}
+
                   <Field field="password" label="비밀번호" placeholder="8자 이상" secureTextEntry
                     value={form.password} error={errorFor("password")} onChangeText={update("password")} onBlur={markTouched("password")} />
                   <Field field="passwordConfirm" label="비밀번호 확인" placeholder="비밀번호 재입력" secureTextEntry
@@ -292,6 +365,14 @@ const local = StyleSheet.create({
   sectionTitle: { fontSize: 13, fontWeight: "800", color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 12 },
   inpError: { borderColor: "#ef4444" },
   fieldErrorText: { fontSize: 13, color: "#ef4444", marginTop: -10, marginBottom: 12 },
+  emailCodeSendBtn: { borderWidth: 1.5, borderColor: "#1d3557", borderRadius: 8, paddingVertical: 10, alignItems: "center", marginBottom: 12 },
+  emailCodeSendBtnText: { fontSize: 13, fontWeight: "700", color: "#1d3557" },
+  emailCodeRow: { flexDirection: "row", gap: 8, alignItems: "center", marginBottom: 6 },
+  emailCodeInput: { flex: 1, marginBottom: 0 },
+  emailCodeBtn: { backgroundColor: "#1d3557", borderRadius: 8, paddingHorizontal: 16, paddingVertical: 12, alignItems: "center", justifyContent: "center" },
+  emailCodeBtnText: { fontSize: 13, fontWeight: "700", color: "#fff" },
+  resendText: { fontSize: 12, color: "#64748b", textDecorationLine: "underline", marginBottom: 12 },
+  emailVerifiedText: { fontSize: 13, fontWeight: "700", color: "#16a34a", marginBottom: 12 },
   ntsResultBox: { backgroundColor: "#f0f9ff", borderWidth: 1, borderColor: "#7dd3fc", borderRadius: 12, padding: 12, marginBottom: 16 },
   ntsResultText: { fontSize: 15, color: "#0369a1", fontWeight: "600" },
   certPickBtn: { borderWidth: 1.5, borderColor: "#1d3557", borderStyle: "dashed", borderRadius: 12, padding: 16, alignItems: "center", marginBottom: 16 },
