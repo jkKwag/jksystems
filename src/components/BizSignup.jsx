@@ -260,6 +260,7 @@ export default function BizSignup({ visible, onClose }) {
                   <Text style={local.sectionTitle}>🔐 관리자 계정</Text>
                   <Field field="adminId" label="이메일" placeholder="로그인에 사용할 이메일" keyboardType="email-address" autoCapitalize="none"
                     value={form.adminId} error={errorFor("adminId")} onChangeText={update("adminId")} onBlur={markTouched("adminId")} />
+                  <Text style={local.noticeText}>현재는 관리자메일로만 확인 가능합니다.</Text>
 
                   {emailVerified ? (
                     <Text style={local.emailVerifiedText}>✓ 이메일 인증 완료</Text>
@@ -372,6 +373,7 @@ const local = StyleSheet.create({
   emailCodeBtn: { backgroundColor: "#1d3557", borderRadius: 8, paddingHorizontal: 16, paddingVertical: 12, alignItems: "center", justifyContent: "center" },
   emailCodeBtnText: { fontSize: 13, fontWeight: "700", color: "#fff" },
   resendText: { fontSize: 12, color: "#64748b", textDecorationLine: "underline", marginBottom: 12 },
+  noticeText: { fontSize: 12, color: "#94a3b8", marginTop: -10, marginBottom: 10 },
   emailVerifiedText: { fontSize: 13, fontWeight: "700", color: "#16a34a", marginBottom: 12 },
   ntsResultBox: { backgroundColor: "#f0f9ff", borderWidth: 1, borderColor: "#7dd3fc", borderRadius: 12, padding: 12, marginBottom: 16 },
   ntsResultText: { fontSize: 15, color: "#0369a1", fontWeight: "600" },
