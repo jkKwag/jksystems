@@ -206,8 +206,6 @@ export default function BizSignup({ visible, onClose }) {
                     value={form.bizNm} error={errorFor("bizNm")} onChangeText={update("bizNm")} onBlur={markTouched("bizNm")} />
                   <Field field="telNo" label="전화번호" placeholder="전화번호 입력 (선택)" keyboardType="phone-pad"
                     value={form.telNo} error={errorFor("telNo")} onChangeText={update("telNo")} onBlur={markTouched("telNo")} />
-                  <Field field="mobileTel" label="휴대폰번호" placeholder="휴대폰번호 입력 (선택)" keyboardType="phone-pad"
-                    value={form.mobileTel} error={errorFor("mobileTel")} onChangeText={update("mobileTel")} onBlur={markTouched("mobileTel")} />
                   <Field field="emailAddr" label="이메일" placeholder="이메일 입력 (선택)" keyboardType="email-address" autoCapitalize="none"
                     value={form.emailAddr} error={errorFor("emailAddr")} onChangeText={update("emailAddr")} onBlur={markTouched("emailAddr")} />
                 </View>
@@ -220,6 +218,8 @@ export default function BizSignup({ visible, onClose }) {
                     value={form.password} error={errorFor("password")} onChangeText={update("password")} onBlur={markTouched("password")} />
                   <Field field="passwordConfirm" label="비밀번호 확인" placeholder="비밀번호 재입력" secureTextEntry
                     value={form.passwordConfirm} error={errorFor("passwordConfirm")} onChangeText={update("passwordConfirm")} onBlur={markTouched("passwordConfirm")} />
+                  <Field field="mobileTel" label="휴대폰번호" placeholder="휴대폰번호 입력 (선택)" keyboardType="phone-pad"
+                    value={form.mobileTel} error={errorFor("mobileTel")} onChangeText={update("mobileTel")} onBlur={markTouched("mobileTel")} />
                 </View>
 
                 {!!error && <View style={s.errorBox}><Text style={s.errorText}>⚠️ {error}</Text></View>}
