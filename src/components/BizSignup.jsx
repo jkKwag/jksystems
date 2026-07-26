@@ -8,8 +8,8 @@ const IMAGE_QUALITY = 0.85;
 
 // 대표자명/주소는 나중에 사업자등록증 이미지 인식으로 채울 예정이라 가입 폼에서는 받지 않는다.
 const emptyForm = {
-  bizRegNo: "", bizNm: "", telNo: "", mobileTel: "", emailAddr: "",
-  adminId: "", password: "", passwordConfirm: "",
+  bizRegNo: "", bizNm: "", telNo: "",
+  adminId: "", password: "", passwordConfirm: "", mobileTel: "",
 };
 
 const digitsOnly = (v) => v.replace(/\D/g, "");
@@ -27,12 +27,8 @@ const validators = {
     return digitsOnly(v).length >= 9 && digitsOnly(v).length <= 11 ? "" : "전화번호 형식이 올바르지 않습니다.";
   },
   mobileTel: (v) => {
-    if (!v.trim()) return "";
-    return /^01[0-9]{8,9}$/.test(digitsOnly(v)) ? "" : "휴대폰번호 형식이 올바르지 않습니다. (예: 01012345678)";
-  },
-  emailAddr: (v) => {
-    if (!v.trim()) return "";
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? "" : "이메일 형식이 올바르지 않습니다.";
+    if (!v.trim()) return "휴대폰번호를 입력해주세요.";
+    return /^01[0-9]{8,9}$/.test(v.trim()) ? "" : "휴대폰번호 형식이 올바르지 않습니다. (예: 01012345678)";
   },
   adminId: (v) => {
     if (!v.trim()) return "이메일을 입력해주세요.";
@@ -85,7 +81,7 @@ function resizeAndCompressImage(file, maxDim, quality) {
 
 // 컴포넌트 함수 안에서 인라인으로 정의하면 매 렌더(키 입력마다)마다 새 컴포넌트로 취급되어
 // TextInput이 언마운트/재마운트되면서 포커스(모바일에서는 키보드)가 날아간다 — 반드시 밖에 둬야 함.
-function Field({ field, label, placeholder, keyboardType, secureTextEntry, autoCapitalize, value, error, onChangeText, onBlur }) {
+function Field({ field, label, placeholder, keyboardType, secureTextEntry, autoCapitalize, maxLength, value, error, onChangeText, onBlur }) {
   return (
     <>
       <Text style={s.label}>{label}</Text>
@@ -98,6 +94,7 @@ function Field({ field, label, placeholder, keyboardType, secureTextEntry, autoC
         keyboardType={keyboardType}
         secureTextEntry={secureTextEntry}
         autoCapitalize={autoCapitalize}
+        maxLength={maxLength}
       />
       {!!error && <Text style={local.fieldErrorText}>{error}</Text>}
     </>
@@ -184,8 +181,7 @@ export default function BizSignup({ visible, onClose }) {
       bizRegNo: digitsOnly(form.bizRegNo),
       bizNm: form.bizNm.trim(),
       telNo: form.telNo.trim() || null,
-      mobileTel: form.mobileTel.trim() || null,
-      emailAddr: form.emailAddr.trim() || null,
+      mobileTel: form.mobileTel.trim(),
       adminId: form.adminId.trim(),
       password: form.password,
     });
@@ -229,7 +225,6 @@ export default function BizSignup({ visible, onClose }) {
       <View style={s.overlay}>
         <View style={[s.card, local.card]}>
           <View style={s.header}>
-            <Text style={s.icon}>🏪</Text>
             <Text style={s.title}>사업자 가입</Text>
             <Text style={s.sub}>
               {step === "form" ? "매장을 등록해보세요" : step === "cert" ? "사업자등록증을 업로드해주세요" : "가입 신청 완료"}
@@ -238,18 +233,6 @@ export default function BizSignup({ visible, onClose }) {
           <ScrollView style={local.scroll} contentContainerStyle={s.body}>
             {step === "form" && (
               <>
-                <View style={local.sectionCard}>
-                  <Text style={local.sectionTitle}>📋 사업장 정보</Text>
-                  <Field field="bizRegNo" label="사업자등록번호" placeholder="숫자만 입력" keyboardType="numeric"
-                    value={form.bizRegNo} error={errorFor("bizRegNo")} onChangeText={update("bizRegNo")} onBlur={markTouched("bizRegNo")} />
-                  <Field field="bizNm" label="상호명" placeholder="상호명 입력"
-                    value={form.bizNm} error={errorFor("bizNm")} onChangeText={update("bizNm")} onBlur={markTouched("bizNm")} />
-                  <Field field="telNo" label="전화번호" placeholder="전화번호 입력 (선택)" keyboardType="phone-pad"
-                    value={form.telNo} error={errorFor("telNo")} onChangeText={update("telNo")} onBlur={markTouched("telNo")} />
-                  <Field field="emailAddr" label="이메일" placeholder="이메일 입력 (선택)" keyboardType="email-address" autoCapitalize="none"
-                    value={form.emailAddr} error={errorFor("emailAddr")} onChangeText={update("emailAddr")} onBlur={markTouched("emailAddr")} />
-                </View>
-
                 <View style={local.sectionCard}>
                   <Text style={local.sectionTitle}>🔐 관리자 계정</Text>
                   <Field field="adminId" label="이메일" placeholder="로그인에 사용할 이메일" keyboardType="email-address" autoCapitalize="none"
@@ -292,8 +275,19 @@ export default function BizSignup({ visible, onClose }) {
                     value={form.password} error={errorFor("password")} onChangeText={update("password")} onBlur={markTouched("password")} />
                   <Field field="passwordConfirm" label="비밀번호 확인" placeholder="비밀번호 재입력" secureTextEntry
                     value={form.passwordConfirm} error={errorFor("passwordConfirm")} onChangeText={update("passwordConfirm")} onBlur={markTouched("passwordConfirm")} />
-                  <Field field="mobileTel" label="휴대폰번호" placeholder="휴대폰번호 입력 (선택)" keyboardType="phone-pad"
-                    value={form.mobileTel} error={errorFor("mobileTel")} onChangeText={update("mobileTel")} onBlur={markTouched("mobileTel")} />
+                  <Field field="mobileTel" label="휴대폰번호" placeholder="숫자만 입력 (예: 01012345678)" keyboardType="number-pad" maxLength={11}
+                    value={form.mobileTel} error={errorFor("mobileTel")}
+                    onChangeText={(v) => update("mobileTel")(digitsOnly(v).slice(0, 11))} onBlur={markTouched("mobileTel")} />
+                </View>
+
+                <View style={local.sectionCard}>
+                  <Text style={local.sectionTitle}>📋 사업장 정보</Text>
+                  <Field field="bizRegNo" label="사업자등록번호" placeholder="숫자만 입력" keyboardType="numeric"
+                    value={form.bizRegNo} error={errorFor("bizRegNo")} onChangeText={update("bizRegNo")} onBlur={markTouched("bizRegNo")} />
+                  <Field field="bizNm" label="상호명" placeholder="상호명 입력"
+                    value={form.bizNm} error={errorFor("bizNm")} onChangeText={update("bizNm")} onBlur={markTouched("bizNm")} />
+                  <Field field="telNo" label="전화번호" placeholder="전화번호 입력 (선택)" keyboardType="phone-pad"
+                    value={form.telNo} error={errorFor("telNo")} onChangeText={update("telNo")} onBlur={markTouched("telNo")} />
                 </View>
 
                 {!!error && <View style={s.errorBox}><Text style={s.errorText}>⚠️ {error}</Text></View>}
