@@ -253,6 +253,23 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
         )}
       </View>
 
+      {biz && (
+        <>
+          <SectionTitle label="사업자등록증" />
+          {certUrl ? (
+            <Image source={{ uri: certUrl }} style={s.certImage} resizeMode="contain" />
+          ) : (
+            <Text style={s.certMissing}>아직 업로드된 사업자등록증이 없습니다.</Text>
+          )}
+          {!!certError && <Text style={s.error}>⚠️ {certError}</Text>}
+          <TouchableOpacity style={s.certUploadBtn} onPress={() => pickAndUploadCert(biz.bizRegNo)} disabled={certUploading}>
+            {certUploading
+              ? <ActivityIndicator color="#1d3557" />
+              : <Text style={s.certUploadBtnText}>{certUrl ? "다시 업로드" : "사업자등록증 사진 업로드"}</Text>}
+          </TouchableOpacity>
+        </>
+      )}
+
       <SectionTitle label="연락처" />
       <View style={s.fieldGrid}>
         <View style={boxStyle(s.fieldBox, "telNo")}>
@@ -276,23 +293,6 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
           <TextInput style={s.fieldInput} placeholder="상세주소" placeholderTextColor={PLACEHOLDER_COLOR} value={form.addrDtl} onChangeText={update("addrDtl")} {...focusHandlers("addrDtl")} />
         </View>
       </View>
-
-      {biz && (
-        <>
-          <SectionTitle label="사업자등록증" />
-          {certUrl ? (
-            <Image source={{ uri: certUrl }} style={s.certImage} resizeMode="contain" />
-          ) : (
-            <Text style={s.certMissing}>아직 업로드된 사업자등록증이 없습니다.</Text>
-          )}
-          {!!certError && <Text style={s.error}>⚠️ {certError}</Text>}
-          <TouchableOpacity style={s.certUploadBtn} onPress={() => pickAndUploadCert(biz.bizRegNo)} disabled={certUploading}>
-            {certUploading
-              ? <ActivityIndicator color="#1d3557" />
-              : <Text style={s.certUploadBtnText}>{certUrl ? "다시 업로드" : "사업자등록증 사진 업로드"}</Text>}
-          </TouchableOpacity>
-        </>
-      )}
 
       {!!formError && <Text style={s.error}>⚠️ {formError}</Text>}
 
