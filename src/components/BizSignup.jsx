@@ -35,8 +35,8 @@ const validators = {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? "" : "이메일 형식이 올바르지 않습니다.";
   },
   adminId: (v) => {
-    if (!v.trim()) return "관리자 아이디를 입력해주세요.";
-    return /^[a-zA-Z0-9_]{4,20}$/.test(v.trim()) ? "" : "아이디는 영문/숫자/_ 4~20자여야 합니다.";
+    if (!v.trim()) return "이메일을 입력해주세요.";
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? "" : "이메일 형식이 올바르지 않습니다.";
   },
   password: (v) => {
     if (!v) return "비밀번호를 입력해주세요.";
@@ -218,7 +218,7 @@ export default function BizSignup({ visible, onClose }) {
 
                 <View style={local.sectionCard}>
                   <Text style={local.sectionTitle}>🔐 관리자 계정</Text>
-                  <Field field="adminId" label="관리자 아이디" placeholder="로그인에 사용할 아이디" autoCapitalize="none"
+                  <Field field="adminId" label="이메일" placeholder="로그인에 사용할 이메일" keyboardType="email-address" autoCapitalize="none"
                     value={form.adminId} error={errorFor("adminId")} onChangeText={update("adminId")} onBlur={markTouched("adminId")} />
                   <Field field="password" label="비밀번호" placeholder="8자 이상" secureTextEntry
                     value={form.password} error={errorFor("password")} onChangeText={update("password")} onBlur={markTouched("password")} />
