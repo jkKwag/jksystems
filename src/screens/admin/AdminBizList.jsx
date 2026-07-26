@@ -11,6 +11,7 @@ const IMAGE_QUALITY = 0.85;
 const emptyForm = { bizRegNo: "", bizNm: "", repNm: "", telNo: "", mobileTel: "", emailAddr: "", indCd: "", addr: "", addrDtl: "" };
 
 const digitsOnly = (v) => v.replace(/\D/g, "");
+const PLACEHOLDER_COLOR = "#94a3b8";
 
 const toForm = (biz) => ({
   bizRegNo: biz?.bizRegNo || "",
@@ -228,6 +229,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
             <TextInput
               style={s.fieldInput}
               placeholder="사업자등록번호 (숫자만)"
+              placeholderTextColor={PLACEHOLDER_COLOR}
               value={form.bizRegNo}
               onChangeText={update("bizRegNo")}
               keyboardType="numeric"
@@ -236,10 +238,10 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
           </View>
         )}
         <View style={boxStyle(s.fieldBoxFull, "bizNm")}>
-          <TextInput style={s.fieldInput} placeholder="사업장명" value={form.bizNm} onChangeText={update("bizNm")} {...focusHandlers("bizNm")} />
+          <TextInput style={s.fieldInput} placeholder="사업장명" placeholderTextColor={PLACEHOLDER_COLOR} value={form.bizNm} onChangeText={update("bizNm")} {...focusHandlers("bizNm")} />
         </View>
         <View style={boxStyle(s.fieldBox, "repNm")}>
-          <TextInput style={s.fieldInput} placeholder="대표자명" value={form.repNm} onChangeText={update("repNm")} {...focusHandlers("repNm")} />
+          <TextInput style={s.fieldInput} placeholder="대표자명" placeholderTextColor={PLACEHOLDER_COLOR} value={form.repNm} onChangeText={update("repNm")} {...focusHandlers("repNm")} />
         </View>
         <View style={s.fieldBox}>
           <Text style={s.fieldStatic}>{indNm(form.indCd)}</Text>
@@ -254,24 +256,24 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
       <SectionTitle label="연락처" />
       <View style={s.fieldGrid}>
         <View style={boxStyle(s.fieldBox, "telNo")}>
-          <TextInput style={s.fieldInput} placeholder="전화번호" value={form.telNo} onChangeText={update("telNo")} keyboardType="phone-pad" {...focusHandlers("telNo")} />
+          <TextInput style={s.fieldInput} placeholder="전화번호" placeholderTextColor={PLACEHOLDER_COLOR} value={form.telNo} onChangeText={update("telNo")} keyboardType="phone-pad" {...focusHandlers("telNo")} />
         </View>
         <View style={boxStyle(s.fieldBox, "mobileTel")}>
-          <TextInput style={s.fieldInput} placeholder="휴대폰번호 (숫자만)" value={form.mobileTel}
+          <TextInput style={s.fieldInput} placeholder="휴대폰번호 (숫자만)" placeholderTextColor={PLACEHOLDER_COLOR} value={form.mobileTel}
             onChangeText={(v) => update("mobileTel")(digitsOnly(v).slice(0, 11))} keyboardType="number-pad" maxLength={11} {...focusHandlers("mobileTel")} />
         </View>
         <View style={boxStyle(s.fieldBoxFull, "emailAddr")}>
-          <TextInput style={s.fieldInput} placeholder="이메일" value={form.emailAddr} onChangeText={update("emailAddr")} keyboardType="email-address" autoCapitalize="none" {...focusHandlers("emailAddr")} />
+          <TextInput style={s.fieldInput} placeholder="이메일" placeholderTextColor={PLACEHOLDER_COLOR} value={form.emailAddr} onChangeText={update("emailAddr")} keyboardType="email-address" autoCapitalize="none" {...focusHandlers("emailAddr")} />
         </View>
       </View>
 
       <SectionTitle label="주소" />
       <View style={s.fieldGrid}>
         <View style={boxStyle(s.fieldBoxFull, "addr")}>
-          <TextInput style={s.fieldInput} placeholder="주소" value={form.addr} onChangeText={update("addr")} {...focusHandlers("addr")} />
+          <TextInput style={s.fieldInput} placeholder="주소" placeholderTextColor={PLACEHOLDER_COLOR} value={form.addr} onChangeText={update("addr")} {...focusHandlers("addr")} />
         </View>
         <View style={boxStyle(s.fieldBoxFull, "addrDtl")}>
-          <TextInput style={s.fieldInput} placeholder="상세주소" value={form.addrDtl} onChangeText={update("addrDtl")} {...focusHandlers("addrDtl")} />
+          <TextInput style={s.fieldInput} placeholder="상세주소" placeholderTextColor={PLACEHOLDER_COLOR} value={form.addrDtl} onChangeText={update("addrDtl")} {...focusHandlers("addrDtl")} />
         </View>
       </View>
 
