@@ -3,10 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Modal, ActivityIndicator, Plat
 import { s } from "../styles/AdminLogin.styles";
 import api from "../lib/api";
 
-const IMAGE_MAX_DIMENSION = 1400;
-const IMAGE_QUALITY = 0.85;
-
-// 대표자명/주소는 나중에 사업자등록증 이미지 인식으로 채울 예정이라 가입 폼에서는 받지 않는다.
+// 대표자명/주소/사업자등록증은 가입 직후 로그인해서 별도 화면(임시관리자 메뉴)에서 채우도록 이동했다.
 const emptyForm = {
   bizRegNo: "", bizNm: "", telNo: "",
   adminId: "", password: "", passwordConfirm: "", mobileTel: "",
@@ -53,32 +50,6 @@ const validateAll = (form) => {
   return errors;
 };
 
-// 메뉴 이미지 업로드와 동일한 방식으로 리사이즈/압축 (사업자등록증은 글자를 읽어야 해서 조금 더 크게)
-function resizeAndCompressImage(file, maxDim, quality) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const img = new window.Image();
-      img.onload = () => {
-        let { width, height } = img;
-        if (width > maxDim || height > maxDim) {
-          if (width >= height) { height = Math.round((height * maxDim) / width); width = maxDim; }
-          else { width = Math.round((width * maxDim) / height); height = maxDim; }
-        }
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        canvas.getContext("2d").drawImage(img, 0, 0, width, height);
-        canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("이미지 변환에 실패했습니다."))), "image/jpeg", quality);
-      };
-      img.onerror = () => reject(new Error("이미지를 불러올 수 없습니다."));
-      img.src = reader.result;
-    };
-    reader.onerror = () => reject(new Error("파일을 읽을 수 없습니다."));
-    reader.readAsDataURL(file);
-  });
-}
-
 // 컴포넌트 함수 안에서 인라인으로 정의하면 매 렌더(키 입력마다)마다 새 컴포넌트로 취급되어
 // TextInput이 언마운트/재마운트되면서 포커스(모바일에서는 키보드)가 날아간다 — 반드시 밖에 둬야 함.
 function Field({ field, label, placeholder, keyboardType, secureTextEntry, autoCapitalize, maxLength, value, error, onChangeText, onBlur }) {
@@ -102,14 +73,11 @@ function Field({ field, label, placeholder, keyboardType, secureTextEntry, autoC
 }
 
 export default function BizSignup({ visible, onClose }) {
-  const [step, setStep] = useState("form"); // form | cert | done
+  const [step, setStep] = useState("form"); // form | done
   const [form, setForm] = useState(emptyForm);
   const [touched, setTouched] = useState({});
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [signupResult, setSignupResult] = useState(null); // { bizRegNo, signupToken, ntsStatus }
-  const [certUploaded, setCertUploaded] = useState(false);
-  const [certUploading, setCertUploading] = useState(false);
 
   // 이메일 인증 — 어떤 이메일에 코드를 보냈는지/어떤 이메일이 인증됐는지를 값으로 들고 있다가
   // 매번 지금 입력된 adminId랑 비교한다. 그래야 인증 후 이메일을 바꾸면 자동으로 재인증이 걸린다.
@@ -135,8 +103,6 @@ export default function BizSignup({ visible, onClose }) {
     setForm(emptyForm);
     setTouched({});
     setError("");
-    setSignupResult(null);
-    setCertUploaded(false);
     setEmailCodeSentFor("");
     setEmailCodeVerifiedFor("");
     setEmailCode("");
@@ -187,37 +153,7 @@ export default function BizSignup({ visible, onClose }) {
     });
     setLoading(false);
     if (apiError || !data) { setError(apiError?.message || "가입에 실패했습니다. 다시 시도해주세요."); return; }
-    setSignupResult(data);
-    setStep("cert");
-  };
-
-  const pickAndUploadCert = () => {
-    if (Platform.OS !== "web" || !signupResult) return;
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
-    input.onchange = async () => {
-      const file = input.files?.[0];
-      if (!file) return;
-      setCertUploading(true); setError("");
-      try {
-        const blob = await resizeAndCompressImage(file, IMAGE_MAX_DIMENSION, IMAGE_QUALITY);
-        const formData = new FormData();
-        formData.append("file", blob, "cert.jpg");
-        const { error: uploadError } = await api.biz.uploadRegistrationCert(
-          signupResult.bizRegNo, signupResult.signupToken, formData
-        );
-        if (uploadError) {
-          setError(uploadError?.message || "사업자등록증 업로드에 실패했습니다.");
-        } else {
-          setCertUploaded(true);
-        }
-      } catch {
-        setError("이미지 처리 중 오류가 발생했습니다.");
-      }
-      setCertUploading(false);
-    };
-    input.click();
+    setStep("done");
   };
 
   return (
@@ -229,11 +165,7 @@ export default function BizSignup({ visible, onClose }) {
           </TouchableOpacity>
           <View style={[s.header, local.headerPad]}>
             <Text style={s.title}>사업자 가입</Text>
-            {step !== "form" && (
-              <Text style={s.sub}>
-                {step === "cert" ? "사업자등록증을 업로드해주세요" : "가입 신청 완료"}
-              </Text>
-            )}
+            {step === "done" && <Text style={s.sub}>가입 신청 완료</Text>}
           </View>
           <ScrollView style={local.scroll} contentContainerStyle={s.body}>
             {step === "form" && (
@@ -309,34 +241,10 @@ export default function BizSignup({ visible, onClose }) {
               </>
             )}
 
-            {step === "cert" && (
-              <>
-                <View style={local.ntsResultBox}>
-                  <Text style={local.ntsResultText}>
-                    국세청 상태조회 결과: {signupResult?.ntsStatus || "확인되지 않았습니다 (수동 검토 예정)"}
-                  </Text>
-                </View>
-                <Text style={s.label}>사업자등록증 사진</Text>
-                <TouchableOpacity style={local.certPickBtn} onPress={pickAndUploadCert} disabled={certUploading}>
-                  {certUploading
-                    ? <ActivityIndicator color="#1d3557" />
-                    : <Text style={local.certPickBtnText}>{certUploaded ? "✓ 업로드 완료 (다시 선택하려면 탭)" : "사업자등록증 사진 선택"}</Text>}
-                </TouchableOpacity>
-                {!!error && <View style={s.errorBox}><Text style={s.errorText}>⚠️ {error}</Text></View>}
-                <TouchableOpacity
-                  style={[s.loginBtn, !certUploaded && { opacity: 0.5 }]}
-                  onPress={() => setStep("done")}
-                  disabled={!certUploaded}
-                >
-                  <Text style={s.loginBtnText}>다음</Text>
-                </TouchableOpacity>
-              </>
-            )}
-
             {step === "done" && (
               <>
                 <Text style={local.doneText}>
-                  가입 신청이 접수되었습니다.{"\n"}관리자 승인 후 로그인하실 수 있어요.
+                  가입 신청이 완료되었습니다.{"\n"}로그인하시면 기본정보 입력과 사업자등록증 업로드를 이어서 진행하실 수 있어요.
                 </Text>
                 <TouchableOpacity style={s.loginBtn} onPress={handleClose}>
                   <Text style={s.loginBtnText}>확인</Text>
@@ -376,9 +284,5 @@ const local = StyleSheet.create({
   resendBtnText: { fontSize: 13, fontWeight: "700", color: "#fff" },
   noticeText: { fontSize: 12, color: "#94a3b8", marginTop: -10, marginBottom: 10 },
   emailVerifiedText: { fontSize: 13, fontWeight: "700", color: "#16a34a", marginBottom: 12 },
-  ntsResultBox: { backgroundColor: "#f0f9ff", borderWidth: 1, borderColor: "#7dd3fc", borderRadius: 12, padding: 12, marginBottom: 16 },
-  ntsResultText: { fontSize: 15, color: "#0369a1", fontWeight: "600" },
-  certPickBtn: { borderWidth: 1.5, borderColor: "#1d3557", borderStyle: "dashed", borderRadius: 12, padding: 16, alignItems: "center", marginBottom: 16 },
-  certPickBtnText: { fontSize: 16, fontWeight: "700", color: "#1d3557" },
   doneText: { fontSize: 17, color: "#334155", textAlign: "center", lineHeight: 26, marginBottom: 20 },
 });

@@ -113,13 +113,13 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
     const payload = {
       bizRegNo: form.bizRegNo.trim(),
       bizNm: form.bizNm.trim(),
+      repNm: form.repNm.trim(),
       telNo: form.telNo.trim() || null,
       emailAddr: form.emailAddr.trim() || null,
       indCd: form.indCd || null,
       addr: form.addr.trim() || null,
       addrDtl: form.addrDtl.trim() || null,
     };
-    if (!isEdit) payload.repNm = form.repNm.trim();
     const { data, error } = isEdit
       ? await api.biz.update(expandedKey, payload)
       : await api.biz.create(payload);
