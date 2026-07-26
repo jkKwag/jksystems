@@ -165,6 +165,15 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
               addr: f.addr || extracted.addr || f.addr,
             }));
           }
+          const fields = [
+            extracted?.bizNm && `상호: ${extracted.bizNm}`,
+            extracted?.repNm && `대표자: ${extracted.repNm}`,
+            extracted?.addr && `주소: ${extracted.addr}`,
+            extracted?.bizRegNo && `사업자등록번호: ${extracted.bizRegNo}`,
+          ].filter(Boolean);
+          setAlertMsg(fields.length
+            ? `업로드 완료! 사업자등록증에서 다음 정보를 인식했어요.\n\n${fields.join("\n")}`
+            : "업로드는 완료됐지만, 사업자등록증에서 정보를 인식하지 못했습니다.");
         }
       } catch {
         setCertError("이미지 처리 중 오류가 발생했습니다.");
