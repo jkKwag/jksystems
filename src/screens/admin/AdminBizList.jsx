@@ -59,7 +59,11 @@ function buildCertFormData(blob) {
   return formData;
 }
 
-// "주민"이 들어간 줄은 그 줄 전체(가로 전체 폭)를 까맣게 칠한다 —
+// 주민등록번호 형식(6자리+7자리 숫자) 전체 또는 일부가 이어진 패턴 — 한글보다 숫자 인식이 더 정확해서
+// 이 패턴이 잡히면 "주민" 글자를 못 읽었어도 마스킹한다.
+const RESIDENT_NO_DIGIT_PATTERN = /\d{6}\d{7}/;
+
+// "주민" 텍스트가 있거나 주민등록번호 자리수(13자리) 숫자 패턴이 있으면 그 줄 전체(가로 전체 폭)를 까맣게 칠한다 —
 // blocks(JSON) 대신 hOCR을 DOMParser로 파싱한다: 버전별로 JSON 트리 구조가 어긋나는 경우가 있어
 // hOCR + title="bbox ..." 속성 쪽이 더 안정적이다.
 async function maskResidentNumberLines(canvas) {
@@ -77,7 +81,8 @@ async function maskResidentNumberLines(canvas) {
     let maskedAny = false;
     lineEls.forEach(el => {
       const text = (el.textContent || "").replace(/\s/g, "");
-      if (!text.includes("주민")) return;
+      const digitsOnly = text.replace(/\D/g, "");
+      if (!text.includes("주민") && !RESIDENT_NO_DIGIT_PATTERN.test(digitsOnly)) return;
       const bboxMatch = /bbox (\d+) (\d+) (\d+) (\d+)/.exec(el.getAttribute("title") || "");
       if (!bboxMatch) return;
       const y0 = Number(bboxMatch[2]);
