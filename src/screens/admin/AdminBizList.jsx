@@ -59,7 +59,7 @@ function buildCertFormData(blob) {
   return formData;
 }
 
-// "주민"과 "등록번호"가 같은 줄에 함께 있으면 그 줄 전체를 가린다 — 인식이 제일 잘됐던 조건.
+// "주민" 또는 "등록"이 들어간 줄은 그 줄 전체를 가린다.
 // blocks(JSON) 대신 hOCR을 DOMParser로 파싱한다: 버전별로 JSON 트리 구조가 어긋나는 경우가 있어
 // hOCR + title="bbox ..." 속성 쪽이 더 안정적이다.
 async function maskResidentNumberLines(canvas) {
@@ -77,7 +77,7 @@ async function maskResidentNumberLines(canvas) {
     let maskedAny = false;
     lineEls.forEach(el => {
       const text = (el.textContent || "").replace(/\s/g, "");
-      if (!text.includes("주민") || !text.includes("등록번호")) return;
+      if (!text.includes("주민") && !text.includes("등록")) return;
       const bboxMatch = /bbox (\d+) (\d+) (\d+) (\d+)/.exec(el.getAttribute("title") || "");
       if (!bboxMatch) return;
       const y0 = Number(bboxMatch[2]);
