@@ -89,7 +89,8 @@ async function maskResidentNumberLines(canvas) {
     wordEls.forEach(el => {
       const rawText = (el.textContent || "").trim();
       const digits = rawText.replace(/\D/g, "");
-      if (!isResidentLikeDigits(digits) && !RESIDENT_NO_RAW_PATTERN.test(rawText)) return;
+      const hasResidentText = rawText.replace(/\s/g, "").includes("주민");
+      if (!isResidentLikeDigits(digits) && !RESIDENT_NO_RAW_PATTERN.test(rawText) && !hasResidentText) return;
       const bboxMatch = /bbox (\d+) (\d+) (\d+) (\d+)/.exec(el.getAttribute("title") || "");
       if (!bboxMatch) return;
       const y0 = Number(bboxMatch[2]);
