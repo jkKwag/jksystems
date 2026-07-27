@@ -73,18 +73,23 @@ function getPaddleService() {
 }
 
 const CERT_LABEL_FIELDS = [
-  { key: "bizNm", labels: ["상호(법인명)", "상호"] },
+  { key: "bizNm", labels: ["상호(법인명)", "성명(법인명)", "상호"] },
   { key: "repNm", labels: ["성명(대표자)", "대표자"] },
   { key: "addr", labels: ["사업장소재지", "본점소재지", "소재지"] },
 ];
-const CERT_VALUE_TRIM_RE = /^[\s:：()]+|[\s:：()]+$/g;
+// 여는 괄호는 라벨 잔여물("(법인명)"의 남은 "(")일 수 있어 앞쪽만 지운다 — 뒤쪽 ")"는
+// 주소값 자체에 속한 경우가 많아("...코아루천년가)") 그대로 둔다.
+const CERT_VALUE_LEADING_TRIM_RE = /^[\s:：(]+/;
+const CERT_VALUE_TRAILING_TRIM_RE = /[\s:：]+$/;
 
 // 사업자등록증은 "상호 OOO   성명(대표자) 홍길동"처럼 한 줄에 라벨 여러 개가 같이 나오는 경우가 많다.
 // 그래서 한 줄 안에서 라벨들의 위치를 다 찾은 뒤, 각 라벨 값은 "그 라벨 끝 ~ 다음 라벨 시작 전"까지로 잘라낸다
 // (라벨 하나만 지우고 나머지를 통째로 값으로 삼으면 다른 라벨/값이 섞여 들어간다).
 function extractCertFields(lineTexts) {
   const result = { bizNm: "", repNm: "", addr: "" };
-  lineTexts.forEach((line, lineIdx) => {
+  lineTexts.forEach((rawLine, lineIdx) => {
+    // "사 업 장 소 재 지"처럼 라벨 글자 사이에 공백이 섞여 인식되는 경우가 있어 공백을 지우고 비교한다.
+    const line = rawLine.replace(/\s/g, "");
     const matches = [];
     CERT_LABEL_FIELDS.forEach(({ key, labels }) => {
       labels.forEach(label => {
@@ -109,7 +114,10 @@ function extractCertFields(lineTexts) {
     filtered.forEach((m, i) => {
       if (result[m.key]) return; // 이미 다른 줄에서 먼저 찾았으면 유지
       const nextStart = filtered[i + 1] ? filtered[i + 1].start : line.length;
-      let value = line.slice(m.end, nextStart).replace(CERT_VALUE_TRIM_RE, "").trim();
+      let value = line.slice(m.end, nextStart)
+        .replace(CERT_VALUE_LEADING_TRIM_RE, "")
+        .replace(CERT_VALUE_TRAILING_TRIM_RE, "")
+        .trim();
       if (!value && lineTexts[lineIdx + 1]) value = lineTexts[lineIdx + 1].trim();
       result[m.key] = value;
     });
