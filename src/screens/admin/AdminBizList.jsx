@@ -88,8 +88,15 @@ const STRAY_MARK_TAIL_RE = /[○●◯OoVv]$/;
 // 사업자등록증은 "상호 OOO   성명(대표자) 홍길동"처럼 한 줄에 라벨 여러 개가 같이 나오는 경우가 많다.
 // 그래서 한 줄 안에서 라벨들의 위치를 다 찾은 뒤, 각 라벨 값은 "그 라벨 끝 ~ 다음 라벨 시작 전"까지로 잘라낸다
 // (라벨 하나만 지우고 나머지를 통째로 값으로 삼으면 다른 라벨/값이 섞여 들어간다).
+// 도로명주소는 보통 "기본주소, 상세주소" 순서라 첫 콤마를 기준으로 나눈다.
+function splitAddr(value) {
+  const commaIdx = value.indexOf(",");
+  if (commaIdx === -1) return { addr: value, addrDtl: "" };
+  return { addr: value.slice(0, commaIdx).trim(), addrDtl: value.slice(commaIdx + 1).trim() };
+}
+
 function extractCertFields(lineTexts) {
-  const result = { bizNm: "", repNm: "", addr: "" };
+  const result = { bizNm: "", repNm: "", addr: "", addrDtl: "" };
   lineTexts.forEach((rawLine, lineIdx) => {
     // "사 업 장 소 재 지"처럼 라벨 글자 사이에 공백이 섞여 인식되는 경우가 있어 공백을 지우고 비교한다.
     const line = rawLine.replace(/\s/g, "");
@@ -123,6 +130,12 @@ function extractCertFields(lineTexts) {
         .trim();
       if (!value && lineTexts[lineIdx + 1]) value = lineTexts[lineIdx + 1].trim();
       if (m.key === "repNm") value = value.replace(STRAY_MARK_TAIL_RE, "");
+      if (m.key === "addr") {
+        const split = splitAddr(value);
+        result.addr = split.addr;
+        result.addrDtl = split.addrDtl;
+        return;
+      }
       result[m.key] = value;
     });
   });
@@ -331,6 +344,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
           bizNm: f.bizNm || extracted.bizNm || f.bizNm,
           repNm: f.repNm || extracted.repNm || f.repNm,
           addr: f.addr || extracted.addr || f.addr,
+          addrDtl: f.addrDtl || extracted.addrDtl || f.addrDtl,
         }));
 
         // 아직 테스트/조정 중이라 인식된 전체 줄도 같이 보여준다 (진단용).
@@ -338,6 +352,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
           extracted.bizNm && `상호: ${extracted.bizNm}`,
           extracted.repNm && `대표자: ${extracted.repNm}`,
           extracted.addr && `주소: ${extracted.addr}`,
+          extracted.addrDtl && `상세주소: ${extracted.addrDtl}`,
         ].filter(Boolean);
         const maskMsg = maskedAny ? "주민번호로 보이는 줄을 가렸어요." : "마스킹 대상은 못 찾았어요.";
         const extractMsg = fields.length ? `[인식된 정보]\n${fields.join("\n")}` : "[인식된 정보] 없음";
