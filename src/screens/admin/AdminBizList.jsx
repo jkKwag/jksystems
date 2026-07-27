@@ -63,7 +63,9 @@ function buildCertFormData(blob) {
 // 이 패턴이 잡히면 "주민" 글자를 못 읽었어도 마스킹한다.
 const RESIDENT_NO_DIGIT_PATTERN = /\d{6}\d{7}/;
 
-// "주민" 텍스트가 있거나 주민등록번호 자리수(13자리) 숫자 패턴이 있으면 그 줄 전체(가로 전체 폭)를 까맣게 칠한다 —
+// "주민" 텍스트가 있거나 주민등록번호 자리수(13자리) 숫자 패턴이 있는 "단어"를 찾아 가린다 —
+// 줄(line) 단위로 하면 라벨/숫자가 다른 줄로 인식됐을 때 엉뚱한 줄을 가리는 문제가 있어서,
+// 더 작은 단위인 단어(word)로 정확히 짚은 뒤, 위아래로 한 줄 높이만큼 넉넉하게 여유를 두고 가린다.
 // blocks(JSON) 대신 hOCR을 DOMParser로 파싱한다: 버전별로 JSON 트리 구조가 어긋나는 경우가 있어
 // hOCR + title="bbox ..." 속성 쪽이 더 안정적이다.
 async function maskResidentNumberLines(canvas) {
@@ -71,15 +73,15 @@ async function maskResidentNumberLines(canvas) {
   try {
     const { data } = await worker.recognize(canvas, {}, { hocr: true });
     const doc = new DOMParser().parseFromString(data.hocr || "", "text/html");
-    const lineEls = Array.from(doc.querySelectorAll(".ocr_line"));
-    if (lineEls.length === 0) {
-      // 글자를 한 줄도 못 읽었다는 건 인식 자체가 실패했다는 뜻 — 마스킹을 확신할 수 없으니 에러로 처리.
+    const wordEls = Array.from(doc.querySelectorAll(".ocrx_word"));
+    if (wordEls.length === 0) {
+      // 글자를 한 단어도 못 읽었다는 건 인식 자체가 실패했다는 뜻 — 마스킹을 확신할 수 없으니 에러로 처리.
       throw new Error("이미지에서 글자를 인식하지 못했습니다.");
     }
     const ctx = canvas.getContext("2d");
     ctx.fillStyle = "#000";
     let maskedAny = false;
-    lineEls.forEach(el => {
+    wordEls.forEach(el => {
       const text = (el.textContent || "").replace(/\s/g, "");
       const digitsOnly = text.replace(/\D/g, "");
       if (!text.includes("주민") && !RESIDENT_NO_DIGIT_PATTERN.test(digitsOnly)) return;
@@ -87,12 +89,13 @@ async function maskResidentNumberLines(canvas) {
       if (!bboxMatch) return;
       const y0 = Number(bboxMatch[2]);
       const y1 = Number(bboxMatch[4]);
-      const pad = Math.max(2, Math.round((y1 - y0) * 0.2));
-      ctx.fillRect(0, Math.max(0, y0 - pad), canvas.width, (y1 - y0) + pad * 2);
+      const wordHeight = y1 - y0;
+      const pad = Math.round(wordHeight * 1.5); // 위아래로 한 줄 높이 정도 여유
+      ctx.fillRect(0, Math.max(0, y0 - pad), canvas.width, wordHeight + pad * 2);
       maskedAny = true;
     });
-    // TODO: 원인 파악되면 lineTexts는 빼고 maskedAny만 반환하도록 되돌릴 것 (진단용).
-    return { maskedAny, lineTexts: lineEls.map(el => el.textContent) };
+    // TODO: 원인 파악되면 wordTexts는 빼고 maskedAny만 반환하도록 되돌릴 것 (진단용).
+    return { maskedAny, lineTexts: wordEls.map(el => el.textContent) };
   } finally {
     await worker.terminate();
   }
