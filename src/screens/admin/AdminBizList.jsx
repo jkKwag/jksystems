@@ -51,6 +51,13 @@ function resizeAndCompressImage(file, maxDim, quality) {
   });
 }
 
+// 업로드/인식 두 번의 요청에 같은 이미지를 보내야 해서 매번 새 FormData로 감싼다.
+function buildCertFormData(blob) {
+  const formData = new FormData();
+  formData.append("file", blob, "cert.jpg");
+  return formData;
+}
+
 export default function AdminBizList({ adminInfo, onSelectBiz }) {
   const activeBizRegNo = adminInfo?.bizRegNo;
   const isSuper = adminInfo?.adminRole === "SUPER";
@@ -71,6 +78,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
   const [focusedField, setFocusedField] = useState(null);
   const [certUrl, setCertUrl] = useState(null);
   const [certUploading, setCertUploading] = useState(false);
+  const [certExtracting, setCertExtracting] = useState(false);
   const [certError, setCertError] = useState("");
 
   const load = async () => {
@@ -148,37 +156,42 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
       setCertUploading(true); setCertError("");
       try {
         const blob = await resizeAndCompressImage(file, IMAGE_MAX_DIMENSION, IMAGE_QUALITY);
-        const formData = new FormData();
-        formData.append("file", blob, "cert.jpg");
-        const { data, error: uploadError } = await api.biz.uploadRegistrationCert(bizRegNo, formData);
+        const { data, error: uploadError } = await api.biz.uploadRegistrationCert(bizRegNo, buildCertFormData(blob));
         if (uploadError) {
           setCertError(uploadError?.message || "사업자등록증 업로드에 실패했습니다.");
-        } else {
-          setCertUrl(data?.certUrl || null);
-          // 인식된 값 중 비어있던 항목만 채워준다 — 이미 입력된 값은 덮어쓰지 않음.
-          const extracted = data?.extracted;
-          if (extracted) {
-            setForm(f => ({
-              ...f,
-              bizNm: f.bizNm || extracted.bizNm || f.bizNm,
-              repNm: f.repNm || extracted.repNm || f.repNm,
-              addr: f.addr || extracted.addr || f.addr,
-            }));
-          }
-          const fields = [
-            extracted?.bizNm && `상호: ${extracted.bizNm}`,
-            extracted?.repNm && `대표자: ${extracted.repNm}`,
-            extracted?.addr && `주소: ${extracted.addr}`,
-            extracted?.bizRegNo && `사업자등록번호: ${extracted.bizRegNo}`,
-          ].filter(Boolean);
-          setAlertMsg(fields.length
-            ? `업로드 완료! 사업자등록증에서 다음 정보를 인식했어요.\n\n${fields.join("\n")}`
-            : "업로드는 완료됐지만, 사업자등록증에서 정보를 인식하지 못했습니다.");
+          setCertUploading(false);
+          return;
         }
+        setCertUrl(data?.certUrl || null);
+        setCertUploading(false);
+
+        // 인식은 업로드와 별도 호출 — 오래 걸리거나 실패해도 업로드 완료 자체엔 영향 없음.
+        setCertExtracting(true);
+        const { data: extracted } = await api.biz.extractCertInfo(bizRegNo, buildCertFormData(blob));
+        setCertExtracting(false);
+        // 인식된 값 중 비어있던 항목만 채워준다 — 이미 입력된 값은 덮어쓰지 않음.
+        if (extracted) {
+          setForm(f => ({
+            ...f,
+            bizNm: f.bizNm || extracted.bizNm || f.bizNm,
+            repNm: f.repNm || extracted.repNm || f.repNm,
+            addr: f.addr || extracted.addr || f.addr,
+          }));
+        }
+        const fields = [
+          extracted?.bizNm && `상호: ${extracted.bizNm}`,
+          extracted?.repNm && `대표자: ${extracted.repNm}`,
+          extracted?.addr && `주소: ${extracted.addr}`,
+          extracted?.bizRegNo && `사업자등록번호: ${extracted.bizRegNo}`,
+        ].filter(Boolean);
+        setAlertMsg(fields.length
+          ? `업로드 완료! 사업자등록증에서 다음 정보를 인식했어요.\n\n${fields.join("\n")}`
+          : "업로드는 완료됐지만, 사업자등록증에서 정보를 인식하지 못했습니다.");
       } catch {
         setCertError("이미지 처리 중 오류가 발생했습니다.");
       }
       setCertUploading(false);
+      setCertExtracting(false);
     };
     input.click();
   };
@@ -282,11 +295,12 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
             </View>
           )}
           {!!certError && <Text style={s.error}>⚠️ {certError}</Text>}
-          <TouchableOpacity style={s.certUploadBtn} onPress={() => pickAndUploadCert(biz.bizRegNo)} disabled={certUploading}>
+          <TouchableOpacity style={s.certUploadBtn} onPress={() => pickAndUploadCert(biz.bizRegNo)} disabled={certUploading || certExtracting}>
             {certUploading
               ? <ActivityIndicator color="#1d3557" />
               : <Text style={s.certUploadBtnText}>{certUrl ? "다시 업로드" : "사업자등록증 사진 업로드"}</Text>}
           </TouchableOpacity>
+          {certExtracting && <Text style={s.certExtracting}>사업자등록증에서 정보를 인식하는 중이에요...</Text>}
         </>
       )}
 

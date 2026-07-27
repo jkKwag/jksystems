@@ -74,6 +74,7 @@ export const s = StyleSheet.create({
   certMissing: { fontSize: font.md, fontWeight: "700", color: "#0369a1" },
   certUploadBtn: { borderWidth: 1.5, borderColor: colors.primary, borderStyle: "dashed", borderRadius: radius.lg, paddingVertical: spacing["3"], alignItems: "center", marginTop: spacing["2.5"] },
   certUploadBtnText: { fontSize: font.md, fontWeight: "700", color: colors.primary },
+  certExtracting: { fontSize: font.sm, color: colors.textMuted, textAlign: "center", marginTop: spacing["1.5"] },
 
   btnRow: { flexDirection: "row", gap: spacing["2.5"], marginTop: spacing["4"] },
   cancelBtn: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingVertical: spacing["2.5"], alignItems: "center", backgroundColor: colors.bgCard, outlineStyle: "none" },

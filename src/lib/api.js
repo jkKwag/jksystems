@@ -95,6 +95,7 @@ const api = {
     verifyEmailCode: (body) => post(`/api/biz/signup/email-code/verify`, body),
     signup: (body) => post(`/api/biz/signup`, body),
     uploadRegistrationCert: (bizno, formData) => postMultipart(`/api/biz/${bizno}/registration-cert`, formData),
+    extractCertInfo: (bizno, formData) => postMultipart(`/api/biz/${bizno}/registration-cert/extract`, formData),
     getRegistrationCertUrl: (bizno) => get(`/api/biz/${bizno}/registration-cert`),
     pendingApprovals: () => get(`/api/biz/approvals`),
     approveBiz: (bizno) => put(`/api/biz/${bizno}/approve`, {}),
