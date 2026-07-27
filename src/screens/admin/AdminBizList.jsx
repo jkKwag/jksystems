@@ -81,6 +81,9 @@ const CERT_LABEL_FIELDS = [
 // 주소값 자체에 속한 경우가 많아("...코아루천년가)") 그대로 둔다.
 const CERT_VALUE_LEADING_TRIM_RE = /^[\s:：(]+/;
 const CERT_VALUE_TRAILING_TRIM_RE = /[\s:：]+$/;
+// 대표자명이 영문일 수도 있어 "한글이 아니면 다 잘라내기"는 위험하다 — 서식의 동그라미(○)
+// 표시가 알파벳 O/o 등으로 잘못 인식돼 한 글자만 붙는, 흔히 알려진 패턴만 좁게 잘라낸다.
+const STRAY_MARK_TAIL_RE = /[○●◯OoVv]$/;
 
 // 사업자등록증은 "상호 OOO   성명(대표자) 홍길동"처럼 한 줄에 라벨 여러 개가 같이 나오는 경우가 많다.
 // 그래서 한 줄 안에서 라벨들의 위치를 다 찾은 뒤, 각 라벨 값은 "그 라벨 끝 ~ 다음 라벨 시작 전"까지로 잘라낸다
@@ -119,6 +122,7 @@ function extractCertFields(lineTexts) {
         .replace(CERT_VALUE_TRAILING_TRIM_RE, "")
         .trim();
       if (!value && lineTexts[lineIdx + 1]) value = lineTexts[lineIdx + 1].trim();
+      if (m.key === "repNm") value = value.replace(STRAY_MARK_TAIL_RE, "");
       result[m.key] = value;
     });
   });
