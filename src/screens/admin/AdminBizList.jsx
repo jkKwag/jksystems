@@ -59,29 +59,34 @@ function buildCertFormData(blob) {
   return formData;
 }
 
-// "주민"과 "등록번호"가 같은 줄에 있으면 그 줄 전체(가로 전체 폭)를 까맣게 칠한다 —
-// 숫자 부분만 정확히 잘라내는 것보다 줄 전체를 가리는 게 인식 오류에 더 안전함.
+// "주민"이 들어간 줄은 그 줄 전체(가로 전체 폭)를 까맣게 칠한다 —
+// blocks(JSON) 대신 hOCR을 DOMParser로 파싱한다: 버전별로 JSON 트리 구조가 어긋나는 경우가 있어
+// hOCR + title="bbox ..." 속성 쪽이 더 안정적이다.
 async function maskResidentNumberLines(canvas) {
   const worker = await createWorker("kor");
   try {
-    const { data } = await worker.recognize(canvas, {}, { blocks: true });
-    const lines = (data.blocks || [])
-      .flatMap(block => block.paragraphs || [])
-      .flatMap(paragraph => paragraph.lines || []);
-    // "등록번호"까지 같이 요구하면 OCR이 조금만 틀려도 못 잡아서, "주민"만 있어도 그 줄은 가린다.
-    const targetLines = lines.filter(line => {
-      const text = (line.text || "").replace(/\s/g, "");
-      return text.includes("주민");
-    });
-    if (targetLines.length === 0) return false;
+    const { data } = await worker.recognize(canvas, {}, { hocr: true });
+    const doc = new DOMParser().parseFromString(data.hocr || "", "text/html");
+    const lineEls = Array.from(doc.querySelectorAll(".ocr_line"));
+    if (lineEls.length === 0) {
+      // 글자를 한 줄도 못 읽었다는 건 인식 자체가 실패했다는 뜻 — 마스킹을 확신할 수 없으니 에러로 처리.
+      throw new Error("이미지에서 글자를 인식하지 못했습니다.");
+    }
     const ctx = canvas.getContext("2d");
     ctx.fillStyle = "#000";
-    targetLines.forEach(line => {
-      const { y0, y1 } = line.bbox;
+    let maskedAny = false;
+    lineEls.forEach(el => {
+      const text = (el.textContent || "").replace(/\s/g, "");
+      if (!text.includes("주민")) return;
+      const bboxMatch = /bbox (\d+) (\d+) (\d+) (\d+)/.exec(el.getAttribute("title") || "");
+      if (!bboxMatch) return;
+      const y0 = Number(bboxMatch[2]);
+      const y1 = Number(bboxMatch[4]);
       const pad = Math.max(2, Math.round((y1 - y0) * 0.2));
       ctx.fillRect(0, Math.max(0, y0 - pad), canvas.width, (y1 - y0) + pad * 2);
+      maskedAny = true;
     });
-    return true;
+    return maskedAny;
   } finally {
     await worker.terminate();
   }
