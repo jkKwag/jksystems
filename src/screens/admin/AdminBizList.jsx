@@ -72,8 +72,7 @@ function getPaddleService() {
   return paddleServicePromise;
 }
 
-// "주민" 또는 "등록"이 들어간 줄은 그 줄 전체를 가린다. (Tesseract.js 대신 PaddleOCR로 교체 — ONNX 기반이라
-// 레이아웃 분석/인식 정확도가 더 나을 것으로 기대)
+// "주민"과 "등록번호"가 같이 들어간 줄만 가린다.
 async function maskResidentNumberLines(canvas) {
   const service = await getPaddleService();
   const { lines } = await service.recognize(canvas);
@@ -87,7 +86,7 @@ async function maskResidentNumberLines(canvas) {
   const lineTexts = lines.map(items => items.map(item => item.text).join(""));
   lines.forEach((items, i) => {
     const text = lineTexts[i].replace(/\s/g, "");
-    if (!text.includes("주민") && !text.includes("등록")) return;
+    if (!text.includes("주민") || !text.includes("등록번호")) return;
     const y0 = Math.min(...items.map(item => item.box.y));
     const y1 = Math.max(...items.map(item => item.box.y + item.box.height));
     const lineHeight = y1 - y0;
