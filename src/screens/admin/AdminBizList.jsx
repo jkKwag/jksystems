@@ -72,8 +72,26 @@ function getPaddleService() {
   return paddleServicePromise;
 }
 
-// "주민"과 "등록번호"가 같이 들어간 줄만 가린다.
-async function maskResidentNumberLines(canvas) {
+// 인식된 줄들 중 라벨 키워드가 들어간 줄을 찾아 그 값을 뽑아낸다.
+// 라벨과 값이 붙어있으면(같은 줄) 라벨 부분을 지우고 남은 걸 값으로 쓰고,
+// 라벨만 있고 값이 없으면(라벨/값이 서로 다른 줄인 경우) 바로 다음 줄을 값으로 본다.
+function extractLabeledValue(lineTexts, labelVariants) {
+  for (let i = 0; i < lineTexts.length; i++) {
+    const text = lineTexts[i];
+    const matched = labelVariants.find(label => text.includes(label));
+    if (!matched) continue;
+    let value = text;
+    labelVariants.forEach(label => { value = value.replaceAll(label, ""); });
+    value = value.replace(/^[\s:：()]+/, "").trim();
+    if (value) return value;
+    if (lineTexts[i + 1]) return lineTexts[i + 1].trim();
+    return "";
+  }
+  return "";
+}
+
+// "주민"과 "등록번호"가 같이 들어간 줄은 가리고, 상호/대표자/소재지로 보이는 줄은 값을 뽑아 함께 반환한다.
+async function maskAndExtractCertInfo(canvas) {
   const service = await getPaddleService();
   const { lines } = await service.recognize(canvas);
   if (!lines || lines.length === 0) {
@@ -94,8 +112,15 @@ async function maskResidentNumberLines(canvas) {
     ctx.fillRect(0, Math.max(0, y0 - pad), canvas.width, lineHeight + pad * 2);
     maskedAny = true;
   });
-  // TODO: 원인 파악되면 lineTexts는 빼고 maskedAny만 반환하도록 되돌릴 것 (진단용).
-  return { maskedAny, lineTexts };
+
+  const extracted = {
+    bizNm: extractLabeledValue(lineTexts, ["상호(법인명)", "상호"]),
+    repNm: extractLabeledValue(lineTexts, ["성명(대표자)", "대표자"]),
+    addr: extractLabeledValue(lineTexts, ["사업장소재지", "본점소재지", "소재지"]),
+  };
+
+  // TODO: 원인 파악되면 lineTexts는 빼고 maskedAny/extracted만 반환하도록 되돌릴 것 (진단용).
+  return { maskedAny, lineTexts, extracted };
 }
 
 // 글자가 작으면 Tesseract가 잘 못 읽어서, 원본을 이만큼 확대한 캔버스에서 인식/마스킹한다.
@@ -126,7 +151,7 @@ async function maskAndCompressCertImage(file, maxDim, quality) {
   sourceCanvas.width = Math.round(img.width * upscale);
   sourceCanvas.height = Math.round(img.height * upscale);
   sourceCanvas.getContext("2d").drawImage(img, 0, 0, sourceCanvas.width, sourceCanvas.height);
-  const { maskedAny, lineTexts } = await maskResidentNumberLines(sourceCanvas);
+  const { maskedAny, lineTexts, extracted } = await maskAndExtractCertInfo(sourceCanvas);
 
   let { width, height } = img;
   if (width > maxDim || height > maxDim) {
@@ -141,7 +166,7 @@ async function maskAndCompressCertImage(file, maxDim, quality) {
   const blob = await new Promise((resolve, reject) => {
     outputCanvas.toBlob((b) => (b ? resolve(b) : reject(new Error("이미지 변환에 실패했습니다."))), "image/jpeg", quality);
   });
-  return { blob, maskedAny, lineTexts };
+  return { blob, maskedAny, lineTexts, extracted };
 }
 
 export default function AdminBizList({ adminInfo, onSelectBiz }) {
@@ -166,7 +191,6 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
   const [certZoomVisible, setCertZoomVisible] = useState(false);
   const [certMasking, setCertMasking] = useState(false);
   const [certUploading, setCertUploading] = useState(false);
-  const [certExtracting, setCertExtracting] = useState(false);
   const [certError, setCertError] = useState("");
 
   const load = async () => {
@@ -243,10 +267,10 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
       if (!file) return;
       setCertError("");
       try {
-        // 주민번호로 보이는 줄을 먼저 가린 뒤에만 다음 단계(업로드/인식)로 넘어간다.
+        // 주민번호로 보이는 줄을 먼저 가리고, 상호/대표자/주소도 같은 인식 결과에서 뽑아낸다.
         // 여기서 실패하면(엔진 로딩 실패 등) 곧장 catch로 빠져서 업로드 자체를 진행하지 않음.
         setCertMasking(true);
-        const { blob, maskedAny, lineTexts } = await maskAndCompressCertImage(file, IMAGE_MAX_DIMENSION, IMAGE_QUALITY);
+        const { blob, maskedAny, lineTexts, extracted } = await maskAndCompressCertImage(file, IMAGE_MAX_DIMENSION, IMAGE_QUALITY);
         setCertMasking(false);
 
         setCertUploading(true);
@@ -258,41 +282,29 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
         }
         setCertUrl(data?.certUrl || null);
         setCertUploading(false);
-        // 원인 파악 전까지는 인식된 줄을 그대로 보여준다 (진단용).
-        setAlertMsg(maskedAny
-          ? "사업자등록증 업로드가 완료됐습니다. (주민번호로 보이는 줄을 가렸어요)"
-          : `업로드 완료. 마스킹 대상은 못 찾았어요.\n\n[인식된 줄]\n${lineTexts.join("\n") || "(없음)"}`);
 
-        /* 제미나이 인식 호출 — 잠시 주석처리 (주민번호 노출 이슈 정리 전까지 보류)
-        // 인식은 업로드와 별도 호출 — 오래 걸리거나 실패해도 업로드 완료 자체엔 영향 없음.
-        setCertExtracting(true);
-        const { data: extracted } = await api.biz.extractCertInfo(bizRegNo, buildCertFormData(blob));
-        setCertExtracting(false);
         // 인식된 값 중 비어있던 항목만 채워준다 — 이미 입력된 값은 덮어쓰지 않음.
-        if (extracted) {
-          setForm(f => ({
-            ...f,
-            bizNm: f.bizNm || extracted.bizNm || f.bizNm,
-            repNm: f.repNm || extracted.repNm || f.repNm,
-            addr: f.addr || extracted.addr || f.addr,
-          }));
-        }
+        setForm(f => ({
+          ...f,
+          bizNm: f.bizNm || extracted.bizNm || f.bizNm,
+          repNm: f.repNm || extracted.repNm || f.repNm,
+          addr: f.addr || extracted.addr || f.addr,
+        }));
+
+        // 아직 테스트/조정 중이라 인식된 전체 줄도 같이 보여준다 (진단용).
         const fields = [
-          extracted?.bizNm && `상호: ${extracted.bizNm}`,
-          extracted?.repNm && `대표자: ${extracted.repNm}`,
-          extracted?.addr && `주소: ${extracted.addr}`,
-          extracted?.bizRegNo && `사업자등록번호: ${extracted.bizRegNo}`,
+          extracted.bizNm && `상호: ${extracted.bizNm}`,
+          extracted.repNm && `대표자: ${extracted.repNm}`,
+          extracted.addr && `주소: ${extracted.addr}`,
         ].filter(Boolean);
-        setAlertMsg(fields.length
-          ? `업로드 완료! 사업자등록증에서 다음 정보를 인식했어요.\n\n${fields.join("\n")}`
-          : "업로드는 완료됐지만, 사업자등록증에서 정보를 인식하지 못했습니다.");
-        */
+        const maskMsg = maskedAny ? "주민번호로 보이는 줄을 가렸어요." : "마스킹 대상은 못 찾았어요.";
+        const extractMsg = fields.length ? `[인식된 정보]\n${fields.join("\n")}` : "[인식된 정보] 없음";
+        setAlertMsg(`업로드 완료.\n${maskMsg}\n\n${extractMsg}\n\n[인식된 전체 줄]\n${lineTexts.join("\n") || "(없음)"}`);
       } catch {
         setCertError("이미지 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
       }
       setCertMasking(false);
       setCertUploading(false);
-      setCertExtracting(false);
     };
     input.click();
   };
@@ -398,13 +410,12 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
             </View>
           )}
           {!!certError && <Text style={s.error}>⚠️ {certError}</Text>}
-          <TouchableOpacity style={s.certUploadBtn} onPress={() => pickAndUploadCert(biz.bizRegNo)} disabled={certMasking || certUploading || certExtracting}>
+          <TouchableOpacity style={s.certUploadBtn} onPress={() => pickAndUploadCert(biz.bizRegNo)} disabled={certMasking || certUploading}>
             {certMasking || certUploading
               ? <ActivityIndicator color="#1d3557" />
               : <Text style={s.certUploadBtnText}>{certUrl ? "다시 업로드" : "사업자등록증 사진 업로드"}</Text>}
           </TouchableOpacity>
-          {certMasking && <Text style={s.certExtracting}>주민번호가 있는지 확인하는 중이에요... (처음엔 조금 걸릴 수 있어요)</Text>}
-          {certExtracting && <Text style={s.certExtracting}>사업자등록증에서 정보를 인식하는 중이에요...</Text>}
+          {certMasking && <Text style={s.certExtracting}>사업자등록증을 읽는 중이에요... (처음엔 조금 걸릴 수 있어요)</Text>}
         </>
       )}
 
