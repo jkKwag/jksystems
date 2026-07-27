@@ -68,6 +68,9 @@ function isResidentLikeDigits(digits) {
   return digits.length === 6 || digits.length === 7 || digits.length === 13;
 }
 
+// 하이픈까지 그대로 살아있는 원본 형태(6자리-7자리, 총 14글자)도 별도로 확인한다.
+const RESIDENT_NO_RAW_PATTERN = /^\d{6}-\d{7}$/;
+
 // blocks(JSON) 대신 hOCR을 DOMParser로 파싱한다: 버전별로 JSON 트리 구조가 어긋나는 경우가 있어
 // hOCR + title="bbox ..." 속성 쪽이 더 안정적이다.
 async function maskResidentNumberLines(canvas) {
@@ -84,8 +87,9 @@ async function maskResidentNumberLines(canvas) {
     ctx.fillStyle = "#000";
     let maskedAny = false;
     wordEls.forEach(el => {
-      const digits = (el.textContent || "").replace(/\D/g, "");
-      if (!isResidentLikeDigits(digits)) return;
+      const rawText = (el.textContent || "").trim();
+      const digits = rawText.replace(/\D/g, "");
+      if (!isResidentLikeDigits(digits) && !RESIDENT_NO_RAW_PATTERN.test(rawText)) return;
       const bboxMatch = /bbox (\d+) (\d+) (\d+) (\d+)/.exec(el.getAttribute("title") || "");
       if (!bboxMatch) return;
       const y0 = Number(bboxMatch[2]);
