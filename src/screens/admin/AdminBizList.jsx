@@ -167,8 +167,13 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
 
         // 인식은 업로드와 별도 호출 — 오래 걸리거나 실패해도 업로드 완료 자체엔 영향 없음.
         setCertExtracting(true);
-        const { data: extracted } = await api.biz.extractCertInfo(bizRegNo, buildCertFormData(blob));
+        const { data: extracted, error: extractError } = await api.biz.extractCertInfo(bizRegNo, buildCertFormData(blob));
         setCertExtracting(false);
+        // 원인 파악 전까지는 실패 사유를 그대로 보여준다 (임시).
+        if (extractError) {
+          setAlertMsg(`업로드는 완료됐지만 인식 중 오류가 발생했습니다.\n\n${extractError?.message || String(extractError)}`);
+          return;
+        }
         // 인식된 값 중 비어있던 항목만 채워준다 — 이미 입력된 값은 덮어쓰지 않음.
         if (extracted) {
           setForm(f => ({
