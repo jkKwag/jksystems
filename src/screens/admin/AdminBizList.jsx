@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Image, Platform } from "react-native";
+import { createWorker } from "tesseract.js";
 import { s } from "../../styles/admin/AdminBizList.styles";
 import api from "../../lib/api";
 import ConfirmModal from "../../components/ConfirmModal";
@@ -58,6 +59,70 @@ function buildCertFormData(blob) {
   return formData;
 }
 
+// "주민"과 "등록번호"가 같은 줄에 있으면 그 줄 전체(가로 전체 폭)를 까맣게 칠한다 —
+// 숫자 부분만 정확히 잘라내는 것보다 줄 전체를 가리는 게 인식 오류에 더 안전함.
+async function maskResidentNumberLines(canvas) {
+  const worker = await createWorker("kor");
+  try {
+    const { data } = await worker.recognize(canvas, {}, { blocks: true });
+    const lines = (data.blocks || [])
+      .flatMap(block => block.paragraphs || [])
+      .flatMap(paragraph => paragraph.lines || []);
+    const targetLines = lines.filter(line => {
+      const text = (line.text || "").replace(/\s/g, "");
+      return text.includes("주민") && text.includes("등록번호");
+    });
+    if (targetLines.length === 0) return false;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#000";
+    targetLines.forEach(line => {
+      const { y0, y1 } = line.bbox;
+      const pad = Math.max(2, Math.round((y1 - y0) * 0.2));
+      ctx.fillRect(0, Math.max(0, y0 - pad), canvas.width, (y1 - y0) + pad * 2);
+    });
+    return true;
+  } finally {
+    await worker.terminate();
+  }
+}
+
+// 원본 해상도를 유지한 캔버스에 이미지를 그린 뒤, 주민등록번호로 보이는 줄을 찾아 가리고,
+// 그 결과만 리사이즈/압축해서 반환한다 — 마스킹 전 원본은 이 함수 밖으로 나가지 않음.
+async function maskAndCompressCertImage(file, maxDim, quality) {
+  const dataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("파일을 읽을 수 없습니다."));
+    reader.readAsDataURL(file);
+  });
+  const img = await new Promise((resolve, reject) => {
+    const image = new window.Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error("이미지를 불러올 수 없습니다."));
+    image.src = dataUrl;
+  });
+
+  const sourceCanvas = document.createElement("canvas");
+  sourceCanvas.width = img.width;
+  sourceCanvas.height = img.height;
+  sourceCanvas.getContext("2d").drawImage(img, 0, 0);
+  await maskResidentNumberLines(sourceCanvas);
+
+  let { width, height } = img;
+  if (width > maxDim || height > maxDim) {
+    if (width >= height) { height = Math.round((height * maxDim) / width); width = maxDim; }
+    else { width = Math.round((width * maxDim) / height); height = maxDim; }
+  }
+  const outputCanvas = document.createElement("canvas");
+  outputCanvas.width = width;
+  outputCanvas.height = height;
+  outputCanvas.getContext("2d").drawImage(sourceCanvas, 0, 0, width, height);
+
+  return new Promise((resolve, reject) => {
+    outputCanvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("이미지 변환에 실패했습니다."))), "image/jpeg", quality);
+  });
+}
+
 export default function AdminBizList({ adminInfo, onSelectBiz }) {
   const activeBizRegNo = adminInfo?.bizRegNo;
   const isSuper = adminInfo?.adminRole === "SUPER";
@@ -77,6 +142,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
   const [alertMsg, setAlertMsg] = useState(null);
   const [focusedField, setFocusedField] = useState(null);
   const [certUrl, setCertUrl] = useState(null);
+  const [certMasking, setCertMasking] = useState(false);
   const [certUploading, setCertUploading] = useState(false);
   const [certExtracting, setCertExtracting] = useState(false);
   const [certError, setCertError] = useState("");
@@ -153,9 +219,15 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
     input.onchange = async () => {
       const file = input.files?.[0];
       if (!file) return;
-      setCertUploading(true); setCertError("");
+      setCertError("");
       try {
-        const blob = await resizeAndCompressImage(file, IMAGE_MAX_DIMENSION, IMAGE_QUALITY);
+        // 주민번호로 보이는 줄을 먼저 가린 뒤에만 다음 단계(업로드/인식)로 넘어간다.
+        // 여기서 실패하면(엔진 로딩 실패 등) 곧장 catch로 빠져서 업로드 자체를 진행하지 않음.
+        setCertMasking(true);
+        const blob = await maskAndCompressCertImage(file, IMAGE_MAX_DIMENSION, IMAGE_QUALITY);
+        setCertMasking(false);
+
+        setCertUploading(true);
         const { data, error: uploadError } = await api.biz.uploadRegistrationCert(bizRegNo, buildCertFormData(blob));
         if (uploadError) {
           setCertError(uploadError?.message || "사업자등록증 업로드에 실패했습니다.");
@@ -188,8 +260,9 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
           ? `업로드 완료! 사업자등록증에서 다음 정보를 인식했어요.\n\n${fields.join("\n")}`
           : "업로드는 완료됐지만, 사업자등록증에서 정보를 인식하지 못했습니다.");
       } catch {
-        setCertError("이미지 처리 중 오류가 발생했습니다.");
+        setCertError("이미지 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
       }
+      setCertMasking(false);
       setCertUploading(false);
       setCertExtracting(false);
     };
@@ -295,11 +368,12 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
             </View>
           )}
           {!!certError && <Text style={s.error}>⚠️ {certError}</Text>}
-          <TouchableOpacity style={s.certUploadBtn} onPress={() => pickAndUploadCert(biz.bizRegNo)} disabled={certUploading || certExtracting}>
-            {certUploading
+          <TouchableOpacity style={s.certUploadBtn} onPress={() => pickAndUploadCert(biz.bizRegNo)} disabled={certMasking || certUploading || certExtracting}>
+            {certMasking || certUploading
               ? <ActivityIndicator color="#1d3557" />
               : <Text style={s.certUploadBtnText}>{certUrl ? "다시 업로드" : "사업자등록증 사진 업로드"}</Text>}
           </TouchableOpacity>
+          {certMasking && <Text style={s.certExtracting}>주민번호가 있는지 확인하는 중이에요... (처음엔 조금 걸릴 수 있어요)</Text>}
           {certExtracting && <Text style={s.certExtracting}>사업자등록증에서 정보를 인식하는 중이에요...</Text>}
         </>
       )}
