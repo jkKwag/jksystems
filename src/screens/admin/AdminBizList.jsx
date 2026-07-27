@@ -59,8 +59,7 @@ function buildCertFormData(blob) {
   return formData;
 }
 
-// "줄(line)" 그룹핑은 문서 레이아웃에 따라 엉뚱하게 잡힐 수 있어 믿지 않고,
-// 매칭된 단어 자체의 위치만 기준으로 위아래 넉넉하게 가린다.
+// "주민"과 "등록번호"가 같은 줄에 함께 있으면 그 줄 전체를 가린다 — 인식이 제일 잘됐던 조건.
 // blocks(JSON) 대신 hOCR을 DOMParser로 파싱한다: 버전별로 JSON 트리 구조가 어긋나는 경우가 있어
 // hOCR + title="bbox ..." 속성 쪽이 더 안정적이다.
 async function maskResidentNumberLines(canvas) {
@@ -68,31 +67,28 @@ async function maskResidentNumberLines(canvas) {
   try {
     const { data } = await worker.recognize(canvas, {}, { hocr: true });
     const doc = new DOMParser().parseFromString(data.hocr || "", "text/html");
-    const wordEls = Array.from(doc.querySelectorAll(".ocrx_word"));
-    if (wordEls.length === 0) {
-      // 글자를 한 단어도 못 읽었다는 건 인식 자체가 실패했다는 뜻 — 마스킹을 확신할 수 없으니 에러로 처리.
+    const lineEls = Array.from(doc.querySelectorAll(".ocr_line"));
+    if (lineEls.length === 0) {
+      // 글자를 한 줄도 못 읽었다는 건 인식 자체가 실패했다는 뜻 — 마스킹을 확신할 수 없으니 에러로 처리.
       throw new Error("이미지에서 글자를 인식하지 못했습니다.");
     }
     const ctx = canvas.getContext("2d");
     ctx.fillStyle = "#000";
     let maskedAny = false;
-    wordEls.forEach(el => {
-      const rawText = (el.textContent || "").trim();
-      const cleanText = rawText.replace(/\s/g, "");
-      // "민"이 화질 낮은 사진에서 "인"으로 잘못 인식되는 경우가 있어 "주인"도 같이 잡는다.
-      const hasResidentText = cleanText.includes("주민") || cleanText.includes("주인");
-      if (!hasResidentText) return;
+    lineEls.forEach(el => {
+      const text = (el.textContent || "").replace(/\s/g, "");
+      if (!text.includes("주민") || !text.includes("등록번호")) return;
       const bboxMatch = /bbox (\d+) (\d+) (\d+) (\d+)/.exec(el.getAttribute("title") || "");
       if (!bboxMatch) return;
       const y0 = Number(bboxMatch[2]);
       const y1 = Number(bboxMatch[4]);
-      const wordHeight = y1 - y0;
-      const pad = wordHeight * 2; // 줄 그룹핑을 안 믿는 대신 단어 자체 기준으로 위아래를 훨씬 넉넉하게
-      ctx.fillRect(0, Math.max(0, y0 - pad), canvas.width, wordHeight + pad * 2);
+      const lineHeight = y1 - y0;
+      const pad = Math.max(2, Math.round(lineHeight * 0.2));
+      ctx.fillRect(0, Math.max(0, y0 - pad), canvas.width, lineHeight + pad * 2);
       maskedAny = true;
     });
-    // TODO: 원인 파악되면 wordTexts는 빼고 maskedAny만 반환하도록 되돌릴 것 (진단용).
-    return { maskedAny, lineTexts: wordEls.map(el => el.textContent) };
+    // TODO: 원인 파악되면 lineTexts는 빼고 maskedAny만 반환하도록 되돌릴 것 (진단용).
+    return { maskedAny, lineTexts: lineEls.map(el => el.textContent) };
   } finally {
     await worker.terminate();
   }
