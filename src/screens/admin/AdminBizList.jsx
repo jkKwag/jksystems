@@ -59,10 +59,10 @@ function buildCertFormData(blob) {
   return formData;
 }
 
-// 주민등록번호 형식(6자리+7자리 숫자) 전체 또는 일부가 이어진 패턴 — 한글 텍스트("주민" 등)보다
-// 숫자 인식이 훨씬 정확해서 이 패턴 하나만으로 판단한다.
-// 숫자가 "900101-1234567"처럼 하이픈으로 나뉘면 단어(word) 단위로는 6자리/7자리로 쪼개져 각각
-// 13자리에 못 미치므로, 여러 단어가 합쳐진 줄(line) 단위 텍스트에서 검사해야 한다.
+// 주민등록번호는 6자리(생년월일)+7자리(뒷자리) 숫자 — 하이픈 때문에 단어(word) 단위로는
+// 둘로 쪼개져 인식되는 경우가 많아서, 줄 전체를 이어붙인 13자리 패턴뿐 아니라 "단어 하나가
+// 정확히 6자리 또는 7자리 숫자인 경우"도 그 줄을 무조건 마스킹 대상으로 본다 — 과하게 가리는 한이
+// 있어도 놓치지 않는 쪽을 택함.
 const RESIDENT_NO_DIGIT_PATTERN = /\d{6}\d{7}/;
 
 // blocks(JSON) 대신 hOCR을 DOMParser로 파싱한다: 버전별로 JSON 트리 구조가 어긋나는 경우가 있어
@@ -82,7 +82,11 @@ async function maskResidentNumberLines(canvas) {
     let maskedAny = false;
     lineEls.forEach(el => {
       const digitsOnly = (el.textContent || "").replace(/\D/g, "");
-      if (!RESIDENT_NO_DIGIT_PATTERN.test(digitsOnly)) return;
+      const hasResidentLikeWord = Array.from(el.querySelectorAll(".ocrx_word")).some(w => {
+        const wordDigits = (w.textContent || "").replace(/\D/g, "");
+        return wordDigits.length === 6 || wordDigits.length === 7;
+      });
+      if (!RESIDENT_NO_DIGIT_PATTERN.test(digitsOnly) && !hasResidentLikeWord) return;
       const bboxMatch = /bbox (\d+) (\d+) (\d+) (\d+)/.exec(el.getAttribute("title") || "");
       if (!bboxMatch) return;
       const y0 = Number(bboxMatch[2]);
