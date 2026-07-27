@@ -72,22 +72,49 @@ function getPaddleService() {
   return paddleServicePromise;
 }
 
-// 인식된 줄들 중 라벨 키워드가 들어간 줄을 찾아 그 값을 뽑아낸다.
-// 라벨과 값이 붙어있으면(같은 줄) 라벨 부분을 지우고 남은 걸 값으로 쓰고,
-// 라벨만 있고 값이 없으면(라벨/값이 서로 다른 줄인 경우) 바로 다음 줄을 값으로 본다.
-function extractLabeledValue(lineTexts, labelVariants) {
-  for (let i = 0; i < lineTexts.length; i++) {
-    const text = lineTexts[i];
-    const matched = labelVariants.find(label => text.includes(label));
-    if (!matched) continue;
-    let value = text;
-    labelVariants.forEach(label => { value = value.replaceAll(label, ""); });
-    value = value.replace(/^[\s:：()]+/, "").trim();
-    if (value) return value;
-    if (lineTexts[i + 1]) return lineTexts[i + 1].trim();
-    return "";
-  }
-  return "";
+const CERT_LABEL_FIELDS = [
+  { key: "bizNm", labels: ["상호(법인명)", "상호"] },
+  { key: "repNm", labels: ["성명(대표자)", "대표자"] },
+  { key: "addr", labels: ["사업장소재지", "본점소재지", "소재지"] },
+];
+const CERT_VALUE_TRIM_RE = /^[\s:：()]+|[\s:：()]+$/g;
+
+// 사업자등록증은 "상호 OOO   성명(대표자) 홍길동"처럼 한 줄에 라벨 여러 개가 같이 나오는 경우가 많다.
+// 그래서 한 줄 안에서 라벨들의 위치를 다 찾은 뒤, 각 라벨 값은 "그 라벨 끝 ~ 다음 라벨 시작 전"까지로 잘라낸다
+// (라벨 하나만 지우고 나머지를 통째로 값으로 삼으면 다른 라벨/값이 섞여 들어간다).
+function extractCertFields(lineTexts) {
+  const result = { bizNm: "", repNm: "", addr: "" };
+  lineTexts.forEach((line, lineIdx) => {
+    const matches = [];
+    CERT_LABEL_FIELDS.forEach(({ key, labels }) => {
+      labels.forEach(label => {
+        let idx = line.indexOf(label);
+        while (idx !== -1) {
+          matches.push({ key, start: idx, end: idx + label.length, len: label.length });
+          idx = line.indexOf(label, idx + 1);
+        }
+      });
+    });
+    if (matches.length === 0) return;
+    // 같은 자리에서 짧은 라벨("상호")이 긴 라벨("상호(법인명)") 안에도 매칭되므로, 겹치면 긴 쪽만 남긴다.
+    matches.sort((a, b) => a.start - b.start || b.len - a.len);
+    const filtered = [];
+    let lastEnd = -1;
+    matches.forEach(m => {
+      if (m.start < lastEnd) return;
+      filtered.push(m);
+      lastEnd = m.end;
+    });
+
+    filtered.forEach((m, i) => {
+      if (result[m.key]) return; // 이미 다른 줄에서 먼저 찾았으면 유지
+      const nextStart = filtered[i + 1] ? filtered[i + 1].start : line.length;
+      let value = line.slice(m.end, nextStart).replace(CERT_VALUE_TRIM_RE, "").trim();
+      if (!value && lineTexts[lineIdx + 1]) value = lineTexts[lineIdx + 1].trim();
+      result[m.key] = value;
+    });
+  });
+  return result;
 }
 
 // "주민"과 "등록번호"가 같이 들어간 줄은 가리고, 상호/대표자/소재지로 보이는 줄은 값을 뽑아 함께 반환한다.
@@ -113,11 +140,7 @@ async function maskAndExtractCertInfo(canvas) {
     maskedAny = true;
   });
 
-  const extracted = {
-    bizNm: extractLabeledValue(lineTexts, ["상호(법인명)", "상호"]),
-    repNm: extractLabeledValue(lineTexts, ["성명(대표자)", "대표자"]),
-    addr: extractLabeledValue(lineTexts, ["사업장소재지", "본점소재지", "소재지"]),
-  };
+  const extracted = extractCertFields(lineTexts);
 
   // TODO: 원인 파악되면 lineTexts는 빼고 maskedAny/extracted만 반환하도록 되돌릴 것 (진단용).
   return { maskedAny, lineTexts, extracted };
