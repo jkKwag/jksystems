@@ -129,20 +129,22 @@ function extractCertFields(lineTexts) {
   return result;
 }
 
-// "주민"과 "등록번호"가 같이 들어간 줄은 가리고, 상호/대표자/소재지로 보이는 줄은 값을 뽑아 함께 반환한다.
+// 1차 인식 결과(주민번호가 그대로 담긴 텍스트)는 위치를 찾아 마스킹하는 데만 쓰고 버린다.
+// 상호/대표자/주소 추출과 화면 표시(알럿)는 마스킹이 끝난 뒤 캔버스를 다시 읽은 2차 결과만 사용한다 —
+// 이러면 주민번호 부분은 이미 까맣게 가려진 뒤라 애초에 텍스트로 뽑힐 수가 없다.
 async function maskAndExtractCertInfo(canvas) {
   const service = await getPaddleService();
-  const { lines } = await service.recognize(canvas);
-  if (!lines || lines.length === 0) {
+
+  const { lines: rawLines } = await service.recognize(canvas);
+  if (!rawLines || rawLines.length === 0) {
     // 글자를 한 줄도 못 읽었다는 건 인식 자체가 실패했다는 뜻 — 마스킹을 확신할 수 없으니 에러로 처리.
     throw new Error("이미지에서 글자를 인식하지 못했습니다.");
   }
   const ctx = canvas.getContext("2d");
   ctx.fillStyle = "#000";
   let maskedAny = false;
-  const lineTexts = lines.map(items => items.map(item => item.text).join(""));
-  lines.forEach((items, i) => {
-    const text = lineTexts[i].replace(/\s/g, "");
+  rawLines.forEach(items => {
+    const text = items.map(item => item.text).join("").replace(/\s/g, "");
     if (!text.includes("주민") || !text.includes("등록번호")) return;
     const y0 = Math.min(...items.map(item => item.box.y));
     const y1 = Math.max(...items.map(item => item.box.y + item.box.height));
@@ -152,6 +154,8 @@ async function maskAndExtractCertInfo(canvas) {
     maskedAny = true;
   });
 
+  const { lines: safeLines } = await service.recognize(canvas);
+  const lineTexts = (safeLines || []).map(items => items.map(item => item.text).join(""));
   const extracted = extractCertFields(lineTexts);
 
   // TODO: 원인 파악되면 lineTexts는 빼고 maskedAny/extracted만 반환하도록 되돌릴 것 (진단용).
