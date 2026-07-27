@@ -68,9 +68,10 @@ async function maskResidentNumberLines(canvas) {
     const lines = (data.blocks || [])
       .flatMap(block => block.paragraphs || [])
       .flatMap(paragraph => paragraph.lines || []);
+    // "등록번호"까지 같이 요구하면 OCR이 조금만 틀려도 못 잡아서, "주민"만 있어도 그 줄은 가린다.
     const targetLines = lines.filter(line => {
       const text = (line.text || "").replace(/\s/g, "");
-      return text.includes("주민") && text.includes("등록번호");
+      return text.includes("주민");
     });
     if (targetLines.length === 0) return false;
     const ctx = canvas.getContext("2d");
