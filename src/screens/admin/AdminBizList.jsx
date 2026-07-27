@@ -59,11 +59,12 @@ function buildCertFormData(blob) {
   return formData;
 }
 
-// 주민등록번호는 6자리(생년월일)+7자리(뒷자리) 숫자 — 하이픈 때문에 단어(word) 단위로는
-// 둘로 쪼개져 인식되는 경우가 많아서, 줄 전체를 이어붙인 13자리 패턴뿐 아니라 "단어 하나가
-// 정확히 6자리 또는 7자리 숫자인 경우"도 그 줄을 무조건 마스킹 대상으로 본다 — 과하게 가리는 한이
-// 있어도 놓치지 않는 쪽을 택함.
-const RESIDENT_NO_DIGIT_PATTERN = /\d{6}\d{7}/;
+// 주민등록번호는 6자리(생년월일)+7자리(뒷자리) 숫자 — 하이픈 때문에 단어(word) 단위로 쪼개져
+// 인식되는 경우가 많다. "줄(line)" 그룹핑은 문서 레이아웃에 따라 엉뚱하게 잡힐 수 있어 믿지 않고,
+// 매칭된 단어 자체의 위치만 기준으로 위아래 넉넉하게 가린다.
+function isResidentLikeDigits(digits) {
+  return digits.length === 6 || digits.length === 7;
+}
 
 // blocks(JSON) 대신 hOCR을 DOMParser로 파싱한다: 버전별로 JSON 트리 구조가 어긋나는 경우가 있어
 // hOCR + title="bbox ..." 속성 쪽이 더 안정적이다.
@@ -72,32 +73,28 @@ async function maskResidentNumberLines(canvas) {
   try {
     const { data } = await worker.recognize(canvas, {}, { hocr: true });
     const doc = new DOMParser().parseFromString(data.hocr || "", "text/html");
-    const lineEls = Array.from(doc.querySelectorAll(".ocr_line"));
-    if (lineEls.length === 0) {
-      // 글자를 한 줄도 못 읽었다는 건 인식 자체가 실패했다는 뜻 — 마스킹을 확신할 수 없으니 에러로 처리.
+    const wordEls = Array.from(doc.querySelectorAll(".ocrx_word"));
+    if (wordEls.length === 0) {
+      // 글자를 한 단어도 못 읽었다는 건 인식 자체가 실패했다는 뜻 — 마스킹을 확신할 수 없으니 에러로 처리.
       throw new Error("이미지에서 글자를 인식하지 못했습니다.");
     }
     const ctx = canvas.getContext("2d");
     ctx.fillStyle = "#000";
     let maskedAny = false;
-    lineEls.forEach(el => {
-      const digitsOnly = (el.textContent || "").replace(/\D/g, "");
-      const hasResidentLikeWord = Array.from(el.querySelectorAll(".ocrx_word")).some(w => {
-        const wordDigits = (w.textContent || "").replace(/\D/g, "");
-        return wordDigits.length === 6 || wordDigits.length === 7;
-      });
-      if (!RESIDENT_NO_DIGIT_PATTERN.test(digitsOnly) && !hasResidentLikeWord) return;
+    wordEls.forEach(el => {
+      const digits = (el.textContent || "").replace(/\D/g, "");
+      if (!isResidentLikeDigits(digits)) return;
       const bboxMatch = /bbox (\d+) (\d+) (\d+) (\d+)/.exec(el.getAttribute("title") || "");
       if (!bboxMatch) return;
       const y0 = Number(bboxMatch[2]);
       const y1 = Number(bboxMatch[4]);
-      const lineHeight = y1 - y0;
-      const pad = Math.round(lineHeight * 1.5); // 위아래로 한 줄 높이 정도 여유
-      ctx.fillRect(0, Math.max(0, y0 - pad), canvas.width, lineHeight + pad * 2);
+      const wordHeight = y1 - y0;
+      const pad = wordHeight * 2; // 줄 그룹핑을 안 믿는 대신 단어 자체 기준으로 위아래를 훨씬 넉넉하게
+      ctx.fillRect(0, Math.max(0, y0 - pad), canvas.width, wordHeight + pad * 2);
       maskedAny = true;
     });
-    // TODO: 원인 파악되면 lineTexts는 빼고 maskedAny만 반환하도록 되돌릴 것 (진단용).
-    return { maskedAny, lineTexts: lineEls.map(el => el.textContent) };
+    // TODO: 원인 파악되면 wordTexts는 빼고 maskedAny만 반환하도록 되돌릴 것 (진단용).
+    return { maskedAny, lineTexts: wordEls.map(el => el.textContent) };
   } finally {
     await worker.terminate();
   }
