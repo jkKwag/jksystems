@@ -86,7 +86,8 @@ async function maskResidentNumberLines(canvas) {
       ctx.fillRect(0, Math.max(0, y0 - pad), canvas.width, (y1 - y0) + pad * 2);
       maskedAny = true;
     });
-    return maskedAny;
+    // TODO: 원인 파악되면 lineTexts는 빼고 maskedAny만 반환하도록 되돌릴 것 (진단용).
+    return { maskedAny, lineTexts: lineEls.map(el => el.textContent) };
   } finally {
     await worker.terminate();
   }
@@ -112,7 +113,7 @@ async function maskAndCompressCertImage(file, maxDim, quality) {
   sourceCanvas.width = img.width;
   sourceCanvas.height = img.height;
   sourceCanvas.getContext("2d").drawImage(img, 0, 0);
-  await maskResidentNumberLines(sourceCanvas);
+  const { maskedAny, lineTexts } = await maskResidentNumberLines(sourceCanvas);
 
   let { width, height } = img;
   if (width > maxDim || height > maxDim) {
@@ -124,9 +125,10 @@ async function maskAndCompressCertImage(file, maxDim, quality) {
   outputCanvas.height = height;
   outputCanvas.getContext("2d").drawImage(sourceCanvas, 0, 0, width, height);
 
-  return new Promise((resolve, reject) => {
-    outputCanvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("이미지 변환에 실패했습니다."))), "image/jpeg", quality);
+  const blob = await new Promise((resolve, reject) => {
+    outputCanvas.toBlob((b) => (b ? resolve(b) : reject(new Error("이미지 변환에 실패했습니다."))), "image/jpeg", quality);
   });
+  return { blob, maskedAny, lineTexts };
 }
 
 export default function AdminBizList({ adminInfo, onSelectBiz }) {
@@ -231,7 +233,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
         // 주민번호로 보이는 줄을 먼저 가린 뒤에만 다음 단계(업로드/인식)로 넘어간다.
         // 여기서 실패하면(엔진 로딩 실패 등) 곧장 catch로 빠져서 업로드 자체를 진행하지 않음.
         setCertMasking(true);
-        const blob = await maskAndCompressCertImage(file, IMAGE_MAX_DIMENSION, IMAGE_QUALITY);
+        const { blob, maskedAny, lineTexts } = await maskAndCompressCertImage(file, IMAGE_MAX_DIMENSION, IMAGE_QUALITY);
         setCertMasking(false);
 
         setCertUploading(true);
@@ -243,7 +245,10 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
         }
         setCertUrl(data?.certUrl || null);
         setCertUploading(false);
-        setAlertMsg("사업자등록증 업로드가 완료됐습니다.");
+        // 원인 파악 전까지는 인식된 줄을 그대로 보여준다 (진단용).
+        setAlertMsg(maskedAny
+          ? "사업자등록증 업로드가 완료됐습니다. (주민번호로 보이는 줄을 가렸어요)"
+          : `업로드 완료. 마스킹 대상은 못 찾았어요.\n\n[인식된 줄]\n${lineTexts.join("\n") || "(없음)"}`);
 
         /* 제미나이 인식 호출 — 잠시 주석처리 (주민번호 노출 이슈 정리 전까지 보류)
         // 인식은 업로드와 별도 호출 — 오래 걸리거나 실패해도 업로드 완료 자체엔 영향 없음.
