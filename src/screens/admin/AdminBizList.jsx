@@ -78,7 +78,9 @@ async function maskResidentNumberLines(canvas) {
     let maskedAny = false;
     wordEls.forEach(el => {
       const rawText = (el.textContent || "").trim();
-      const hasResidentText = rawText.replace(/\s/g, "").includes("주민");
+      const cleanText = rawText.replace(/\s/g, "");
+      // "민"이 화질 낮은 사진에서 "인"으로 잘못 인식되는 경우가 있어 "주인"도 같이 잡는다.
+      const hasResidentText = cleanText.includes("주민") || cleanText.includes("주인");
       if (!hasResidentText) return;
       const bboxMatch = /bbox (\d+) (\d+) (\d+) (\d+)/.exec(el.getAttribute("title") || "");
       if (!bboxMatch) return;
