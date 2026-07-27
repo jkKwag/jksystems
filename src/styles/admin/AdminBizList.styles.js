@@ -69,7 +69,7 @@ export const s = StyleSheet.create({
 
   error: { fontSize: font.sm, color: "#ef4444", fontWeight: "600", marginTop: spacing["3"] },
 
-  certImage: { width: "100%", height: 240, borderRadius: radius.lg, backgroundColor: colors.slate100, marginTop: spacing["1"] },
+  certImage: { width: "100%", height: 420, borderRadius: radius.lg, backgroundColor: colors.slate100, marginTop: spacing["1"] },
   certMissingBox: { backgroundColor: "#f0f9ff", borderWidth: 1, borderColor: "#7dd3fc", borderRadius: radius.lg, padding: spacing["3"], marginTop: spacing["1"] },
   certMissing: { fontSize: font.md, fontWeight: "700", color: "#0369a1" },
   certUploadBtn: { borderWidth: 1.5, borderColor: colors.primary, borderStyle: "dashed", borderRadius: radius.lg, paddingVertical: spacing["3"], alignItems: "center", marginTop: spacing["2.5"] },
