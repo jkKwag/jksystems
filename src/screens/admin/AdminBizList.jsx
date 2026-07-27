@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Image, Modal, Platform } from "react-native";
-import { createWorker } from "tesseract.js";
+import { PaddleOcrService, V5_KOREAN_MOBILE_MODEL } from "ppu-paddle-ocr/web";
 import { s } from "../../styles/admin/AdminBizList.styles";
 import api from "../../lib/api";
 import ConfirmModal from "../../components/ConfirmModal";
@@ -59,39 +59,44 @@ function buildCertFormData(blob) {
   return formData;
 }
 
-// "주민" 또는 "등록"이 들어간 줄은 그 줄 전체를 가린다.
-// blocks(JSON) 대신 hOCR을 DOMParser로 파싱한다: 버전별로 JSON 트리 구조가 어긋나는 경우가 있어
-// hOCR + title="bbox ..." 속성 쪽이 더 안정적이다.
-async function maskResidentNumberLines(canvas) {
-  const worker = await createWorker("kor");
-  try {
-    const { data } = await worker.recognize(canvas, {}, { hocr: true });
-    const doc = new DOMParser().parseFromString(data.hocr || "", "text/html");
-    const lineEls = Array.from(doc.querySelectorAll(".ocr_line"));
-    if (lineEls.length === 0) {
-      // 글자를 한 줄도 못 읽었다는 건 인식 자체가 실패했다는 뜻 — 마스킹을 확신할 수 없으니 에러로 처리.
-      throw new Error("이미지에서 글자를 인식하지 못했습니다.");
-    }
-    const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#000";
-    let maskedAny = false;
-    lineEls.forEach(el => {
-      const text = (el.textContent || "").replace(/\s/g, "");
-      if (!text.includes("주민") && !text.includes("등록")) return;
-      const bboxMatch = /bbox (\d+) (\d+) (\d+) (\d+)/.exec(el.getAttribute("title") || "");
-      if (!bboxMatch) return;
-      const y0 = Number(bboxMatch[2]);
-      const y1 = Number(bboxMatch[4]);
-      const lineHeight = y1 - y0;
-      const pad = Math.max(2, Math.round(lineHeight * 0.2));
-      ctx.fillRect(0, Math.max(0, y0 - pad), canvas.width, lineHeight + pad * 2);
-      maskedAny = true;
-    });
-    // TODO: 원인 파악되면 lineTexts는 빼고 maskedAny만 반환하도록 되돌릴 것 (진단용).
-    return { maskedAny, lineTexts: lineEls.map(el => el.textContent) };
-  } finally {
-    await worker.terminate();
+// PaddleOcrService 초기화는 모델을 네트워크에서 받아오는 무거운 작업이라, 세션 동안 한 번만 만들어서 재사용한다.
+let paddleServicePromise = null;
+function getPaddleService() {
+  if (!paddleServicePromise) {
+    paddleServicePromise = (async () => {
+      const service = new PaddleOcrService({ model: V5_KOREAN_MOBILE_MODEL });
+      await service.initialize();
+      return service;
+    })();
   }
+  return paddleServicePromise;
+}
+
+// "주민" 또는 "등록"이 들어간 줄은 그 줄 전체를 가린다. (Tesseract.js 대신 PaddleOCR로 교체 — ONNX 기반이라
+// 레이아웃 분석/인식 정확도가 더 나을 것으로 기대)
+async function maskResidentNumberLines(canvas) {
+  const service = await getPaddleService();
+  const { lines } = await service.recognize(canvas);
+  if (!lines || lines.length === 0) {
+    // 글자를 한 줄도 못 읽었다는 건 인식 자체가 실패했다는 뜻 — 마스킹을 확신할 수 없으니 에러로 처리.
+    throw new Error("이미지에서 글자를 인식하지 못했습니다.");
+  }
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#000";
+  let maskedAny = false;
+  const lineTexts = lines.map(items => items.map(item => item.text).join(""));
+  lines.forEach((items, i) => {
+    const text = lineTexts[i].replace(/\s/g, "");
+    if (!text.includes("주민") && !text.includes("등록")) return;
+    const y0 = Math.min(...items.map(item => item.box.y));
+    const y1 = Math.max(...items.map(item => item.box.y + item.box.height));
+    const lineHeight = y1 - y0;
+    const pad = Math.max(2, Math.round(lineHeight * 0.2));
+    ctx.fillRect(0, Math.max(0, y0 - pad), canvas.width, lineHeight + pad * 2);
+    maskedAny = true;
+  });
+  // TODO: 원인 파악되면 lineTexts는 빼고 maskedAny만 반환하도록 되돌릴 것 (진단용).
+  return { maskedAny, lineTexts };
 }
 
 // 글자가 작으면 Tesseract가 잘 못 읽어서, 원본을 이만큼 확대한 캔버스에서 인식/마스킹한다.

@@ -13,6 +13,8 @@
     "expo": "~56.0.12",
     "expo-status-bar": "~56.0.4",
     "jsqr": "^1.4.0",
+    "onnxruntime-web": "^1.27.0",
+    "ppu-paddle-ocr": "^6.2.0",
     "qrcode": "^1.5.4",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -20,8 +22,7 @@
     "react-native-calendars": "^1.1314.0",
     "react-native-safe-area-context": "^5.8.0",
     "react-native-screens": "^4.25.2",
-    "react-native-web": "~0.20.0",
-    "tesseract.js": "^7.0.0"
+    "react-native-web": "~0.20.0"
   },
   "scripts": {
     "start": "expo start",
