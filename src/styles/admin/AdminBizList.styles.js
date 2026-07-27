@@ -76,6 +76,9 @@ export const s = StyleSheet.create({
   certUploadBtnText: { fontSize: font.md, fontWeight: "700", color: colors.primary },
   certExtracting: { fontSize: font.sm, color: colors.textMuted, textAlign: "center", marginTop: spacing["1.5"] },
 
+  certZoomBackdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.9)", justifyContent: "center", alignItems: "center" },
+  certZoomImage: { width: "100%", height: "100%" },
+
   btnRow: { flexDirection: "row", gap: spacing["2.5"], marginTop: spacing["4"] },
   cancelBtn: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingVertical: spacing["2.5"], alignItems: "center", backgroundColor: colors.bgCard, outlineStyle: "none" },
   cancelBtnText: { fontSize: font.md, fontWeight: "700", color: colors.textGray },

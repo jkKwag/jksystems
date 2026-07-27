@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Image, Platform } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Image, Modal, Platform } from "react-native";
 import { createWorker } from "tesseract.js";
 import { s } from "../../styles/admin/AdminBizList.styles";
 import api from "../../lib/api";
@@ -142,6 +142,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
   const [alertMsg, setAlertMsg] = useState(null);
   const [focusedField, setFocusedField] = useState(null);
   const [certUrl, setCertUrl] = useState(null);
+  const [certZoomVisible, setCertZoomVisible] = useState(false);
   const [certMasking, setCertMasking] = useState(false);
   const [certUploading, setCertUploading] = useState(false);
   const [certExtracting, setCertExtracting] = useState(false);
@@ -236,7 +237,9 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
         }
         setCertUrl(data?.certUrl || null);
         setCertUploading(false);
+        setAlertMsg("사업자등록증 업로드가 완료됐습니다.");
 
+        /* 제미나이 인식 호출 — 잠시 주석처리 (주민번호 노출 이슈 정리 전까지 보류)
         // 인식은 업로드와 별도 호출 — 오래 걸리거나 실패해도 업로드 완료 자체엔 영향 없음.
         setCertExtracting(true);
         const { data: extracted } = await api.biz.extractCertInfo(bizRegNo, buildCertFormData(blob));
@@ -259,6 +262,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
         setAlertMsg(fields.length
           ? `업로드 완료! 사업자등록증에서 다음 정보를 인식했어요.\n\n${fields.join("\n")}`
           : "업로드는 완료됐지만, 사업자등록증에서 정보를 인식하지 못했습니다.");
+        */
       } catch {
         setCertError("이미지 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
       }
@@ -361,7 +365,9 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
         <>
           <SectionTitle label="사업자등록증" />
           {certUrl ? (
-            <Image source={{ uri: certUrl }} style={s.certImage} resizeMode="contain" />
+            <TouchableOpacity onPress={() => setCertZoomVisible(true)}>
+              <Image source={{ uri: certUrl }} style={s.certImage} resizeMode="contain" />
+            </TouchableOpacity>
           ) : (
             <View style={s.certMissingBox}>
               <Text style={s.certMissing}>사업자등록증을 업로드하면 사업장 기본정보가 자동으로 입력됩니다.</Text>
@@ -508,6 +514,12 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
       )}
 
       <ConfirmModal visible={!!alertMsg} message={alertMsg} onConfirm={() => setAlertMsg(null)} />
+
+      <Modal visible={certZoomVisible} transparent animationType="fade" onRequestClose={() => setCertZoomVisible(false)}>
+        <TouchableOpacity style={s.certZoomBackdrop} activeOpacity={1} onPress={() => setCertZoomVisible(false)}>
+          <Image source={{ uri: certUrl }} style={s.certZoomImage} resizeMode="contain" />
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 }
