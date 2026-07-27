@@ -59,18 +59,8 @@ function buildCertFormData(blob) {
   return formData;
 }
 
-// 주민등록번호는 6자리(생년월일)+하이픈+7자리(뒷자리) — 하이픈이 공백 없이 붙어있으면
-// "900101-1234567" 전체가 한 단어로 인식돼서 숫자만 뽑으면 13자리가 되고, 하이픈 앞뒤로
-// 단어가 쪼개지면 각각 6자리/7자리가 된다. 두 경우 다 잡는다.
 // "줄(line)" 그룹핑은 문서 레이아웃에 따라 엉뚱하게 잡힐 수 있어 믿지 않고,
 // 매칭된 단어 자체의 위치만 기준으로 위아래 넉넉하게 가린다.
-function isResidentLikeDigits(digits) {
-  return digits.length === 6 || digits.length === 7 || digits.length === 13;
-}
-
-// 하이픈까지 그대로 살아있는 원본 형태(6자리-7자리, 총 14글자)도 별도로 확인한다.
-const RESIDENT_NO_RAW_PATTERN = /^\d{6}-\d{7}$/;
-
 // blocks(JSON) 대신 hOCR을 DOMParser로 파싱한다: 버전별로 JSON 트리 구조가 어긋나는 경우가 있어
 // hOCR + title="bbox ..." 속성 쪽이 더 안정적이다.
 async function maskResidentNumberLines(canvas) {
@@ -88,9 +78,8 @@ async function maskResidentNumberLines(canvas) {
     let maskedAny = false;
     wordEls.forEach(el => {
       const rawText = (el.textContent || "").trim();
-      const digits = rawText.replace(/\D/g, "");
       const hasResidentText = rawText.replace(/\s/g, "").includes("주민");
-      if (!isResidentLikeDigits(digits) && !RESIDENT_NO_RAW_PATTERN.test(rawText) && !hasResidentText) return;
+      if (!hasResidentText) return;
       const bboxMatch = /bbox (\d+) (\d+) (\d+) (\d+)/.exec(el.getAttribute("title") || "");
       if (!bboxMatch) return;
       const y0 = Number(bboxMatch[2]);
