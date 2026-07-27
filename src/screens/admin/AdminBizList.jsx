@@ -94,8 +94,12 @@ async function maskResidentNumberLines(canvas) {
   }
 }
 
-// 원본 해상도를 유지한 캔버스에 이미지를 그린 뒤, 주민등록번호로 보이는 줄을 찾아 가리고,
-// 그 결과만 리사이즈/압축해서 반환한다 — 마스킹 전 원본은 이 함수 밖으로 나가지 않음.
+// 글자가 작으면 Tesseract가 잘 못 읽어서, 원본을 이만큼 확대한 캔버스에서 인식/마스킹한다.
+const OCR_UPSCALE_FACTOR = 2;
+const OCR_UPSCALE_MAX_DIMENSION = 3500; // 너무 커지면 느려지니 상한을 둔다
+
+// 원본을 확대한 캔버스에 그려서 인식/마스킹한 뒤, 그 결과만 리사이즈/압축해서 반환한다 —
+// 마스킹 전 원본은 이 함수 밖으로 나가지 않음.
 async function maskAndCompressCertImage(file, maxDim, quality) {
   const dataUrl = await new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -110,10 +114,14 @@ async function maskAndCompressCertImage(file, maxDim, quality) {
     image.src = dataUrl;
   });
 
+  const upscale = Math.min(
+    OCR_UPSCALE_FACTOR,
+    OCR_UPSCALE_MAX_DIMENSION / Math.max(img.width, img.height),
+  );
   const sourceCanvas = document.createElement("canvas");
-  sourceCanvas.width = img.width;
-  sourceCanvas.height = img.height;
-  sourceCanvas.getContext("2d").drawImage(img, 0, 0);
+  sourceCanvas.width = Math.round(img.width * upscale);
+  sourceCanvas.height = Math.round(img.height * upscale);
+  sourceCanvas.getContext("2d").drawImage(img, 0, 0, sourceCanvas.width, sourceCanvas.height);
   const { maskedAny, lineTexts } = await maskResidentNumberLines(sourceCanvas);
 
   let { width, height } = img;
