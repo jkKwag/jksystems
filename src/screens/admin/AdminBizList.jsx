@@ -135,7 +135,10 @@ function extractCertFields(lineTexts) {
 async function maskAndExtractCertInfo(canvas) {
   const service = await getPaddleService();
 
-  const { lines: rawLines } = await service.recognize(canvas);
+  // ppu-paddle-ocr는 이미지 처음 1024바이트만으로 캐시 키를 만들어서, 마스킹으로 바뀐 부분이
+  // 그 안에 없으면 두 번째 호출이 진짜로 다시 인식하지 않고 1차 결과를 그대로 돌려준다 —
+  // noCache로 반드시 꺼야 마스킹 후 재인식이 의미가 있다.
+  const { lines: rawLines } = await service.recognize(canvas, { noCache: true });
   if (!rawLines || rawLines.length === 0) {
     // 글자를 한 줄도 못 읽었다는 건 인식 자체가 실패했다는 뜻 — 마스킹을 확신할 수 없으니 에러로 처리.
     throw new Error("이미지에서 글자를 인식하지 못했습니다.");
@@ -154,7 +157,7 @@ async function maskAndExtractCertInfo(canvas) {
     maskedAny = true;
   });
 
-  const { lines: safeLines } = await service.recognize(canvas);
+  const { lines: safeLines } = await service.recognize(canvas, { noCache: true });
   const lineTexts = (safeLines || []).map(items => items.map(item => item.text).join(""));
   const extracted = extractCertFields(lineTexts);
 
