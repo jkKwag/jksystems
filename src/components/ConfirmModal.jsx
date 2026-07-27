@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Modal } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, Modal } from "react-native";
 import { s } from "../styles/ConfirmModal.styles";
 
 // alert()/confirm() 대체용 공통 모달. cancelText를 안 주면 확인 버튼 하나만 보여줌(alert 대체),
@@ -9,7 +9,9 @@ export default function ConfirmModal({ visible, message, confirmText = "확인",
     <Modal visible transparent animationType="fade" onRequestClose={onCancel || onConfirm}>
       <View style={s.overlay}>
         <View style={s.card}>
-          <Text style={s.message}>{message}</Text>
+          <ScrollView style={s.messageScroll}>
+            <Text style={s.message}>{message}</Text>
+          </ScrollView>
           <View style={s.btnRow}>
             {cancelText ? (
               <TouchableOpacity style={s.cancelBtn} onPress={onCancel}>
