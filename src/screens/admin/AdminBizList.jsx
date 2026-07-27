@@ -59,11 +59,13 @@ function buildCertFormData(blob) {
   return formData;
 }
 
-// 주민등록번호는 6자리(생년월일)+7자리(뒷자리) 숫자 — 하이픈 때문에 단어(word) 단위로 쪼개져
-// 인식되는 경우가 많다. "줄(line)" 그룹핑은 문서 레이아웃에 따라 엉뚱하게 잡힐 수 있어 믿지 않고,
+// 주민등록번호는 6자리(생년월일)+하이픈+7자리(뒷자리) — 하이픈이 공백 없이 붙어있으면
+// "900101-1234567" 전체가 한 단어로 인식돼서 숫자만 뽑으면 13자리가 되고, 하이픈 앞뒤로
+// 단어가 쪼개지면 각각 6자리/7자리가 된다. 두 경우 다 잡는다.
+// "줄(line)" 그룹핑은 문서 레이아웃에 따라 엉뚱하게 잡힐 수 있어 믿지 않고,
 // 매칭된 단어 자체의 위치만 기준으로 위아래 넉넉하게 가린다.
 function isResidentLikeDigits(digits) {
-  return digits.length === 6 || digits.length === 7;
+  return digits.length === 6 || digits.length === 7 || digits.length === 13;
 }
 
 // blocks(JSON) 대신 hOCR을 DOMParser로 파싱한다: 버전별로 JSON 트리 구조가 어긋나는 경우가 있어
