@@ -423,7 +423,29 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
 
   const renderFields = (biz) => (
     <View style={s.detailInner}>
-      <SectionTitle label="기본 정보" first />
+      {biz && (
+        <>
+          <SectionTitle label="사업자등록증 검증" first />
+          {certUrl ? (
+            <TouchableOpacity onPress={() => setCertZoomVisible(true)}>
+              <Image source={{ uri: certUrl }} style={s.certImage} resizeMode="contain" />
+            </TouchableOpacity>
+          ) : (
+            <View style={s.certMissingBox}>
+              <Text style={s.certMissing}>사업자등록증을 업로드하면 사업장 기본정보가 자동으로 입력됩니다.</Text>
+            </View>
+          )}
+          {!!certError && <Text style={s.error}>⚠️ {certError}</Text>}
+          <TouchableOpacity style={s.certUploadBtn} onPress={() => pickAndUploadCert(biz.bizRegNo)} disabled={certMasking || certUploading}>
+            {certMasking || certUploading
+              ? <ActivityIndicator color="#1d3557" />
+              : <Text style={s.certUploadBtnText}>{certUrl ? "다시 업로드" : "사업자등록증 사진 업로드"}</Text>}
+          </TouchableOpacity>
+          {certMasking && <Text style={s.certExtracting}>사업자등록증을 읽는 중이에요... (처음엔 조금 걸릴 수 있어요)</Text>}
+        </>
+      )}
+
+      <SectionTitle label="기본 정보" />
       <View style={s.fieldGrid}>
         {expandedKey === "__new__" && (
           <View style={boxStyle(s.fieldBoxFull, "bizRegNo")}>
@@ -453,28 +475,6 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
           </View>
         )}
       </View>
-
-      {biz && (
-        <>
-          <SectionTitle label="사업자등록증" />
-          {certUrl ? (
-            <TouchableOpacity onPress={() => setCertZoomVisible(true)}>
-              <Image source={{ uri: certUrl }} style={s.certImage} resizeMode="contain" />
-            </TouchableOpacity>
-          ) : (
-            <View style={s.certMissingBox}>
-              <Text style={s.certMissing}>사업자등록증을 업로드하면 사업장 기본정보가 자동으로 입력됩니다.</Text>
-            </View>
-          )}
-          {!!certError && <Text style={s.error}>⚠️ {certError}</Text>}
-          <TouchableOpacity style={s.certUploadBtn} onPress={() => pickAndUploadCert(biz.bizRegNo)} disabled={certMasking || certUploading}>
-            {certMasking || certUploading
-              ? <ActivityIndicator color="#1d3557" />
-              : <Text style={s.certUploadBtnText}>{certUrl ? "다시 업로드" : "사업자등록증 사진 업로드"}</Text>}
-          </TouchableOpacity>
-          {certMasking && <Text style={s.certExtracting}>사업자등록증을 읽는 중이에요... (처음엔 조금 걸릴 수 있어요)</Text>}
-        </>
-      )}
 
       <SectionTitle label="연락처" />
       <View style={s.fieldGrid}>
