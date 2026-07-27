@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Image, Modal, Platform } from "react-native";
 import { PaddleOcrService, V5_KOREAN_MOBILE_MODEL } from "ppu-paddle-ocr/web";
 import { s } from "../../styles/admin/AdminBizList.styles";
@@ -244,6 +244,10 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
   const [focusedField, setFocusedField] = useState(null);
   const [certUrl, setCertUrl] = useState(null);
   const [certZoomVisible, setCertZoomVisible] = useState(false);
+  const [zoomScale, setZoomScale] = useState(1);
+  const [zoomTranslate, setZoomTranslate] = useState({ x: 0, y: 0 });
+  const pinchRef = useRef(null);
+  const panRef = useRef(null);
   const [certMasking, setCertMasking] = useState(false);
   const [certUploading, setCertUploading] = useState(false);
   const [certError, setCertError] = useState("");
@@ -513,6 +517,62 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
     </View>
   );
 
+  const ZOOM_MIN = 1;
+  const ZOOM_MAX = 4;
+
+  const resetZoom = () => {
+    setZoomScale(1);
+    setZoomTranslate({ x: 0, y: 0 });
+  };
+
+  const closeZoom = () => {
+    setCertZoomVisible(false);
+    resetZoom();
+  };
+
+  const touchDistance = (touches) => {
+    const [a, b] = touches;
+    return Math.hypot(a.pageX - b.pageX, a.pageY - b.pageY);
+  };
+
+  const handleZoomWheel = (e) => {
+    e.preventDefault?.();
+    const delta = -e.deltaY * 0.0015;
+    setZoomScale(s => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, s + delta)));
+  };
+
+  const handleZoomTouchStart = (e) => {
+    const touches = e.nativeEvent.touches;
+    if (touches.length === 2) {
+      pinchRef.current = { startDistance: touchDistance(touches), startScale: zoomScale };
+    } else if (touches.length === 1 && zoomScale > 1) {
+      panRef.current = { startX: touches[0].pageX, startY: touches[0].pageY, startTranslate: zoomTranslate };
+    }
+  };
+
+  const handleZoomTouchMove = (e) => {
+    const touches = e.nativeEvent.touches;
+    if (touches.length === 2 && pinchRef.current) {
+      const scale = pinchRef.current.startScale * (touchDistance(touches) / pinchRef.current.startDistance);
+      setZoomScale(Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, scale)));
+    } else if (touches.length === 1 && panRef.current) {
+      const dx = touches[0].pageX - panRef.current.startX;
+      const dy = touches[0].pageY - panRef.current.startY;
+      setZoomTranslate({ x: panRef.current.startTranslate.x + dx, y: panRef.current.startTranslate.y + dy });
+    }
+  };
+
+  const handleZoomTouchEnd = (e) => {
+    const remaining = e.nativeEvent.touches.length;
+    if (remaining < 2) pinchRef.current = null;
+    if (remaining === 0) panRef.current = null;
+  };
+
+  const handleZoomDoubleClick = () => {
+    if (zoomScale > 1) resetZoom();
+    else setZoomScale(2);
+  };
+
   return (
     <View style={s.container}>
       <View style={s.headerRow}>
@@ -607,10 +667,32 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
 
       <ConfirmModal visible={!!alertMsg} message={alertMsg} onConfirm={() => setAlertMsg(null)} />
 
-      <Modal visible={certZoomVisible} transparent animationType="fade" onRequestClose={() => setCertZoomVisible(false)}>
-        <TouchableOpacity style={s.certZoomBackdrop} activeOpacity={1} onPress={() => setCertZoomVisible(false)}>
-          <Image source={{ uri: certUrl }} style={s.certZoomImage} resizeMode="contain" />
-        </TouchableOpacity>
+      <Modal visible={certZoomVisible} transparent animationType="fade" onRequestClose={closeZoom}>
+        <View style={s.certZoomBackdrop}>
+          <TouchableOpacity style={s.certZoomCloseBtn} onPress={closeZoom}>
+            <Text style={s.certZoomCloseBtnText}>✕</Text>
+          </TouchableOpacity>
+          <View
+            style={s.certZoomImageWrap}
+            onWheel={handleZoomWheel}
+            onTouchStart={handleZoomTouchStart}
+            onTouchMove={handleZoomTouchMove}
+            onTouchEnd={handleZoomTouchEnd}
+            onDoubleClick={handleZoomDoubleClick}
+          >
+            <Image
+              source={{ uri: certUrl }}
+              style={[s.certZoomImage, {
+                transform: [
+                  { translateX: zoomTranslate.x },
+                  { translateY: zoomTranslate.y },
+                  { scale: zoomScale },
+                ],
+              }]}
+              resizeMode="contain"
+            />
+          </View>
+        </View>
       </Modal>
     </View>
   );

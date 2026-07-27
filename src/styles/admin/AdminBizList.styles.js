@@ -77,7 +77,10 @@ export const s = StyleSheet.create({
   certExtracting: { fontSize: font.sm, color: colors.textMuted, textAlign: "center", marginTop: spacing["1.5"] },
 
   certZoomBackdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.9)", justifyContent: "center", alignItems: "center", paddingVertical: spacing["10"] },
+  certZoomImageWrap: { width: "100%", height: "100%", overflow: "hidden" },
   certZoomImage: { width: "100%", height: "100%" },
+  certZoomCloseBtn: { position: "absolute", top: spacing["4"], right: spacing["4"], zIndex: 1, width: 40, height: 40, borderRadius: 20, backgroundColor: "rgba(255,255,255,0.15)", alignItems: "center", justifyContent: "center" },
+  certZoomCloseBtnText: { fontSize: font.xl, fontWeight: "700", color: colors.white },
 
   btnRow: { flexDirection: "row", gap: spacing["2.5"], marginTop: spacing["4"] },
   cancelBtn: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingVertical: spacing["2.5"], alignItems: "center", backgroundColor: colors.bgCard, outlineStyle: "none" },
