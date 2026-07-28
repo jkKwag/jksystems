@@ -342,6 +342,10 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
         setCertUrl(data?.certUrl || null);
         setCertUploading(false);
 
+        // 업로드된 사업자번호로 국세청 상태조회(계속사업자/휴업자/폐업자)를 바로 재확인한다.
+        const { data: ntsData } = await api.biz.checkNtsStatus(bizRegNo);
+        const ntsMsg = `[국세청 상태] ${ntsData?.display || "확인 불가"}`;
+
         // 인식된 값 중 비어있던 항목만 채워준다 — 이미 입력된 값은 덮어쓰지 않음.
         setForm(f => ({
           ...f,
@@ -360,7 +364,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
         ].filter(Boolean);
         const maskMsg = maskedAny ? "주민번호로 보이는 줄을 가렸어요." : "마스킹 대상은 못 찾았어요.";
         const extractMsg = fields.length ? `[인식된 정보]\n${fields.join("\n")}` : "[인식된 정보] 없음";
-        setAlertMsg(`업로드 완료.\n${maskMsg}\n\n${extractMsg}\n\n[인식된 전체 줄]\n${lineTexts.join("\n") || "(없음)"}`);
+        setAlertMsg(`업로드 완료.\n${ntsMsg}\n${maskMsg}\n\n${extractMsg}\n\n[인식된 전체 줄]\n${lineTexts.join("\n") || "(없음)"}`);
       } catch {
         setCertError("이미지 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
       }

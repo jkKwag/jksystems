@@ -97,6 +97,7 @@ const api = {
     uploadRegistrationCert: (bizno, formData) => postMultipart(`/api/biz/${bizno}/registration-cert`, formData),
     extractCertInfo: (bizno, formData) => postMultipart(`/api/biz/${bizno}/registration-cert/extract`, formData),
     getRegistrationCertUrl: (bizno) => get(`/api/biz/${bizno}/registration-cert`),
+    checkNtsStatus: (bizno) => post(`/api/biz/${bizno}/nts-status`, {}),
     pendingApprovals: () => get(`/api/biz/approvals`),
     approveBiz: (bizno) => put(`/api/biz/${bizno}/approve`, {}),
     rejectBiz: (bizno, body) => put(`/api/biz/${bizno}/reject`, body),
