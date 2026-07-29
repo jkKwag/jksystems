@@ -477,11 +477,6 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
         <View style={s.fieldBox}>
           <Text style={s.fieldStatic}>{indNm(form.indCd)}</Text>
         </View>
-        {biz && (
-          <View style={s.fieldBox}>
-            <Text style={s.fieldStatic}>{statusNm(biz)}</Text>
-          </View>
-        )}
       </View>
 
       <SectionTitle label="연락처" />
