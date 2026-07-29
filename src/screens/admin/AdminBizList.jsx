@@ -374,7 +374,6 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
     input.click();
   };
 
-  const indNm = (indCd) => industries.find(ind => ind.indCd === indCd)?.indNm || "";
   const byIndCd = Object.fromEntries(industries.map(d => [d.indCd, d]));
   const indPathOf = (indCd) => {
     const path = [];
@@ -473,9 +472,6 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
         </View>
         <View style={boxStyle(s.fieldBox, "repNm")}>
           <TextInput style={s.fieldInput} placeholder="대표자명" placeholderTextColor={PLACEHOLDER_COLOR} value={form.repNm} onChangeText={update("repNm")} {...focusHandlers("repNm")} />
-        </View>
-        <View style={s.fieldBox}>
-          <Text style={s.fieldStatic}>{indNm(form.indCd)}</Text>
         </View>
       </View>
 
