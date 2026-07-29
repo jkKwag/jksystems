@@ -374,7 +374,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
     input.click();
   };
 
-  const indNm = (indCd) => industries.find(ind => ind.indCd === indCd)?.indNm || "미지정";
+  const indNm = (indCd) => industries.find(ind => ind.indCd === indCd)?.indNm || "";
   const byIndCd = Object.fromEntries(industries.map(d => [d.indCd, d]));
   const indPathOf = (indCd) => {
     const path = [];
