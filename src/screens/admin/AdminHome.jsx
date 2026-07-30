@@ -17,6 +17,7 @@ import AdminIndCls from "./AdminIndCls";
 import AdminAccounts from "./AdminAccounts";
 import AdminBizApprovals from "./AdminBizApprovals";
 import AdminContract from "./AdminContract";
+import AdminSubscription from "./AdminSubscription";
 import AdminSuperDashboard from "./AdminSuperDashboard";
 import BizLookupBar from "../../components/admin/BizLookupBar";
 import ConfirmModal from "../../components/ConfirmModal";
@@ -46,6 +47,17 @@ const MENU_SCREENS = {
   "/admin/biz-admin": AdminAccounts,
   "/admin/biz-approvals": AdminBizApprovals,
   "/admin/contract": AdminContract,
+  "/admin/subscription": AdminSubscription,
+};
+
+// 구독료 결제 메뉴는 아직 tb_sys_menu에 DB로 등록하지 않은 상태라, DB 연동 전까지는
+// 로그인한 모든 관리자(SUPER/BIZ/PROV_ADMIN)에게 프론트에서 직접 목록 끝에 붙여서 보여준다.
+// DB에 정식으로 등록되면 이 하드코딩은 제거할 것.
+const SUBSCRIPTION_MENU_NODE = {
+  menuCd: "__SUBSCRIPTION__",
+  menuNm: "구독료 결제",
+  menuUrl: "/admin/subscription",
+  children: [],
 };
 
 function findMenuNode(nodes, menuUrl) {
@@ -141,7 +153,7 @@ export default function AdminHome({ adminInfo, onLogout }) {
     if (!adminInfo?.adminRole) return;
     (async () => {
       const tree = await api.admin.menu(adminInfo.adminRole);
-      const list = Array.isArray(tree) ? tree : [];
+      const list = [...(Array.isArray(tree) ? tree : []), SUBSCRIPTION_MENU_NODE];
       setMenuTree(list);
       setExpanded(new Set(list.map(m => m.menuCd)));
       const dashboard = list.find(m => m.menuUrl === DASHBOARD_URL);
