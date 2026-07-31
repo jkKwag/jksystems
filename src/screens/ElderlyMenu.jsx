@@ -134,7 +134,6 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   useEffect(() => { refreshPendingOrders(); }, [bizno]);
 
   const flipY = useRef(new Animated.Value(0)).current;
-  const photoOpacity = useRef(new Animated.Value(1)).current;
   const orderStatusPop = useRef(new Animated.Value(0)).current;
   const cartModalPop = useRef(new Animated.Value(0)).current;
 
@@ -206,12 +205,8 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
       bubbleShown.current = false;
       Animated.timing(bubbleAnim, { toValue: 0, duration: 300, useNativeDriver: true }).start();
     }
-    // 사진 페이드 아웃 → 인덱스 변경 → 페이드 인
-    Animated.timing(photoOpacity, { toValue: 0, duration: 120, useNativeDriver: true }).start(() => {
-      Animated.timing(photoOpacity, { toValue: 1, duration: 220, useNativeDriver: true }).start();
-    });
-    // 카드가 옆으로 미끄러지는 대신 뒤집히면서 다음 메뉴로 바뀐다 — 카드가 90도(옆면)로
-    // 접혀 안 보이는 순간에 내용을 바꿔치기해서 계속 회전하는 것처럼 보이게 한다.
+    // 사진과 카드가 함께 뒤집히면서 다음 메뉴로 바뀐다 — 90도(옆면)로 접혀
+    // 안 보이는 순간에 내용을 바꿔치기해서 계속 회전하는 것처럼 보이게 한다.
     flipY.setValue(0);
     Animated.timing(flipY, { toValue: 1, duration: FLIP_DURATION, easing: Easing.inOut(Easing.quad), useNativeDriver: true }).start();
     setTimeout(() => setCurrentIndex(newIndex), FLIP_DURATION / 2);
@@ -406,8 +401,8 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
 
   return (
     <View style={s.container}>
-      {/* 음식 사진 영역 */}
-      <Animated.View style={[s.photoArea, { opacity: photoOpacity }]}>
+      {/* 음식 사진 영역 — 카드와 같은 flipY 값으로 함께 뒤집힌다 */}
+      <Animated.View style={[s.photoArea, { transform: [{ perspective: 1200 }, { rotateY: cardRotateY }] }]}>
         {currentMenu?.imgUrl ? (
           <Image source={{ uri: currentMenu.imgUrl }} style={s.photo} />
         ) : (
