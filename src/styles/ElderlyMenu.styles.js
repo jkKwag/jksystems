@@ -17,7 +17,6 @@ export const s = StyleSheet.create({
   /* 카드 + 떠 있는 화살표 컨테이너 */
   carouselOuter: { flex: 1, minHeight: 0, overflow: "hidden" },
   carouselClip: { flex: 1, minHeight: 0, overflow: "hidden", zIndex: 0 },
-  track: { flexDirection: "row", height: "100%" },
   // 옵션 유무와 상관없이 항상 위쪽 정렬 — 좌우 이동 버튼(추가 버튼 근처 고정)과
   // 위치가 어긋나지 않도록 카드가 늘 같은 자리에서 시작하게 한다
   slide: { height: "100%", alignItems: "center", justifyContent: "flex-start", paddingVertical: 6, paddingHorizontal: 16 },

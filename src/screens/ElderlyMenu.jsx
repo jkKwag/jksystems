@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Animated, Platform, ActivityIndicator, useWindowDimensions } from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Animated, Easing, Platform, ActivityIndicator, useWindowDimensions } from "react-native";
 import api from "../lib/api";
 import { s } from "../styles/ElderlyMenu.styles";
 
@@ -133,7 +133,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   };
   useEffect(() => { refreshPendingOrders(); }, [bizno]);
 
-  const translateX = useRef(new Animated.Value(0)).current;
+  const flipY = useRef(new Animated.Value(0)).current;
   const photoOpacity = useRef(new Animated.Value(1)).current;
   const orderStatusPop = useRef(new Animated.Value(0)).current;
   const cartModalPop = useRef(new Animated.Value(0)).current;
@@ -198,6 +198,8 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
     return () => { cancelled = true; };
   }, [menus]);
 
+  const FLIP_DURATION = 420;
+
   const goTo = (newIndex) => {
     if (newIndex < 0 || newIndex >= menus.length) return;
     if (bubbleShown.current) {
@@ -206,11 +208,19 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
     }
     // 사진 페이드 아웃 → 인덱스 변경 → 페이드 인
     Animated.timing(photoOpacity, { toValue: 0, duration: 120, useNativeDriver: true }).start(() => {
-      setCurrentIndex(newIndex);
       Animated.timing(photoOpacity, { toValue: 1, duration: 220, useNativeDriver: true }).start();
     });
-    Animated.timing(translateX, { toValue: -newIndex * width, duration: 280, useNativeDriver: true }).start();
+    // 카드가 옆으로 미끄러지는 대신 뒤집히면서 다음 메뉴로 바뀐다 — 카드가 90도(옆면)로
+    // 접혀 안 보이는 순간에 내용을 바꿔치기해서 계속 회전하는 것처럼 보이게 한다.
+    flipY.setValue(0);
+    Animated.timing(flipY, { toValue: 1, duration: FLIP_DURATION, easing: Easing.inOut(Easing.quad), useNativeDriver: true }).start();
+    setTimeout(() => setCurrentIndex(newIndex), FLIP_DURATION / 2);
   };
+
+  const cardRotateY = flipY.interpolate({
+    inputRange: [0, 0.5, 0.5, 1],
+    outputRange: ["0deg", "90deg", "-90deg", "0deg"],
+  });
 
   const toggleOption = (menuCd, group, choiceId) => {
     setSelections(prev => {
@@ -389,6 +399,10 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   }
 
   const currentMenu = menus[currentIndex];
+  const currentQty = currentMenu ? (cart[currentMenu.menuCd]?.qty || 0) : 0;
+  const currentGroups = currentMenu ? (optionGroupsByMenu[currentMenu.menuCd] || []) : [];
+  const currentHasOptions = currentGroups.length > 0;
+  const currentMenuSel = currentMenu ? (selections[currentMenu.menuCd] || {}) : {};
 
   return (
     <View style={s.container}>
@@ -417,76 +431,68 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
         )}
       </Animated.View>
 
-      {/* 카드 캐러셀 */}
+      {/* 카드 캐러셀 — 옆으로 미끄러지는 대신 카드가 뒤집히며 다음 메뉴로 바뀐다 */}
       <View style={s.carouselOuter}>
         <View style={s.carouselClip}>
-          <Animated.View style={[s.track, { width: width * menus.length, transform: [{ translateX }] }]}>
-            {menus.map((menu) => {
-              const qty = cart[menu.menuCd]?.qty || 0;
-              const groups = optionGroupsByMenu[menu.menuCd] || [];
-              const hasOptions = groups.length > 0;
-              const menuSel = selections[menu.menuCd] || {};
-              return (
-                <View key={menu.menuCd} style={[s.slide, { width }]}>
-                  <View style={[s.card, hasOptions && s.cardWithOptions]}>
-                    <Text style={s.menuName}>{menu.menuNm}</Text>
-                    <Text style={[s.menuQty, qty > 0 && s.menuQtyActive]}>
-                      {qty > 0 ? `${qty}개 담음` : "0개"}
-                    </Text>
-                    <Text style={s.price}>{menu.price?.toLocaleString()}원</Text>
-                    {qty > 0 ? (
-                      <View style={s.qtyRow}>
-                        <TouchableOpacity style={s.qtyBtn} onPress={() => removeFromCart(menu.menuCd)}>
-                          <Text style={s.qtyBtnText}>−</Text>
-                        </TouchableOpacity>
-                        <Text style={s.qtyNum}>{qty}</Text>
-                        <TouchableOpacity style={s.qtyBtn} onPress={() => addToCart(menu)}>
-                          <Text style={s.qtyBtnText}>+</Text>
-                        </TouchableOpacity>
-                      </View>
-                    ) : (
-                      <TouchableOpacity style={s.addBtn} onPress={() => addToCart(menu)}>
-                        <Text style={s.addBtnText}>추가</Text>
-                      </TouchableOpacity>
-                    )}
-
-                    {/* 옵션 선택 (스크롤 영역) */}
-                    {hasOptions && (
-                      <ScrollView style={s.optionsScroll} contentContainerStyle={s.optionsScrollContent}>
-                        {groups.map(g => (
-                          <View key={g.id} style={s.optionGroupBlock}>
-                            <View style={s.optionGroupLabelRow}>
-                              <Text style={s.optionGroupLabel}>{g.label}</Text>
-                              {g.required && <View style={s.optionRequiredBadge}><Text style={s.optionRequiredText}>필수</Text></View>}
-                            </View>
-                            {g.choices.map(c => {
-                              const sel = menuSel[g.id];
-                              const checked = g.type === "C" ? (sel || []).includes(c.id) : sel === c.id;
-                              return (
-                                <TouchableOpacity
-                                  key={c.id}
-                                  style={[s.optionChoiceRow, checked && s.optionChoiceRowActive]}
-                                  onPress={() => toggleOption(menu.menuCd, g, c.id)}
-                                  activeOpacity={0.7}
-                                >
-                                  <View style={[s.optionCheckCircle, checked && s.optionCheckCircleActive]}>
-                                    {checked && <Text style={s.optionCheckMark}>✓</Text>}
-                                  </View>
-                                  <Text style={[s.optionChoiceName, checked && s.optionChoiceNameActive]}>{c.name}</Text>
-                                  {c.price > 0 && (
-                                    <Text style={s.optionChoicePrice}>+{c.price.toLocaleString()}원</Text>
-                                  )}
-                                </TouchableOpacity>
-                              );
-                            })}
-                          </View>
-                        ))}
-                      </ScrollView>
-                    )}
+          <Animated.View style={[s.slide, { width, transform: [{ perspective: 1200 }, { rotateY: cardRotateY }] }]}>
+            {currentMenu && (
+              <View style={[s.card, currentHasOptions && s.cardWithOptions]}>
+                <Text style={s.menuName}>{currentMenu.menuNm}</Text>
+                <Text style={[s.menuQty, currentQty > 0 && s.menuQtyActive]}>
+                  {currentQty > 0 ? `${currentQty}개 담음` : "0개"}
+                </Text>
+                <Text style={s.price}>{currentMenu.price?.toLocaleString()}원</Text>
+                {currentQty > 0 ? (
+                  <View style={s.qtyRow}>
+                    <TouchableOpacity style={s.qtyBtn} onPress={() => removeFromCart(currentMenu.menuCd)}>
+                      <Text style={s.qtyBtnText}>−</Text>
+                    </TouchableOpacity>
+                    <Text style={s.qtyNum}>{currentQty}</Text>
+                    <TouchableOpacity style={s.qtyBtn} onPress={() => addToCart(currentMenu)}>
+                      <Text style={s.qtyBtnText}>+</Text>
+                    </TouchableOpacity>
                   </View>
-                </View>
-              );
-            })}
+                ) : (
+                  <TouchableOpacity style={s.addBtn} onPress={() => addToCart(currentMenu)}>
+                    <Text style={s.addBtnText}>추가</Text>
+                  </TouchableOpacity>
+                )}
+
+                {/* 옵션 선택 (스크롤 영역) */}
+                {currentHasOptions && (
+                  <ScrollView style={s.optionsScroll} contentContainerStyle={s.optionsScrollContent}>
+                    {currentGroups.map(g => (
+                      <View key={g.id} style={s.optionGroupBlock}>
+                        <View style={s.optionGroupLabelRow}>
+                          <Text style={s.optionGroupLabel}>{g.label}</Text>
+                          {g.required && <View style={s.optionRequiredBadge}><Text style={s.optionRequiredText}>필수</Text></View>}
+                        </View>
+                        {g.choices.map(c => {
+                          const sel = currentMenuSel[g.id];
+                          const checked = g.type === "C" ? (sel || []).includes(c.id) : sel === c.id;
+                          return (
+                            <TouchableOpacity
+                              key={c.id}
+                              style={[s.optionChoiceRow, checked && s.optionChoiceRowActive]}
+                              onPress={() => toggleOption(currentMenu.menuCd, g, c.id)}
+                              activeOpacity={0.7}
+                            >
+                              <View style={[s.optionCheckCircle, checked && s.optionCheckCircleActive]}>
+                                {checked && <Text style={s.optionCheckMark}>✓</Text>}
+                              </View>
+                              <Text style={[s.optionChoiceName, checked && s.optionChoiceNameActive]}>{c.name}</Text>
+                              {c.price > 0 && (
+                                <Text style={s.optionChoicePrice}>+{c.price.toLocaleString()}원</Text>
+                              )}
+                            </TouchableOpacity>
+                          );
+                        })}
+                      </View>
+                    ))}
+                  </ScrollView>
+                )}
+              </View>
+            )}
           </Animated.View>
         </View>
 
