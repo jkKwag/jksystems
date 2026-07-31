@@ -91,7 +91,7 @@ export const s = StyleSheet.create({
 
   catBar: { backgroundColor: colors.bgCard, borderBottomWidth: 1, borderBottomColor: colors.borderLight, flexShrink: 0, flexDirection: "row", paddingHorizontal: spacing["1"] },
   catItem: { paddingHorizontal: spacing["3"], paddingVertical: 11, position: "relative" },
-  catText: { fontSize: font.md, fontWeight: "700", color: colors.textFaint },
+  catText: { fontSize: font.lg, fontWeight: "700", color: colors.textFaint },
   catTextActive: { color: colors.text },
   catIndicator: { position: "absolute", bottom: 0, left: 0, right: 0, height: 2, backgroundColor: colors.text },
 
