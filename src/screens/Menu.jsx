@@ -484,6 +484,24 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
 
   const [showChatRoom, setShowChatRoom] = useState(false);
   const [showSeats, setShowSeats] = useState(false);
+  const prevOrderTypeRef = useRef("매장주문");
+
+  // 매장주문/포장주문/테이블예약은 한 번에 하나만 선택되는 토글 — 테이블예약을 고르면
+  // 주문 흐름 대신 예약 화면으로 전환되고, 예약 화면을 닫으면 이전에 고르던 주문방식으로 돌아온다.
+  const selectOrderType = (label) => {
+    if (label === "테이블예약") {
+      prevOrderTypeRef.current = orderType;
+      setOrderType("테이블예약");
+      setShowSeats(true);
+      return;
+    }
+    setOrderType(label);
+  };
+
+  const closeSeats = () => {
+    setShowSeats(false);
+    setOrderType(prevOrderTypeRef.current);
+  };
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
@@ -672,11 +690,12 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
             {[
               { label: "매장주문", icon: "🍽️", textStyle: s.shopTagTextDineIn, iconWrapStyle: s.orderTypeIconDineIn },
               { label: "포장주문", icon: "📦", textStyle: s.shopTagTextTakeout, iconWrapStyle: s.orderTypeIconTakeout },
-            ].map((t, i) => (
+              { label: "테이블예약", icon: "🪑", textStyle: s.shopTagTextRsvn, iconWrapStyle: s.orderTypeIconRsvn },
+            ].map((t, i, arr) => (
               <TouchableOpacity
                 key={t.label}
-                style={[s.orderTypeBtn, orderType === t.label && s.orderTypeBtnActive, i === 0 && s.orderTypeBtnLeft, i === 1 && s.orderTypeBtnRight]}
-                onPress={() => setOrderType(t.label)}
+                style={[s.orderTypeBtn, orderType === t.label && s.orderTypeBtnActive, i < arr.length - 1 && s.orderTypeBtnLeft]}
+                onPress={() => selectOrderType(t.label)}
               >
                 <View style={[s.orderTypeIconWrap, t.iconWrapStyle]}>
                   <Text style={s.orderTypeIconText}>{t.icon}</Text>
@@ -685,9 +704,6 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
               </TouchableOpacity>
             ))}
           </View>
-          <TouchableOpacity style={s.seatBtn} onPress={() => setShowSeats(true)}>
-            <Text style={s.seatBtnText}>🪑 테이블 예약</Text>
-          </TouchableOpacity>
           {recentPayments.length > 0 && (
             <TouchableOpacity style={s.paymentHistoryBtn} onPress={() => setShowPaymentHistory(true)}>
               <Text style={s.paymentHistoryBtnText}>💳 결제내역</Text>
@@ -948,7 +964,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
       <ChatRoom visible={showChatRoom} bizno={bizno} onClose={() => setShowChatRoom(false)} />
 
       {/* 테이블 예약 상세화면 */}
-      {showSeats && <SeatsView visible={showSeats} onClose={() => setShowSeats(false)} bizno={bizno} />}
+      {showSeats && <SeatsView visible={showSeats} onClose={closeSeats} bizno={bizno} />}
 
       {/* AI 채팅 */}
       <AiChat
