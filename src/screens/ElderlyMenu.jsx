@@ -217,6 +217,29 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
     outputRange: ["0deg", "90deg", "-90deg", "0deg"],
   });
 
+  // 카드 영역을 손가락으로 좌우로 밀면 화살표 버튼과 같은 동작(goTo)을 하게 한다.
+  // 세로 스크롤(옵션 목록)과 헷갈리지 않도록 가로 이동이 세로 이동보다 뚜렷할 때만 넘긴다.
+  const SWIPE_THRESHOLD = 50;
+  const swipeStartRef = useRef(null);
+
+  const handleCarouselTouchStart = (e) => {
+    const t = e.nativeEvent.touches[0];
+    if (!t) return;
+    swipeStartRef.current = { x: t.pageX, y: t.pageY };
+  };
+
+  const handleCarouselTouchEnd = (e) => {
+    const start = swipeStartRef.current;
+    swipeStartRef.current = null;
+    if (!start) return;
+    const t = e.nativeEvent.changedTouches[0];
+    if (!t) return;
+    const dx = t.pageX - start.x;
+    const dy = t.pageY - start.y;
+    if (Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy)) return;
+    goTo(dx < 0 ? currentIndex + 1 : currentIndex - 1);
+  };
+
   const toggleOption = (menuCd, group, choiceId) => {
     setSelections(prev => {
       const menuSel = { ...(prev[menuCd] || {}) };
@@ -426,8 +449,9 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
         )}
       </Animated.View>
 
-      {/* 카드 캐러셀 — 옆으로 미끄러지는 대신 카드가 뒤집히며 다음 메뉴로 바뀐다 */}
-      <View style={s.carouselOuter}>
+      {/* 카드 캐러셀 — 옆으로 미끄러지는 대신 카드가 뒤집히며 다음 메뉴로 바뀐다. 화살표 버튼 대신
+          손가락으로 좌우로 밀어도 같은 동작을 하도록 캐러셀 전체에 스와이프 핸들러를 붙인다. */}
+      <View style={s.carouselOuter} onTouchStart={handleCarouselTouchStart} onTouchEnd={handleCarouselTouchEnd}>
         <View style={s.carouselClip}>
           <Animated.View style={[s.slide, { width, transform: [{ perspective: 1200 }, { rotateY: cardRotateY }] }]}>
             {currentMenu && (
