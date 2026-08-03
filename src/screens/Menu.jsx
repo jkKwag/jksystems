@@ -718,11 +718,16 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
       </View>
 
       {activeOrders.length > 0 && (() => {
-        const sortedOrders = [...activeOrders].sort((a, b) => new Date(a.regDt) - new Date(b.regDt));
+        // 주문번호(주문N)는 실제 주문한 순서 그대로 매기고, 화면에는 먼저 주문한 게 아래로 가도록
+        // (최신 주문이 위) 뒤집어서 보여준다.
+        const chronologicalOrders = [...activeOrders].sort((a, b) => new Date(a.regDt) - new Date(b.regDt));
+        const orderIndexByNo = new Map(chronologicalOrders.map((o, i) => [o.orderNo, i]));
+        const displayOrders = [...chronologicalOrders].reverse();
         return (
           <View style={s.orderStatusBar}>
             <Text style={s.orderStatusBarTitle}>주문진행 현황</Text>
-            {sortedOrders.map((order, oi) => {
+            {displayOrders.map((order) => {
+              const oi = orderIndexByNo.get(order.orderNo);
               const curIdx = orderStepIndex(order.status);
               return (
                 <View key={order.orderNo} style={s.orderStatusRow}>

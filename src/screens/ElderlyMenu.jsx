@@ -735,7 +735,14 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
               </TouchableOpacity>
             </View>
             <ScrollView style={s.modalList}>
-              {[...activeOrders].sort((a, b) => new Date(a.regDt) - new Date(b.regDt)).map((order, oi) => (
+              {(() => {
+                // 주문번호(주문N)는 실제 주문한 순서 그대로 매기고, 화면에는 먼저 주문한 게
+                // 아래로 가도록(최신 주문이 위) 뒤집어서 보여준다.
+                const chronologicalOrders = [...activeOrders].sort((a, b) => new Date(a.regDt) - new Date(b.regDt));
+                const orderIndexByNo = new Map(chronologicalOrders.map((o, i) => [o.orderNo, i]));
+                return [...chronologicalOrders].reverse().map((order) => {
+                  const oi = orderIndexByNo.get(order.orderNo);
+                  return (
                 <View key={order.orderNo} style={s.statusOrderBlock}>
                   <View style={s.statusHeaderRow}>
                     <View style={s.pendingOrderBadge}>
@@ -757,7 +764,9 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
                   ))}
                   {order.pickupNo && <Text style={s.statusPickupText}>픽업번호 {order.pickupNo}</Text>}
                 </View>
-              ))}
+                  );
+                });
+              })()}
             </ScrollView>
           </Animated.View>
         </View>
