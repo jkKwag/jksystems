@@ -131,7 +131,7 @@ export const s = StyleSheet.create({
   modalPayBtn: { backgroundColor: "#0f172a", borderRadius: 18, paddingVertical: 20, alignItems: "center" },
   modalPayBtnText: { color: "#fff", fontSize: 24, fontWeight: "900" },
 
-  confirmOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center" },
+  confirmOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center", zIndex: 300 },
   confirmBox: { backgroundColor: "#fff", borderRadius: 28, padding: 28, alignItems: "center", width: 320, shadowColor: "#000", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.2, shadowRadius: 20, elevation: 20 },
   confirmEmoji: { fontSize: 40, marginBottom: 10 },
   confirmTitle: { fontSize: 26, fontWeight: "900", color: "#0f172a", marginBottom: 6 },
