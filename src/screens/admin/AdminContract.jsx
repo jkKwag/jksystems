@@ -303,9 +303,10 @@ export default function AdminContract({ adminInfo }) {
             <Text style={s.partyLine}>상호: {COMPANY.name}</Text>
             <View style={s.signLineRow}>
               <Text style={s.partyLine}>대표자: {COMPANY.repNm}</Text>
-              {companySignUri
-                ? <Image source={{ uri: companySignUri }} style={s.signImage} resizeMode="contain" />
-                : <Text style={s.signStamp}>(인)</Text>}
+              <View style={s.signStampSlot}>
+                <Text style={s.signStamp}>(인)</Text>
+                {!!companySignUri && <Image source={{ uri: companySignUri }} style={s.signImageOverlay} resizeMode="contain" />}
+              </View>
             </View>
             <Text style={s.signHint}>{companySignUri ? "탭하면 다시 서명" : "탭해서 서명하기"}</Text>
           </TouchableOpacity>
@@ -314,9 +315,10 @@ export default function AdminContract({ adminInfo }) {
             <Text style={s.partyLine}>상호: {biz?.bizNm || "______________"}</Text>
             <View style={s.signLineRow}>
               <Text style={s.partyLine}>대표자: {biz?.repNm || ""}</Text>
-              {subscriberSignUri
-                ? <Image source={{ uri: subscriberSignUri }} style={s.signImage} resizeMode="contain" />
-                : <Text style={s.signStamp}>(인)</Text>}
+              <View style={s.signStampSlot}>
+                <Text style={s.signStamp}>(인)</Text>
+                {!!subscriberSignUri && <Image source={{ uri: subscriberSignUri }} style={s.signImageOverlay} resizeMode="contain" />}
+              </View>
             </View>
             <Text style={s.signHint}>{subscriberSignUri ? "탭하면 다시 서명" : "탭해서 서명하기"}</Text>
           </TouchableOpacity>
