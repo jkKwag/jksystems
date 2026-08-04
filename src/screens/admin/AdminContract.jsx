@@ -18,7 +18,7 @@ const CHAPTERS = [
       {
         no: "제1조",
         title: "(목적)",
-        body: "본 계약은 회사가 제공하는 QR/NFC 기반 매장 주문 서비스인 Scaneat(이하 '서비스')의 이용과 관련하여 회사와 구독자 간의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 한다.",
+        body: "본 계약은 회사가 제공하는 QR/NFC 기반 매장 주문 서비스인 JK Scaneat(이하 '서비스')의 이용과 관련하여 회사와 구독자 간의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 한다.",
       },
       {
         no: "제2조",
@@ -152,14 +152,14 @@ export default function AdminContract() {
           <Text style={s.downloadBtnText}>원본 파일 다운로드</Text>
         </TouchableOpacity>
       </View>
-      <Text style={s.sub}>가입 시 안내되는 Scaneat 서비스 이용계약서 원문입니다.</Text>
+      <Text style={s.sub}>가입 시 안내되는 JK Scaneat 서비스 이용계약서 원문입니다.</Text>
 
       <ScrollView contentContainerStyle={s.paper}>
-        <Text style={s.docTitle}>Scaneat 서비스 이용계약서</Text>
+        <Text style={s.docTitle}>JK Scaneat 서비스 이용계약서</Text>
         <Text style={s.docSubtitle}>(사업장 구독자용)</Text>
 
         <Text style={s.introText}>
-          본 계약은 Scaneat 서비스(이하 '서비스')를 제공하는 {COMPANY.name}(이하 '회사')과 서비스를 이용하고자 하는 사업자(이하 '구독자') 간의
+          본 계약은 JK Scaneat 서비스(이하 '서비스')를 제공하는 {COMPANY.name}(이하 '회사')과 서비스를 이용하고자 하는 사업자(이하 '구독자') 간의
           서비스 이용 조건 및 권리·의무 관계를 정함을 목적으로 한다.
         </Text>
 
