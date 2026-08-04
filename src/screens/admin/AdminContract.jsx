@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Linking } from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity, Linking, Platform } from "react-native";
 import { s } from "../../styles/admin/AdminContract.styles";
 import api from "../../lib/api";
 import { formatBizRegNo } from "../../lib/formatBizRegNo";
@@ -156,6 +156,26 @@ export default function AdminContract({ adminInfo }) {
 
   const subscriberAddr = [biz?.addr, biz?.addrDtl].filter(Boolean).join(" ") || "______________";
 
+  const [companySignUri, setCompanySignUri] = useState(null);
+  const [subscriberSignUri, setSubscriberSignUri] = useState(null);
+
+  // 서명란을 누르면 이미지를 골라서 (인) 자리에 대신 보여준다 — 지금은 화면에서만 보이는 미리보기이고
+  // 서버에 저장하지는 않는다.
+  const pickSignImage = (setUri) => {
+    if (Platform.OS !== "web") return;
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = () => {
+      const file = input.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => setUri(reader.result);
+      reader.readAsDataURL(file);
+    };
+    input.click();
+  };
+
   return (
     <View style={s.container}>
       <View style={s.headerRow}>
@@ -233,16 +253,28 @@ export default function AdminContract({ adminInfo }) {
         <Text style={s.closingText}>계약일자: 20__년 __월 __일</Text>
 
         <View style={s.signRow}>
-          <View style={s.signBox}>
+          <TouchableOpacity style={s.signBox} onPress={() => pickSignImage(setCompanySignUri)} activeOpacity={0.8}>
             <Text style={s.partyLabel}>회사</Text>
             <Text style={s.partyLine}>상호: {COMPANY.name}</Text>
-            <Text style={s.partyLine}>대표자: {COMPANY.repNm}　　　(인)</Text>
-          </View>
-          <View style={s.signBox}>
+            <View style={s.signLineRow}>
+              <Text style={s.partyLine}>대표자: {COMPANY.repNm}</Text>
+              {companySignUri
+                ? <Image source={{ uri: companySignUri }} style={s.signImage} resizeMode="contain" />
+                : <Text style={s.signStamp}>(인)</Text>}
+            </View>
+            <Text style={s.signHint}>{companySignUri ? "탭하면 서명 이미지 변경" : "탭해서 서명 이미지 추가"}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={s.signBox} onPress={() => pickSignImage(setSubscriberSignUri)} activeOpacity={0.8}>
             <Text style={s.partyLabel}>구독자</Text>
             <Text style={s.partyLine}>상호: {biz?.bizNm || "______________"}</Text>
-            <Text style={s.partyLine}>대표자: {biz?.repNm || ""}　　　(인)</Text>
-          </View>
+            <View style={s.signLineRow}>
+              <Text style={s.partyLine}>대표자: {biz?.repNm || ""}</Text>
+              {subscriberSignUri
+                ? <Image source={{ uri: subscriberSignUri }} style={s.signImage} resizeMode="contain" />
+                : <Text style={s.signStamp}>(인)</Text>}
+            </View>
+            <Text style={s.signHint}>{subscriberSignUri ? "탭하면 서명 이미지 변경" : "탭해서 서명 이미지 추가"}</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>

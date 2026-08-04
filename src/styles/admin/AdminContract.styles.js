@@ -42,5 +42,9 @@ export const s = StyleSheet.create({
   closingText: { fontSize: font.lg, color: colors.textSecondary, lineHeight: 21, marginTop: spacing["2"] },
 
   signRow: { flexDirection: "row", gap: spacing["3"], marginTop: spacing["5"] },
-  signBox: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: radius.lg, padding: spacing["3"] },
+  signBox: { flex: 1, borderWidth: 1, borderColor: colors.blue, backgroundColor: colors.bluePaleBg, borderRadius: radius.lg, padding: spacing["3"], outlineStyle: "none" },
+  signLineRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"] },
+  signImage: { width: 70, height: 36 },
+  signStamp: { fontSize: font.base, color: colors.textGray, fontFamily: Platform.OS === "web" ? "monospace" : undefined },
+  signHint: { fontSize: font.xs, color: colors.blueMedium, marginTop: spacing["1.5"] },
 });
