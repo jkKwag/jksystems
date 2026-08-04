@@ -47,4 +47,16 @@ export const s = StyleSheet.create({
   signImage: { width: 70, height: 36 },
   signStamp: { fontSize: font.base, color: colors.textGray, fontFamily: Platform.OS === "web" ? "monospace" : undefined },
   signHint: { fontSize: font.xs, color: colors.blueMedium, marginTop: spacing["1.5"] },
+
+  signModalBackdrop: { flex: 1, backgroundColor: "rgba(15,23,42,0.6)", justifyContent: "center", alignItems: "center", padding: spacing["5"] },
+  signModalCard: { backgroundColor: colors.bgCard, borderRadius: radius["2xl"], padding: spacing["5"], width: "100%", maxWidth: 420 },
+  signModalTitle: { fontSize: font.xl, fontWeight: "900", color: colors.text },
+  signModalDesc: { fontSize: font.base, color: colors.textMuted, marginTop: spacing["1"], marginBottom: spacing["3"] },
+  signModalBtnRow: { flexDirection: "row", gap: spacing["2"], marginTop: spacing["4"] },
+  signModalClearBtn: { paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"], borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, outlineStyle: "none" },
+  signModalClearBtnText: { fontSize: font.md, fontWeight: "700", color: colors.textGray },
+  signModalCancelBtn: { flex: 1, paddingVertical: spacing["2.5"], borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, alignItems: "center", outlineStyle: "none" },
+  signModalCancelBtnText: { fontSize: font.md, fontWeight: "700", color: colors.textGray },
+  signModalConfirmBtn: { flex: 1, paddingVertical: spacing["2.5"], borderRadius: radius.md, backgroundColor: colors.blue, alignItems: "center", outlineStyle: "none" },
+  signModalConfirmBtnText: { fontSize: font.md, fontWeight: "800", color: colors.white },
 });

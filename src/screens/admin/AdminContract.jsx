@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, Linking, Platform } from "react-native";
+import { useState, useEffect, useRef } from "react";
+import { View, Text, Image, ScrollView, TouchableOpacity, Linking, Platform, Modal } from "react-native";
 import { s } from "../../styles/admin/AdminContract.styles";
 import api from "../../lib/api";
 import { formatBizRegNo } from "../../lib/formatBizRegNo";
@@ -159,21 +159,66 @@ export default function AdminContract({ adminInfo }) {
   const [companySignUri, setCompanySignUri] = useState(null);
   const [subscriberSignUri, setSubscriberSignUri] = useState(null);
 
-  // 서명란을 누르면 이미지를 골라서 (인) 자리에 대신 보여준다 — 지금은 화면에서만 보이는 미리보기이고
-  // 서버에 저장하지는 않는다.
-  const pickSignImage = (setUri) => {
-    if (Platform.OS !== "web") return;
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
-    input.onchange = () => {
-      const file = input.files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => setUri(reader.result);
-      reader.readAsDataURL(file);
-    };
-    input.click();
+  // 서명란을 누르면 이미지를 고르는 게 아니라, 화면에 직접 손가락/마우스로 서명을 그릴 수 있는
+  // 캔버스 레이어가 뜬다. 완료를 누르면 그린 내용을 PNG로 캡처해서 (인) 자리에 대신 보여준다 —
+  // 지금은 화면에서만 보이는 미리보기이고 서버에 저장하지는 않는다.
+  const [signModalTarget, setSignModalTarget] = useState(null); // null | "company" | "subscriber"
+  const signCanvasRef = useRef(null);
+  const isDrawingRef = useRef(false);
+  const hasDrawnRef = useRef(false);
+
+  const getCanvasPoint = (e) => {
+    const canvas = signCanvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches?.[0];
+    const clientX = touch ? touch.clientX : e.clientX;
+    const clientY = touch ? touch.clientY : e.clientY;
+    return { x: clientX - rect.left, y: clientY - rect.top };
+  };
+
+  const handleSignStart = (e) => {
+    e.preventDefault?.();
+    isDrawingRef.current = true;
+    const { x, y } = getCanvasPoint(e);
+    const ctx = signCanvasRef.current.getContext("2d");
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  };
+
+  const handleSignMove = (e) => {
+    if (!isDrawingRef.current) return;
+    e.preventDefault?.();
+    const { x, y } = getCanvasPoint(e);
+    const ctx = signCanvasRef.current.getContext("2d");
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = "#0f172a";
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.stroke();
+    hasDrawnRef.current = true;
+  };
+
+  const handleSignEnd = () => { isDrawingRef.current = false; };
+
+  const clearSignCanvas = () => {
+    const canvas = signCanvasRef.current;
+    canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+    hasDrawnRef.current = false;
+  };
+
+  const openSignModal = (target) => {
+    setSignModalTarget(target);
+    hasDrawnRef.current = false;
+    // 캔버스가 실제로 마운트된 다음 지워야 해서 한 틱 미룸
+    setTimeout(clearSignCanvas, 0);
+  };
+
+  const confirmSign = () => {
+    if (!hasDrawnRef.current) { setSignModalTarget(null); return; }
+    const dataUrl = signCanvasRef.current.toDataURL("image/png");
+    (signModalTarget === "company" ? setCompanySignUri : setSubscriberSignUri)(dataUrl);
+    setSignModalTarget(null);
   };
 
   return (
@@ -253,7 +298,7 @@ export default function AdminContract({ adminInfo }) {
         <Text style={s.closingText}>계약일자: 20__년 __월 __일</Text>
 
         <View style={s.signRow}>
-          <TouchableOpacity style={s.signBox} onPress={() => pickSignImage(setCompanySignUri)} activeOpacity={0.8}>
+          <TouchableOpacity style={s.signBox} onPress={() => openSignModal("company")} activeOpacity={0.8}>
             <Text style={s.partyLabel}>회사</Text>
             <Text style={s.partyLine}>상호: {COMPANY.name}</Text>
             <View style={s.signLineRow}>
@@ -262,9 +307,9 @@ export default function AdminContract({ adminInfo }) {
                 ? <Image source={{ uri: companySignUri }} style={s.signImage} resizeMode="contain" />
                 : <Text style={s.signStamp}>(인)</Text>}
             </View>
-            <Text style={s.signHint}>{companySignUri ? "탭하면 서명 이미지 변경" : "탭해서 서명 이미지 추가"}</Text>
+            <Text style={s.signHint}>{companySignUri ? "탭하면 다시 서명" : "탭해서 서명하기"}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={s.signBox} onPress={() => pickSignImage(setSubscriberSignUri)} activeOpacity={0.8}>
+          <TouchableOpacity style={s.signBox} onPress={() => openSignModal("subscriber")} activeOpacity={0.8}>
             <Text style={s.partyLabel}>구독자</Text>
             <Text style={s.partyLine}>상호: {biz?.bizNm || "______________"}</Text>
             <View style={s.signLineRow}>
@@ -273,10 +318,45 @@ export default function AdminContract({ adminInfo }) {
                 ? <Image source={{ uri: subscriberSignUri }} style={s.signImage} resizeMode="contain" />
                 : <Text style={s.signStamp}>(인)</Text>}
             </View>
-            <Text style={s.signHint}>{subscriberSignUri ? "탭하면 서명 이미지 변경" : "탭해서 서명 이미지 추가"}</Text>
+            <Text style={s.signHint}>{subscriberSignUri ? "탭하면 다시 서명" : "탭해서 서명하기"}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <Modal visible={!!signModalTarget} transparent animationType="fade" onRequestClose={() => setSignModalTarget(null)}>
+        <View style={s.signModalBackdrop}>
+          <View style={s.signModalCard}>
+            <Text style={s.signModalTitle}>{signModalTarget === "company" ? "회사" : "구독자"} 서명</Text>
+            <Text style={s.signModalDesc}>아래 칸에 손가락(또는 마우스)으로 서명해주세요.</Text>
+            {Platform.OS === "web" && (
+              <canvas
+                ref={signCanvasRef}
+                width={320}
+                height={160}
+                style={{ width: "100%", height: 160, borderRadius: 12, border: "2px dashed #93c5fd", background: "#fff", touchAction: "none", cursor: "crosshair" }}
+                onMouseDown={handleSignStart}
+                onMouseMove={handleSignMove}
+                onMouseUp={handleSignEnd}
+                onMouseLeave={handleSignEnd}
+                onTouchStart={handleSignStart}
+                onTouchMove={handleSignMove}
+                onTouchEnd={handleSignEnd}
+              />
+            )}
+            <View style={s.signModalBtnRow}>
+              <TouchableOpacity style={s.signModalClearBtn} onPress={clearSignCanvas}>
+                <Text style={s.signModalClearBtnText}>지우기</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={s.signModalCancelBtn} onPress={() => setSignModalTarget(null)}>
+                <Text style={s.signModalCancelBtnText}>취소</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={s.signModalConfirmBtn} onPress={confirmSign}>
+                <Text style={s.signModalConfirmBtnText}>완료</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
