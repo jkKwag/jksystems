@@ -21,6 +21,7 @@ export const s = StyleSheet.create({
   partyRow: { marginBottom: spacing["1"] },
   partyLabel: { fontSize: font.md, fontWeight: "800", color: colors.text },
   partyLine: { fontSize: font.base, color: colors.textGray, fontFamily: Platform.OS === "web" ? "monospace" : undefined, marginTop: 2 },
+  partyValue: { fontWeight: "800", color: colors.text },
 
   chapter: { marginTop: spacing["6"] },
   chapterTitle: { fontSize: font["6xl"], fontWeight: "900", color: colors.greenDark, marginBottom: spacing["3"], borderBottomWidth: 2, borderBottomColor: colors.greenBorder, paddingBottom: spacing["1.5"] },

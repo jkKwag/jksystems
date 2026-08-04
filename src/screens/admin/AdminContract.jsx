@@ -167,14 +167,16 @@ export default function AdminContract() {
           <View style={s.partyRow}>
             <Text style={s.partyLabel}>회사</Text>
           </View>
-          <Text style={s.partyLine}>상호: {COMPANY.name}　　사업자등록번호: {COMPANY.bizRegNo}</Text>
-          <Text style={s.partyLine}>주소: {COMPANY.addr}　　대표자: {COMPANY.repNm}</Text>
+          <Text style={s.partyLine}>상호: <Text style={s.partyValue}>{COMPANY.name}</Text></Text>
+          <Text style={s.partyLine}>사업자등록번호: <Text style={s.partyValue}>{COMPANY.bizRegNo}</Text></Text>
+          <Text style={s.partyLine}>주소: <Text style={s.partyValue}>{COMPANY.addr}</Text>　　대표자: <Text style={s.partyValue}>{COMPANY.repNm}</Text></Text>
         </View>
         <View style={s.partyBox}>
           <View style={s.partyRow}>
             <Text style={s.partyLabel}>구독자</Text>
           </View>
-          <Text style={s.partyLine}>상호: ______________　　사업자등록번호: ______________</Text>
+          <Text style={s.partyLine}>상호: ______________</Text>
+          <Text style={s.partyLine}>사업자등록번호: ______________</Text>
           <Text style={s.partyLine}>주소: ______________　　대표자: ______________</Text>
         </View>
 
