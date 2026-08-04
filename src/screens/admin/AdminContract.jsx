@@ -1,5 +1,8 @@
+import { useState, useEffect } from "react";
 import { View, Text, ScrollView, TouchableOpacity, Linking } from "react-native";
 import { s } from "../../styles/admin/AdminContract.styles";
+import api from "../../lib/api";
+import { formatBizRegNo } from "../../lib/formatBizRegNo";
 
 const CONTRACT_FILE_URL = "/documents/scaneat_service_agreement.docx";
 
@@ -143,7 +146,16 @@ const CHAPTERS = [
   },
 ];
 
-export default function AdminContract() {
+export default function AdminContract({ adminInfo }) {
+  const [biz, setBiz] = useState(null);
+
+  useEffect(() => {
+    if (!adminInfo?.bizRegNo) { setBiz(null); return; }
+    api.biz.get(adminInfo.bizRegNo).then(setBiz);
+  }, [adminInfo?.bizRegNo]);
+
+  const subscriberAddr = [biz?.addr, biz?.addrDtl].filter(Boolean).join(" ") || "______________";
+
   return (
     <View style={s.container}>
       <View style={s.headerRow}>
@@ -175,9 +187,9 @@ export default function AdminContract() {
           <View style={s.partyRow}>
             <Text style={s.partyLabel}>구독자</Text>
           </View>
-          <Text style={s.partyLine}>상호: ______________</Text>
-          <Text style={s.partyLine}>사업자등록번호: ______________</Text>
-          <Text style={s.partyLine}>주소: ______________　　대표자: ______________</Text>
+          <Text style={s.partyLine}>상호: <Text style={s.partyValue}>{biz?.bizNm || "______________"}</Text></Text>
+          <Text style={s.partyLine}>사업자등록번호: <Text style={s.partyValue}>{biz?.bizRegNo ? formatBizRegNo(biz.bizRegNo) : "______________"}</Text></Text>
+          <Text style={s.partyLine}>주소: <Text style={s.partyValue}>{subscriberAddr}</Text>　　대표자: <Text style={s.partyValue}>{biz?.repNm || "______________"}</Text></Text>
         </View>
 
         {CHAPTERS.map((chapter, ci) => (
@@ -226,8 +238,8 @@ export default function AdminContract() {
           </View>
           <View style={s.signBox}>
             <Text style={s.partyLabel}>구독자</Text>
-            <Text style={s.partyLine}>상호: ______________</Text>
-            <Text style={s.partyLine}>대표자:　　　　　　　　　(인)</Text>
+            <Text style={s.partyLine}>상호: {biz?.bizNm || "______________"}</Text>
+            <Text style={s.partyLine}>대표자: {biz?.repNm || ""}　　　(인)</Text>
           </View>
         </View>
       </ScrollView>
