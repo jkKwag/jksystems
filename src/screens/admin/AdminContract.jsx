@@ -181,7 +181,8 @@ export default function AdminContract({ adminInfo }) {
           </View>
           <Text style={s.partyLine}>상호: <Text style={s.partyValue}>{COMPANY.name}</Text></Text>
           <Text style={s.partyLine}>사업자등록번호: <Text style={s.partyValue}>{COMPANY.bizRegNo}</Text></Text>
-          <Text style={s.partyLine}>주소: <Text style={s.partyValue}>{COMPANY.addr}</Text>　　대표자: <Text style={s.partyValue}>{COMPANY.repNm}</Text></Text>
+          <Text style={s.partyLine}>주소: <Text style={s.partyValue}>{COMPANY.addr}</Text></Text>
+          <Text style={s.partyLine}>대표자: <Text style={s.partyValue}>{COMPANY.repNm}</Text></Text>
         </View>
         <View style={s.partyBox}>
           <View style={s.partyRow}>
@@ -189,7 +190,8 @@ export default function AdminContract({ adminInfo }) {
           </View>
           <Text style={s.partyLine}>상호: <Text style={s.partyValue}>{biz?.bizNm || "______________"}</Text></Text>
           <Text style={s.partyLine}>사업자등록번호: <Text style={s.partyValue}>{biz?.bizRegNo ? formatBizRegNo(biz.bizRegNo) : "______________"}</Text></Text>
-          <Text style={s.partyLine}>주소: <Text style={s.partyValue}>{subscriberAddr}</Text>　　대표자: <Text style={s.partyValue}>{biz?.repNm || "______________"}</Text></Text>
+          <Text style={s.partyLine}>주소: <Text style={s.partyValue}>{subscriberAddr}</Text></Text>
+          <Text style={s.partyLine}>대표자: <Text style={s.partyValue}>{biz?.repNm || "______________"}</Text></Text>
         </View>
 
         {CHAPTERS.map((chapter, ci) => (
