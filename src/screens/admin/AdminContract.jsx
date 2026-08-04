@@ -158,14 +158,14 @@ export default function AdminContract() {
 
         <View style={s.partyBox}>
           <View style={s.partyRow}>
-            <Text style={s.partyLabel}>회사 (갑)</Text>
+            <Text style={s.partyLabel}>회사</Text>
           </View>
           <Text style={s.partyLine}>상호: [회사명]　　사업자등록번호: [번호]</Text>
           <Text style={s.partyLine}>주소: [주소]　　대표자: [대표자명]</Text>
         </View>
         <View style={s.partyBox}>
           <View style={s.partyRow}>
-            <Text style={s.partyLabel}>구독자 (을)</Text>
+            <Text style={s.partyLabel}>구독자</Text>
           </View>
           <Text style={s.partyLine}>상호: ______________　　사업자등록번호: ______________</Text>
           <Text style={s.partyLine}>주소: ______________　　대표자: ______________</Text>
@@ -205,18 +205,18 @@ export default function AdminContract() {
         ))}
 
         <Text style={s.closingText}>
-          본 계약의 성립을 증명하기 위해 계약서 2부를 작성하여 갑과 을이 각각 서명 또는 날인한 후 각 1부씩 보관한다.
+          본 계약의 성립을 증명하기 위해 계약서 2부를 작성하여 회사와 구독자가 각각 서명 또는 날인한 후 각 1부씩 보관한다.
         </Text>
         <Text style={s.closingText}>계약일자: 20__년 __월 __일</Text>
 
         <View style={s.signRow}>
           <View style={s.signBox}>
-            <Text style={s.partyLabel}>갑 (회사)</Text>
+            <Text style={s.partyLabel}>회사</Text>
             <Text style={s.partyLine}>상호: [회사명]</Text>
             <Text style={s.partyLine}>대표자:　　　　　　　　　(인)</Text>
           </View>
           <View style={s.signBox}>
-            <Text style={s.partyLabel}>을 (구독자)</Text>
+            <Text style={s.partyLabel}>구독자</Text>
             <Text style={s.partyLine}>상호: ______________</Text>
             <Text style={s.partyLine}>대표자:　　　　　　　　　(인)</Text>
           </View>
