@@ -3,6 +3,13 @@ import { s } from "../../styles/admin/AdminContract.styles";
 
 const CONTRACT_FILE_URL = "/documents/scaneat_service_agreement.docx";
 
+const COMPANY = {
+  name: "JK시스템즈",
+  bizRegNo: "212-25-44531",
+  addr: "전남광주시 목포시 남악1로16번길 43-14",
+  repNm: "곽종근",
+};
+
 // scaneat_service_agreement.docx 원문 그대로 옮긴 것 — 실제 서류가 바뀌면 이 데이터도 같이 갱신할 것.
 const CHAPTERS = [
   {
@@ -152,7 +159,7 @@ export default function AdminContract() {
         <Text style={s.docSubtitle}>(사업장 구독자용)</Text>
 
         <Text style={s.introText}>
-          본 계약은 Scaneat 서비스(이하 '서비스')를 제공하는 [회사명](이하 '회사')과 서비스를 이용하고자 하는 사업자(이하 '구독자') 간의
+          본 계약은 Scaneat 서비스(이하 '서비스')를 제공하는 {COMPANY.name}(이하 '회사')과 서비스를 이용하고자 하는 사업자(이하 '구독자') 간의
           서비스 이용 조건 및 권리·의무 관계를 정함을 목적으로 한다.
         </Text>
 
@@ -160,8 +167,8 @@ export default function AdminContract() {
           <View style={s.partyRow}>
             <Text style={s.partyLabel}>회사</Text>
           </View>
-          <Text style={s.partyLine}>상호: [회사명]　　사업자등록번호: [번호]</Text>
-          <Text style={s.partyLine}>주소: [주소]　　대표자: [대표자명]</Text>
+          <Text style={s.partyLine}>상호: {COMPANY.name}　　사업자등록번호: {COMPANY.bizRegNo}</Text>
+          <Text style={s.partyLine}>주소: {COMPANY.addr}　　대표자: {COMPANY.repNm}</Text>
         </View>
         <View style={s.partyBox}>
           <View style={s.partyRow}>
@@ -212,8 +219,8 @@ export default function AdminContract() {
         <View style={s.signRow}>
           <View style={s.signBox}>
             <Text style={s.partyLabel}>회사</Text>
-            <Text style={s.partyLine}>상호: [회사명]</Text>
-            <Text style={s.partyLine}>대표자:　　　　　　　　　(인)</Text>
+            <Text style={s.partyLine}>상호: {COMPANY.name}</Text>
+            <Text style={s.partyLine}>대표자: {COMPANY.repNm}　　　(인)</Text>
           </View>
           <View style={s.signBox}>
             <Text style={s.partyLabel}>구독자</Text>
