@@ -302,7 +302,7 @@ export default function AdminContract({ adminInfo }) {
             <Text style={s.partyLabel}>회사</Text>
             <Text style={s.partyLine}>상호: {COMPANY.name}</Text>
             <View style={s.signLineRow}>
-              <Text style={s.partyLine} numberOfLines={1}>대표자: {COMPANY.repNm}</Text>
+              <Text style={[s.partyLine, s.noWrap]}>대표자: {COMPANY.repNm}</Text>
               <View style={s.signStampSlot}>
                 <Text style={s.signStamp}>(인)</Text>
                 {!!companySignUri && <Image source={{ uri: companySignUri }} style={s.signImageOverlay} resizeMode="contain" />}
@@ -314,7 +314,7 @@ export default function AdminContract({ adminInfo }) {
             <Text style={s.partyLabel}>구독자</Text>
             <Text style={s.partyLine}>상호: {biz?.bizNm || "______________"}</Text>
             <View style={s.signLineRow}>
-              <Text style={s.partyLine} numberOfLines={1}>대표자: {biz?.repNm || ""}</Text>
+              <Text style={[s.partyLine, s.noWrap]}>대표자: {biz?.repNm || ""}</Text>
               <View style={s.signStampSlot}>
                 <Text style={s.signStamp}>(인)</Text>
                 {!!subscriberSignUri && <Image source={{ uri: subscriberSignUri }} style={s.signImageOverlay} resizeMode="contain" />}
