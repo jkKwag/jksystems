@@ -44,7 +44,7 @@ export const s = StyleSheet.create({
   signRow: { flexDirection: "row", gap: spacing["3"], marginTop: spacing["5"] },
   signBox: { flex: 1, borderWidth: 1, borderColor: colors.blue, backgroundColor: colors.bluePaleBg, borderRadius: radius.lg, padding: spacing["3"], outlineStyle: "none" },
   signLineRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"] },
-  noWrap: { whiteSpace: "nowrap", flexShrink: 0 },
+  noWrap: { whiteSpace: "nowrap", flexShrink: 0, paddingRight: 2 },
   signStampSlot: { position: "relative", width: 70, height: 36, alignItems: "center", justifyContent: "center", flexShrink: 0 },
   signImageOverlay: { position: "absolute", top: 0, left: 0, width: "100%", height: "100%" },
   signStamp: { fontSize: font.base, color: colors.textGray, fontFamily: Platform.OS === "web" ? "monospace" : undefined },
