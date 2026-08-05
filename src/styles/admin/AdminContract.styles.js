@@ -12,7 +12,7 @@ export const s = StyleSheet.create({
 
   paper: { backgroundColor: colors.bgCard, borderRadius: radius["2xl"], borderWidth: 1, borderColor: colors.slate300, padding: spacing["6"], paddingBottom: spacing["10"] },
 
-  docTitle: { fontSize: font["8xl"], fontWeight: "900", color: colors.text, textAlign: "center" },
+  docTitle: { fontSize: font["8xl"] - 1, fontWeight: "900", color: colors.text, textAlign: "center" },
   docSubtitle: { fontSize: font.lg, color: colors.textMuted, textAlign: "center", marginTop: spacing["1"], marginBottom: spacing["5"] },
 
   introText: { fontSize: font.lg, color: colors.textSecondary, lineHeight: 22, marginBottom: spacing["4"] },
