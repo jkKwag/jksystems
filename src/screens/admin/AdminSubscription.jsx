@@ -44,6 +44,8 @@ export default function AdminSubscription({ adminInfo }) {
     (!biz?.bizNm || biz.bizNm === PLACEHOLDER_BIZ_NM) && "상호",
     !biz?.repNm && "대표자",
     !biz?.addr && "주소",
+    !biz?.telNo && "전화번호",
+    !biz?.mobileTel && "핸드폰번호",
   ].filter(Boolean);
 
   // 카드 등록(빌링 인증) 위젯으로 넘어갔다가 /admin/subscription-complete로 돌아오면
@@ -51,7 +53,7 @@ export default function AdminSubscription({ adminInfo }) {
   const startBillingAuth = async (planCd) => {
     if (!bizno || Platform.OS !== "web") return;
     if (missingBizFields.length) {
-      setAlertMsg(`사업장 정보 메뉴에서 저장 후 가능합니다 (${missingBizFields.join(", ")})`);
+      setAlertMsg(`사업장 정보 메뉴에서 저장 후 가능합니다\n${missingBizFields.map(f => `(${f})`).join("\n")}`);
       return;
     }
     if (!TOSS_CLIENT_KEY) { setAlertMsg("토스 클라이언트 키가 없습니다 (EXPO_PUBLIC_TOSS_CLIENT_KEY)"); return; }
