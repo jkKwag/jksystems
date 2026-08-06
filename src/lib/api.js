@@ -102,6 +102,7 @@ const api = {
     getSubscription: (bizno) => get(`/api/biz/${bizno}/subscription`),
     startSubscription: (bizno, body) => post(`/api/biz/${bizno}/subscription`, body),
     cancelSubscription: (bizno) => put(`/api/biz/${bizno}/subscription/cancel`, {}),
+    changeSubscriptionPlan: (bizno, planCd) => put(`/api/biz/${bizno}/subscription/plan`, { planCd }),
     subscriptionPayments: (bizno) => get(`/api/biz/${bizno}/subscription/payments`),
     pendingApprovals: () => get(`/api/biz/approvals`),
     approveBiz: (bizno) => put(`/api/biz/${bizno}/approve`, {}),

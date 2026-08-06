@@ -18,6 +18,9 @@ export const s = StyleSheet.create({
   planPriceUnit: { fontSize: font.lg, fontWeight: "700", color: colors.textMuted },
   planCycle: { fontSize: font.md, color: colors.textMuted, marginTop: spacing["1"] },
 
+  pendingChangeBox: { backgroundColor: colors.bluePaleBg, borderRadius: radius.md, padding: spacing["3"], marginTop: spacing["3"] },
+  pendingChangeText: { fontSize: font.base, fontWeight: "700", color: colors.blueDark },
+
   divider: { height: 1, backgroundColor: colors.borderLight, marginVertical: spacing["4"] },
 
   infoRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: spacing["2"] },
@@ -26,6 +29,9 @@ export const s = StyleSheet.create({
 
   payBtn: { backgroundColor: colors.accent, borderRadius: radius.md, paddingVertical: spacing["3"], alignItems: "center", marginTop: spacing["4"], outlineStyle: "none" },
   payBtnText: { fontSize: font.lg, fontWeight: "800", color: colors.white },
+
+  payBtnPending: { backgroundColor: colors.bluePaleBg, borderWidth: 1.5, borderColor: colors.blue },
+  payBtnPendingText: { color: colors.blueDark },
 
   noticeBox: { backgroundColor: colors.slate50, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, padding: spacing["3"], marginTop: spacing["4"] },
   noticeText: { fontSize: font.base, color: colors.textMuted },
@@ -36,8 +42,12 @@ export const s = StyleSheet.create({
   sectionTitle: { fontSize: font.xl, fontWeight: "900", color: colors.text, marginTop: spacing["6"], marginBottom: spacing["2.5"] },
 
   planOptionCard: { backgroundColor: colors.bgCard, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.slate300, padding: spacing["4"], marginBottom: spacing["2.5"] },
+  planOptionCardPending: { borderColor: colors.blue, backgroundColor: colors.bluePaleBg },
   planOptionHeaderRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  planOptionNameRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"] },
   planOptionName: { fontSize: font.xl, fontWeight: "900", color: colors.text },
+  planOptionPendingBadge: { backgroundColor: colors.blue, borderRadius: radius.pill, paddingHorizontal: spacing["2"], paddingVertical: 2 },
+  planOptionPendingBadgeText: { fontSize: font.xs, fontWeight: "800", color: colors.white },
   planOptionPrice: { fontSize: font.xl, fontWeight: "900", color: colors.primary },
   planOptionFeatures: { flexDirection: "row", flexWrap: "wrap", gap: spacing["2"], marginTop: spacing["2"] },
   planOptionFeature: { fontSize: font.sm, fontWeight: "700", color: colors.textGray, backgroundColor: colors.slate100, borderRadius: radius.pill, paddingHorizontal: spacing["2.5"], paddingVertical: 4 },

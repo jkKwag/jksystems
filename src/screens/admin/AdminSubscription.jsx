@@ -16,6 +16,7 @@ export default function AdminSubscription({ adminInfo }) {
   const [payments, setPayments] = useState([]);
   const [loaded, setLoaded] = useState(false);
   const [submittingPlanCd, setSubmittingPlanCd] = useState(null);
+  const [changingPlanCd, setChangingPlanCd] = useState(null);
   const [canceling, setCanceling] = useState(false);
   const [alertMsg, setAlertMsg] = useState(null);
 
@@ -57,6 +58,22 @@ export default function AdminSubscription({ adminInfo }) {
     }
   };
 
+  // 이미 구독 중인 상태에서 요금제만 바꿀 때는 카드 재등록/즉시 결제 없이 예약만 한다.
+  // 예약된 요금제를 다시 누르면(=현재 요금제로 되돌리면) 서버에서 예약이 자동 취소된다.
+  const changePlan = async (planCd) => {
+    if (!bizno) return;
+    setChangingPlanCd(planCd);
+    const { data, error } = await api.biz.changeSubscriptionPlan(bizno, planCd);
+    setChangingPlanCd(null);
+    if (error || !data) { setAlertMsg(error?.message || "요금제 변경에 실패했습니다."); return; }
+    setSubspt(data);
+    setAlertMsg(
+      data.pendingPlanCd
+        ? `다음 결제일(${data.nextBillingDt})부터 ${data.pendingPlanNm} 요금제로 변경됩니다.`
+        : "요금제 변경 예약이 취소되었습니다."
+    );
+  };
+
   const handleCancel = async () => {
     if (!bizno) return;
     setCanceling(true);
@@ -92,6 +109,14 @@ export default function AdminSubscription({ adminInfo }) {
             <Text style={s.planPrice}>{won(subspt.totalAmount)}<Text style={s.planPriceUnit}> / 월</Text></Text>
             <Text style={s.planCycle}>공급가액 {won(subspt.suppliedAmount)} + 부가세 {won(subspt.vat)}</Text>
 
+            {subspt.pendingPlanCd && (
+              <View style={s.pendingChangeBox}>
+                <Text style={s.pendingChangeText}>
+                  다음 결제일({subspt.nextBillingDt})부터 {subspt.pendingPlanNm} 요금제로 변경 예정
+                </Text>
+              </View>
+            )}
+
             <View style={s.divider} />
 
             <View style={s.infoRow}>
@@ -120,11 +145,30 @@ export default function AdminSubscription({ adminInfo }) {
         <Text style={s.sectionTitle}>{isActive ? "요금제 변경" : "요금제 선택"}</Text>
         {plans.map(plan => {
           const isCurrent = isActive && subspt.planCd === plan.planCd;
+          const isPending = isActive && subspt.pendingPlanCd === plan.planCd;
           const isSubmittingThis = submittingPlanCd === plan.planCd;
+          const isChangingThis = changingPlanCd === plan.planCd;
+          const anyBusy = !!submittingPlanCd || !!changingPlanCd;
+
+          const handlePress = () => (isActive ? changePlan(plan.planCd) : startBillingAuth(plan.planCd));
+
+          let label = isActive ? "이 요금제로 변경" : "이 요금제로 시작";
+          if (isCurrent) label = "현재 이용중";
+          else if (isPending) label = isChangingThis ? "처리 중..." : "변경 예약됨 · 취소";
+          else if (isSubmittingThis) label = "처리 중...";
+          else if (isChangingThis) label = "처리 중...";
+
           return (
-            <View key={plan.planCd} style={s.planOptionCard}>
+            <View key={plan.planCd} style={[s.planOptionCard, isPending && s.planOptionCardPending]}>
               <View style={s.planOptionHeaderRow}>
-                <Text style={s.planOptionName}>{plan.planNm}</Text>
+                <View style={s.planOptionNameRow}>
+                  <Text style={s.planOptionName}>{plan.planNm}</Text>
+                  {isPending && (
+                    <View style={s.planOptionPendingBadge}>
+                      <Text style={s.planOptionPendingBadgeText}>변경 예약됨</Text>
+                    </View>
+                  )}
+                </View>
                 <Text style={s.planOptionPrice}>{won(plan.totalAmount)}/월</Text>
               </View>
               <View style={s.planOptionFeatures}>
@@ -133,13 +177,11 @@ export default function AdminSubscription({ adminInfo }) {
                 {plan.delivery && <Text style={s.planOptionFeature}>🛵 배달주문</Text>}
               </View>
               <TouchableOpacity
-                style={s.payBtn}
-                onPress={() => startBillingAuth(plan.planCd)}
-                disabled={!!submittingPlanCd || isCurrent}
+                style={[s.payBtn, isPending && s.payBtnPending]}
+                onPress={handlePress}
+                disabled={anyBusy || isCurrent}
               >
-                <Text style={s.payBtnText}>
-                  {isCurrent ? "현재 이용중" : isSubmittingThis ? "처리 중..." : "이 요금제로 시작"}
-                </Text>
+                <Text style={[s.payBtnText, isPending && s.payBtnPendingText]}>{label}</Text>
               </TouchableOpacity>
             </View>
           );
