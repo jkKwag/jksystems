@@ -333,7 +333,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
         // 주민번호로 보이는 줄을 먼저 가리고, 상호/대표자/주소도 같은 인식 결과에서 뽑아낸다.
         // 여기서 실패하면(엔진 로딩 실패 등) 곧장 catch로 빠져서 업로드 자체를 진행하지 않음.
         setCertMasking(true);
-        const { blob, maskedAny, lineTexts, extracted } = await maskAndCompressCertImage(file, IMAGE_MAX_DIMENSION, IMAGE_QUALITY);
+        const { blob, extracted } = await maskAndCompressCertImage(file, IMAGE_MAX_DIMENSION, IMAGE_QUALITY);
         setCertMasking(false);
 
         setCertUploading(true);
@@ -360,16 +360,14 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
           addrDtl: f.addrDtl || extracted.addrDtl || f.addrDtl,
         }));
 
-        // 아직 테스트/조정 중이라 인식된 전체 줄도 같이 보여준다 (진단용).
         const fields = [
           extracted.bizNm && `상호: ${extracted.bizNm}`,
           extracted.repNm && `대표자: ${extracted.repNm}`,
           extracted.addr && `주소: ${extracted.addr}`,
           extracted.addrDtl && `상세주소: ${extracted.addrDtl}`,
         ].filter(Boolean);
-        const maskMsg = maskedAny ? "주민번호로 보이는 줄을 가렸어요." : "마스킹 대상은 못 찾았어요.";
         const extractMsg = fields.length ? `[인식된 정보]\n${fields.join("\n")}` : "[인식된 정보] 없음";
-        setAlertMsg(`업로드 완료.\n${ntsMsg}\n${maskMsg}\n\n${extractMsg}\n\n[인식된 전체 줄]\n${lineTexts.join("\n") || "(없음)"}`);
+        setAlertMsg(`${ntsMsg}\n${extractMsg}\n마스킹했을경우에만 주민번호는 마스킹 처리 하였습니다`);
       } catch {
         setCertError("이미지 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
       }
