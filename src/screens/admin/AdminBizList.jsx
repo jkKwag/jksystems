@@ -368,7 +368,8 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
         ].filter(Boolean);
         const extractMsg = fields.length ? `[인식된 정보]\n${fields.join("\n")}` : "[인식된 정보] 없음";
         const maskMsg = maskedAny ? "\n마스킹 처리했을 경우에만\n주민번호는 마스킹 처리 하였습니다" : "";
-        setAlertMsg(`${ntsMsg}\n${extractMsg}${maskMsg}`);
+        const saveReminder = "\n\n사업자 등록증 업로드 후 사업장 정보가 일치하는지 확인 후 저장버튼을 클릭해서 꼭 저장해 주세요";
+        setAlertMsg(`${ntsMsg}\n${extractMsg}${maskMsg}${saveReminder}`);
       } catch {
         setCertError("이미지 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
       }
