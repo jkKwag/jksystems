@@ -15,7 +15,8 @@ export default function AdminSubscription({ adminInfo }) {
   const [subspt, setSubspt] = useState(null);
   const [payments, setPayments] = useState([]);
   const [loaded, setLoaded] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const [submittingPlanCd, setSubmittingPlanCd] = useState(null);
+  const [canceling, setCanceling] = useState(false);
   const [alertMsg, setAlertMsg] = useState(null);
 
   const load = async () => {
@@ -37,7 +38,7 @@ export default function AdminSubscription({ adminInfo }) {
   const startBillingAuth = async (planCd) => {
     if (!bizno || Platform.OS !== "web") return;
     if (!TOSS_CLIENT_KEY) { setAlertMsg("토스 클라이언트 키가 없습니다 (EXPO_PUBLIC_TOSS_CLIENT_KEY)"); return; }
-    setSubmitting(true);
+    setSubmittingPlanCd(planCd);
     try {
       const { loadTossPayments } = await import("@tosspayments/tosspayments-sdk");
       const tossPayments = await loadTossPayments(TOSS_CLIENT_KEY);
@@ -52,15 +53,15 @@ export default function AdminSubscription({ adminInfo }) {
         setAlertMsg(`[구독 등록 오류] ${e?.message || JSON.stringify(e)}`);
       }
     } finally {
-      setSubmitting(false);
+      setSubmittingPlanCd(null);
     }
   };
 
   const handleCancel = async () => {
     if (!bizno) return;
-    setSubmitting(true);
+    setCanceling(true);
     const { error } = await api.biz.cancelSubscription(bizno);
-    setSubmitting(false);
+    setCanceling(false);
     if (error) { setAlertMsg(error?.message || "구독 해지에 실패했습니다."); return; }
     setAlertMsg("구독이 해지되었습니다.");
     load();
@@ -102,7 +103,7 @@ export default function AdminSubscription({ adminInfo }) {
               <Text style={s.infoVal}>{subspt.hasBillingKey ? "카드 등록됨" : "등록된 카드가 없습니다"}</Text>
             </View>
 
-            <TouchableOpacity style={s.cancelSubBtn} onPress={handleCancel} disabled={submitting}>
+            <TouchableOpacity style={s.cancelSubBtn} onPress={handleCancel} disabled={canceling}>
               <Text style={s.cancelSubBtnText}>구독 해지</Text>
             </TouchableOpacity>
           </View>
@@ -119,6 +120,7 @@ export default function AdminSubscription({ adminInfo }) {
         <Text style={s.sectionTitle}>{isActive ? "요금제 변경" : "요금제 선택"}</Text>
         {plans.map(plan => {
           const isCurrent = isActive && subspt.planCd === plan.planCd;
+          const isSubmittingThis = submittingPlanCd === plan.planCd;
           return (
             <View key={plan.planCd} style={s.planOptionCard}>
               <View style={s.planOptionHeaderRow}>
@@ -133,10 +135,10 @@ export default function AdminSubscription({ adminInfo }) {
               <TouchableOpacity
                 style={s.payBtn}
                 onPress={() => startBillingAuth(plan.planCd)}
-                disabled={submitting || isCurrent}
+                disabled={!!submittingPlanCd || isCurrent}
               >
                 <Text style={s.payBtnText}>
-                  {isCurrent ? "현재 이용중" : submitting ? "처리 중..." : "이 요금제로 시작"}
+                  {isCurrent ? "현재 이용중" : isSubmittingThis ? "처리 중..." : "이 요금제로 시작"}
                 </Text>
               </TouchableOpacity>
             </View>
