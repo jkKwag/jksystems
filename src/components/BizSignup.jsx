@@ -3,9 +3,10 @@ import { View, Text, TextInput, TouchableOpacity, Modal, ActivityIndicator, Plat
 import { s } from "../styles/AdminLogin.styles";
 import api from "../lib/api";
 
-// 대표자명/주소/사업자등록증은 가입 직후 로그인해서 별도 화면(임시관리자 메뉴)에서 채우도록 이동했다.
+// 상호명/전화번호/대표자명/주소/사업자등록증은 가입 직후 로그인해서 별도 화면(임시관리자 메뉴)에서
+// 사업자등록증 업로드로 채우도록 이동했다. 가입 시에는 사업자등록번호만 받는다.
 const emptyForm = {
-  bizRegNo: "", bizNm: "", telNo: "",
+  bizRegNo: "",
   adminId: "", password: "", passwordConfirm: "", mobileTel: "",
 };
 
@@ -17,11 +18,6 @@ const validators = {
     if (!v.trim()) return "사업자등록번호를 입력해주세요.";
     if (digitsOnly(v).length !== 10) return "사업자등록번호는 숫자 10자리여야 합니다.";
     return "";
-  },
-  bizNm: (v) => (!v.trim() ? "상호명을 입력해주세요." : ""),
-  telNo: (v) => {
-    if (!v.trim()) return "전화번호를 입력해주세요.";
-    return digitsOnly(v).length >= 9 && digitsOnly(v).length <= 11 ? "" : "전화번호 형식이 올바르지 않습니다.";
   },
   mobileTel: (v) => {
     if (!v.trim()) return "휴대폰번호를 입력해주세요.";
@@ -145,8 +141,6 @@ export default function BizSignup({ visible, onClose }) {
     setLoading(true); setError("");
     const { data, error: apiError } = await api.biz.signup({
       bizRegNo: digitsOnly(form.bizRegNo),
-      bizNm: form.bizNm.trim(),
-      telNo: form.telNo.trim() || null,
       mobileTel: form.mobileTel.trim(),
       adminId: form.adminId.trim(),
       password: form.password,
@@ -224,11 +218,7 @@ export default function BizSignup({ visible, onClose }) {
                   <Field field="bizRegNo" label="사업자등록번호" placeholder="숫자만 입력" keyboardType="numeric" maxLength={10}
                     value={form.bizRegNo} error={errorFor("bizRegNo")}
                     onChangeText={(v) => update("bizRegNo")(digitsOnly(v).slice(0, 10))} onBlur={markTouched("bizRegNo")} />
-                  <Field field="bizNm" label="상호명" placeholder="상호명 입력"
-                    value={form.bizNm} error={errorFor("bizNm")} onChangeText={update("bizNm")} onBlur={markTouched("bizNm")} />
-                  <Field field="telNo" label="전화번호" placeholder="숫자만 입력" keyboardType="number-pad" maxLength={11}
-                    value={form.telNo} error={errorFor("telNo")}
-                    onChangeText={(v) => update("telNo")(digitsOnly(v).slice(0, 11))} onBlur={markTouched("telNo")} />
+                  <Text style={local.noticeText}>상호명 등 나머지 사업장 정보는 로그인 후 사업자등록증을 업로드하면 자동으로 채워집니다.</Text>
                 </View>
 
                 {!!error && <View style={s.errorBox}><Text style={s.errorText}>⚠️ {error}</Text></View>}

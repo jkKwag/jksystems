@@ -461,7 +461,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
 
       <SectionTitle label="기본 정보" />
       <View style={s.fieldGrid}>
-        {expandedKey === "__new__" && (
+        {expandedKey === "__new__" ? (
           <View style={boxStyle(s.fieldBoxFull, "bizRegNo")}>
             <TextInput
               style={s.fieldInput}
@@ -472,6 +472,10 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
               keyboardType="numeric"
               {...focusHandlers("bizRegNo")}
             />
+          </View>
+        ) : (
+          <View style={[s.fieldBoxFull, s.fieldBoxReadOnly]}>
+            <Text style={[s.fieldInput, s.fieldInputReadOnly]}>{formatBizRegNo(form.bizRegNo)}</Text>
           </View>
         )}
         <View style={boxStyle(s.fieldBoxFull, "bizNm")}>

@@ -64,7 +64,9 @@ export const s = StyleSheet.create({
   fieldBox: { flexGrow: 1, flexBasis: "45%", borderWidth: 1, borderColor: colors.slate300, borderRadius: radius.lg, paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"] },
   fieldBoxFull: { flexBasis: "100%", borderWidth: 1, borderColor: colors.slate300, borderRadius: radius.lg, paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"] },
   fieldBoxFocused: { borderColor: colors.accent },
+  fieldBoxReadOnly: { backgroundColor: colors.slate50 },
   fieldInput: { fontSize: font.md, fontWeight: "700", color: colors.text, padding: 0, outlineStyle: "none" },
+  fieldInputReadOnly: { color: colors.textMuted },
   fieldStatic: { fontSize: font.md, fontWeight: "700", color: colors.text },
 
   error: { fontSize: font.sm, color: "#ef4444", fontWeight: "600", marginTop: spacing["3"] },
