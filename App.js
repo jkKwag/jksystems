@@ -14,6 +14,7 @@ import ElderlyMenu from "./src/screens/ElderlyMenu";
 import Menu from "./src/screens/Menu";
 import PaymentSuccess from "./src/screens/PaymentSuccess";
 import PaymentFail from "./src/screens/PaymentFail";
+import AdminSubscriptionComplete from "./src/screens/admin/AdminSubscriptionComplete";
 import AdminLogin from "./src/components/AdminLogin";
 import BizSignup from "./src/components/BizSignup";
 import AdminHome from "./src/screens/admin/AdminHome";
@@ -41,6 +42,7 @@ const menuBizno = getMenuBizno();
 const tableNo = getTableNo();
 const isPaymentSuccess = Platform.OS === "web" && window.location.pathname === "/payment/success";
 const isPaymentFail = Platform.OS === "web" && window.location.pathname === "/payment/fail";
+const isSubscriptionComplete = Platform.OS === "web" && window.location.pathname === "/admin/subscription-complete";
 
 const MUSIC_URL = "https://raw.githubusercontent.com/jkKwag/jksystems/main/assets/bgmusic.mp3";
 
@@ -212,6 +214,7 @@ export default function App() {
 
   if (isPaymentSuccess) return <PaymentSuccess />;
   if (isPaymentFail) return <PaymentFail />;
+  if (isSubscriptionComplete) return <AdminSubscriptionComplete />;
   if (isAdmin) return <AdminHome adminInfo={adminInfo} onLogout={handleLogout} />;
 
   const AppHeader = () => (
