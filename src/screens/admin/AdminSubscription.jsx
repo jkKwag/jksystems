@@ -6,6 +6,9 @@ import ConfirmModal from "../../components/ConfirmModal";
 
 const TOSS_CLIENT_KEY = process.env.EXPO_PUBLIC_TOSS_CLIENT_KEY || "test_ck_vZnjEJeQVxexx5pMqG4brPmOoBN0";
 
+// 가입 시 상호명을 안 받은 사업자는 서버가 이 값으로 채워둔다 — 실제 값이 아니므로 "미입력"과 동일하게 취급한다.
+const PLACEHOLDER_BIZ_NM = "사업장명 미입력";
+
 const won = (n) => (typeof n === "number" ? n.toLocaleString() : "0") + "원";
 
 export default function AdminSubscription({ adminInfo }) {
@@ -14,6 +17,7 @@ export default function AdminSubscription({ adminInfo }) {
   const [plans, setPlans] = useState([]);
   const [subspt, setSubspt] = useState(null);
   const [payments, setPayments] = useState([]);
+  const [biz, setBiz] = useState(null);
   const [loaded, setLoaded] = useState(false);
   const [submittingPlanCd, setSubmittingPlanCd] = useState(null);
   const [changingPlanCd, setChangingPlanCd] = useState(null);
@@ -21,23 +25,35 @@ export default function AdminSubscription({ adminInfo }) {
   const [alertMsg, setAlertMsg] = useState(null);
 
   const load = async () => {
-    const [planList, sub, pays] = await Promise.all([
+    const [planList, sub, pays, bizData] = await Promise.all([
       api.biz.subscriptionPlans(),
       bizno ? api.biz.getSubscription(bizno) : Promise.resolve(null),
       bizno ? api.biz.subscriptionPayments(bizno) : Promise.resolve(null),
+      bizno ? api.biz.get(bizno) : Promise.resolve(null),
     ]);
     setPlans(Array.isArray(planList) ? planList : []);
     setSubspt(sub || null);
     setPayments(Array.isArray(pays) ? pays : []);
+    setBiz(bizData || null);
     setLoaded(true);
   };
 
   useEffect(() => { load(); }, [bizno]);
 
+  const missingBizFields = [
+    (!biz?.bizNm || biz.bizNm === PLACEHOLDER_BIZ_NM) && "상호",
+    !biz?.repNm && "대표자",
+    !biz?.addr && "주소",
+  ].filter(Boolean);
+
   // 카드 등록(빌링 인증) 위젯으로 넘어갔다가 /admin/subscription-complete로 돌아오면
   // 거기서 최초 결제까지 끝내고 오므로, 여기서는 위젯을 띄우기만 하면 된다.
   const startBillingAuth = async (planCd) => {
     if (!bizno || Platform.OS !== "web") return;
+    if (missingBizFields.length) {
+      setAlertMsg(`사업장 정보 메뉴에서 저장 후 가능합니다 (${missingBizFields.join(", ")})`);
+      return;
+    }
     if (!TOSS_CLIENT_KEY) { setAlertMsg("토스 클라이언트 키가 없습니다 (EXPO_PUBLIC_TOSS_CLIENT_KEY)"); return; }
     setSubmittingPlanCd(planCd);
     try {
