@@ -77,7 +77,7 @@ function getPaddleService() {
 }
 
 const CERT_LABEL_FIELDS = [
-  { key: "bizNm", labels: ["상호(법인명)", "성명(법인명)", "상호"] },
+  { key: "bizNm", labels: ["상호(법인명)", "성명(법인명)", "법인명(단체명)", "상호"] },
   { key: "repNm", labels: ["성명(대표자)", "대표자"] },
   { key: "addr", labels: ["사업장소재지", "본점소재지", "소재지"] },
 ];
