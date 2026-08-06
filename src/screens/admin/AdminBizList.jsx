@@ -333,7 +333,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
         // 주민번호로 보이는 줄을 먼저 가리고, 상호/대표자/주소도 같은 인식 결과에서 뽑아낸다.
         // 여기서 실패하면(엔진 로딩 실패 등) 곧장 catch로 빠져서 업로드 자체를 진행하지 않음.
         setCertMasking(true);
-        const { blob, extracted } = await maskAndCompressCertImage(file, IMAGE_MAX_DIMENSION, IMAGE_QUALITY);
+        const { blob, maskedAny, extracted } = await maskAndCompressCertImage(file, IMAGE_MAX_DIMENSION, IMAGE_QUALITY);
         setCertMasking(false);
 
         setCertUploading(true);
@@ -367,7 +367,8 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
           extracted.addrDtl && `상세주소: ${extracted.addrDtl}`,
         ].filter(Boolean);
         const extractMsg = fields.length ? `[인식된 정보]\n${fields.join("\n")}` : "[인식된 정보] 없음";
-        setAlertMsg(`${ntsMsg}\n${extractMsg}\n마스킹했을경우에만 주민번호는 마스킹 처리 하였습니다`);
+        const maskMsg = maskedAny ? "\n마스킹 처리했을 경우에만\n주민번호는 마스킹 처리 하였습니다" : "";
+        setAlertMsg(`${ntsMsg}\n${extractMsg}${maskMsg}`);
       } catch {
         setCertError("이미지 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
       }
