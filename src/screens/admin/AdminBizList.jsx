@@ -11,6 +11,10 @@ const IMAGE_MAX_DIMENSION = 1400;
 const IMAGE_QUALITY = 0.85;
 const emptyForm = { bizRegNo: "", bizNm: "", repNm: "", telNo: "", mobileTel: "", emailAddr: "", indCd: "", addr: "", addrDtl: "" };
 
+// 가입 시 상호명을 안 받은 사업자는 백엔드가 이 값으로 채워둔다 — 실제 값이 아니므로
+// 사업자등록증 인식 결과로 채울 때는 "비어있는 값"과 동일하게 취급해야 한다.
+const PLACEHOLDER_BIZ_NM = "사업장명 미입력";
+
 const digitsOnly = (v) => v.replace(/\D/g, "");
 const PLACEHOLDER_COLOR = "#94a3b8";
 
@@ -347,9 +351,10 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
         const ntsMsg = `[국세청 상태] ${ntsData?.display || "확인 불가"}`;
 
         // 인식된 값 중 비어있던 항목만 채워준다 — 이미 입력된 값은 덮어쓰지 않음.
+        // (가입 시 채워진 상호명 placeholder는 실값이 아니므로 비어있는 것으로 취급)
         setForm(f => ({
           ...f,
-          bizNm: f.bizNm || extracted.bizNm || f.bizNm,
+          bizNm: (f.bizNm && f.bizNm !== PLACEHOLDER_BIZ_NM) ? f.bizNm : (extracted.bizNm || f.bizNm),
           repNm: f.repNm || extracted.repNm || f.repNm,
           addr: f.addr || extracted.addr || f.addr,
           addrDtl: f.addrDtl || extracted.addrDtl || f.addrDtl,
