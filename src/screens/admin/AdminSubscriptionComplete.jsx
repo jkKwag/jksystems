@@ -48,6 +48,12 @@ export default function AdminSubscriptionComplete() {
         setErrorMsg(error?.message || "구독 등록에 실패했습니다.");
         return;
       }
+
+      // 첫 결제 성공 시 서버에서 PROV_ADMIN → BIZ로 승격되므로, 로컬에 캐시된 adminInfo도 같이
+      // 갱신해둬야 관리자 홈에 돌아갔을 때 새 역할 기준으로 메뉴가 다시 불러와진다.
+      if (adminInfo.adminRole === "PROV_ADMIN") {
+        await AsyncStorage.setItem("adminInfo", JSON.stringify({ ...adminInfo, adminRole: "BIZ" }));
+      }
       setStatus("done");
     })();
   }, []);
