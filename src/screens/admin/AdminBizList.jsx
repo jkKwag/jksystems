@@ -409,6 +409,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
     if (!isEdit && !form.bizRegNo.trim()) { setFormError("사업자등록번호를 입력해주세요."); return; }
     if (!isEdit && !form.repNm.trim()) { setFormError("대표자명을 입력해주세요."); return; }
     if (!form.bizNm.trim()) { setFormError("사업장명을 입력해주세요."); return; }
+    if (!form.telNo.trim()) { setFormError("전화번호를 입력해주세요."); return; }
     setFormError("");
 
     if (isEdit && originalForm && JSON.stringify(normalizeForm(form)) === JSON.stringify(normalizeForm(originalForm))) {
@@ -421,7 +422,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
       bizRegNo: form.bizRegNo.trim(),
       bizNm: form.bizNm.trim(),
       repNm: form.repNm.trim(),
-      telNo: form.telNo.trim() || null,
+      telNo: form.telNo.trim(),
       mobileTel: form.mobileTel.trim(),
       emailAddr: form.emailAddr.trim() || null,
       indCd: form.indCd || null,

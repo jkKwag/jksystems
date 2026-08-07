@@ -28,6 +28,7 @@ export default function AdminSubscription({ adminInfo }) {
   const [confirmPlan, setConfirmPlan] = useState(null); // { planCd, planNm } | null — 최초 구독 시작 전 확인용
   const [confirmCancel, setConfirmCancel] = useState(false); // 구독 해지 전 확인용
   const [consentPlan, setConsentPlan] = useState(null); // { planCd, planNm } | null — 결제 전 이용계약 동의용
+  const [reloadAfterAlert, setReloadAfterAlert] = useState(false); // 무료요금제 가입 직후 메뉴를 바로 갱신하기 위한 새로고침 플래그
 
   const load = async () => {
     const [planList, sub, pays, bizData] = await Promise.all([
@@ -87,10 +88,13 @@ export default function AdminSubscription({ adminInfo }) {
 
     // 첫 결제(무료 적용 포함) 성공 시 서버에서 PROV_ADMIN → BIZ로 승격되므로, 로컬 캐시도 같이 갱신해둔다
     // (원래 카드 등록 위젯을 거쳐 오는 흐름에서는 AdminSubscriptionComplete.jsx가 이 처리를 대신 해준다).
+    // 다만 여기는 페이지 이동 없이 같은 화면에서 끝나기 때문에, 캐시만 갱신해선 이미 메모리에 올라온
+    // adminInfo(=사이드 메뉴 트리)가 그대로라 메뉴가 안 바뀐다 — 확인 누르면 새로고침해서 반영한다.
     if (adminInfo?.adminRole === "PROV_ADMIN") {
       const raw = await AsyncStorage.getItem("adminInfo");
       const info = raw ? JSON.parse(raw) : adminInfo;
       await AsyncStorage.setItem("adminInfo", JSON.stringify({ ...info, adminRole: "BIZ" }));
+      setReloadAfterAlert(true);
     }
     setAlertMsg("이벤트 무료 요금제가 적용되었습니다.");
     load();
@@ -300,7 +304,14 @@ export default function AdminSubscription({ adminInfo }) {
         onConfirm={handleCancel}
         onCancel={() => setConfirmCancel(false)}
       />
-      <ConfirmModal visible={!!alertMsg} message={alertMsg} onConfirm={() => setAlertMsg(null)} />
+      <ConfirmModal
+        visible={!!alertMsg}
+        message={alertMsg}
+        onConfirm={() => {
+          setAlertMsg(null);
+          if (reloadAfterAlert && Platform.OS === "web") window.location.reload();
+        }}
+      />
     </View>
   );
 }
