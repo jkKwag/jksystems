@@ -23,6 +23,7 @@ export default function AdminSubscription({ adminInfo }) {
   const [changingPlanCd, setChangingPlanCd] = useState(null);
   const [canceling, setCanceling] = useState(false);
   const [alertMsg, setAlertMsg] = useState(null);
+  const [confirmPlan, setConfirmPlan] = useState(null); // { planCd, planNm } | null — 최초 구독 시작 전 확인용
 
   const load = async () => {
     const [planList, sub, pays, bizData] = await Promise.all([
@@ -48,14 +49,26 @@ export default function AdminSubscription({ adminInfo }) {
     !biz?.mobileTel && "핸드폰번호",
   ].filter(Boolean);
 
-  // 카드 등록(빌링 인증) 위젯으로 넘어갔다가 /admin/subscription-complete로 돌아오면
-  // 거기서 최초 결제까지 끝내고 오므로, 여기서는 위젯을 띄우기만 하면 된다.
-  const startBillingAuth = async (planCd) => {
+  // "이 요금제로 시작" 클릭 시 바로 위젯을 띄우지 않고, 사업장 정보부터 확인한 뒤 신청 확인 모달을 먼저 보여준다.
+  const onStartPress = (plan) => {
     if (!bizno || Platform.OS !== "web") return;
     if (missingBizFields.length) {
       setAlertMsg(`사업장 정보 메뉴에서 저장 후 가능합니다\n${missingBizFields.map(f => `(${f})`).join(", ")}`);
       return;
     }
+    setConfirmPlan(plan);
+  };
+
+  const confirmStart = () => {
+    const plan = confirmPlan;
+    setConfirmPlan(null);
+    if (plan) startBillingAuth(plan.planCd);
+  };
+
+  // 카드 등록(빌링 인증) 위젯으로 넘어갔다가 /admin/subscription-complete로 돌아오면
+  // 거기서 최초 결제까지 끝내고 오므로, 여기서는 위젯을 띄우기만 하면 된다.
+  const startBillingAuth = async (planCd) => {
+    if (!bizno || Platform.OS !== "web") return;
     if (!TOSS_CLIENT_KEY) { setAlertMsg("토스 클라이언트 키가 없습니다 (EXPO_PUBLIC_TOSS_CLIENT_KEY)"); return; }
     setSubmittingPlanCd(planCd);
     try {
@@ -177,7 +190,7 @@ export default function AdminSubscription({ adminInfo }) {
           const isChangingThis = changingPlanCd === plan.planCd;
           const anyBusy = !!submittingPlanCd || !!changingPlanCd;
 
-          const handlePress = () => (isActive ? changePlan(plan.planCd) : startBillingAuth(plan.planCd));
+          const handlePress = () => (isActive ? changePlan(plan.planCd) : onStartPress(plan));
 
           let label = isActive ? "이 요금제로 변경" : "이 요금제로 시작";
           if (isCurrent) label = "현재 이용중";
@@ -233,6 +246,14 @@ export default function AdminSubscription({ adminInfo }) {
         )}
       </ScrollView>
 
+      <ConfirmModal
+        visible={!!confirmPlan}
+        message={`${confirmPlan?.planNm} 요금제로 구독 신청 하시겠습니까?`}
+        confirmText="신청"
+        cancelText="취소"
+        onConfirm={confirmStart}
+        onCancel={() => setConfirmPlan(null)}
+      />
       <ConfirmModal visible={!!alertMsg} message={alertMsg} onConfirm={() => setAlertMsg(null)} />
     </View>
   );
