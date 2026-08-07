@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Platform } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { s } from "../../styles/admin/AdminSubscription.styles";
 import api from "../../lib/api";
 import ConfirmModal from "../../components/ConfirmModal";
@@ -71,7 +72,28 @@ export default function AdminSubscription({ adminInfo }) {
   const confirmStart = () => {
     const plan = confirmPlan;
     setConfirmPlan(null);
-    if (plan) startBillingAuth(plan.planCd);
+    if (!plan) return;
+    // 0원 이벤트 요금제는 카드 등록 위젯 자체가 필요 없어서 바로 서버에 구독 시작을 요청한다.
+    if (plan.totalAmount === 0) startFreeSubscription(plan.planCd);
+    else startBillingAuth(plan.planCd);
+  };
+
+  const startFreeSubscription = async (planCd) => {
+    if (!bizno) return;
+    setSubmittingPlanCd(planCd);
+    const { data, error } = await api.biz.startSubscription(bizno, { planCd, authKey: "", customerKey: "" });
+    setSubmittingPlanCd(null);
+    if (error || !data) { setAlertMsg(error?.message || "구독 등록에 실패했습니다."); return; }
+
+    // 첫 결제(무료 적용 포함) 성공 시 서버에서 PROV_ADMIN → BIZ로 승격되므로, 로컬 캐시도 같이 갱신해둔다
+    // (원래 카드 등록 위젯을 거쳐 오는 흐름에서는 AdminSubscriptionComplete.jsx가 이 처리를 대신 해준다).
+    if (adminInfo?.adminRole === "PROV_ADMIN") {
+      const raw = await AsyncStorage.getItem("adminInfo");
+      const info = raw ? JSON.parse(raw) : adminInfo;
+      await AsyncStorage.setItem("adminInfo", JSON.stringify({ ...info, adminRole: "BIZ" }));
+    }
+    setAlertMsg("이벤트 무료 요금제가 적용되었습니다.");
+    load();
   };
 
   // 카드 등록(빌링 인증) 위젯으로 넘어갔다가 /admin/subscription-complete로 돌아오면
