@@ -242,6 +242,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
 
   const [expandedKey, setExpandedKey] = useState(null); // null | bizRegNo | "__new__"
   const [form, setForm] = useState(emptyForm);
+  const [originalForm, setOriginalForm] = useState(null); // 변경 여부 비교 기준 — 새 사업장 등록 시엔 null
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
   const [alertMsg, setAlertMsg] = useState(null);
@@ -267,6 +268,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
       // 사업자관리자는 본인 사업장 하나뿐이라 바로 상세를 펼쳐서 보여줌
       if (!isSuper && biz) {
         setForm(toForm(biz));
+        setOriginalForm(toForm(biz));
         setExpandedKey(biz.bizRegNo);
         const url = await api.biz.getRegistrationCertUrl(biz.bizRegNo);
         setCertUrl(url || null);
@@ -306,6 +308,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
   const toggleExpand = (key, biz) => {
     if (expandedKey === key) { setExpandedKey(null); return; }
     setForm(biz ? toForm(biz) : emptyForm);
+    setOriginalForm(biz ? toForm(biz) : null);
     setFormError("");
     setCertUrl(null);
     setCertError("");
@@ -389,12 +392,30 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
   const statusNm = (biz) => oprSttCodes.find(c => c.cd === biz?.bizStatus)?.cdNm || biz?.bizStatus || "-";
   const isOpenStatus = (biz) => biz?.bizStatus === "O";
 
+  // payload와 동일한 규칙(trim/빈 값 처리)으로 정규화해서 비교해야 "공백만 추가" 같은 걸 변경으로 오인하지 않는다.
+  const normalizeForm = (f) => ({
+    bizNm: (f.bizNm || "").trim(),
+    repNm: (f.repNm || "").trim(),
+    telNo: (f.telNo || "").trim(),
+    mobileTel: (f.mobileTel || "").trim(),
+    emailAddr: (f.emailAddr || "").trim(),
+    indCd: f.indCd || "",
+    addr: (f.addr || "").trim(),
+    addrDtl: (f.addrDtl || "").trim(),
+  });
+
   const submit = async () => {
     const isEdit = expandedKey !== "__new__";
     if (!isEdit && !form.bizRegNo.trim()) { setFormError("사업자등록번호를 입력해주세요."); return; }
     if (!isEdit && !form.repNm.trim()) { setFormError("대표자명을 입력해주세요."); return; }
     if (!form.bizNm.trim()) { setFormError("사업장명을 입력해주세요."); return; }
     setFormError("");
+
+    if (isEdit && originalForm && JSON.stringify(normalizeForm(form)) === JSON.stringify(normalizeForm(originalForm))) {
+      setAlertMsg("변경된 내역이 없습니다.");
+      return;
+    }
+
     setSaving(true);
     const payload = {
       bizRegNo: form.bizRegNo.trim(),
@@ -416,7 +437,10 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
       return;
     }
     setBizList(prev => (isEdit ? prev.map(b => b.bizRegNo === data.bizRegNo ? data : b) : [data, ...prev]));
-    setExpandedKey(null);
+    // 저장 후에도 상세를 계속 펼쳐둔 채로 유지 — 새로 등록한 경우엔 "__new__" 대신 실제 사업자번호로 전환.
+    setExpandedKey(data.bizRegNo);
+    setForm(toForm(data));
+    setOriginalForm(toForm(data));
 
     const subspt = await api.biz.getSubscription(data.bizRegNo);
     setAlertMsg(
