@@ -53,7 +53,7 @@ export default function AdminSubscription({ adminInfo }) {
   const startBillingAuth = async (planCd) => {
     if (!bizno || Platform.OS !== "web") return;
     if (missingBizFields.length) {
-      setAlertMsg(`사업장 정보 메뉴에서 저장 후 가능합니다\n${missingBizFields.map(f => `(${f})`).join("\n")}`);
+      setAlertMsg(`사업장 정보 메뉴에서 저장 후 가능합니다\n${missingBizFields.map(f => `(${f})`).join(", ")}`);
       return;
     }
     if (!TOSS_CLIENT_KEY) { setAlertMsg("토스 클라이언트 키가 없습니다 (EXPO_PUBLIC_TOSS_CLIENT_KEY)"); return; }
