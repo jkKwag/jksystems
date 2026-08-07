@@ -15,7 +15,8 @@ export const s = StyleSheet.create({
 
   qrBox: { width: "100%", maxWidth: 360, height: 280, alignItems: "center", justifyContent: "center", backgroundColor: colors.bgCard, borderRadius: radius["2xl"], borderWidth: 1, borderColor: colors.border, marginBottom: spacing["2"] },
   qrImage: { width: 240, height: 240 },
-  hintText: { fontSize: font.xl, fontWeight: "800", color: colors.text, marginBottom: spacing["3"] },
+  hintBox: { backgroundColor: colors.bluePaleBg, borderWidth: 1, borderColor: colors.blue, borderRadius: radius.lg, paddingVertical: spacing["2.5"], paddingHorizontal: spacing["4"], marginBottom: spacing["3"] },
+  hintText: { fontSize: font.xl, fontWeight: "800", color: colors.blueDark, textAlign: "center" },
 
   urlText: { fontSize: font.sm, color: colors.textSecondary, marginBottom: spacing["4"], textAlign: "center" },
 });

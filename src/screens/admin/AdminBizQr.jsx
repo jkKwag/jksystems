@@ -73,7 +73,9 @@ export default function AdminBizQr({ adminInfo }) {
       <TouchableOpacity style={s.qrBox} onPress={downloadQr} activeOpacity={0.8}>
         <Image source={{ uri: qrUri }} style={s.qrImage} resizeMode="contain" />
       </TouchableOpacity>
-      <Text style={s.hintText}>이미지를 클릭하면 저장돼요</Text>
+      <View style={s.hintBox}>
+        <Text style={s.hintText}>QR이미지를 클릭하면 파일로 저장 됩니다.</Text>
+      </View>
 
       <Text style={s.urlText}>{targetUrl}</Text>
     </View>
