@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Platform }
 import { s } from "../../styles/admin/AdminSubscription.styles";
 import api from "../../lib/api";
 import ConfirmModal from "../../components/ConfirmModal";
+import ContractConsentModal from "../../components/ContractConsentModal";
 
 const TOSS_CLIENT_KEY = process.env.EXPO_PUBLIC_TOSS_CLIENT_KEY || "test_ck_vZnjEJeQVxexx5pMqG4brPmOoBN0";
 
@@ -25,6 +26,7 @@ export default function AdminSubscription({ adminInfo }) {
   const [alertMsg, setAlertMsg] = useState(null);
   const [confirmPlan, setConfirmPlan] = useState(null); // { planCd, planNm } | null — 최초 구독 시작 전 확인용
   const [confirmCancel, setConfirmCancel] = useState(false); // 구독 해지 전 확인용
+  const [consentPlan, setConsentPlan] = useState(null); // { planCd, planNm } | null — 결제 전 이용계약 동의용
 
   const load = async () => {
     const [planList, sub, pays, bizData] = await Promise.all([
@@ -50,14 +52,20 @@ export default function AdminSubscription({ adminInfo }) {
     !biz?.mobileTel && "핸드폰번호",
   ].filter(Boolean);
 
-  // "이 요금제로 시작" 클릭 시 바로 위젯을 띄우지 않고, 사업장 정보부터 확인한 뒤 신청 확인 모달을 먼저 보여준다.
+  // "이 요금제로 시작" 클릭 시 바로 위젯을 띄우지 않고, 사업장 정보 확인 → 이용계약 동의 → 신청 확인 순으로 보여준다.
   const onStartPress = (plan) => {
     if (!bizno || Platform.OS !== "web") return;
     if (missingBizFields.length) {
       setAlertMsg(`사업장 정보 메뉴에서 저장 후 가능합니다\n${missingBizFields.map(f => `(${f})`).join(", ")}`);
       return;
     }
-    setConfirmPlan(plan);
+    setConsentPlan(plan);
+  };
+
+  const agreeConsent = () => {
+    const plan = consentPlan;
+    setConsentPlan(null);
+    if (plan) setConfirmPlan(plan);
   };
 
   const confirmStart = () => {
@@ -248,6 +256,11 @@ export default function AdminSubscription({ adminInfo }) {
         )}
       </ScrollView>
 
+      <ContractConsentModal
+        visible={!!consentPlan}
+        onAgree={agreeConsent}
+        onCancel={() => setConsentPlan(null)}
+      />
       <ConfirmModal
         visible={!!confirmPlan}
         message={`${confirmPlan?.planNm} 요금제로 구독 신청 하시겠습니까?`}
