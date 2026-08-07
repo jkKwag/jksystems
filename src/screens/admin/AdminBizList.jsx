@@ -518,7 +518,8 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
       <SectionTitle label="연락처" />
       <View style={s.fieldGrid}>
         <View style={boxStyle(s.fieldBox, "telNo")}>
-          <TextInput style={s.fieldInput} placeholder="전화번호" placeholderTextColor={PLACEHOLDER_COLOR} value={form.telNo} onChangeText={update("telNo")} keyboardType="phone-pad" {...focusHandlers("telNo")} />
+          <TextInput style={s.fieldInput} placeholder="전화번호 (숫자만)" placeholderTextColor={PLACEHOLDER_COLOR} value={form.telNo}
+            onChangeText={(v) => update("telNo")(digitsOnly(v).slice(0, 11))} keyboardType="number-pad" maxLength={11} {...focusHandlers("telNo")} />
         </View>
         <View style={boxStyle(s.fieldBox, "mobileTel")}>
           <TextInput style={s.fieldInput} placeholder="휴대폰번호 (숫자만)" placeholderTextColor={PLACEHOLDER_COLOR} value={form.mobileTel}
