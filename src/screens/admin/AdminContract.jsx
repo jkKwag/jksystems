@@ -3,6 +3,7 @@ import { View, Text, Image, ScrollView, TouchableOpacity, Linking, Platform, Mod
 import { s } from "../../styles/admin/AdminContract.styles";
 import api from "../../lib/api";
 import { formatBizRegNo } from "../../lib/formatBizRegNo";
+import NotInUseBanner from "../../components/NotInUseBanner";
 
 const CONTRACT_FILE_URL = "/documents/scaneat_service_agreement.docx";
 
@@ -223,6 +224,7 @@ export default function AdminContract({ adminInfo }) {
 
   return (
     <View style={s.container}>
+      <NotInUseBanner />
       <View style={s.headerRow}>
         <Text style={s.title}>계약서관리</Text>
         <TouchableOpacity style={s.downloadBtn} onPress={() => Linking.openURL(CONTRACT_FILE_URL)}>

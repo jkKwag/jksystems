@@ -4,6 +4,7 @@ import { s } from "../../styles/admin/AdminBizApprovals.styles";
 import api from "../../lib/api";
 import { formatBizRegNo } from "../../lib/formatBizRegNo";
 import ConfirmModal from "../../components/ConfirmModal";
+import NotInUseBanner from "../../components/NotInUseBanner";
 
 // 국세청 상태조회 결과 문자열을 뱃지 색상으로 매핑 — "계속사업자"만 정상, 나머지(휴업/폐업/미확인)는 경고 처리
 const ntsBadgeStyle = (ntsStatus) => {
@@ -52,6 +53,7 @@ export default function AdminBizApprovals() {
 
   return (
     <View style={s.container}>
+      <NotInUseBanner />
       <View style={s.headerRow}>
         <Text style={s.title}>가입 승인 관리</Text>
         <TouchableOpacity style={s.refreshBtn} onPress={load}>
