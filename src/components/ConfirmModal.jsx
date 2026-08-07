@@ -6,6 +6,10 @@ const BRACKET_LABEL_RE = /^\[([^\]]+)\]\s*(.*)$/;
 const COLON_LABEL_RE = /^([^:\n]+):\s?(.*)$/;
 
 function MessageLine({ line }) {
+  // 빈 줄("\n\n")은 빈 Text로 렌더링하면 높이가 0으로 접혀서 실제로는 줄바꿈이 안 보인다 — 높이가 있는 스페이서로 대신 그린다.
+  if (line === "") {
+    return <View style={s.messageGap} />;
+  }
   const bracketMatch = line.match(BRACKET_LABEL_RE);
   if (bracketMatch && bracketMatch[2]) {
     return <Text style={s.message}>{`[${bracketMatch[1]}] `}<Text style={s.messageValue}>{bracketMatch[2]}</Text></Text>;

@@ -7,6 +7,7 @@ export const s = StyleSheet.create({
   messageScroll: { flexGrow: 0, marginBottom: spacing["5"] },
   message: { fontSize: font.xl, fontWeight: "600", color: colors.text, textAlign: "left", lineHeight: 21 },
   messageValue: { fontWeight: "500", color: colors.textMuted },
+  messageGap: { height: spacing["3"] },
   btnRow: { flexDirection: "row", gap: spacing["2.5"] },
   cancelBtn: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingVertical: spacing["2.5"], alignItems: "center" },
   cancelBtnText: { fontSize: font.lg, fontWeight: "700", color: colors.textGray },
