@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, Linking, Platform, Modal } from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity, TextInput, Linking, Platform, Modal, ActivityIndicator } from "react-native";
 import { s } from "../../styles/admin/AdminContract.styles";
 import api from "../../lib/api";
 import { formatBizRegNo } from "../../lib/formatBizRegNo";
 import NotInUseBanner from "../../components/NotInUseBanner";
+import ConfirmModal from "../../components/ConfirmModal";
 
 const CONTRACT_FILE_URL = "/documents/scaneat_service_agreement.docx";
 
@@ -157,6 +158,32 @@ export default function AdminContract({ adminInfo }) {
 
   const subscriberAddr = [biz?.addr, biz?.addrDtl].filter(Boolean).join(" ") || "______________";
 
+  // 회원가입~구독료 결제 흐름을 같은 사업자번호로 반복 테스트하기 위한 전체 데이터 삭제 —
+  // 되돌릴 수 없어서 사업자등록번호를 그대로 입력해야만 실행되게 한다.
+  const [wipeModalVisible, setWipeModalVisible] = useState(false);
+  const [wipeConfirmInput, setWipeConfirmInput] = useState("");
+  const [wiping, setWiping] = useState(false);
+  const [wipeAlertMsg, setWipeAlertMsg] = useState(null);
+
+  const openWipeModal = () => { setWipeConfirmInput(""); setWipeModalVisible(true); };
+  const closeWipeModal = () => { setWipeModalVisible(false); setWipeConfirmInput(""); };
+
+  const runWipe = async () => {
+    if (!adminInfo?.bizRegNo || wipeConfirmInput.trim() !== adminInfo.bizRegNo) return;
+    setWiping(true);
+    const { data, error } = await api.biz.wipeAllData(adminInfo.bizRegNo);
+    setWiping(false);
+    closeWipeModal();
+    if (error || !data) {
+      setWipeAlertMsg(error?.message || "삭제에 실패했습니다.");
+      return;
+    }
+    setBiz(null);
+    setWipeAlertMsg(
+      `사업장 데이터가 모두 삭제되었습니다.\n계정 ${data.adminUsrCount}건, 메뉴 ${data.menuCount}건, 주문 ${data.orderCount}건, 결제 ${data.paymentCount}건, 예약 ${data.reservationCount}건\n\n로그인 계정도 함께 삭제되었으니 로그아웃 후 새로 가입해주세요.`
+    );
+  };
+
   const [companySignUri, setCompanySignUri] = useState(null);
   const [subscriberSignUri, setSubscriberSignUri] = useState(null);
 
@@ -225,6 +252,9 @@ export default function AdminContract({ adminInfo }) {
   return (
     <View style={s.container}>
       <NotInUseBanner />
+      <TouchableOpacity style={s.wipeBtn} onPress={openWipeModal} disabled={!adminInfo?.bizRegNo}>
+        <Text style={s.wipeBtnText}>사업자 전체 데이터 삭제 (테스트용)</Text>
+      </TouchableOpacity>
       <View style={s.headerRow}>
         <Text style={s.title}>계약서관리</Text>
         <TouchableOpacity style={s.downloadBtn} onPress={() => Linking.openURL(CONTRACT_FILE_URL)}>
@@ -361,6 +391,42 @@ export default function AdminContract({ adminInfo }) {
           </View>
         </View>
       </Modal>
+
+      <Modal visible={wipeModalVisible} transparent animationType="fade" onRequestClose={closeWipeModal}>
+        <View style={s.signModalBackdrop}>
+          <View style={s.signModalCard}>
+            <Text style={s.signModalTitle}>사업자 전체 데이터 삭제</Text>
+            <Text style={s.signModalDesc}>
+              계정, 메뉴, 좌석, 주문, 결제, 구독 등 이 사업자({adminInfo?.bizRegNo ? formatBizRegNo(adminInfo.bizRegNo) : "-"})의
+              모든 데이터가 영구히 삭제됩니다. 되돌릴 수 없습니다.{"\n\n"}
+              계속하려면 사업자등록번호를 그대로 입력해주세요.
+            </Text>
+            <TextInput
+              style={s.wipeConfirmInput}
+              placeholder={adminInfo?.bizRegNo || ""}
+              placeholderTextColor="#94a3b8"
+              value={wipeConfirmInput}
+              onChangeText={setWipeConfirmInput}
+              autoCapitalize="none"
+              keyboardType="numeric"
+            />
+            <View style={s.signModalBtnRow}>
+              <TouchableOpacity style={s.signModalCancelBtn} onPress={closeWipeModal} disabled={wiping}>
+                <Text style={s.signModalCancelBtnText}>취소</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[s.wipeConfirmBtn, (wipeConfirmInput.trim() !== adminInfo?.bizRegNo || wiping) && s.wipeConfirmBtnDisabled]}
+                onPress={runWipe}
+                disabled={wipeConfirmInput.trim() !== adminInfo?.bizRegNo || wiping}
+              >
+                {wiping ? <ActivityIndicator color="#fff" size="small" /> : <Text style={s.wipeConfirmBtnText}>삭제</Text>}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <ConfirmModal visible={!!wipeAlertMsg} message={wipeAlertMsg} onConfirm={() => setWipeAlertMsg(null)} />
     </View>
   );
 }

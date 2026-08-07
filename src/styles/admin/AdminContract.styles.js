@@ -10,6 +10,13 @@ export const s = StyleSheet.create({
   downloadBtn: { borderWidth: 1.5, borderColor: colors.primary, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"], outlineStyle: "none" },
   downloadBtnText: { fontSize: font.md, fontWeight: "700", color: colors.primary },
 
+  wipeBtn: { alignSelf: "flex-start", backgroundColor: colors.red, borderRadius: radius.md, paddingHorizontal: spacing["4"], paddingVertical: spacing["2.5"], marginTop: spacing["16"], marginBottom: spacing["4"], outlineStyle: "none" },
+  wipeBtnText: { fontSize: font.md, fontWeight: "800", color: colors.white },
+  wipeConfirmInput: { borderWidth: 1.5, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"], fontSize: font.lg, color: colors.text, marginTop: spacing["3"], marginBottom: spacing["4"] },
+  wipeConfirmBtn: { flex: 1, paddingVertical: spacing["2.5"], borderRadius: radius.md, backgroundColor: colors.red, alignItems: "center", outlineStyle: "none" },
+  wipeConfirmBtnDisabled: { backgroundColor: colors.slate300 },
+  wipeConfirmBtnText: { fontSize: font.md, fontWeight: "800", color: colors.white },
+
   paper: { backgroundColor: colors.bgCard, borderRadius: radius["2xl"], borderWidth: 1, borderColor: colors.slate300, padding: spacing["6"], paddingBottom: spacing["10"] },
 
   docTitle: { fontSize: font["8xl"] - 1, fontWeight: "900", color: colors.text, textAlign: "center" },
