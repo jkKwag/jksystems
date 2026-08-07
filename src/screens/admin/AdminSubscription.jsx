@@ -24,6 +24,7 @@ export default function AdminSubscription({ adminInfo }) {
   const [canceling, setCanceling] = useState(false);
   const [alertMsg, setAlertMsg] = useState(null);
   const [confirmPlan, setConfirmPlan] = useState(null); // { planCd, planNm } | null — 최초 구독 시작 전 확인용
+  const [confirmCancel, setConfirmCancel] = useState(false); // 구독 해지 전 확인용
 
   const load = async () => {
     const [planList, sub, pays, bizData] = await Promise.all([
@@ -107,6 +108,7 @@ export default function AdminSubscription({ adminInfo }) {
 
   const handleCancel = async () => {
     if (!bizno) return;
+    setConfirmCancel(false);
     setCanceling(true);
     const { data, error } = await api.biz.cancelSubscription(bizno);
     setCanceling(false);
@@ -168,7 +170,7 @@ export default function AdminSubscription({ adminInfo }) {
               <Text style={s.infoVal}>{subspt.hasBillingKey ? "카드 등록됨" : "등록된 카드가 없습니다"}</Text>
             </View>
 
-            <TouchableOpacity style={s.cancelSubBtn} onPress={handleCancel} disabled={canceling}>
+            <TouchableOpacity style={s.cancelSubBtn} onPress={() => setConfirmCancel(true)} disabled={canceling}>
               <Text style={s.cancelSubBtnText}>구독 해지</Text>
             </TouchableOpacity>
           </View>
@@ -253,6 +255,15 @@ export default function AdminSubscription({ adminInfo }) {
         cancelText="취소"
         onConfirm={confirmStart}
         onCancel={() => setConfirmPlan(null)}
+      />
+      <ConfirmModal
+        visible={confirmCancel}
+        message="정말 구독 해지 하시겠습니까?"
+        confirmText="해지"
+        cancelText="취소"
+        danger
+        onConfirm={handleCancel}
+        onCancel={() => setConfirmCancel(false)}
       />
       <ConfirmModal visible={!!alertMsg} message={alertMsg} onConfirm={() => setAlertMsg(null)} />
     </View>
