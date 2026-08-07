@@ -165,7 +165,7 @@ export default function AdminHome({ adminInfo, onLogout }) {
     })();
   }, [adminInfo?.bizRegNo]);
 
-  const brandTitle = isSuper ? "SUPER관리자" : (bizNm || "CampRoad 관리자");
+  const brandTitle = isSuper ? "SUPER관리자" : (bizNm || "JK Scaneat 관리자");
 
   const toggle = (menuCd) => {
     setExpanded(prev => {
