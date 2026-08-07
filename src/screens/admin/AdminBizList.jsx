@@ -442,12 +442,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
     setForm(toForm(data));
     setOriginalForm(toForm(data));
 
-    const subspt = await api.biz.getSubscription(data.bizRegNo);
-    setAlertMsg(
-      subspt?.status === "ACTIVE"
-        ? "저장 되었습니다."
-        : "사업장 정보는 저장 되었습니다.\n구독료를 결제하면 바로 사용 가능합니다."
-    );
+    setAlertMsg("저장 되었습니다.");
   };
 
   const focusHandlers = (key) => ({
@@ -613,7 +608,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
     <View style={s.container}>
       <View style={s.headerRow}>
         <Text style={s.title}>
-          {activeBizRegNo ? "사업장 조회 결과" : "사업장 목록"}
+          {activeBizRegNo ? "사업장 정보" : "사업장 목록"}
         </Text>
         {isSuper && (
           <TouchableOpacity style={s.addBtn} onPress={() => toggleExpand("__new__", null)}>
