@@ -95,10 +95,19 @@ export default function AdminSubscription({ adminInfo }) {
   const handleCancel = async () => {
     if (!bizno) return;
     setCanceling(true);
-    const { error } = await api.biz.cancelSubscription(bizno);
+    const { data, error } = await api.biz.cancelSubscription(bizno);
     setCanceling(false);
     if (error) { setAlertMsg(error?.message || "구독 해지에 실패했습니다."); return; }
-    setAlertMsg("구독이 해지되었습니다.");
+    const refundAmount = data?.refundAmount || 0;
+    if (refundAmount > 0) {
+      setAlertMsg(
+        data.refundSucceeded
+          ? `구독이 해지되었습니다.\n미사용 기간 ${won(refundAmount)}이 환불 처리되었습니다.`
+          : `구독은 해지되었습니다.\n환불 처리 중 오류가 발생했습니다. 확인 후 처리해 드리겠습니다.`
+      );
+    } else {
+      setAlertMsg("구독이 해지되었습니다.");
+    }
     load();
   };
 
