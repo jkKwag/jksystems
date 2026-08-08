@@ -4,6 +4,7 @@ import { PaddleOcrService, V5_KOREAN_MOBILE_MODEL } from "ppu-paddle-ocr/web";
 import { s } from "../../styles/admin/AdminBizList.styles";
 import api from "../../lib/api";
 import ConfirmModal from "../../components/ConfirmModal";
+import IndClsPickerModal from "../../components/IndClsPickerModal";
 import { formatBizRegNo } from "../../lib/formatBizRegNo";
 
 const PAGE_SIZE = 10;
@@ -256,6 +257,7 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
   const [certMasking, setCertMasking] = useState(false);
   const [certUploading, setCertUploading] = useState(false);
   const [certError, setCertError] = useState("");
+  const [indPickerVisible, setIndPickerVisible] = useState(false);
 
   const load = async () => {
     setLoaded(false);
@@ -526,6 +528,15 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
         </View>
       </View>
 
+      <SectionTitle label="업종" />
+      <View style={s.fieldGrid}>
+        <TouchableOpacity style={s.fieldBoxFull} onPress={() => setIndPickerVisible(true)}>
+          <Text style={[s.fieldInput, !form.indCd && s.fieldInputReadOnly]}>
+            {form.indCd ? indPathOf(form.indCd).map(n => n.indNm).join(" › ") : "업종선택"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       <SectionTitle label="주소" />
       <View style={s.fieldGrid}>
         <View style={boxStyle(s.fieldBoxFull, "addr")}>
@@ -698,6 +709,12 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
       )}
 
       <ConfirmModal visible={!!alertMsg} message={alertMsg} onConfirm={() => setAlertMsg(null)} />
+
+      <IndClsPickerModal
+        visible={indPickerVisible}
+        onSelect={(indCd) => { update("indCd")(indCd); setIndPickerVisible(false); }}
+        onClose={() => setIndPickerVisible(false)}
+      />
 
       <Modal visible={certZoomVisible} transparent animationType="fade" onRequestClose={closeZoom}>
         <View style={s.certZoomBackdrop}>
