@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Linking, Modal, Platform, Animated, Easing } from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Linking, Modal, Platform, Animated, Easing, TextInput } from "react-native";
 import AiChat from "../components/AiChat";
 import ChatRoom from "../components/ChatRoom";
 import MenuDetail from "./MenuDetail";
@@ -471,6 +471,8 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
   const [checkoutHint, setCheckoutHint] = useState(false);
   const [showOrderDone, setShowOrderDone] = useState(false);
   const [orderType, setOrderType] = useState("매장주문");
+  const [guestPhone, setGuestPhone] = useState("");
+  const [guestPhoneError, setGuestPhoneError] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [editingCartId, setEditingCartId] = useState(null);
   const aiToastOpacity = useRef(new Animated.Value(0)).current;
@@ -639,6 +641,9 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
     options: (item.selectedOptions || []).map(o => ({ optCd: o.id, optNm: o.name, addPrice: o.price || 0 })),
   }));
 
+  // 포장주문일 때만 휴대폰번호(11자리)가 필요
+  const isGuestPhoneValid = orderType !== "포장주문" || /^\d{11}$/.test(guestPhone);
+
   // 지금 장바구니를 실제 주문으로 서버에 저장. 실패하면 null.
   const createOrderForCart = async () => {
     const uuid = getUuid();
@@ -648,6 +653,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
       bizRegNo: bizno,
       seatNo: tableNo || null,
       orderTypCd: orderType === "포장주문" ? "TAKEOUT" : "DINE_IN",
+      guestPhone: orderType === "포장주문" ? guestPhone : null,
       items: buildOrderItemsPayload(),
     });
     if (error || !data) {
@@ -1134,6 +1140,23 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                     <Text style={[s.payOrderName, { fontWeight: "900", color: "#111" }]}>소계</Text>
                     <Text style={s.payTotalAmt}>₩{cartTotal.toLocaleString()}</Text>
                   </View>
+                  {orderType === "포장주문" && (
+                    <View style={s.payPhoneField}>
+                      <Text style={s.payPhoneLabel}>📞 연락받으실 휴대폰번호</Text>
+                      <TextInput
+                        style={[s.payPhoneInput, guestPhoneError && !isGuestPhoneValid && s.payPhoneInputError]}
+                        placeholder="숫자만 입력 (11자리)"
+                        placeholderTextColor="#94a3b8"
+                        value={guestPhone}
+                        onChangeText={(t) => { setGuestPhone(t.replace(/[^0-9]/g, "").slice(0, 11)); setGuestPhoneError(false); }}
+                        keyboardType="phone-pad"
+                        maxLength={11}
+                      />
+                      {guestPhoneError && !isGuestPhoneValid && (
+                        <Text style={s.payPhoneErrorText}>휴대폰번호 11자리를 입력해주세요.</Text>
+                      )}
+                    </View>
+                  )}
                 </View>
               )}
 
@@ -1211,6 +1234,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                     style={s.orderOnlyBtn}
                     disabled={orderSubmitting}
                     onPress={async () => {
+                      if (!isGuestPhoneValid) { setGuestPhoneError(true); return; }
                       setOrderSubmitting(true);
                       const order = await createOrderForCart();
                       setOrderSubmitting(false);
@@ -1233,6 +1257,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                   style={[s.payNowBtn, (grandTotal === 0 || orderSubmitting) && s.payNowBtnDisabled]}
                   disabled={grandTotal === 0 || orderSubmitting}
                   onPress={async () => {
+                    if (cartItems.length > 0 && !isGuestPhoneValid) { setGuestPhoneError(true); return; }
                     // 결제 전에는 주문을 만들지 않는다 — 결제 위젯을 열었다가 취소/실패해도
                     // 주문 테이블에 미결제 주문이 남지 않도록, 실제 결제 승인 성공 후(PaymentSuccess)에
                     // 장바구니 내용으로 주문을 생성한다. 그때까지는 이 결제건의 orderId로
@@ -1253,6 +1278,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                           bizRegNo: bizno,
                           seatNo: tableNo || null,
                           orderTypCd: orderType === "포장주문" ? "TAKEOUT" : "DINE_IN",
+                          guestPhone: orderType === "포장주문" ? guestPhone : null,
                           items: buildOrderItemsPayload(),
                         }));
                         storedCheckout = true;

@@ -211,6 +211,16 @@ export const s = StyleSheet.create({
 
   payTossNote: { fontSize: font.base, color: colors.slate400, textAlign: "center", marginTop: spacing["4"], fontWeight: "600" },
 
+  payPhoneField: { marginTop: spacing["2"] },
+  payPhoneLabel: { fontSize: font.md, fontWeight: "700", color: colors.textSecondary, marginBottom: spacing["1"] },
+  payPhoneInput: {
+    borderWidth: 1.5, borderColor: colors.borderMedium, borderRadius: radius.lg,
+    paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"], fontSize: font.lg,
+    color: colors.text, backgroundColor: colors.bgCard,
+  },
+  payPhoneInputError: { borderColor: "#ef4444" },
+  payPhoneErrorText: { fontSize: font.sm, color: "#ef4444", fontWeight: "600", marginTop: spacing["1"] },
+
   payFooter: { backgroundColor: colors.bgCard, padding: spacing["4"], borderTopWidth: 1, borderTopColor: colors.borderLight, gap: spacing["3"] },
   payAmtRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   payAmtLabel: { fontSize: font.lg, color: colors.slate500, fontWeight: "600" },

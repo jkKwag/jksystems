@@ -240,6 +240,9 @@ export default function AdminOrders({ adminInfo }) {
               <View style={s.orderNoBadge}>
                 <Text style={s.orderNoBadgeText}>주문번호 {order.orderNo}</Text>
               </View>
+              {order.orderTypCd === "TAKEOUT" && order.guestPhone ? (
+                <Text style={s.guestPhoneText}>📞 {order.guestPhone}</Text>
+              ) : null}
 
               {!!NEXT_STATUS[order.status] && (
                 <TouchableOpacity
