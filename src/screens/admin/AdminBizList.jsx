@@ -307,6 +307,12 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
     setLoadingMore(false);
   };
 
+  // 목록에서 업종 영역을 눌렀을 때 — 아직 펼쳐져 있지 않으면 먼저 펼쳐서 폼을 로드한 뒤 선택 팝업을 띄운다.
+  const openIndPicker = (biz) => {
+    if (expandedKey !== biz.bizRegNo) toggleExpand(biz.bizRegNo, biz);
+    setIndPickerVisible(true);
+  };
+
   const toggleExpand = (key, biz) => {
     if (expandedKey === key) { setExpandedKey(null); return; }
     setForm(biz ? toForm(biz) : emptyForm);
@@ -528,15 +534,6 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
         </View>
       </View>
 
-      <SectionTitle label="업종" />
-      <View style={s.fieldGrid}>
-        <TouchableOpacity style={s.fieldBoxFull} onPress={() => setIndPickerVisible(true)}>
-          <Text style={[s.fieldInput, !form.indCd && s.fieldInputReadOnly]}>
-            {form.indCd ? indPathOf(form.indCd).map(n => n.indNm).join(" › ") : "업종선택"}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
       <SectionTitle label="주소" />
       <View style={s.fieldGrid}>
         <View style={boxStyle(s.fieldBoxFull, "addr")}>
@@ -645,6 +642,8 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
             bizList.map(biz => {
               const expanded = expandedKey === biz.bizRegNo;
               const open = isOpenStatus(biz);
+              // 펼쳐진 카드는 저장 전 임시 선택값을 바로 보여주고, 접힌 카드는 저장된 값을 보여준다
+              const displayIndCd = expanded ? form.indCd : biz.indCd;
               return (
                 <View key={biz.bizRegNo} style={s.bizCard}>
                   <TouchableOpacity style={s.noOutline} onPress={() => toggleExpand(biz.bizRegNo, biz)} activeOpacity={0.85}>
@@ -664,25 +663,28 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
                   </TouchableOpacity>
 
                   <View style={s.bizStrip}>
-                    <View style={s.stripTile}>
-                      {indPathOf(biz.indCd).length === 0 ? (
-                        <Text style={s.stripValue} numberOfLines={1}>미지정</Text>
-                      ) : (
-                        <View style={s.indPathRow}>
-                          {indPathOf(biz.indCd).map((node, i, arr) => {
-                            const isLast = i === arr.length - 1;
-                            return (
-                              <View key={node.indCd} style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
-                                {i > 0 && <Text style={s.indPathSep}>›</Text>}
-                                <View style={[s.indPathPill, isLast && s.indPathPillCurrent]}>
-                                  <Text style={[s.indPathPillText, isLast && s.indPathPillTextCurrent]}>{node.indNm}</Text>
+                    <TouchableOpacity style={[s.stripTile, s.stripTileTouchable]} onPress={() => openIndPicker(biz)} activeOpacity={0.7}>
+                      <View style={{ flex: 1 }}>
+                        {indPathOf(displayIndCd).length === 0 ? (
+                          <Text style={s.stripValue} numberOfLines={1}>미지정</Text>
+                        ) : (
+                          <View style={s.indPathRow}>
+                            {indPathOf(displayIndCd).map((node, i, arr) => {
+                              const isLast = i === arr.length - 1;
+                              return (
+                                <View key={node.indCd} style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+                                  {i > 0 && <Text style={s.indPathSep}>›</Text>}
+                                  <View style={[s.indPathPill, isLast && s.indPathPillCurrent]}>
+                                    <Text style={[s.indPathPillText, isLast && s.indPathPillTextCurrent]}>{node.indNm}</Text>
+                                  </View>
                                 </View>
-                              </View>
-                            );
-                          })}
-                        </View>
-                      )}
-                    </View>
+                              );
+                            })}
+                          </View>
+                        )}
+                      </View>
+                      <Text style={s.stripEditHint}>변경 ›</Text>
+                    </TouchableOpacity>
                   </View>
 
                   <View style={s.bizFooter}>

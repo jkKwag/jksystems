@@ -29,7 +29,9 @@ export const s = StyleSheet.create({
 
   bizStrip: { flexDirection: "row", gap: spacing["2"], padding: spacing["3"], borderBottomWidth: 1, borderBottomColor: colors.borderLight },
   stripTile: { flex: 1, backgroundColor: colors.slate100, borderRadius: radius.lg, paddingHorizontal: spacing["2.5"], paddingVertical: spacing["2"] },
+  stripTileTouchable: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing["2"] },
   stripValue: { fontSize: font.base, fontWeight: "700", color: colors.textSecondary },
+  stripEditHint: { fontSize: font.sm, fontWeight: "700", color: colors.accent },
 
   indPathRow: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 4 },
   indPathPill: { borderRadius: radius.pill, paddingHorizontal: spacing["2.5"], paddingVertical: 4, backgroundColor: colors.bgCard, borderWidth: 1, borderColor: colors.border },
