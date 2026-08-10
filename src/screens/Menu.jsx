@@ -485,7 +485,9 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
   const [showConfetti, setShowConfetti] = useState(false);
   const [checkoutHint, setCheckoutHint] = useState(false);
   const [showOrderDone, setShowOrderDone] = useState(false);
-  const [orderType, setOrderType] = useState("매장주문");
+  // 테이블번호 없이 들어온 경우(테이블 QR을 거치지 않은 접근)는 매장에 앉아있다고 볼 수 없으므로
+  // 포장주문으로 시작하고, 매장주문은 아예 선택할 수 없게 막는다.
+  const [orderType, setOrderType] = useState(tableNoFromUrl ? "매장주문" : "포장주문");
   const [guestPhoneFront, setGuestPhoneFront] = useState("010");
   const [guestPhoneBack, setGuestPhoneBack] = useState("");
   const [guestPhoneError, setGuestPhoneError] = useState(false);
@@ -506,7 +508,9 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
 
   // 매장주문/포장주문/테이블예약은 한 번에 하나만 선택되는 토글 — 테이블예약을 고르면
   // 주문 흐름 대신 예약 화면으로 전환되고, 예약 화면을 닫으면 이전에 고르던 주문방식으로 돌아온다.
+  // 테이블번호 없이 들어온 경우엔 매장주문 자체를 선택할 수 없다.
   const selectOrderType = (label) => {
+    if (label === "매장주문" && !tableNo) return;
     if (label === "테이블예약") {
       prevOrderTypeRef.current = orderType;
       setOrderType("테이블예약");
@@ -716,18 +720,22 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
               { label: "매장주문", icon: "🍽️", textStyle: s.shopTagTextDineIn, iconWrapStyle: s.orderTypeIconDineIn },
               { label: "포장주문", icon: "📦", textStyle: s.shopTagTextTakeout, iconWrapStyle: s.orderTypeIconTakeout },
               { label: "테이블예약", icon: "🪑", textStyle: s.shopTagTextRsvn, iconWrapStyle: s.orderTypeIconRsvn },
-            ].map((t, i, arr) => (
-              <TouchableOpacity
-                key={t.label}
-                style={[s.orderTypeBtn, orderType === t.label && s.orderTypeBtnActive, i < arr.length - 1 && s.orderTypeBtnLeft]}
-                onPress={() => selectOrderType(t.label)}
-              >
-                <View style={[s.orderTypeIconWrap, t.iconWrapStyle]}>
-                  <Text style={s.orderTypeIconText}>{t.icon}</Text>
-                </View>
-                <Text style={[s.shopTagText, t.textStyle, orderType === t.label && s.shopTagTextActive]}>{t.label}</Text>
-              </TouchableOpacity>
-            ))}
+            ].map((t, i, arr) => {
+              const disabled = t.label === "매장주문" && !tableNo;
+              return (
+                <TouchableOpacity
+                  key={t.label}
+                  style={[s.orderTypeBtn, orderType === t.label && s.orderTypeBtnActive, i < arr.length - 1 && s.orderTypeBtnLeft, disabled && s.orderTypeBtnDisabled]}
+                  onPress={() => selectOrderType(t.label)}
+                  disabled={disabled}
+                >
+                  <View style={[s.orderTypeIconWrap, t.iconWrapStyle]}>
+                    <Text style={s.orderTypeIconText}>{t.icon}</Text>
+                  </View>
+                  <Text style={[s.shopTagText, t.textStyle, orderType === t.label && s.shopTagTextActive]}>{t.label}</Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
           {recentPayments.length > 0 && (
             <TouchableOpacity style={s.paymentHistoryBtn} onPress={() => setShowPaymentHistory(true)}>

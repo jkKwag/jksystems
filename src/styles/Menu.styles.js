@@ -31,6 +31,7 @@ export const s = StyleSheet.create({
   orderTypeBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: spacing["1"], paddingHorizontal: spacing["2.5"], paddingVertical: 5 },
   orderTypeBtnLeft: { borderRightWidth: 1, borderRightColor: colors.borderMedium },
   orderTypeBtnActive: { backgroundColor: colors.primary },
+  orderTypeBtnDisabled: { opacity: 0.4 },
   shopTagActive: { backgroundColor: colors.primary },
   shopTagIcon: { fontSize: font.base },
   orderTypeIconWrap: { width: 18, height: 18, borderRadius: 9, justifyContent: "center", alignItems: "center" },
