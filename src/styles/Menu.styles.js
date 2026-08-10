@@ -218,6 +218,20 @@ export const s = StyleSheet.create({
     paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"], fontSize: font.lg,
     color: colors.text, backgroundColor: colors.bgCard,
   },
+  payPhoneRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"] },
+  payPhoneInputFront: {
+    width: 64, textAlign: "center",
+    borderWidth: 1.5, borderColor: colors.borderMedium, borderRadius: radius.lg,
+    paddingHorizontal: spacing["2"], paddingVertical: spacing["2.5"], fontSize: font.lg,
+    color: colors.text, backgroundColor: colors.bgCard,
+  },
+  payPhoneInputBack: {
+    flex: 1,
+    borderWidth: 1.5, borderColor: colors.borderMedium, borderRadius: radius.lg,
+    paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"], fontSize: font.lg,
+    color: colors.text, backgroundColor: colors.bgCard,
+  },
+  payPhoneSep: { fontSize: font.lg, fontWeight: "700", color: colors.slate400 },
   payPhoneInputError: { borderColor: "#ef4444" },
   payPhoneErrorText: { fontSize: font.sm, color: "#ef4444", fontWeight: "600", marginTop: spacing["1"] },
 

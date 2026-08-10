@@ -344,12 +344,17 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
   };
 
   // 이전에 남긴 휴대폰번호가 있으면 결제 모달의 입력란에 한 번만 자동으로 채워준다
-  // (이후 사용자가 직접 수정/삭제하면 그 값을 그대로 존중).
+  // (뒷자리가 이미 채워져 있으면 사용자가 직접 입력한 것으로 보고 건드리지 않음).
   useEffect(() => {
     const uuid = getUuid();
     if (!uuid) return;
     api.order.lastGuestPhone(uuid).then(phone => {
-      if (phone) setGuestPhone(prev => prev || phone);
+      if (!phone || phone.length !== 11) return;
+      setGuestPhoneBack(prev => {
+        if (prev !== "") return prev;
+        setGuestPhoneFront(phone.slice(0, 3));
+        return phone.slice(3);
+      });
     });
   }, []);
 
@@ -481,7 +486,8 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
   const [checkoutHint, setCheckoutHint] = useState(false);
   const [showOrderDone, setShowOrderDone] = useState(false);
   const [orderType, setOrderType] = useState("매장주문");
-  const [guestPhone, setGuestPhone] = useState("");
+  const [guestPhoneFront, setGuestPhoneFront] = useState("010");
+  const [guestPhoneBack, setGuestPhoneBack] = useState("");
   const [guestPhoneError, setGuestPhoneError] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [editingCartId, setEditingCartId] = useState(null);
@@ -651,8 +657,11 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
     options: (item.selectedOptions || []).map(o => ({ optCd: o.id, optNm: o.name, addPrice: o.price || 0 })),
   }));
 
-  // 포장주문일 때만 휴대폰번호(11자리)가 필요
-  const isGuestPhoneValid = orderType !== "포장주문" || /^\d{11}$/.test(guestPhone);
+  // 포장주문일 때만 휴대폰번호가 필요 — 앞자리(010~019)와 뒷자리(8자리)를 각각 검증
+  const isGuestPhoneFrontValid = /^01[016789]$/.test(guestPhoneFront);
+  const isGuestPhoneBackValid = /^\d{8}$/.test(guestPhoneBack);
+  const isGuestPhoneValid = orderType !== "포장주문" || (isGuestPhoneFrontValid && isGuestPhoneBackValid);
+  const guestPhone = guestPhoneFront + guestPhoneBack;
 
   // 지금 장바구니를 실제 주문으로 서버에 저장. 실패하면 null.
   const createOrderForCart = async () => {
@@ -1153,17 +1162,32 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                   {orderType === "포장주문" && (
                     <View style={s.payPhoneField}>
                       <Text style={s.payPhoneLabel}>📞 연락받으실 휴대폰번호</Text>
-                      <TextInput
-                        style={[s.payPhoneInput, guestPhoneError && !isGuestPhoneValid && s.payPhoneInputError]}
-                        placeholder="숫자만 입력 (11자리)"
-                        placeholderTextColor="#94a3b8"
-                        value={guestPhone}
-                        onChangeText={(t) => { setGuestPhone(t.replace(/[^0-9]/g, "").slice(0, 11)); setGuestPhoneError(false); }}
-                        keyboardType="phone-pad"
-                        maxLength={11}
-                      />
-                      {guestPhoneError && !isGuestPhoneValid && (
-                        <Text style={s.payPhoneErrorText}>휴대폰번호 11자리를 입력해주세요.</Text>
+                      <View style={s.payPhoneRow}>
+                        <TextInput
+                          style={[s.payPhoneInputFront, guestPhoneError && !isGuestPhoneFrontValid && s.payPhoneInputError]}
+                          placeholder="010"
+                          placeholderTextColor="#94a3b8"
+                          value={guestPhoneFront}
+                          onChangeText={(t) => { setGuestPhoneFront(t.replace(/[^0-9]/g, "").slice(0, 3)); setGuestPhoneError(false); }}
+                          keyboardType="phone-pad"
+                          maxLength={3}
+                        />
+                        <Text style={s.payPhoneSep}>-</Text>
+                        <TextInput
+                          style={[s.payPhoneInputBack, guestPhoneError && isGuestPhoneFrontValid && !isGuestPhoneBackValid && s.payPhoneInputError]}
+                          placeholder="숫자 8자리"
+                          placeholderTextColor="#94a3b8"
+                          value={guestPhoneBack}
+                          onChangeText={(t) => { setGuestPhoneBack(t.replace(/[^0-9]/g, "").slice(0, 8)); setGuestPhoneError(false); }}
+                          keyboardType="phone-pad"
+                          maxLength={8}
+                        />
+                      </View>
+                      {guestPhoneError && !isGuestPhoneFrontValid && (
+                        <Text style={s.payPhoneErrorText}>앞자리를 010~019 형식으로 입력해주세요.</Text>
+                      )}
+                      {guestPhoneError && isGuestPhoneFrontValid && !isGuestPhoneBackValid && (
+                        <Text style={s.payPhoneErrorText}>뒷자리 8자리를 입력해주세요.</Text>
                       )}
                     </View>
                   )}
@@ -1239,7 +1263,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                       <Text style={[s.orderOnlyBtnText, s.orderOnlyBtnTextCancel]}>주문취소</Text>
                     </TouchableOpacity>
                   )
-                ) : cartItems.length > 0 && (
+                ) : cartItems.length > 0 && orderType !== "포장주문" && (
                   <TouchableOpacity
                     style={s.orderOnlyBtn}
                     disabled={orderSubmitting}
