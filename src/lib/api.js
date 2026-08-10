@@ -161,6 +161,7 @@ const api = {
   },
   order: {
     list: (uuid) => get(`/api/order?uuid=${uuid}`),
+    lastGuestPhone: (uuid) => get(`/api/order/last-phone?uuid=${uuid}`),
     listByBiz: (bizRegNo, from, to) => get(`/api/order/biz/${bizRegNo}${from && to ? `?from=${from}&to=${to}` : ""}`),
     get: (orderNo) => get(`/api/order/${orderNo}`),
     post: (body) => post(`/api/order`, body),

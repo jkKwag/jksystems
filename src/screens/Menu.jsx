@@ -341,17 +341,17 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
     const bizOrders = orders.filter(o => o.bizRegNo === bizno && o.status !== "CANCELED" && !isOrderExpired(o));
     setPendingOrders(bizOrders.filter(o => !o.paymentStatus));
     setActiveOrders(bizOrders);
-
-    if (!phoneAutofilledRef.current) {
-      const lastWithPhone = orders
-        .filter(o => o.guestPhone)
-        .sort((a, b) => new Date(b.regDt) - new Date(a.regDt))[0];
-      if (lastWithPhone) {
-        phoneAutofilledRef.current = true;
-        setGuestPhone(prev => prev || lastWithPhone.guestPhone);
-      }
-    }
   };
+
+  // 이전에 남긴 휴대폰번호가 있으면 결제 모달의 입력란에 한 번만 자동으로 채워준다
+  // (이후 사용자가 직접 수정/삭제하면 그 값을 그대로 존중).
+  useEffect(() => {
+    const uuid = getUuid();
+    if (!uuid) return;
+    api.order.lastGuestPhone(uuid).then(phone => {
+      if (phone) setGuestPhone(prev => prev || phone);
+    });
+  }, []);
 
   useEffect(() => {
     refreshPendingOrders();
@@ -483,9 +483,6 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
   const [orderType, setOrderType] = useState("매장주문");
   const [guestPhone, setGuestPhone] = useState("");
   const [guestPhoneError, setGuestPhoneError] = useState(false);
-  // 이전에 남긴 휴대폰번호가 있으면 한 번만 자동으로 채워준다 (이후 사용자가 직접
-  // 수정/삭제하면 그 값을 그대로 존중 — refreshPendingOrders가 다시 불려도 덮어쓰지 않음).
-  const phoneAutofilledRef = useRef(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [editingCartId, setEditingCartId] = useState(null);
   const aiToastOpacity = useRef(new Animated.Value(0)).current;
