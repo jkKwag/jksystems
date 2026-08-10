@@ -19,6 +19,7 @@ export const s = StyleSheet.create({
 
   bizBand: { backgroundColor: colors.slate200, borderBottomWidth: 1, borderBottomColor: colors.slate300, paddingHorizontal: spacing["4.5"], paddingVertical: spacing["2"], flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing["3"] },
   bizBandLeft: { flex: 1, minWidth: 0 },
+  bizBandRight: { flexDirection: "row", alignItems: "center", gap: spacing["2"] },
   bizNm: { fontSize: font.xl, fontWeight: "900", color: "#15803d", marginBottom: 2 },
   bizRegNo: { fontSize: font.sm, color: colors.textGray, fontFamily: Platform.OS === "web" ? "monospace" : undefined },
 

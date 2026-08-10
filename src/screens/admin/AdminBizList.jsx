@@ -653,46 +653,48 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
                         <Text style={s.bizNm} numberOfLines={1}>{biz.bizNm}</Text>
                         <Text style={s.bizRegNo}>{formatBizRegNo(biz.bizRegNo)}</Text>
                       </View>
-                      <View style={s.statusPill}>
-                        <View style={[s.statusDot, { backgroundColor: open ? "#4ade80" : "#94a3b8" }]} />
-                        <Text style={s.statusPillText}>{statusNm(biz)}</Text>
+                      <View style={s.bizBandRight}>
+                        <View style={s.statusPill}>
+                          <View style={[s.statusDot, { backgroundColor: open ? "#4ade80" : "#94a3b8" }]} />
+                          <Text style={s.statusPillText}>{statusNm(biz)}</Text>
+                        </View>
+                        <Text style={[s.chev, expanded && s.chevOpen]}>›</Text>
                       </View>
-                    </View>
-
-                    <View style={s.bizStrip}>
-                      <View style={s.stripTile}>
-                        {indPathOf(biz.indCd).length === 0 ? (
-                          <Text style={s.stripValue} numberOfLines={1}>미지정</Text>
-                        ) : (
-                          <View style={s.indPathRow}>
-                            {indPathOf(biz.indCd).map((node, i, arr) => {
-                              const isLast = i === arr.length - 1;
-                              return (
-                                <View key={node.indCd} style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
-                                  {i > 0 && <Text style={s.indPathSep}>›</Text>}
-                                  <View style={[s.indPathPill, isLast && s.indPathPillCurrent]}>
-                                    <Text style={[s.indPathPillText, isLast && s.indPathPillTextCurrent]}>{node.indNm}</Text>
-                                  </View>
-                                </View>
-                              );
-                            })}
-                          </View>
-                        )}
-                      </View>
-                    </View>
-
-                    <View style={s.bizFooter}>
-                      <Text style={s.bizAddr} numberOfLines={1}>
-                        {[biz.addr, biz.addrDtl].filter(Boolean).join(" ") || "주소 미등록"}
-                      </Text>
-                      {onSelectBiz && biz.bizRegNo !== activeBizRegNo && (
-                        <TouchableOpacity style={s.selectBtn} onPress={(e) => { e?.stopPropagation?.(); onSelectBiz(biz.bizRegNo); }}>
-                          <Text style={s.selectBtnText}>이 사업장 조회</Text>
-                        </TouchableOpacity>
-                      )}
-                      <Text style={[s.chev, expanded && s.chevOpen]}>›</Text>
                     </View>
                   </TouchableOpacity>
+
+                  <View style={s.bizStrip}>
+                    <View style={s.stripTile}>
+                      {indPathOf(biz.indCd).length === 0 ? (
+                        <Text style={s.stripValue} numberOfLines={1}>미지정</Text>
+                      ) : (
+                        <View style={s.indPathRow}>
+                          {indPathOf(biz.indCd).map((node, i, arr) => {
+                            const isLast = i === arr.length - 1;
+                            return (
+                              <View key={node.indCd} style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+                                {i > 0 && <Text style={s.indPathSep}>›</Text>}
+                                <View style={[s.indPathPill, isLast && s.indPathPillCurrent]}>
+                                  <Text style={[s.indPathPillText, isLast && s.indPathPillTextCurrent]}>{node.indNm}</Text>
+                                </View>
+                              </View>
+                            );
+                          })}
+                        </View>
+                      )}
+                    </View>
+                  </View>
+
+                  <View style={s.bizFooter}>
+                    <Text style={s.bizAddr} numberOfLines={1}>
+                      {[biz.addr, biz.addrDtl].filter(Boolean).join(" ") || "주소 미등록"}
+                    </Text>
+                    {onSelectBiz && biz.bizRegNo !== activeBizRegNo && (
+                      <TouchableOpacity style={s.selectBtn} onPress={() => onSelectBiz(biz.bizRegNo)}>
+                        <Text style={s.selectBtnText}>이 사업장 조회</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
 
                   {expanded && renderFields(biz)}
                 </View>
