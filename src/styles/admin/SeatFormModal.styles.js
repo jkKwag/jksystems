@@ -20,8 +20,18 @@ export const s = StyleSheet.create({
   uploadBtnText: { fontSize: font.sm, fontWeight: "700", color: colors.accent },
   imgCheck: { fontSize: font.lg, fontWeight: "900", color: colors.green, marginBottom: spacing["1.5"] },
   imgErrorText: { fontSize: font.sm, color: "#ef4444", fontWeight: "600", marginTop: spacing["1"] },
-  imgPreviewBox: { marginTop: spacing["2.5"], borderRadius: radius.lg, overflow: "hidden", backgroundColor: colors.slate100, borderWidth: 1, borderColor: colors.border },
+  imgPreviewBox: { position: "relative", marginTop: spacing["2.5"], borderRadius: radius.lg, overflow: "hidden", backgroundColor: colors.slate100, borderWidth: 1, borderColor: colors.border },
   imgPreview: { width: "100%", height: 160 },
+  imgPreviewEmpty: { width: "100%", height: 160, alignItems: "center", justifyContent: "center" },
+  imgPreviewEmptyText: { fontSize: font.sm, fontWeight: "700", color: colors.slate400 },
+
+  seatQrBadge: {
+    position: "absolute", right: 8, bottom: 8, width: 68, height: 68,
+    backgroundColor: colors.white, borderRadius: radius.md, padding: 4,
+    borderWidth: 1, borderColor: colors.border, alignItems: "center", justifyContent: "center",
+  },
+  seatQrImage: { width: "100%", height: "100%" },
+  seatQrHint: { fontSize: font.sm, color: colors.textMuted, marginTop: spacing["1.5"] },
 
   fieldError: { fontSize: font.sm, color: "#ef4444", fontWeight: "600", marginTop: spacing["1"] },
 

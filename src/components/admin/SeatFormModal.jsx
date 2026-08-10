@@ -6,6 +6,8 @@ import api from "../../lib/api";
 const emptyForm = { seatNm: "", capacity: "", seatDesc: "", imgUrl: "", sortOrd: "", useYn: "Y" };
 const emptyFieldErrors = { seatNm: "", capacity: "" };
 
+const MENU_BASE_URL = "https://www.jkscaneat.com/menu";
+
 const IMAGE_MAX_DIMENSION = 1000;
 const IMAGE_QUALITY = 0.8;
 
@@ -115,6 +117,30 @@ export default function SeatFormModal({ visible, initial, saving, bizRegNo, onSa
     input.click();
   };
 
+  // 이 좌석으로 바로 스캔-주문할 수 있는 QR — 좌석 URL의 table 파라미터에 seatCd를 그대로 씀
+  const seatQrTargetUrl = initial?.seatCd ? `${MENU_BASE_URL}/${bizRegNo}?table=${initial.seatCd}` : null;
+  const seatQrUri = seatQrTargetUrl
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(seatQrTargetUrl)}`
+    : null;
+
+  const downloadSeatQr = async () => {
+    if (Platform.OS !== "web" || !seatQrUri) return;
+    try {
+      const res = await fetch(seatQrUri);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = `${bizRegNo}_${initial.seatCd}_qr.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      window.open(seatQrUri, "_blank");
+    }
+  };
+
   const submit = () => {
     const capacity = Number(form.capacity);
     const errors = {
@@ -162,10 +188,22 @@ export default function SeatFormModal({ visible, initial, saving, bizRegNo, onSa
                 autoCapitalize="none"
               />
               {imgStatus === "error" && !!imgError && <Text style={s.imgErrorText}>{imgError}</Text>}
-              {!!form.imgUrl && (
+              {(!!form.imgUrl || !!seatQrUri) && (
                 <View style={s.imgPreviewBox}>
-                  <Image source={{ uri: form.imgUrl }} style={s.imgPreview} resizeMode="cover" />
+                  {form.imgUrl ? (
+                    <Image source={{ uri: form.imgUrl }} style={s.imgPreview} resizeMode="cover" />
+                  ) : (
+                    <View style={s.imgPreviewEmpty}><Text style={s.imgPreviewEmptyText}>NO IMAGE</Text></View>
+                  )}
+                  {!!seatQrUri && (
+                    <TouchableOpacity style={s.seatQrBadge} onPress={downloadSeatQr} activeOpacity={0.8}>
+                      <Image source={{ uri: seatQrUri }} style={s.seatQrImage} resizeMode="contain" />
+                    </TouchableOpacity>
+                  )}
                 </View>
+              )}
+              {!!seatQrUri && (
+                <Text style={s.seatQrHint}>QR을 클릭하면 다운로드 됩니다 — 테이블에 붙여두면 손님이 바로 스캔해서 주문할 수 있어요.</Text>
               )}
             </View>
 
