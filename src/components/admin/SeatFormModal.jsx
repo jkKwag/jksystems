@@ -129,9 +129,11 @@ export default function SeatFormModal({ visible, initial, saving, bizRegNo, onSa
       const res = await fetch(seatQrUri);
       const blob = await res.blob();
       const blobUrl = URL.createObjectURL(blob);
+      // 파일시스템에서 문제될 수 있는 문자만 걸러내고 좌석명을 파일명에 넣는다
+      const safeSeatNm = (form.seatNm || initial.seatNm || "").trim().replace(/[\\/:*?"<>|]/g, "_") || initial.seatCd;
       const a = document.createElement("a");
       a.href = blobUrl;
-      a.download = `${bizRegNo}_${initial.seatCd}_qr.png`;
+      a.download = `${bizRegNo}_${safeSeatNm}_qr.png`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
