@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, Animated, Easing } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Modal, Animated, Easing, Linking } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { s } from "../../styles/admin/AdminOrders.styles";
 import api from "../../lib/api";
@@ -15,6 +15,12 @@ const PAY_STATUS_STYLE_KEY = { DONE: "payDone", CANCELED: "payCanceled" };
 
 const pad = (n) => String(n).padStart(2, "0");
 const DAY_KR = ["일", "월", "화", "수", "목", "금", "토"];
+
+// 010-1234-5678 형태로 표시 (11자리가 아니면 원본 그대로)
+const formatPhone = (phone) => {
+  if (!phone || phone.length !== 11) return phone;
+  return `${phone.slice(0, 3)}-${phone.slice(3, 7)}-${phone.slice(7)}`;
+};
 
 const formatDt = (iso) => {
   const d = new Date(iso);
@@ -241,7 +247,9 @@ export default function AdminOrders({ adminInfo }) {
                 <Text style={s.orderNoBadgeText}>주문번호 {order.orderNo}</Text>
               </View>
               {order.orderTypCd === "TAKEOUT" && order.guestPhone ? (
-                <Text style={s.guestPhoneText}>📞 {order.guestPhone}</Text>
+                <TouchableOpacity onPress={() => Linking.openURL(`tel:${order.guestPhone}`)}>
+                  <Text style={s.guestPhoneText}>📞 {formatPhone(order.guestPhone)}</Text>
+                </TouchableOpacity>
               ) : null}
 
               {!!NEXT_STATUS[order.status] && (

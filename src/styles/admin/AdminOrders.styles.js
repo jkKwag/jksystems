@@ -45,7 +45,7 @@ export const s = StyleSheet.create({
   totalAmountCanceled: { color: colors.red, textDecorationLine: "line-through" },
   orderNoBadge: { backgroundColor: colors.primary, borderRadius: radius.md, paddingVertical: spacing["2"], alignItems: "center", marginTop: spacing["1"] },
   orderNoBadgeText: { fontSize: font.md, fontWeight: "900", color: colors.accent, fontFamily: Platform.OS === "web" ? "monospace" : undefined },
-  guestPhoneText: { fontSize: font.md, fontWeight: "700", color: colors.textSecondary, textAlign: "center", marginTop: spacing["1"] },
+  guestPhoneText: { fontSize: font.md, fontWeight: "700", color: colors.blue, textAlign: "center", marginTop: spacing["1"], textDecorationLine: "underline" },
 
   badgeRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"] },
 
