@@ -426,8 +426,8 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
         amount: { currency: "KRW", value: grandTotal },
         orderId: checkoutId,
         orderName: cartCount === 1 && firstMenu ? firstMenu.menuNm : `주문 ${orderCountForName}건`,
-        successUrl: window.location.origin + `/payment/success?bizno=${bizno}&orderNos=${existingOrderNos.join(",")}&checkoutId=${checkoutId}`,
-        failUrl: window.location.origin + `/payment/fail?bizno=${bizno}&checkoutId=${checkoutId}`,
+        successUrl: window.location.origin + `/payment/success?bizno=${bizno}&orderNos=${existingOrderNos.join(",")}&checkoutId=${checkoutId}${tableNo ? `&table=${encodeURIComponent(tableNo)}` : ""}`,
+        failUrl: window.location.origin + `/payment/fail?bizno=${bizno}&checkoutId=${checkoutId}${tableNo ? `&table=${encodeURIComponent(tableNo)}` : ""}`,
       });
     } catch (e) {
       if (storedCheckout) { try { sessionStorage.removeItem(`scaneat_checkout_${checkoutId}`); } catch {} }

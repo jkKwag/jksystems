@@ -14,11 +14,13 @@ const getParams = () => {
     checkoutId: p.get("checkoutId"),
     bizno: p.get("bizno"),
     bizNm: decodeURIComponent(p.get("biz_nm") || ""),
+    tableNo: p.get("table"),
   };
 };
 
 export default function PaymentSuccess() {
-  const { paymentKey, orderId, amount, orderNos: existingOrderNos, checkoutId, bizno, bizNm } = getParams();
+  const { paymentKey, orderId, amount, orderNos: existingOrderNos, checkoutId, bizno, bizNm, tableNo } = getParams();
+  const menuUrl = bizno ? `/menu/${bizno}${tableNo ? `?table=${encodeURIComponent(tableNo)}` : ""}` : "/";
   const [status, setStatus] = useState("confirming"); // confirming | done | error
   const [errorMsg, setErrorMsg] = useState("");
   const [orderCount, setOrderCount] = useState(existingOrderNos.length);
@@ -88,7 +90,7 @@ export default function PaymentSuccess() {
           <Text style={s.icon}>⚠️</Text>
           <Text style={s.title}>결제 승인 실패</Text>
           <Text style={s.desc}>{errorMsg}</Text>
-          <TouchableOpacity style={s.btn} onPress={() => { if (Platform.OS === "web") window.location.href = bizno ? `/menu/${bizno}` : "/"; }}>
+          <TouchableOpacity style={s.btn} onPress={() => { if (Platform.OS === "web") window.location.href = menuUrl; }}>
             <Text style={s.btnText}>{bizNm ? `${bizNm} 홈` : "사업장 홈"}</Text>
           </TouchableOpacity>
         </View>
@@ -109,7 +111,7 @@ export default function PaymentSuccess() {
           <Row label="결제키" value={paymentKey ? paymentKey.slice(0, 20) + "…" : "-"} mono />
         </View>
 
-        <TouchableOpacity style={s.btn} onPress={() => { if (Platform.OS === "web") window.location.href = bizno ? `/menu/${bizno}` : "/"; }}>
+        <TouchableOpacity style={s.btn} onPress={() => { if (Platform.OS === "web") window.location.href = menuUrl; }}>
           <Text style={s.btnText}>{bizNm ? `${bizNm} 홈` : "사업장 홈"}</Text>
         </TouchableOpacity>
       </View>

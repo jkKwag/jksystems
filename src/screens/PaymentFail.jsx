@@ -10,11 +10,13 @@ const getParams = () => {
     bizNm: decodeURIComponent(p.get("biz_nm") || ""),
     message: p.get("message") || "",
     checkoutId: p.get("checkoutId"),
+    tableNo: p.get("table"),
   };
 };
 
 export default function PaymentFail() {
-  const { bizno, bizNm, message, checkoutId } = getParams();
+  const { bizno, bizNm, message, checkoutId, tableNo } = getParams();
+  const menuUrl = bizno ? `/menu/${bizno}${tableNo ? `?table=${encodeURIComponent(tableNo)}` : ""}` : "/";
 
   useEffect(() => {
     // 결제 취소/실패 시에는 주문이 아예 생성되지 않으므로, 결제 전 저장해둔
@@ -31,7 +33,7 @@ export default function PaymentFail() {
         <Text style={s.title}>결제 취소</Text>
         <Text style={s.desc}>{message || "결제가 취소되었습니다"}</Text>
 
-        <TouchableOpacity style={s.btn} onPress={() => { if (Platform.OS === "web") window.location.href = bizno ? `/menu/${bizno}` : "/"; }}>
+        <TouchableOpacity style={s.btn} onPress={() => { if (Platform.OS === "web") window.location.href = menuUrl; }}>
           <Text style={s.btnText}>{bizNm ? `${bizNm} 홈` : "사업장 홈"}</Text>
         </TouchableOpacity>
       </View>

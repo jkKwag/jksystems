@@ -1343,8 +1343,8 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                           : cartItems.length > 0
                             ? `${cartItems[0].item.name} 외 ${cartItems.length - 1}건`
                             : `주문 ${existingOrderNos.length}건`,
-                        successUrl: window.location.origin + `/payment/success?bizno=${bizno}&biz_nm=${encodeURIComponent(bizInfo?.bizNm || "")}&orderNos=${existingOrderNos.join(",")}&checkoutId=${checkoutId}`,
-                        failUrl: window.location.origin + `/payment/fail?bizno=${bizno}&biz_nm=${encodeURIComponent(bizInfo?.bizNm || "")}&checkoutId=${checkoutId}`,
+                        successUrl: window.location.origin + `/payment/success?bizno=${bizno}&biz_nm=${encodeURIComponent(bizInfo?.bizNm || "")}&orderNos=${existingOrderNos.join(",")}&checkoutId=${checkoutId}${tableNo ? `&table=${encodeURIComponent(tableNo)}` : ""}`,
+                        failUrl: window.location.origin + `/payment/fail?bizno=${bizno}&biz_nm=${encodeURIComponent(bizInfo?.bizNm || "")}&checkoutId=${checkoutId}${tableNo ? `&table=${encodeURIComponent(tableNo)}` : ""}`,
                       });
                     } catch (e) {
                       // 결제창으로 넘어가지 못하고 여기서 실패/취소된 경우엔 실제 이동이 없었으므로
