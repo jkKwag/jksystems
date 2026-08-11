@@ -25,17 +25,36 @@ export const s = StyleSheet.create({
   list: { gap: spacing["3"], paddingBottom: spacing["10"] },
   card: { flexDirection: "row", backgroundColor: colors.bgCard, borderRadius: radius["2xl"], padding: spacing["3.5"], gap: spacing["3"], borderWidth: 1, borderColor: colors.border, alignItems: "center" },
   cardHighlight: { backgroundColor: colors.accentLight },
+  // 손님QR 위 풍선도움말이 뜰 때만 위 카드와 겹치지 않도록 여백을 임시로 늘린다
+  cardQrHintSpace: { marginTop: 36 },
 
   thumbWrap: { width: 64, alignItems: "center", gap: spacing["1"] },
   thumb: { width: 64, height: 64, borderRadius: radius.lg },
   thumbEmpty: { backgroundColor: colors.slate100, justifyContent: "center", alignItems: "center" },
   thumbEmptyText: { fontSize: 9, fontWeight: "700", color: colors.slate400, textAlign: "center" },
+  qrBtnWrap: { position: "relative", width: 64, alignItems: "center" },
   qrBtn: {
     width: 64, paddingVertical: 3,
     backgroundColor: colors.primary, borderRadius: radius.sm,
     alignItems: "center", justifyContent: "center",
   },
   qrBtnText: { fontSize: 9, fontWeight: "800", color: colors.white },
+
+  qrHintBubble: {
+    position: "absolute", bottom: "100%", left: 0, marginBottom: spacing["1.5"],
+    width: 172,
+    backgroundColor: colors.accent, borderRadius: radius.md,
+    paddingHorizontal: spacing["2.5"], paddingVertical: spacing["1.5"],
+    zIndex: 30, elevation: 6,
+  },
+  qrHintText: { fontSize: font.sm, fontWeight: "700", color: colors.white, textAlign: "center" },
+  qrHintArrow: {
+    // 손님QR 버튼(qrBtnWrap 폭 64) 중앙을 가리키도록 고정 위치로 지정
+    position: "absolute", bottom: -5, left: 27,
+    width: 0, height: 0,
+    borderLeftWidth: 5, borderRightWidth: 5, borderTopWidth: 5,
+    borderLeftColor: "transparent", borderRightColor: "transparent", borderTopColor: colors.accent,
+  },
 
   cardInfo: { flex: 1, gap: 2 },
   cardTopRow: { flexDirection: "row", alignItems: "center", gap: spacing["1.5"], flexWrap: "wrap" },

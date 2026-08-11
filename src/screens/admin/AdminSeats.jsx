@@ -19,16 +19,24 @@ export default function AdminSeats({ adminInfo }) {
   const [selectedCapacity, setSelectedCapacity] = useState(null); // null = 전체
   const [reordering, setReordering] = useState(false);
   const [highlightId, setHighlightId] = useState(null);
+  const [showQrHint, setShowQrHint] = useState(false);
   const spinAnim = useRef(new Animated.Value(0)).current;
   const highlightTimer = useRef(null);
+  const qrHintTimer = useRef(null);
 
   const load = async () => {
     if (!bizRegNo) { setLoaded(true); return; }
     setLoaded(false);
     const list = await api.biz.seatsAdmin(bizRegNo);
-    setSeats(Array.isArray(list) ? list : []);
+    const nextSeats = Array.isArray(list) ? list : [];
+    setSeats(nextSeats);
     setSelectedCapacity(null);
     setLoaded(true);
+    if (nextSeats.length > 0) {
+      if (qrHintTimer.current) clearTimeout(qrHintTimer.current);
+      setShowQrHint(true);
+      qrHintTimer.current = setTimeout(() => setShowQrHint(false), 3000);
+    }
   };
 
   useEffect(() => { load(); }, [bizRegNo]);
@@ -101,7 +109,10 @@ export default function AdminSeats({ adminInfo }) {
     highlightTimer.current = setTimeout(() => setHighlightId(null), 3000);
   };
 
-  useEffect(() => () => { if (highlightTimer.current) clearTimeout(highlightTimer.current); }, []);
+  useEffect(() => () => {
+    if (highlightTimer.current) clearTimeout(highlightTimer.current);
+    if (qrHintTimer.current) clearTimeout(qrHintTimer.current);
+  }, []);
 
   if (!bizRegNo) {
     return (
@@ -165,17 +176,25 @@ export default function AdminSeats({ adminInfo }) {
           {filteredSeats.map((seat, index) => (
             <TouchableOpacity
               key={seat.seatCd}
-              style={[s.card, highlightId === seat.seatCd && s.cardHighlight]}
+              style={[s.card, highlightId === seat.seatCd && s.cardHighlight, showQrHint && s.cardQrHintSpace]}
               onPress={() => setFormTarget(seat)}
               activeOpacity={0.75}
             >
               <View style={s.thumbWrap}>
-                <TouchableOpacity
-                  style={s.qrBtn}
-                  onPress={(e) => { e?.stopPropagation?.(); setAccessQrTarget(seat); }}
-                >
-                  <Text style={s.qrBtnText}>손님QR</Text>
-                </TouchableOpacity>
+                <View style={s.qrBtnWrap}>
+                  {showQrHint && (
+                    <View style={s.qrHintBubble} pointerEvents="none">
+                      <Text style={s.qrHintText}>주문만하기 활성화 QR 입니다</Text>
+                      <View style={s.qrHintArrow} />
+                    </View>
+                  )}
+                  <TouchableOpacity
+                    style={s.qrBtn}
+                    onPress={(e) => { e?.stopPropagation?.(); setAccessQrTarget(seat); }}
+                  >
+                    <Text style={s.qrBtnText}>손님QR</Text>
+                  </TouchableOpacity>
+                </View>
                 {seat.imgUrl ? (
                   <Image source={{ uri: seat.imgUrl }} style={s.thumb} resizeMode="cover" />
                 ) : (
