@@ -666,39 +666,6 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
                 );
               })}
 
-              {orderTypCd === "TAKEOUT" && cartCount > 0 && (
-                <View style={s.payPhoneField}>
-                  <Text style={s.payPhoneLabel}>📞 연락받으실 휴대폰번호</Text>
-                  <View style={s.payPhoneRow}>
-                    <TextInput
-                      style={[s.payPhoneInputFront, guestPhoneError && !isGuestPhoneFrontValid && s.payPhoneInputError]}
-                      placeholder="010"
-                      placeholderTextColor="#94a3b8"
-                      value={guestPhoneFront}
-                      onChangeText={(t) => { setGuestPhoneFront(t.replace(/[^0-9]/g, "").slice(0, 3)); setGuestPhoneError(false); }}
-                      keyboardType="phone-pad"
-                      maxLength={3}
-                    />
-                    <Text style={s.payPhoneSep}>-</Text>
-                    <TextInput
-                      style={[s.payPhoneInputBack, guestPhoneError && isGuestPhoneFrontValid && !isGuestPhoneBackValid && s.payPhoneInputError]}
-                      placeholder="숫자 8자리"
-                      placeholderTextColor="#94a3b8"
-                      value={guestPhoneBack}
-                      onChangeText={(t) => { setGuestPhoneBack(t.replace(/[^0-9]/g, "").slice(0, 8)); setGuestPhoneError(false); }}
-                      keyboardType="phone-pad"
-                      maxLength={8}
-                    />
-                  </View>
-                  {guestPhoneError && !isGuestPhoneFrontValid && (
-                    <Text style={s.payPhoneErrorText}>앞자리를 010~019 형식으로 입력해주세요.</Text>
-                  )}
-                  {guestPhoneError && isGuestPhoneFrontValid && !isGuestPhoneBackValid && (
-                    <Text style={s.payPhoneErrorText}>뒷자리 8자리를 입력해주세요.</Text>
-                  )}
-                </View>
-              )}
-
               {pendingCount > 0 && (
                 <View style={s.pendingSection}>
                   <Text style={s.pendingSectionTitle}>이미 주문한 내역 ({pendingCount}건, 결제 대기)</Text>
@@ -735,6 +702,40 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
                 </View>
               )}
             </ScrollView>
+
+            {orderTypCd === "TAKEOUT" && cartCount > 0 && (
+              <View style={s.payPhoneField}>
+                <Text style={s.payPhoneLabel}>📞 연락받으실 휴대폰번호</Text>
+                <View style={s.payPhoneRow}>
+                  <TextInput
+                    style={[s.payPhoneInputFront, guestPhoneError && !isGuestPhoneFrontValid && s.payPhoneInputError]}
+                    placeholder="010"
+                    placeholderTextColor="#94a3b8"
+                    value={guestPhoneFront}
+                    onChangeText={(t) => { setGuestPhoneFront(t.replace(/[^0-9]/g, "").slice(0, 3)); setGuestPhoneError(false); }}
+                    keyboardType="phone-pad"
+                    maxLength={3}
+                  />
+                  <Text style={s.payPhoneSep}>-</Text>
+                  <TextInput
+                    style={[s.payPhoneInputBack, guestPhoneError && isGuestPhoneFrontValid && !isGuestPhoneBackValid && s.payPhoneInputError]}
+                    placeholder="숫자 8자리"
+                    placeholderTextColor="#94a3b8"
+                    value={guestPhoneBack}
+                    onChangeText={(t) => { setGuestPhoneBack(t.replace(/[^0-9]/g, "").slice(0, 8)); setGuestPhoneError(false); }}
+                    keyboardType="phone-pad"
+                    maxLength={8}
+                  />
+                </View>
+                {guestPhoneError && !isGuestPhoneFrontValid && (
+                  <Text style={s.payPhoneErrorText}>앞자리를 010~019 형식으로 입력해주세요.</Text>
+                )}
+                {guestPhoneError && isGuestPhoneFrontValid && !isGuestPhoneBackValid && (
+                  <Text style={s.payPhoneErrorText}>뒷자리 8자리를 입력해주세요.</Text>
+                )}
+              </View>
+            )}
+
             <View style={s.modalFooter}>
               <Text style={s.modalTotal}>총 {grandTotal.toLocaleString()}원</Text>
               <View style={s.modalBtnCol}>

@@ -96,7 +96,7 @@ export const s = StyleSheet.create({
   modalItemBottom: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   modalItemPrice: { fontSize: 22, fontWeight: "900", color: "#1d4ed8" },
 
-  payPhoneField: { marginTop: 8, paddingVertical: 7, borderBottomWidth: 1, borderBottomColor: "#e2e8f0", gap: 8 },
+  payPhoneField: { paddingTop: 10, paddingBottom: 4, borderTopWidth: 2, borderTopColor: "#e2e8f0", gap: 8 },
   payPhoneLabel: { fontSize: 19, fontWeight: "800", color: "#334155" },
   payPhoneRow: { flexDirection: "row", alignItems: "center", gap: 10, minWidth: 0 },
   payPhoneInputFront: { width: 90, flexShrink: 0, textAlign: "center", borderWidth: 2, borderColor: "#cbd5e1", borderRadius: 14, paddingHorizontal: 10, paddingVertical: 14, fontSize: 22, fontWeight: "700", color: "#0f172a", backgroundColor: "#fff" },
