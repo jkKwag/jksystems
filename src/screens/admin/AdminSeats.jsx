@@ -169,11 +169,19 @@ export default function AdminSeats({ adminInfo }) {
               onPress={() => setFormTarget(seat)}
               activeOpacity={0.75}
             >
-              {seat.imgUrl ? (
-                <Image source={{ uri: seat.imgUrl }} style={s.thumb} resizeMode="cover" />
-              ) : (
-                <View style={[s.thumb, s.thumbEmpty]}><Text style={s.thumbEmptyText}>NO IMAGE</Text></View>
-              )}
+              <View style={s.thumbWrap}>
+                {seat.imgUrl ? (
+                  <Image source={{ uri: seat.imgUrl }} style={s.thumb} resizeMode="cover" />
+                ) : (
+                  <View style={[s.thumb, s.thumbEmpty]}><Text style={s.thumbEmptyText}>NO IMAGE</Text></View>
+                )}
+                <TouchableOpacity
+                  style={s.qrBadge}
+                  onPress={(e) => { e?.stopPropagation?.(); setAccessQrTarget(seat); }}
+                >
+                  <Text style={s.qrBadgeText}>QR</Text>
+                </TouchableOpacity>
+              </View>
               <View style={s.cardInfo}>
                 <View style={s.cardTopRow}>
                   <Text style={s.seatNm} numberOfLines={1}>{seat.seatNm}</Text>
@@ -200,9 +208,6 @@ export default function AdminSeats({ adminInfo }) {
                   </TouchableOpacity>
                 </View>
                 <Text style={s.sortOrdText}>좌석정렬순번 {seat.sortOrd ?? "-"}</Text>
-                <TouchableOpacity style={s.actionBtn} onPress={(e) => { e?.stopPropagation?.(); setAccessQrTarget(seat); }}>
-                  <Text style={s.actionBtnText}>손님 QR</Text>
-                </TouchableOpacity>
                 <TouchableOpacity style={[s.actionBtn, s.deleteBtn]} onPress={(e) => { e?.stopPropagation?.(); setDeleteTarget(seat); }}>
                   <Text style={[s.actionBtnText, s.deleteBtnText]}>삭제</Text>
                 </TouchableOpacity>

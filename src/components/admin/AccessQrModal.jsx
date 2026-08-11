@@ -64,6 +64,25 @@ export default function AccessQrModal({ visible, bizRegNo, seat, onClose }) {
   const mm = String(Math.floor(remainingSec / 60)).padStart(2, "0");
   const ss = String(remainingSec % 60).padStart(2, "0");
 
+  const downloadQr = async () => {
+    if (Platform.OS !== "web" || !qrUri) return;
+    try {
+      const res = await fetch(qrUri);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const safeSeatNm = (seat?.seatNm || "").trim().replace(/[\\/:*?"<>|]/g, "_") || seat?.seatCd || "seat";
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = `${bizRegNo}_${safeSeatNm}_손님QR.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      window.open(qrUri, "_blank");
+    }
+  };
+
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
       <View style={s.overlay}>
@@ -81,12 +100,17 @@ export default function AccessQrModal({ visible, bizRegNo, seat, onClose }) {
                 <Text style={s.expiredText}>QR이 만료되었습니다</Text>
               </View>
             ) : qrUri ? (
-              <Image source={{ uri: qrUri }} style={s.qrImage} resizeMode="contain" />
+              <TouchableOpacity onPress={downloadQr} activeOpacity={0.8} style={s.qrTouchable}>
+                <Image source={{ uri: qrUri }} style={s.qrImage} resizeMode="contain" />
+              </TouchableOpacity>
             ) : null}
           </View>
 
           {!loading && !error && !expired && (
-            <Text style={s.timerText}>남은 시간 {mm}:{ss}</Text>
+            <>
+              <Text style={s.timerText}>남은 시간 {mm}:{ss}</Text>
+              <Text style={s.downloadHint}>QR을 클릭하면 다운로드됩니다</Text>
+            </>
           )}
 
           <View style={s.btnRow}>
