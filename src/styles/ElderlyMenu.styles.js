@@ -134,7 +134,7 @@ export const s = StyleSheet.create({
   cancelRadioInner: { width: 16, height: 16, borderRadius: 8, backgroundColor: "#ef4444" },
 
   modalFooter: { paddingTop: 9, borderTopWidth: 2, borderTopColor: "#e2e8f0", gap: 14 },
-  modalTotal: { fontSize: 24, fontWeight: "900", color: "#0f172a", textAlign: "center" },
+  modalTotal: { fontSize: 24, fontWeight: "900", color: "#1d4ed8", textAlign: "center" },
   modalBtnCol: { gap: 12 },
   modalOrderBtnDisabled: { opacity: 0.4 },
   modalOrderOnlyBtn: { borderWidth: 2, borderColor: "#0f172a", borderRadius: 18, paddingVertical: 9, alignItems: "center" },
