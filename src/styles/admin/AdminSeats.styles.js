@@ -70,7 +70,7 @@ export const s = StyleSheet.create({
   sortBtn: { borderWidth: 1, borderColor: "#ef4444", borderRadius: radius.sm, paddingHorizontal: spacing["2"], paddingVertical: spacing["1"], alignItems: "center" },
   sortBtnDisabled: { opacity: 0.35 },
   sortBtnText: { fontSize: font.sm, fontWeight: "800", color: "#ef4444" },
-  sortOrdText: { fontSize: font.sm, fontWeight: "800", color: colors.accent, textAlign: "center" },
+  sortOrdText: { fontSize: font.sm, fontWeight: "800", color: colors.text, textAlign: "center" },
   actionBtn: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm, paddingHorizontal: spacing["2.5"], paddingVertical: spacing["1.5"], alignItems: "center" },
   actionBtnText: { fontSize: font.sm, fontWeight: "700", color: colors.textGray },
   deleteBtn: { borderColor: "#ef4444" },
