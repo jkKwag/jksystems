@@ -365,29 +365,6 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
     };
   });
 
-  // "주문하기": 결제 없이 바로 주문 생성 (결제 대기 상태로 접수) — 나중에 이 화면에
-  // 다시 들어오면 pendingOrders로 잡혀서 하단 바에서 바로 결제할 수 있다.
-  const orderOnly = async () => {
-    const uuid = getUuid();
-    if (!uuid || cartCount === 0) return;
-    if (!isGuestPhoneValid) { setGuestPhoneError(true); return; }
-    setSubmitting(true);
-    const { data, error } = await api.order.post({
-      uuid,
-      bizRegNo: bizno,
-      seatNo: tableNo || null,
-      orderTypCd,
-      guestPhone: orderTypCd === "TAKEOUT" ? guestPhone : null,
-      items: buildOrderItemsPayload(),
-    });
-    setSubmitting(false);
-    if (error || !data) { alert("주문 생성에 실패했습니다. 다시 시도해주세요."); return; }
-    setCart({});
-    setShowCartModal(false);
-    await refreshPendingOrders();
-    alert(data.pickupNo ? `주문이 접수되었어요. 픽업번호: ${data.pickupNo}` : "주문이 접수되었어요.");
-  };
-
   // "결제하기": 결제 전에는 새 주문을 만들지 않는다 — 결제 취소/실패해도 미결제 주문이
   // 남지 않도록, 결제가 실제로 승인된 뒤(PaymentSuccess)에 장바구니 내용으로 주문을 생성한다.
   // 이미 "주문하기"로 접수해둔 결제 대기 주문(pendingOrders)이 있으면 함께 결제한다.
@@ -758,16 +735,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
                       <Text style={[s.modalOrderOnlyBtnText, s.modalOrderOnlyBtnTextCancel]}>주문취소</Text>
                     </TouchableOpacity>
                   )
-                ) : cartCount > 0 && orderTypCd !== "TAKEOUT" && (
-                  <TouchableOpacity
-                    style={s.modalOrderOnlyBtn}
-                    onPress={orderOnly}
-                    disabled={submitting}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={s.modalOrderOnlyBtnText}>주문하기</Text>
-                  </TouchableOpacity>
-                )}
+                ) : null}
                 <TouchableOpacity
                   style={[s.modalPayBtn, (cartCount === 0 && pendingCount === 0 || submitting) && s.modalOrderBtnDisabled]}
                   onPress={payNow}

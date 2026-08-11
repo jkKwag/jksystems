@@ -667,25 +667,6 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
   const isGuestPhoneValid = orderType !== "포장주문" || (isGuestPhoneFrontValid && isGuestPhoneBackValid);
   const guestPhone = guestPhoneFront + guestPhoneBack;
 
-  // 지금 장바구니를 실제 주문으로 서버에 저장. 실패하면 null.
-  const createOrderForCart = async () => {
-    const uuid = getUuid();
-    if (!uuid || cartItems.length === 0) return null;
-    const { data, error } = await api.order.post({
-      uuid,
-      bizRegNo: bizno,
-      seatNo: tableNo || null,
-      orderTypCd: orderType === "포장주문" ? "TAKEOUT" : "DINE_IN",
-      guestPhone: orderType === "포장주문" ? guestPhone : null,
-      items: buildOrderItemsPayload(),
-    });
-    if (error || !data) {
-      console.error("[주문 생성 실패]", error);
-      return null;
-    }
-    return data;
-  };
-
   // AI는 실제 결제를 처리하지 않음 — 장바구니 화면을 열어 손님이 직접
   // "주문하기" 버튼을 눌러야만 결제가 진행되도록 안내만 함
   const requestCheckout = () => {
@@ -1271,29 +1252,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                       <Text style={[s.orderOnlyBtnText, s.orderOnlyBtnTextCancel]}>주문취소</Text>
                     </TouchableOpacity>
                   )
-                ) : cartItems.length > 0 && orderType !== "포장주문" && (
-                  <TouchableOpacity
-                    style={s.orderOnlyBtn}
-                    disabled={orderSubmitting}
-                    onPress={async () => {
-                      if (!isGuestPhoneValid) { setGuestPhoneError(true); return; }
-                      setOrderSubmitting(true);
-                      const order = await createOrderForCart();
-                      setOrderSubmitting(false);
-                      if (!order) { alert("주문 생성에 실패했습니다. 다시 시도해주세요."); return; }
-                      clearCart();
-                      setShowPayment(false);
-                      await refreshPendingOrders();
-                      alert(
-                        order.pickupNo
-                          ? `주문이 접수되었어요. 픽업번호: ${order.pickupNo}\n계속 주문하시거나, 준비되면 결제해주세요.`
-                          : "주문이 접수되었어요. 계속 주문하시거나, 준비되면 결제해주세요."
-                      );
-                    }}
-                  >
-                    <Text style={s.orderOnlyBtnText}>주문만 하기</Text>
-                  </TouchableOpacity>
-                )}
+                ) : null}
 
                 <TouchableOpacity
                   style={[s.payNowBtn, (grandTotal === 0 || orderSubmitting) && s.payNowBtnDisabled]}
