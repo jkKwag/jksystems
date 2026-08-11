@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Animated, Easing, Platform, ActivityIndicator, useWindowDimensions, TextInput } from "react-native";
 import api from "../lib/api";
 import { s } from "../styles/ElderlyMenu.styles";
+import OrderTypeBadge from "../components/OrderTypeBadge";
 
 const TOSS_CLIENT_KEY = process.env.EXPO_PUBLIC_TOSS_CLIENT_KEY || "test_ck_vZnjEJeQVxexx5pMqG4brPmOoBN0";
 
@@ -622,6 +623,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
                   </View>
                 )}
                 <Text style={s.modalTitle}>{cartCount > 0 ? "장바구니" : "결제 대기 중"}</Text>
+                <OrderTypeBadge isTakeout={orderTypCd === "TAKEOUT"} textStyle={s.modalTitleTypeText} iconSize={18} />
               </View>
               <View style={s.modalTitleActions}>
                 {cartCount > 0 && (

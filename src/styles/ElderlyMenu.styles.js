@@ -79,6 +79,7 @@ export const s = StyleSheet.create({
   modalTitleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 20 },
   modalTitleLeft: { flexDirection: "row", alignItems: "center", gap: 10 },
   modalTitle: { fontSize: 26, fontWeight: "900", color: "#0f172a" },
+  modalTitleTypeText: { fontSize: 16, fontWeight: "800" },
   modalTitleActions: { flexDirection: "row", alignItems: "center", gap: 8 },
   tossLogo: { backgroundColor: "#0064FF", borderRadius: 8, paddingHorizontal: 10, paddingVertical: 5 },
   tossLogoText: { color: "#fff", fontSize: 16, fontWeight: "900", letterSpacing: -0.5 },
