@@ -26,16 +26,16 @@ export const s = StyleSheet.create({
   card: { flexDirection: "row", backgroundColor: colors.bgCard, borderRadius: radius["2xl"], padding: spacing["3.5"], gap: spacing["3"], borderWidth: 1, borderColor: colors.border, alignItems: "center" },
   cardHighlight: { backgroundColor: colors.accentLight },
 
-  thumbWrap: { position: "relative", width: 64, height: 64 },
+  thumbWrap: { width: 64, alignItems: "center", gap: spacing["1"] },
   thumb: { width: 64, height: 64, borderRadius: radius.lg },
   thumbEmpty: { backgroundColor: colors.slate100, justifyContent: "center", alignItems: "center" },
   thumbEmptyText: { fontSize: 9, fontWeight: "700", color: colors.slate400, textAlign: "center" },
-  qrBadge: {
-    position: "absolute", right: -4, bottom: -4, minWidth: 22, height: 18, paddingHorizontal: 3,
-    backgroundColor: "rgba(15,23,42,0.85)", borderRadius: radius.sm,
-    alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: colors.white,
+  qrBtn: {
+    width: 64, paddingVertical: 3,
+    backgroundColor: colors.primary, borderRadius: radius.sm,
+    alignItems: "center", justifyContent: "center",
   },
-  qrBadgeText: { fontSize: 9, fontWeight: "800", color: colors.white },
+  qrBtnText: { fontSize: 9, fontWeight: "800", color: colors.white },
 
   cardInfo: { flex: 1, gap: 2 },
   cardTopRow: { flexDirection: "row", alignItems: "center", gap: spacing["1.5"], flexWrap: "wrap" },

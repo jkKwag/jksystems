@@ -170,17 +170,17 @@ export default function AdminSeats({ adminInfo }) {
               activeOpacity={0.75}
             >
               <View style={s.thumbWrap}>
+                <TouchableOpacity
+                  style={s.qrBtn}
+                  onPress={(e) => { e?.stopPropagation?.(); setAccessQrTarget(seat); }}
+                >
+                  <Text style={s.qrBtnText}>손님QR</Text>
+                </TouchableOpacity>
                 {seat.imgUrl ? (
                   <Image source={{ uri: seat.imgUrl }} style={s.thumb} resizeMode="cover" />
                 ) : (
                   <View style={[s.thumb, s.thumbEmpty]}><Text style={s.thumbEmptyText}>NO IMAGE</Text></View>
                 )}
-                <TouchableOpacity
-                  style={s.qrBadge}
-                  onPress={(e) => { e?.stopPropagation?.(); setAccessQrTarget(seat); }}
-                >
-                  <Text style={s.qrBadgeText}>QR</Text>
-                </TouchableOpacity>
               </View>
               <View style={s.cardInfo}>
                 <View style={s.cardTopRow}>
