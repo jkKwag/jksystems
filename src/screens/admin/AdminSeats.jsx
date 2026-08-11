@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Image, Ani
 import { s } from "../../styles/admin/AdminSeats.styles";
 import api from "../../lib/api";
 import SeatFormModal from "../../components/admin/SeatFormModal";
+import AccessQrModal from "../../components/admin/AccessQrModal";
 import ConfirmModal from "../../components/ConfirmModal";
 
 export default function AdminSeats({ adminInfo }) {
@@ -11,6 +12,7 @@ export default function AdminSeats({ adminInfo }) {
   const [loaded, setLoaded] = useState(false);
   const [seats, setSeats] = useState([]);
   const [formTarget, setFormTarget] = useState(undefined); // undefined=닫힘, null=신규, object=수정
+  const [accessQrTarget, setAccessQrTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [alertMsg, setAlertMsg] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -198,6 +200,9 @@ export default function AdminSeats({ adminInfo }) {
                   </TouchableOpacity>
                 </View>
                 <Text style={s.sortOrdText}>좌석정렬순번 {seat.sortOrd ?? "-"}</Text>
+                <TouchableOpacity style={s.actionBtn} onPress={(e) => { e?.stopPropagation?.(); setAccessQrTarget(seat); }}>
+                  <Text style={s.actionBtnText}>손님 QR</Text>
+                </TouchableOpacity>
                 <TouchableOpacity style={[s.actionBtn, s.deleteBtn]} onPress={(e) => { e?.stopPropagation?.(); setDeleteTarget(seat); }}>
                   <Text style={[s.actionBtnText, s.deleteBtnText]}>삭제</Text>
                 </TouchableOpacity>
@@ -214,6 +219,13 @@ export default function AdminSeats({ adminInfo }) {
         bizRegNo={bizRegNo}
         onSave={handleSaveSeat}
         onClose={() => setFormTarget(undefined)}
+      />
+
+      <AccessQrModal
+        visible={!!accessQrTarget}
+        bizRegNo={bizRegNo}
+        seat={accessQrTarget}
+        onClose={() => setAccessQrTarget(null)}
       />
 
       <ConfirmModal

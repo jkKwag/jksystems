@@ -321,6 +321,30 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
     setTableNo(tableNoFromUrl || null);
   }, [tableNoFromUrl]);
 
+  // 직원이 발급한 QR을 스캔했는지(=?grant=토큰) 확인하고, 이 손님(uuid)이 이 테이블에서
+  // 주문 가능한 권한을 갖고 있는지 조회한다. URL만 갖고 있어도 재사용할 수 없도록
+  // 서버가 최종 검증하며, 여기서는 결제 버튼 노출 여부만 판단한다.
+  const [grantChecked, setGrantChecked] = useState(false);
+  const [hasGrant, setHasGrant] = useState(false);
+  useEffect(() => {
+    if (Platform.OS !== "web" || !bizno || !tableNo) { setGrantChecked(true); setHasGrant(false); return; }
+    const uuid = getUuid();
+    if (!uuid) { setGrantChecked(true); setHasGrant(false); return; }
+    (async () => {
+      const grantToken = new URLSearchParams(window.location.search).get("grant");
+      if (grantToken) {
+        const { data } = await api.biz.redeemAccessGrant(bizno, tableNo, { uuid, token: grantToken });
+        const url = new URL(window.location.href);
+        url.searchParams.delete("grant");
+        window.history.replaceState({}, "", url.toString());
+        if (data?.granted) { setHasGrant(true); setGrantChecked(true); return; }
+      }
+      const status = await api.biz.accessGrantStatus(bizno, tableNo, uuid);
+      setHasGrant(!!status?.granted);
+      setGrantChecked(true);
+    })();
+  }, [bizno, tableNo]);
+
   // 결제 안 된 주문 목록. 새로고침해도 안 없어지도록 화면 상태에
   // 두지 않고, 매번 서버(GET /api/order)에서 다시 불러와 진짜 값(source of
   // truth)을 유지한다. 결제여부는 order.status가 아니라 paymentStatus로 판단
@@ -666,6 +690,10 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
   const isGuestPhoneBackValid = /^\d{8}$/.test(guestPhoneBack);
   const isGuestPhoneValid = orderType !== "포장주문" || (isGuestPhoneFrontValid && isGuestPhoneBackValid);
   const guestPhone = guestPhoneFront + guestPhoneBack;
+
+  // 매장주문은 직원 QR을 스캔해 권한을 받은 손님만 결제할 수 있다 (원격 재주문 방지).
+  // 이미 만들어진 미결제 주문(pendingOrders)까지 막지는 않는다 — 새로 담는 매장주문 항목만 대상.
+  const dineInGrantBlocked = orderType === "매장주문" && cartItems.length > 0 && !!tableNo && grantChecked && !hasGrant;
 
   // AI는 실제 결제를 처리하지 않음 — 장바구니 화면을 열어 손님이 직접
   // "주문하기" 버튼을 눌러야만 결제가 진행되도록 안내만 함
@@ -1254,6 +1282,11 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                   )
                 ) : null}
 
+                {dineInGrantBlocked ? (
+                  <View style={s.grantBlockedBox}>
+                    <Text style={s.grantBlockedText}>🔒 매장주문은 직원에게 요청한 QR을 스캔해야 결제할 수 있어요.</Text>
+                  </View>
+                ) : (
                 <TouchableOpacity
                   style={[s.payNowBtn, (grandTotal === 0 || orderSubmitting) && s.payNowBtnDisabled]}
                   disabled={grandTotal === 0 || orderSubmitting}
@@ -1321,6 +1354,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
                 >
                   <Text style={s.payNowBtnText}>결제하기</Text>
                 </TouchableOpacity>
+                )}
               </View>
             </View>
           </View>

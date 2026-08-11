@@ -155,6 +155,30 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
     });
   }, []);
 
+  // 직원이 발급한 QR을 스캔했는지(=?grant=토큰) 확인하고, 이 손님(uuid)이 이 테이블에서
+  // 주문 가능한 권한을 갖고 있는지 조회한다. URL만 갖고 있어도 재사용할 수 없도록
+  // 서버가 최종 검증하며, 여기서는 결제 버튼 노출 여부만 판단한다.
+  const [grantChecked, setGrantChecked] = useState(false);
+  const [hasGrant, setHasGrant] = useState(false);
+  useEffect(() => {
+    if (Platform.OS !== "web" || !bizno || !tableNo) { setGrantChecked(true); setHasGrant(false); return; }
+    const uuid = getUuid();
+    if (!uuid) { setGrantChecked(true); setHasGrant(false); return; }
+    (async () => {
+      const grantToken = new URLSearchParams(window.location.search).get("grant");
+      if (grantToken) {
+        const { data } = await api.biz.redeemAccessGrant(bizno, tableNo, { uuid, token: grantToken });
+        const url = new URL(window.location.href);
+        url.searchParams.delete("grant");
+        window.history.replaceState({}, "", url.toString());
+        if (data?.granted) { setHasGrant(true); setGrantChecked(true); return; }
+      }
+      const status = await api.biz.accessGrantStatus(bizno, tableNo, uuid);
+      setHasGrant(!!status?.granted);
+      setGrantChecked(true);
+    })();
+  }, [bizno, tableNo]);
+
   // 포장주문일 때만 휴대폰번호가 필요 — 앞자리(010~019)와 뒷자리(8자리)를 각각 검증
   const isGuestPhoneFrontValid = /^01[016789]$/.test(guestPhoneFront);
   const isGuestPhoneBackValid = /^\d{8}$/.test(guestPhoneBack);
@@ -305,6 +329,10 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   });
 
   const cartCount = Object.values(cart).reduce((a, c) => a + c.qty, 0);
+
+  // 매장주문은 직원 QR을 스캔해 권한을 받은 손님만 결제할 수 있다 (원격 재주문 방지).
+  // 이미 만들어진 미결제 주문(pendingOrders)까지 막지는 않는다 — 새로 담는 매장주문 항목만 대상.
+  const dineInGrantBlocked = orderTypCd === "DINE_IN" && cartCount > 0 && !!tableNo && grantChecked && !hasGrant;
 
   useEffect(() => {
     if (showCartModal && cartCount === 0 && pendingOrders.length === 0) setShowCartModal(false);
@@ -736,6 +764,11 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
                     </TouchableOpacity>
                   )
                 ) : null}
+                {dineInGrantBlocked ? (
+                  <View style={s.grantBlockedBox}>
+                    <Text style={s.grantBlockedText}>🔒 매장주문은 직원에게 요청한 QR을 스캔해야 결제할 수 있어요.</Text>
+                  </View>
+                ) : (
                 <TouchableOpacity
                   style={[s.modalPayBtn, (cartCount === 0 && pendingCount === 0 || submitting) && s.modalOrderBtnDisabled]}
                   onPress={payNow}
@@ -744,6 +777,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
                 >
                   <Text style={s.modalPayBtnText}>결제하기</Text>
                 </TouchableOpacity>
+                )}
               </View>
             </View>
           </Animated.View>
