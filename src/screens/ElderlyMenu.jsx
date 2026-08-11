@@ -330,9 +330,9 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
 
   const cartCount = Object.values(cart).reduce((a, c) => a + c.qty, 0);
 
-  // 매장주문은 직원 QR을 스캔해 권한을 받은 손님만 결제할 수 있다 (원격 재주문 방지).
-  // 이미 만들어진 미결제 주문(pendingOrders)까지 막지는 않는다 — 새로 담는 매장주문 항목만 대상.
-  const dineInGrantBlocked = orderTypCd === "DINE_IN" && cartCount > 0 && !!tableNo && grantChecked && !hasGrant;
+  // 결제 없이 먼저 접수하는 매장주문("주문하기")은 직원 QR로 권한을 받은 손님만 가능 —
+  // 결제는 즉시 이뤄지므로 원격 재주문 악용 비용이 있지만, 무결제 접수는 그 비용이 없어 악용되기 쉽다.
+  const canOrderOnly = orderTypCd === "DINE_IN" && !!tableNo && grantChecked && hasGrant;
 
   useEffect(() => {
     if (showCartModal && cartCount === 0 && pendingOrders.length === 0) setShowCartModal(false);
@@ -392,6 +392,30 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
       options: (c.selectedOptions || []).map(o => ({ optCd: o.id, optNm: o.name, addPrice: o.price || 0 })),
     };
   });
+
+  // "주문하기": 결제 없이 바로 주문 생성 (결제 대기 상태로 접수) — 나중에 이 화면에
+  // 다시 들어오면 pendingOrders로 잡혀서 하단 바에서 바로 결제할 수 있다.
+  const orderOnly = async () => {
+    const uuid = getUuid();
+    if (!uuid || cartCount === 0) return;
+    if (!isGuestPhoneValid) { setGuestPhoneError(true); return; }
+    setSubmitting(true);
+    const { data, error } = await api.order.post({
+      uuid,
+      bizRegNo: bizno,
+      seatNo: tableNo || null,
+      orderTypCd,
+      guestPhone: orderTypCd === "TAKEOUT" ? guestPhone : null,
+      payLater: true,
+      items: buildOrderItemsPayload(),
+    });
+    setSubmitting(false);
+    if (error || !data) { alert("주문 생성에 실패했습니다. 다시 시도해주세요."); return; }
+    setCart({});
+    setShowCartModal(false);
+    await refreshPendingOrders();
+    alert(data.pickupNo ? `주문이 접수되었어요. 픽업번호: ${data.pickupNo}` : "주문이 접수되었어요.");
+  };
 
   // "결제하기": 결제 전에는 새 주문을 만들지 않는다 — 결제 취소/실패해도 미결제 주문이
   // 남지 않도록, 결제가 실제로 승인된 뒤(PaymentSuccess)에 장바구니 내용으로 주문을 생성한다.
@@ -763,12 +787,16 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
                       <Text style={[s.modalOrderOnlyBtnText, s.modalOrderOnlyBtnTextCancel]}>주문취소</Text>
                     </TouchableOpacity>
                   )
-                ) : null}
-                {dineInGrantBlocked ? (
-                  <View style={s.grantBlockedBox}>
-                    <Text style={s.grantBlockedText}>🔒 매장주문은 직원에게 요청한 QR을 스캔해야 결제할 수 있어요.</Text>
-                  </View>
-                ) : (
+                ) : cartCount > 0 && orderTypCd !== "TAKEOUT" && canOrderOnly && (
+                  <TouchableOpacity
+                    style={s.modalOrderOnlyBtn}
+                    onPress={orderOnly}
+                    disabled={submitting}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={s.modalOrderOnlyBtnText}>주문하기</Text>
+                  </TouchableOpacity>
+                )}
                 <TouchableOpacity
                   style={[s.modalPayBtn, (cartCount === 0 && pendingCount === 0 || submitting) && s.modalOrderBtnDisabled]}
                   onPress={payNow}
@@ -777,7 +805,6 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
                 >
                   <Text style={s.modalPayBtnText}>결제하기</Text>
                 </TouchableOpacity>
-                )}
               </View>
             </View>
           </Animated.View>

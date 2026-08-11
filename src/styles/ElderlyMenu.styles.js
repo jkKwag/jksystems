@@ -144,9 +144,6 @@ export const s = StyleSheet.create({
   modalPayBtn: { backgroundColor: "#0f172a", borderRadius: 18, paddingVertical: 10, alignItems: "center" },
   modalPayBtnText: { color: "#fff", fontSize: 24, fontWeight: "900" },
 
-  grantBlockedBox: { backgroundColor: "#fff7ed", borderWidth: 2, borderColor: "#f97316", borderRadius: 18, paddingVertical: 12, paddingHorizontal: 14, alignItems: "center" },
-  grantBlockedText: { color: "#f97316", fontSize: 17, fontWeight: "800", textAlign: "center" },
-
   confirmOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center", zIndex: 300 },
   confirmBox: { backgroundColor: "#fff", borderRadius: 28, padding: 28, alignItems: "center", width: 320, shadowColor: "#000", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.2, shadowRadius: 20, elevation: 20 },
   confirmEmoji: { fontSize: 40, marginBottom: 10 },

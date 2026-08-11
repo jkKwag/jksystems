@@ -254,9 +254,6 @@ export const s = StyleSheet.create({
   payNowBtnDisabled: { backgroundColor: colors.slate300, opacity: 0.6 },
   payNowBtnText: { color: colors.white, fontSize: font.xl, fontWeight: "900", letterSpacing: 0.3 },
 
-  grantBlockedBox: { flex: 1, backgroundColor: colors.accentLight, borderWidth: 1, borderColor: colors.accent, borderRadius: radius["2xl"], paddingVertical: spacing["3"], paddingHorizontal: spacing["3"], alignItems: "center", justifyContent: "center" },
-  grantBlockedText: { color: colors.accent, fontSize: font.base, fontWeight: "700", textAlign: "center" },
-
   sheetFooter: { padding: spacing["4"], borderTopWidth: 1, borderTopColor: colors.borderLight },
   totalRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: spacing["3"] },
   totalLabel: { fontSize: font.md, color: colors.textMuted, fontWeight: "600" },
