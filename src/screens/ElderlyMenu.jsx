@@ -622,7 +622,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
                     <Text style={s.tossLogoText}>toss</Text>
                   </View>
                 )}
-                <Text style={s.modalTitle}>{cartCount > 0 ? "장바구니" : "결제 대기 중"}</Text>
+                <Text style={s.modalTitle}>{cartCount > 0 ? "🛒 장바구니" : "결제 대기 중"}</Text>
                 <OrderTypeBadge isTakeout={orderTypCd === "TAKEOUT"} textStyle={s.modalTitleTypeText} iconSize={18} />
               </View>
               <View style={s.modalTitleActions}>
