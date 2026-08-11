@@ -406,7 +406,6 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
       seatNo: tableNo || null,
       orderTypCd,
       guestPhone: orderTypCd === "TAKEOUT" ? guestPhone : null,
-      payLater: true,
       items: buildOrderItemsPayload(),
     });
     setSubmitting(false);

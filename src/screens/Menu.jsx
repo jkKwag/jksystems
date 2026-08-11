@@ -705,7 +705,6 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
       seatNo: tableNo || null,
       orderTypCd: orderType === "포장주문" ? "TAKEOUT" : "DINE_IN",
       guestPhone: orderType === "포장주문" ? guestPhone : null,
-      payLater: true,
       items: buildOrderItemsPayload(),
     });
     if (error || !data) {

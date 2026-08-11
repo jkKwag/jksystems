@@ -32,37 +32,30 @@ export default function PaymentSuccess() {
       return;
     }
     (async () => {
-      let orderNos = [...existingOrderNos];
-
-      // 결제 전에는 주문을 만들지 않았으므로, 결제가 실제로 승인된 지금 시점에
-      // 장바구니 스냅샷(checkoutId)으로 주문을 생성해 orderNos에 합친다.
+      // 결제 전에는 주문을 만들지 않는다 — 장바구니 스냅샷(checkoutId)은 결제 승인
+      // 요청에 실어 보내고, 서버가 토스 결제 검증에 실제로 성공했을 때만 주문을 생성한다.
+      let newOrder = null;
       if (checkoutId) {
         const stored = sessionStorage.getItem(`scaneat_checkout_${checkoutId}`);
-        if (stored) {
-          const { data: newOrder, error: orderErr } = await api.order.post(JSON.parse(stored));
-          if (orderErr || !newOrder) {
-            setStatus("error");
-            setErrorMsg("결제는 진행되었으나 주문 생성에 실패했습니다. 사업장에 문의해주세요.");
-            return;
-          }
-          orderNos = [...orderNos, newOrder.orderNo];
-          sessionStorage.removeItem(`scaneat_checkout_${checkoutId}`);
-        }
+        if (stored) newOrder = JSON.parse(stored);
       }
 
-      if (orderNos.length === 0) {
+      if (existingOrderNos.length === 0 && !newOrder) {
         setStatus("error");
         setErrorMsg("결제할 주문 정보를 찾을 수 없습니다.");
         return;
       }
-      setOrderCount(orderNos.length);
 
-      const { data, error } = await api.payment.confirm({ paymentKey, orderId, amount: Number(amount), orderNos });
+      const { data, error } = await api.payment.confirm({
+        paymentKey, orderId, amount: Number(amount), orderNos: existingOrderNos, newOrder,
+      });
       if (error || !data) {
         setStatus("error");
         setErrorMsg(error?.message || "결제 승인에 실패했습니다.");
         return;
       }
+      if (checkoutId) sessionStorage.removeItem(`scaneat_checkout_${checkoutId}`);
+      setOrderCount(data.orderNos?.length || existingOrderNos.length);
       if (Platform.OS === "web" && bizno) {
         try { localStorage.removeItem(`scaneat_cart_${bizno}`); } catch {}
         try { sessionStorage.removeItem(`scaneat_pending_cart_${bizno}`); } catch {}
