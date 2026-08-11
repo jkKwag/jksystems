@@ -137,7 +137,7 @@ export const s = StyleSheet.create({
   modalOrderOnlyBtnText: { color: "#0f172a", fontSize: 22, fontWeight: "900" },
   modalOrderOnlyBtnCancel: { borderColor: "#ef4444" },
   modalOrderOnlyBtnTextCancel: { color: "#ef4444" },
-  modalPayBtn: { backgroundColor: "#0f172a", borderRadius: 18, paddingVertical: 20, alignItems: "center" },
+  modalPayBtn: { backgroundColor: "#0f172a", borderRadius: 18, paddingVertical: 10, alignItems: "center" },
   modalPayBtnText: { color: "#fff", fontSize: 24, fontWeight: "900" },
 
   confirmOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center", zIndex: 300 },
