@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Animated, Easing, Platform, ActivityIndicator, useWindowDimensions } from "react-native";
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Animated, Easing, Platform, ActivityIndicator, useWindowDimensions, TextInput } from "react-native";
 import api from "../lib/api";
 import { s } from "../styles/ElderlyMenu.styles";
 
@@ -94,6 +94,12 @@ const PENDING_CART_KEY = (bizno) => `scaneat_elderly_pending_cart_${bizno}`;
 
 export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   const { width } = useWindowDimensions();
+  // 테이블번호 없이 들어온 경우(테이블 QR을 거치지 않은 접근)는 매장에 앉아있다고 볼 수 없으므로
+  // 포장주문으로 처리한다 (일반 화면의 매장주문/포장주문 토글과 동일한 규칙).
+  const orderTypCd = tableNo ? "DINE_IN" : "TAKEOUT";
+  const [guestPhoneFront, setGuestPhoneFront] = useState("010");
+  const [guestPhoneBack, setGuestPhoneBack] = useState("");
+  const [guestPhoneError, setGuestPhoneError] = useState(false);
   const [menus, setMenus] = useState([]);
   // { [menuCd]: { qty, optionsTotal, optionLabels, selectedOptions } }
   const [cart, setCart] = useState(() => {
@@ -132,6 +138,27 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
     setActiveOrders(bizOrders);
   };
   useEffect(() => { refreshPendingOrders(); }, [bizno]);
+
+  // 이전에 남긴 휴대폰번호가 있으면 결제 모달의 입력란에 한 번만 자동으로 채워준다
+  // (뒷자리가 이미 채워져 있으면 사용자가 직접 입력한 것으로 보고 건드리지 않음).
+  useEffect(() => {
+    const uuid = getUuid();
+    if (!uuid) return;
+    api.order.lastGuestPhone(uuid).then(phone => {
+      if (!phone || phone.length !== 11) return;
+      setGuestPhoneBack(prev => {
+        if (prev !== "") return prev;
+        setGuestPhoneFront(phone.slice(0, 3));
+        return phone.slice(3);
+      });
+    });
+  }, []);
+
+  // 포장주문일 때만 휴대폰번호가 필요 — 앞자리(010~019)와 뒷자리(8자리)를 각각 검증
+  const isGuestPhoneFrontValid = /^01[016789]$/.test(guestPhoneFront);
+  const isGuestPhoneBackValid = /^\d{8}$/.test(guestPhoneBack);
+  const isGuestPhoneValid = orderTypCd !== "TAKEOUT" || (isGuestPhoneFrontValid && isGuestPhoneBackValid);
+  const guestPhone = guestPhoneFront + guestPhoneBack;
 
   const flipY = useRef(new Animated.Value(0)).current;
   const orderStatusPop = useRef(new Animated.Value(0)).current;
@@ -342,12 +369,14 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   const orderOnly = async () => {
     const uuid = getUuid();
     if (!uuid || cartCount === 0) return;
+    if (!isGuestPhoneValid) { setGuestPhoneError(true); return; }
     setSubmitting(true);
     const { data, error } = await api.order.post({
       uuid,
       bizRegNo: bizno,
       seatNo: tableNo || null,
-      orderTypCd: "DINE_IN",
+      orderTypCd,
+      guestPhone: orderTypCd === "TAKEOUT" ? guestPhone : null,
       items: buildOrderItemsPayload(),
     });
     setSubmitting(false);
@@ -364,6 +393,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   const payNow = async () => {
     if (!TOSS_CLIENT_KEY) { alert("토스 클라이언트 키가 없습니다 (EXPO_PUBLIC_TOSS_CLIENT_KEY)"); return; }
     if (cartCount === 0 && pendingCount === 0) { alert("결제할 주문이 없습니다."); return; }
+    if (cartCount > 0 && !isGuestPhoneValid) { setGuestPhoneError(true); return; }
     const checkoutId = `scaneat-${Date.now()}`;
     const existingOrderNos = pendingOrders.map(o => o.orderNo);
     let storedCheckout = false;
@@ -375,7 +405,8 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
           uuid: getUuid(),
           bizRegNo: bizno,
           seatNo: tableNo || null,
-          orderTypCd: "DINE_IN",
+          orderTypCd,
+          guestPhone: orderTypCd === "TAKEOUT" ? guestPhone : null,
           items: buildOrderItemsPayload(),
         }));
         storedCheckout = true;
@@ -635,6 +666,39 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
                 );
               })}
 
+              {orderTypCd === "TAKEOUT" && cartCount > 0 && (
+                <View style={s.payPhoneField}>
+                  <Text style={s.payPhoneLabel}>📞 연락받으실 휴대폰번호</Text>
+                  <View style={s.payPhoneRow}>
+                    <TextInput
+                      style={[s.payPhoneInputFront, guestPhoneError && !isGuestPhoneFrontValid && s.payPhoneInputError]}
+                      placeholder="010"
+                      placeholderTextColor="#94a3b8"
+                      value={guestPhoneFront}
+                      onChangeText={(t) => { setGuestPhoneFront(t.replace(/[^0-9]/g, "").slice(0, 3)); setGuestPhoneError(false); }}
+                      keyboardType="phone-pad"
+                      maxLength={3}
+                    />
+                    <Text style={s.payPhoneSep}>-</Text>
+                    <TextInput
+                      style={[s.payPhoneInputBack, guestPhoneError && isGuestPhoneFrontValid && !isGuestPhoneBackValid && s.payPhoneInputError]}
+                      placeholder="숫자 8자리"
+                      placeholderTextColor="#94a3b8"
+                      value={guestPhoneBack}
+                      onChangeText={(t) => { setGuestPhoneBack(t.replace(/[^0-9]/g, "").slice(0, 8)); setGuestPhoneError(false); }}
+                      keyboardType="phone-pad"
+                      maxLength={8}
+                    />
+                  </View>
+                  {guestPhoneError && !isGuestPhoneFrontValid && (
+                    <Text style={s.payPhoneErrorText}>앞자리를 010~019 형식으로 입력해주세요.</Text>
+                  )}
+                  {guestPhoneError && isGuestPhoneFrontValid && !isGuestPhoneBackValid && (
+                    <Text style={s.payPhoneErrorText}>뒷자리 8자리를 입력해주세요.</Text>
+                  )}
+                </View>
+              )}
+
               {pendingCount > 0 && (
                 <View style={s.pendingSection}>
                   <Text style={s.pendingSectionTitle}>이미 주문한 내역 ({pendingCount}건, 결제 대기)</Text>
@@ -686,7 +750,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
                       <Text style={[s.modalOrderOnlyBtnText, s.modalOrderOnlyBtnTextCancel]}>주문취소</Text>
                     </TouchableOpacity>
                   )
-                ) : cartCount > 0 && (
+                ) : cartCount > 0 && orderTypCd !== "TAKEOUT" && (
                   <TouchableOpacity
                     style={s.modalOrderOnlyBtn}
                     onPress={orderOnly}
