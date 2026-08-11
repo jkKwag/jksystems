@@ -465,6 +465,11 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
             <Text style={s.photoEmoji}>{currentMenu?.emoji || "🍽"}</Text>
           </View>
         )}
+        {tableNo && (
+          <View style={s.tableNoBadge}>
+            <Text style={s.tableNoBadgeText}>No. {tableNo.toUpperCase()}</Text>
+          </View>
+        )}
         {activeOrders.length > 0 && (
           <TouchableOpacity
             style={s.orderStatusBadge}
