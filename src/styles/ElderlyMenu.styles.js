@@ -14,7 +14,7 @@ export const s = StyleSheet.create({
   orderStatusBadge: { position: "absolute", top: 14, right: 14, backgroundColor: "#f97316", borderRadius: 14, paddingHorizontal: 14, paddingVertical: 8, shadowColor: "#000", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.3, shadowRadius: 6, elevation: 6 },
   orderStatusBadgeText: { color: "#fff", fontSize: 20, fontWeight: "900", textAlign: "center", lineHeight: 24 },
 
-  tableNoBadge: { position: "absolute", top: 14, left: 14, backgroundColor: "#1d4ed8", borderRadius: 14, paddingHorizontal: 14, paddingVertical: 8, shadowColor: "#000", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.3, shadowRadius: 6, elevation: 6 },
+  tableNoBadge: { position: "absolute", top: 14, left: 14, backgroundColor: "#f97316", borderRadius: 14, paddingHorizontal: 14, paddingVertical: 8, shadowColor: "#000", shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.3, shadowRadius: 6, elevation: 6 },
   tableNoBadgeText: { color: "#fff", fontSize: 20, fontWeight: "900", letterSpacing: 1 },
 
   /* 카드 + 떠 있는 화살표 컨테이너 */
