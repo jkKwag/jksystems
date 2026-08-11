@@ -75,7 +75,7 @@ export const s = StyleSheet.create({
 
   modalOverlay: { justifyContent: "flex-end", zIndex: 200 },
   modalBg: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)" },
-  modalSheet: { backgroundColor: "#fff", borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 28, paddingBottom: 44, maxHeight: "80%" },
+  modalSheet: { backgroundColor: "#fff", borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 28, paddingTop: 14, paddingBottom: 22, maxHeight: "80%" },
   modalTitleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 20 },
   modalTitleLeft: { flexDirection: "row", alignItems: "center", gap: 10 },
   modalTitle: { fontSize: 26, fontWeight: "900", color: "#0f172a" },
@@ -87,7 +87,7 @@ export const s = StyleSheet.create({
   closeBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: "#f1f5f9", alignItems: "center", justifyContent: "center" },
   closeBtnText: { fontSize: 18, fontWeight: "900", color: "#64748b" },
   modalList: { flexShrink: 1, marginBottom: 20 },
-  modalItem: { flexDirection: "column", paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: "#e2e8f0", gap: 10 },
+  modalItem: { flexDirection: "column", paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "#e2e8f0", gap: 10 },
   modalItemHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
   modalItemName: { flex: 1, fontSize: 22, fontWeight: "800", color: "#0f172a" },
   modalItemOptions: { fontSize: 17, fontWeight: "700", color: "#64748b" },
@@ -96,7 +96,7 @@ export const s = StyleSheet.create({
   modalItemBottom: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   modalItemPrice: { fontSize: 22, fontWeight: "900", color: "#1d4ed8" },
 
-  payPhoneField: { marginTop: 8, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: "#e2e8f0", gap: 8 },
+  payPhoneField: { marginTop: 8, paddingVertical: 7, borderBottomWidth: 1, borderBottomColor: "#e2e8f0", gap: 8 },
   payPhoneLabel: { fontSize: 19, fontWeight: "800", color: "#334155" },
   payPhoneRow: { flexDirection: "row", alignItems: "center", gap: 10, minWidth: 0 },
   payPhoneInputFront: { width: 90, flexShrink: 0, textAlign: "center", borderWidth: 2, borderColor: "#cbd5e1", borderRadius: 14, paddingHorizontal: 10, paddingVertical: 14, fontSize: 22, fontWeight: "700", color: "#0f172a", backgroundColor: "#fff" },
@@ -114,7 +114,7 @@ export const s = StyleSheet.create({
   statusReady: { backgroundColor: "#22c55e" },
   statusPickupText: { fontSize: 17, fontWeight: "800", color: "#1d4ed8", marginTop: 4 },
 
-  pendingSection: { marginTop: 8, paddingTop: 16, borderTopWidth: 2, borderTopColor: "#e2e8f0", gap: 10 },
+  pendingSection: { marginTop: 8, paddingTop: 8, borderTopWidth: 2, borderTopColor: "#e2e8f0", gap: 10 },
   pendingSectionTitle: { fontSize: 18, fontWeight: "800", color: "#94a3b8" },
   pendingOrderBlock: { gap: 4, paddingVertical: 4 },
   pendingOrderBadgeRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 4 },
@@ -129,7 +129,7 @@ export const s = StyleSheet.create({
   cancelRadioOuterDisabled: { borderColor: "#e2e8f0", backgroundColor: "#f1f5f9", opacity: 0.6 },
   cancelRadioInner: { width: 16, height: 16, borderRadius: 8, backgroundColor: "#ef4444" },
 
-  modalFooter: { paddingTop: 18, borderTopWidth: 2, borderTopColor: "#e2e8f0", gap: 14 },
+  modalFooter: { paddingTop: 9, borderTopWidth: 2, borderTopColor: "#e2e8f0", gap: 14 },
   modalTotal: { fontSize: 24, fontWeight: "900", color: "#0f172a", textAlign: "center" },
   modalBtnCol: { gap: 12 },
   modalOrderBtnDisabled: { opacity: 0.4 },
