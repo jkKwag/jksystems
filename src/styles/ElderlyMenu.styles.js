@@ -98,9 +98,9 @@ export const s = StyleSheet.create({
 
   payPhoneField: { marginTop: 8, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: "#e2e8f0", gap: 8 },
   payPhoneLabel: { fontSize: 19, fontWeight: "800", color: "#334155" },
-  payPhoneRow: { flexDirection: "row", alignItems: "center", gap: 10 },
-  payPhoneInputFront: { width: 90, textAlign: "center", borderWidth: 2, borderColor: "#cbd5e1", borderRadius: 14, paddingHorizontal: 10, paddingVertical: 14, fontSize: 22, fontWeight: "700", color: "#0f172a", backgroundColor: "#fff" },
-  payPhoneInputBack: { flex: 1, borderWidth: 2, borderColor: "#cbd5e1", borderRadius: 14, paddingHorizontal: 14, paddingVertical: 14, fontSize: 22, fontWeight: "700", color: "#0f172a", backgroundColor: "#fff" },
+  payPhoneRow: { flexDirection: "row", alignItems: "center", gap: 10, minWidth: 0 },
+  payPhoneInputFront: { width: 90, flexShrink: 0, textAlign: "center", borderWidth: 2, borderColor: "#cbd5e1", borderRadius: 14, paddingHorizontal: 10, paddingVertical: 14, fontSize: 22, fontWeight: "700", color: "#0f172a", backgroundColor: "#fff" },
+  payPhoneInputBack: { flex: 1, minWidth: 0, borderWidth: 2, borderColor: "#cbd5e1", borderRadius: 14, paddingHorizontal: 14, paddingVertical: 14, fontSize: 22, fontWeight: "700", color: "#0f172a", backgroundColor: "#fff" },
   payPhoneSep: { fontSize: 22, fontWeight: "800", color: "#94a3b8" },
   payPhoneInputError: { borderColor: "#ef4444" },
   payPhoneErrorText: { fontSize: 16, color: "#ef4444", fontWeight: "700" },

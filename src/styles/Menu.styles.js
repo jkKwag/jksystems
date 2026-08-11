@@ -219,15 +219,15 @@ export const s = StyleSheet.create({
     paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"], fontSize: font.lg,
     color: colors.text, backgroundColor: colors.bgCard,
   },
-  payPhoneRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"] },
+  payPhoneRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"], minWidth: 0 },
   payPhoneInputFront: {
-    width: 64, textAlign: "center",
+    width: 64, flexShrink: 0, textAlign: "center",
     borderWidth: 1.5, borderColor: colors.borderMedium, borderRadius: radius.lg,
     paddingHorizontal: spacing["2"], paddingVertical: spacing["2.5"], fontSize: font.lg,
     color: colors.text, backgroundColor: colors.bgCard,
   },
   payPhoneInputBack: {
-    flex: 1,
+    flex: 1, minWidth: 0,
     borderWidth: 1.5, borderColor: colors.borderMedium, borderRadius: radius.lg,
     paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"], fontSize: font.lg,
     color: colors.text, backgroundColor: colors.bgCard,
