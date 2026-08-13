@@ -10,6 +10,7 @@ import AdminPayments from "./AdminPayments";
 import AdminBizCategory from "./AdminBizCategory";
 import AdminMenu from "./AdminMenu";
 import AdminSeats from "./AdminSeats";
+import AdminSeatStatus from "./AdminSeatStatus";
 import AdminHours from "./AdminHours";
 import AdminReservationStandard from "./AdminReservationStandard";
 import AdminDashboard from "./AdminDashboard";
@@ -40,6 +41,7 @@ const MENU_SCREENS = {
   "/admin/biz-category": AdminBizCategory,
   "/admin/menu": AdminMenu,
   "/admin/seat": AdminSeats,
+  "/admin/seat-status": AdminSeatStatus,
   "/admin/hours": AdminHours,
   "/admin/reservation-standard": AdminReservationStandard,
   "/admin/dashboard": AdminDashboard,
@@ -59,6 +61,19 @@ function findMenuNode(nodes, menuUrl) {
     }
   }
   return null;
+}
+
+// 좌석 점유현황: 하드코딩 목업 단계라 서버 메뉴 트리에 없음. 좌석관리 옆에 임시로 끼워넣는다.
+function injectSeatStatusMenu(nodes) {
+  for (const node of nodes) {
+    if (node.menuUrl === "/admin/seat") {
+      const idx = nodes.indexOf(node);
+      nodes.splice(idx + 1, 0, { menuCd: "__seat_status__", menuNm: "좌석 점유현황", menuUrl: "/admin/seat-status", children: [] });
+      return true;
+    }
+    if (node.children?.length && injectSeatStatusMenu(node.children)) return true;
+  }
+  return false;
 }
 
 // 대시보드가 없는 권한을 위한 기본 화면: 메뉴 순서상 가장 먼저 나오는, 실제 구현된 화면을 찾는다.
@@ -144,6 +159,9 @@ export default function AdminHome({ adminInfo, onLogout }) {
     (async () => {
       const tree = await api.admin.menu(adminInfo.adminRole);
       const list = Array.isArray(tree) ? tree : [];
+      if (!injectSeatStatusMenu(list)) {
+        list.push({ menuCd: "__seat_status__", menuNm: "좌석 점유현황", menuUrl: "/admin/seat-status", children: [] });
+      }
       setMenuTree(list);
       setExpanded(new Set(list.map(m => m.menuCd)));
       const dashboard = list.find(m => m.menuUrl === DASHBOARD_URL);
