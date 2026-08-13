@@ -91,6 +91,7 @@ const api = {
     issueAccessToken: (bizno, seatCd) => post(`/api/biz/${bizno}/seats/${seatCd}/access-tokens`, {}),
     redeemAccessGrant: (bizno, seatCd, body) => post(`/api/biz/${bizno}/seats/${seatCd}/access-grants`, body),
     accessGrantStatus: (bizno, seatCd, uuid) => get(`/api/biz/${bizno}/seats/${seatCd}/access-grants?uuid=${uuid}`),
+    seatStatus: (bizno) => get(`/api/biz/${bizno}/seat-status`),
     employees: (bizno) => get(`/api/biz/${bizno}/employees`),
     uploadMenuImage: (bizno, formData) => postMultipart(`/api/biz/${bizno}/menu-image`, formData),
     uploadSeatImage: (bizno, formData) => postMultipart(`/api/biz/${bizno}/seat-image`, formData),

@@ -1,19 +1,10 @@
-import { View, Text, useWindowDimensions } from "react-native";
+import { useState, useEffect, useRef } from "react";
+import { View, Text, ActivityIndicator, useWindowDimensions } from "react-native";
 import { s } from "../../styles/admin/AdminSeatStatus.styles";
+import api from "../../lib/api";
 
 const BOARD_BREAKPOINT = 820;
-
-// 하드코딩 목업 데이터 — 실제 좌석/주문 연동 전까지 화면 확인용
-const SEATS = [
-  { seatNm: "창가 4인석", capacity: 4, zone: "창가", state: "paid", elapsedMin: 23, amount: 34000 },
-  { seatNm: "룸 B", capacity: 8, zone: "룸", state: "seated", elapsedMin: 6 },
-  { seatNm: "룸 A", capacity: 6, zone: "룸", state: "ordered", elapsedMin: 14, amount: 58000 },
-  { seatNm: "테라스 2인석", capacity: 2, zone: "야외", state: "empty" },
-  { seatNm: "바 좌석 1", capacity: 2, zone: "카운터", state: "ordered", elapsedMin: 3, amount: 17000 },
-  { seatNm: "바 좌석 2", capacity: 2, zone: "카운터", state: "empty" },
-  { seatNm: "창가 2인석", capacity: 2, zone: "창가", state: "seated", elapsedMin: 41, warn: true },
-  { seatNm: "룸 C", capacity: 4, zone: "룸", state: "paid", elapsedMin: 52, amount: 61500 },
-];
+const REFRESH_MS = 20000;
 
 const STATE_META = {
   empty: { color: "#5b6480", bg: "#161b28", label: "비어있음" },
@@ -24,16 +15,40 @@ const STATE_META = {
 const STATE_ORDER = ["empty", "seated", "ordered", "paid"];
 const WARN_COLOR = "#f0603c";
 
+const pad = (n) => String(n).padStart(2, "0");
+const DAY_KR = ["일", "월", "화", "수", "목", "금", "토"];
 const fmtWon = (n) => `₩${n.toLocaleString()}`;
+const fmtClock = (d) =>
+  `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())}(${DAY_KR[d.getDay()]}) ${pad(d.getHours())}:${pad(d.getMinutes())} 기준`;
 
-export default function AdminSeatStatus() {
+export default function AdminSeatStatus({ adminInfo }) {
+  const bizRegNo = adminInfo?.bizRegNo;
   const { width } = useWindowDimensions();
   const isNarrow = width < BOARD_BREAKPOINT;
 
-  const total = SEATS.length;
-  const occupied = SEATS.filter(v => v.state !== "empty").length;
-  const counts = Object.fromEntries(STATE_ORDER.map(k => [k, SEATS.filter(v => v.state === k).length]));
-  const warnCount = SEATS.filter(v => v.warn).length;
+  const [loaded, setLoaded] = useState(false);
+  const [seats, setSeats] = useState([]);
+  const [asOf, setAsOf] = useState(new Date());
+  const timerRef = useRef(null);
+
+  const load = async () => {
+    if (!bizRegNo) { setLoaded(true); return; }
+    const list = await api.biz.seatStatus(bizRegNo);
+    setSeats(Array.isArray(list) ? list : []);
+    setAsOf(new Date());
+    setLoaded(true);
+  };
+
+  useEffect(() => {
+    load();
+    timerRef.current = setInterval(load, REFRESH_MS);
+    return () => clearInterval(timerRef.current);
+  }, [bizRegNo]);
+
+  const total = seats.length;
+  const occupied = seats.filter(v => v.state !== "empty").length;
+  const counts = Object.fromEntries(STATE_ORDER.map(k => [k, seats.filter(v => v.state === k).length]));
+  const warnCount = seats.filter(v => v.warn).length;
 
   return (
     <View style={s.page}>
@@ -44,41 +59,49 @@ export default function AdminSeatStatus() {
         </View>
         <View style={s.clockRow}>
           <View style={s.liveDot} />
-          <Text style={s.clockText}>2026.08.13(목) 13:42 기준</Text>
+          <Text style={s.clockText}>{fmtClock(asOf)}</Text>
         </View>
       </View>
 
-      <View style={s.summary}>
-        <View style={s.summaryTopRow}>
-          <View style={s.summaryFigureRow}>
-            <Text style={s.summaryNum}>{occupied}</Text>
-            <Text style={s.summaryOf}>/ {total}석 사용 중</Text>
+      {!loaded ? (
+        <View style={s.center}><ActivityIndicator color="#eef1f8" /></View>
+      ) : total === 0 ? (
+        <View style={s.center}><Text style={s.emptyText}>등록된 좌석이 없습니다</Text></View>
+      ) : (
+        <>
+          <View style={s.summary}>
+            <View style={s.summaryTopRow}>
+              <View style={s.summaryFigureRow}>
+                <Text style={s.summaryNum}>{occupied}</Text>
+                <Text style={s.summaryOf}>/ {total}석 사용 중</Text>
+              </View>
+              {warnCount > 0 && (
+                <View style={s.warnTag}>
+                  <Text style={s.warnTagText}>⚠ 주문 확인 {warnCount}건</Text>
+                </View>
+              )}
+            </View>
+
+            <View style={s.capacityBar}>
+              {seats.map((v, i) => (
+                <View key={i} style={[s.capacitySeg, v.state !== "empty" && s.capacitySegFilled]} />
+              ))}
+            </View>
+
+            <View style={s.legendRow}>
+              {STATE_ORDER.map(key => (
+                <View key={key} style={s.legendItem}>
+                  <View style={[s.legendSwatch, { backgroundColor: STATE_META[key].color }]} />
+                  <Text style={s.legendLabel} numberOfLines={1}>{STATE_META[key].label}</Text>
+                  <Text style={[s.legendCount, { color: STATE_META[key].color }]}>{counts[key]}</Text>
+                </View>
+              ))}
+            </View>
           </View>
-          {warnCount > 0 && (
-            <View style={s.warnTag}>
-              <Text style={s.warnTagText}>⚠ 주문 확인 {warnCount}건</Text>
-            </View>
-          )}
-        </View>
 
-        <View style={s.capacityBar}>
-          {SEATS.map((v, i) => (
-            <View key={i} style={[s.capacitySeg, v.state !== "empty" && s.capacitySegFilled]} />
-          ))}
-        </View>
-
-        <View style={s.legendRow}>
-          {STATE_ORDER.map(key => (
-            <View key={key} style={s.legendItem}>
-              <View style={[s.legendSwatch, { backgroundColor: STATE_META[key].color }]} />
-              <Text style={s.legendLabel} numberOfLines={1}>{STATE_META[key].label}</Text>
-              <Text style={[s.legendCount, { color: STATE_META[key].color }]}>{counts[key]}</Text>
-            </View>
-          ))}
-        </View>
-      </View>
-
-      {isNarrow ? <TileGrid seats={SEATS} /> : <Board seats={SEATS} />}
+          {isNarrow ? <TileGrid seats={seats} /> : <Board seats={seats} />}
+        </>
+      )}
     </View>
   );
 }
@@ -133,7 +156,7 @@ function TableCard({ seat, meta, variant }) {
       <View style={s.cardTop}>
         <View style={{ flex: 1 }}>
           <Text style={[s.cardName, seat.state === "empty" && s.cardNameEmpty]} numberOfLines={1}>{seat.seatNm}</Text>
-          <Text style={s.cardCap}>{seat.capacity}인 · {seat.zone}</Text>
+          <Text style={s.cardCap}>{seat.capacity}인{seat.zone ? ` · ${seat.zone}` : ""}</Text>
         </View>
         {seat.elapsedMin != null && (
           <Text style={[s.cardTime, seat.warn && s.cardTimeWarn]}>{seat.elapsedMin}분</Text>

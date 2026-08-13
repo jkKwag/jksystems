@@ -16,6 +16,9 @@ const tabularNums = Platform.OS === "web" ? { fontVariantNumeric: "tabular-nums"
 export const s = StyleSheet.create({
   page: { flex: 1, backgroundColor: BG, padding: 20, gap: 18 },
 
+  center: { flex: 1, justifyContent: "center", alignItems: "center", paddingVertical: 60 },
+  emptyText: { fontSize: 13, fontWeight: "700", color: TEXT_FAINT },
+
   topbar: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between", gap: 12, flexWrap: "wrap" },
   eyebrow: { fontSize: 11, fontWeight: "800", letterSpacing: 1.4, textTransform: "uppercase", color: C_SEATED, marginBottom: 4 },
   title: { fontSize: 22, fontWeight: "800", color: TEXT, letterSpacing: -0.2 },
