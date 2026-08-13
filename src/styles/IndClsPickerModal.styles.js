@@ -3,12 +3,14 @@ import { colors, radius, font, spacing } from "./theme";
 
 export const s = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: "rgba(15,23,42,0.6)", justifyContent: "center", alignItems: "center", padding: spacing["5"] },
-  card: { backgroundColor: colors.bgCard, borderRadius: radius["2xl"], width: "100%", maxWidth: 420, maxHeight: "80%", padding: spacing["5"] },
+  card: { backgroundColor: colors.bgCard, borderRadius: radius["2xl"], width: "100%", maxWidth: 420, maxHeight: "80%", overflow: "hidden" },
 
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: spacing["3"] },
-  title: { fontSize: font["6xl"], fontWeight: "900", color: colors.text },
-  closeBtn: { width: 28, height: 28, borderRadius: radius.round, alignItems: "center", justifyContent: "center", backgroundColor: colors.slate100 },
-  closeBtnText: { fontSize: font.md, fontWeight: "700", color: colors.textGray },
+  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: colors.primary, paddingHorizontal: spacing["5"], paddingVertical: spacing["4"] },
+  title: { fontSize: font["6xl"], fontWeight: "900", color: colors.white },
+  closeBtn: { width: 28, height: 28, borderRadius: radius.round, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.15)" },
+  closeBtnText: { fontSize: font.md, fontWeight: "700", color: colors.white },
+
+  body: { padding: spacing["5"] },
 
   searchWrap: { marginBottom: spacing["3"] },
   searchInput: {
@@ -25,7 +27,7 @@ export const s = StyleSheet.create({
   crumbPillTextCurrent: { color: colors.white },
   crumbSep: { fontSize: font.sm, color: colors.slate400 },
 
-  list: { flexGrow: 0 },
+  list: { flexGrow: 0, maxHeight: 340 },
   center: { paddingVertical: spacing["8"], alignItems: "center" },
   emptyText: { fontSize: font.md, color: colors.textMuted, textAlign: "center" },
 
