@@ -1,9 +1,14 @@
 import { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, Switch, ActivityIndicator } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, Switch, ActivityIndicator, Platform } from "react-native";
 import { s } from "../../styles/admin/CategoryFormModal.styles";
 
 const emptyForm = { bizCatNm: "", catCd: "", sortOrd: "", useYn: "Y", rmrk: "" };
 const emptyFieldErrors = { bizCatNm: "" };
+
+// 메뉴관리 상세(MenuFormModal)와 동일한 남색→녹색 그라데이션 헤더 (웹 전용, RN 네이티브는 primary 단색)
+const HEADER_GRADIENT = Platform.OS === "web"
+  ? { background: "linear-gradient(135deg, #0f172a 0%, #14532d 100%)" }
+  : {};
 
 export default function CategoryFormModal({ visible, initial, saving, onSave, onClose }) {
   const [form, setForm] = useState(emptyForm);
@@ -51,7 +56,7 @@ export default function CategoryFormModal({ visible, initial, saving, onSave, on
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
       <View style={s.overlay}>
         <View style={s.card}>
-          <View style={s.header}>
+          <View style={[s.header, HEADER_GRADIENT]}>
             <Text style={s.title}>{initial ? "카테고리 수정" : "새 카테고리 등록"}</Text>
           </View>
 
