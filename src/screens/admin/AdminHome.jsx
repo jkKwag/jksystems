@@ -63,19 +63,6 @@ function findMenuNode(nodes, menuUrl) {
   return null;
 }
 
-// 좌석 점유현황: 하드코딩 목업 단계라 서버 메뉴 트리에 없음. 좌석관리 옆에 임시로 끼워넣는다.
-function injectSeatStatusMenu(nodes) {
-  for (const node of nodes) {
-    if (node.menuUrl === "/admin/seat") {
-      const idx = nodes.indexOf(node);
-      nodes.splice(idx + 1, 0, { menuCd: "__seat_status__", menuNm: "좌석 점유현황", menuUrl: "/admin/seat-status", children: [] });
-      return true;
-    }
-    if (node.children?.length && injectSeatStatusMenu(node.children)) return true;
-  }
-  return false;
-}
-
 // 대시보드가 없는 권한을 위한 기본 화면: 메뉴 순서상 가장 먼저 나오는, 실제 구현된 화면을 찾는다.
 function findFirstScreen(nodes) {
   for (const node of nodes) {
@@ -159,9 +146,6 @@ export default function AdminHome({ adminInfo, onLogout }) {
     (async () => {
       const tree = await api.admin.menu(adminInfo.adminRole);
       const list = Array.isArray(tree) ? tree : [];
-      if (!injectSeatStatusMenu(list)) {
-        list.push({ menuCd: "__seat_status__", menuNm: "좌석 점유현황", menuUrl: "/admin/seat-status", children: [] });
-      }
       setMenuTree(list);
       setExpanded(new Set(list.map(m => m.menuCd)));
       const dashboard = list.find(m => m.menuUrl === DASHBOARD_URL);
