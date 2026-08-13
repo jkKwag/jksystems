@@ -59,6 +59,8 @@ export default function AdminReservations({ adminInfo }) {
   const [dateTo, setDateTo] = useState(todayStr);
   const [calTarget, setCalTarget] = useState(null); // null | "from" | "to"
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [seatFilter, setSeatFilter] = useState(null); // null = 전체
+  const [seatPickerOpen, setSeatPickerOpen] = useState(false);
   const spinAnim = useRef(new Animated.Value(0)).current;
 
   const load = async (from = dateFrom, to = dateTo) => {
@@ -72,6 +74,7 @@ export default function AdminReservations({ adminInfo }) {
     const labelMap = {};
     (Array.isArray(statusCodes) ? statusCodes : []).forEach(c => { labelMap[c.cd] = c.cdNm; });
     setStatusLabels(labelMap);
+    setSeatFilter(null);
     setLoaded(true);
   };
 
@@ -140,7 +143,11 @@ export default function AdminReservations({ adminInfo }) {
     );
   }
 
-  const filteredReservations = statusFilter === "ALL" ? reservations : reservations.filter(r => r.rsvnStatus === statusFilter);
+  const seatOptions = [...new Set(reservations.map(r => r.seatCd).filter(Boolean))].sort();
+
+  const filteredReservations = reservations
+    .filter(r => statusFilter === "ALL" || r.rsvnStatus === statusFilter)
+    .filter(r => seatFilter == null || r.seatCd === seatFilter);
 
   return (
     <View style={s.container}>
@@ -159,7 +166,41 @@ export default function AdminReservations({ adminInfo }) {
         <TouchableOpacity style={s.dateField} onPress={() => setCalTarget("to")}>
           <Text style={s.dateFieldText}>📅 {formatDateLabel(dateTo)}</Text>
         </TouchableOpacity>
+        {seatOptions.length > 0 && (
+          <TouchableOpacity
+            style={[s.dateField, s.seatPickerField, seatFilter != null && s.seatPickerFieldActive]}
+            onPress={() => setSeatPickerOpen(true)}
+          >
+            <Text style={[s.dateFieldText, seatFilter != null && s.seatPickerFieldTextActive]} numberOfLines={1}>
+              🪑 {seatFilter || "전체"} ▾
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
+
+      {seatPickerOpen && (
+        <Modal visible transparent animationType="fade" onRequestClose={() => setSeatPickerOpen(false)}>
+          <TouchableOpacity style={s.calOverlay} activeOpacity={1} onPress={() => setSeatPickerOpen(false)}>
+            <View style={s.seatPickerBox}>
+              <TouchableOpacity
+                style={[s.seatPickerRow, seatFilter == null && s.seatPickerRowActive]}
+                onPress={() => { setSeatFilter(null); setSeatPickerOpen(false); }}
+              >
+                <Text style={[s.seatPickerRowText, seatFilter == null && s.seatPickerRowTextActive]}>전체 좌석</Text>
+              </TouchableOpacity>
+              {seatOptions.map(seatCd => (
+                <TouchableOpacity
+                  key={seatCd}
+                  style={[s.seatPickerRow, seatFilter === seatCd && s.seatPickerRowActive]}
+                  onPress={() => { setSeatFilter(seatCd); setSeatPickerOpen(false); }}
+                >
+                  <Text style={[s.seatPickerRowText, seatFilter === seatCd && s.seatPickerRowTextActive]}>좌석 {seatCd}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </TouchableOpacity>
+        </Modal>
+      )}
 
       <View style={s.statusFilterBox}>
         <View style={s.statusFilterRow}>

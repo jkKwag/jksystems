@@ -8,10 +8,19 @@ export const s = StyleSheet.create({
   refreshBtn: { borderWidth: 1, borderColor: colors.textGray, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"] },
   refreshBtnText: { fontSize: font.md, fontWeight: "700", color: colors.textGray },
 
-  dateRangeRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"], marginBottom: spacing["4"] },
-  dateField: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["2"], backgroundColor: colors.bgCard },
+  dateRangeRow: { flexDirection: "row", alignItems: "center", flexWrap: "nowrap", gap: spacing["2"], marginBottom: spacing["4"] },
+  dateField: { flexShrink: 1, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["2"], backgroundColor: colors.bgCard },
   dateFieldText: { fontSize: font.md, fontWeight: "700", color: colors.text },
   dateRangeSep: { fontSize: font.md, fontWeight: "700", color: colors.textMuted },
+  seatPickerField: { flexShrink: 1, marginLeft: "auto", borderStyle: "dashed" },
+  seatPickerFieldActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+  seatPickerFieldTextActive: { color: colors.white },
+
+  seatPickerBox: { width: "100%", maxWidth: 280, borderRadius: radius["2xl"], overflow: "hidden", backgroundColor: colors.bgCard, paddingVertical: spacing["1.5"] },
+  seatPickerRow: { paddingHorizontal: spacing["4"], paddingVertical: spacing["3"] },
+  seatPickerRowActive: { backgroundColor: colors.accentLight },
+  seatPickerRowText: { fontSize: font.md, fontWeight: "700", color: colors.textGray },
+  seatPickerRowTextActive: { color: colors.accent },
 
   statusFilterBox: { backgroundColor: colors.slate200, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.slate300, paddingHorizontal: spacing["3.5"], paddingVertical: 7, marginBottom: spacing["4"] },
   statusFilterRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing["2"] },
