@@ -40,8 +40,7 @@ export const s = StyleSheet.create({
   indPathPillTextCurrent: { color: colors.white },
   indPathSep: { fontSize: font.sm, color: colors.slate400 },
 
-  bizFooter: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: spacing["4"], paddingVertical: spacing["2.5"], gap: spacing["2"] },
-  bizAddr: { flex: 1, fontSize: font.sm, color: colors.textMuted },
+  bizFooter: { flexDirection: "row", alignItems: "center", justifyContent: "flex-end", paddingHorizontal: spacing["4"], paddingVertical: spacing["2.5"], gap: spacing["2"] },
   chev: { fontSize: font.lg, color: colors.slate400, fontWeight: "700" },
   chevOpen: { color: colors.accent, transform: [{ rotate: "90deg" }] },
 

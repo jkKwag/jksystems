@@ -687,16 +687,13 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
                     </TouchableOpacity>
                   </View>
 
-                  <View style={s.bizFooter}>
-                    <Text style={s.bizAddr} numberOfLines={1}>
-                      {[biz.addr, biz.addrDtl].filter(Boolean).join(" ") || "주소 미등록"}
-                    </Text>
-                    {onSelectBiz && biz.bizRegNo !== activeBizRegNo && (
+                  {onSelectBiz && biz.bizRegNo !== activeBizRegNo && (
+                    <View style={s.bizFooter}>
                       <TouchableOpacity style={s.selectBtn} onPress={() => onSelectBiz(biz.bizRegNo)}>
                         <Text style={s.selectBtnText}>이 사업장 조회</Text>
                       </TouchableOpacity>
-                    )}
-                  </View>
+                    </View>
+                  )}
 
                   {expanded && renderFields(biz)}
                 </View>
