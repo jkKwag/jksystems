@@ -22,6 +22,13 @@ export const s = StyleSheet.create({
   statusChipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   statusChipText: { fontSize: font.base, fontWeight: "700", color: colors.textGray },
   statusChipTextActive: { color: colors.white },
+  seatPickerChip: { borderStyle: "dashed" },
+
+  seatPickerBox: { width: "100%", maxWidth: 280, borderRadius: radius["2xl"], overflow: "hidden", backgroundColor: colors.bgCard, paddingVertical: spacing["1.5"] },
+  seatPickerRow: { paddingHorizontal: spacing["4"], paddingVertical: spacing["3"] },
+  seatPickerRowActive: { backgroundColor: colors.accentLight },
+  seatPickerRowText: { fontSize: font.md, fontWeight: "700", color: colors.textGray },
+  seatPickerRowTextActive: { color: colors.accent },
 
   center: { flex: 1, justifyContent: "center", alignItems: "center", paddingVertical: spacing["10"] },
   emptyText: { fontSize: font.md, color: colors.textMuted, textAlign: "center" },

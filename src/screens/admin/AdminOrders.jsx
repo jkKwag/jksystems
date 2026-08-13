@@ -63,6 +63,7 @@ export default function AdminOrders({ adminInfo }) {
   const [calTarget, setCalTarget] = useState(null); // null | "from" | "to"
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [seatFilter, setSeatFilter] = useState(null); // null = 전체
+  const [seatPickerOpen, setSeatPickerOpen] = useState(false);
   const [orderStatusLabels, setOrderStatusLabels] = useState({});
   const [payStatusLabels, setPayStatusLabels] = useState({});
   const [busyOrderNo, setBusyOrderNo] = useState(null);
@@ -179,31 +180,41 @@ export default function AdminOrders({ adminInfo }) {
               </Text>
             </TouchableOpacity>
           ))}
+          {seatOptions.length > 0 && (
+            <TouchableOpacity
+              style={[s.statusChip, s.seatPickerChip, seatFilter != null && s.statusChipActive]}
+              onPress={() => setSeatPickerOpen(true)}
+            >
+              <Text style={[s.statusChipText, seatFilter != null && s.statusChipTextActive]}>
+                🪑 {seatFilter ? `좌석 ${seatFilter}` : "전체 좌석"} ▾
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
-      {seatOptions.length > 0 && (
-        <View style={s.statusFilterBox}>
-          <View style={s.statusFilterRow}>
-            <TouchableOpacity
-              style={[s.statusChip, seatFilter == null && s.statusChipActive]}
-              onPress={() => setSeatFilter(null)}
-            >
-              <Text style={[s.statusChipText, seatFilter == null && s.statusChipTextActive]}>전체 좌석</Text>
-            </TouchableOpacity>
-            {seatOptions.map(seatNo => (
+      {seatPickerOpen && (
+        <Modal visible transparent animationType="fade" onRequestClose={() => setSeatPickerOpen(false)}>
+          <TouchableOpacity style={s.calOverlay} activeOpacity={1} onPress={() => setSeatPickerOpen(false)}>
+            <View style={s.seatPickerBox}>
               <TouchableOpacity
-                key={seatNo}
-                style={[s.statusChip, seatFilter === seatNo && s.statusChipActive]}
-                onPress={() => setSeatFilter(seatNo)}
+                style={[s.seatPickerRow, seatFilter == null && s.seatPickerRowActive]}
+                onPress={() => { setSeatFilter(null); setSeatPickerOpen(false); }}
               >
-                <Text style={[s.statusChipText, seatFilter === seatNo && s.statusChipTextActive]}>
-                  좌석 {seatNo}
-                </Text>
+                <Text style={[s.seatPickerRowText, seatFilter == null && s.seatPickerRowTextActive]}>전체 좌석</Text>
               </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+              {seatOptions.map(seatNo => (
+                <TouchableOpacity
+                  key={seatNo}
+                  style={[s.seatPickerRow, seatFilter === seatNo && s.seatPickerRowActive]}
+                  onPress={() => { setSeatFilter(seatNo); setSeatPickerOpen(false); }}
+                >
+                  <Text style={[s.seatPickerRowText, seatFilter === seatNo && s.seatPickerRowTextActive]}>좌석 {seatNo}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </TouchableOpacity>
+        </Modal>
       )}
 
       {calTarget && (
