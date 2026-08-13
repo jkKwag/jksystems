@@ -33,10 +33,9 @@ const addDays = (dateStr, n) => {
   d.setDate(d.getDate() + n);
   return toDateStr(d);
 };
-// 필터 버튼 한 줄에 다 들어가야 해서 연도는 빼고 월/일만 표시
 const formatDateLabel = (dateStr) => {
   const d = new Date(`${dateStr}T00:00:00`);
-  return `${pad(d.getMonth() + 1)}/${pad(d.getDate())}`;
+  return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())}`;
 };
 
 const CAL_THEME = {
