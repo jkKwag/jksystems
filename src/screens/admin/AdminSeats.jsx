@@ -176,13 +176,13 @@ export default function AdminSeats({ adminInfo }) {
           {filteredSeats.map((seat, index) => (
             <TouchableOpacity
               key={seat.seatCd}
-              style={[s.card, highlightId === seat.seatCd && s.cardHighlight, showQrHint && s.cardQrHintSpace]}
+              style={[s.card, highlightId === seat.seatCd && s.cardHighlight, showQrHint && index === 0 && s.cardQrHintSpace]}
               onPress={() => setFormTarget(seat)}
               activeOpacity={0.75}
             >
               <View style={s.thumbWrap}>
                 <View style={s.qrBtnWrap}>
-                  {showQrHint && (
+                  {showQrHint && index === 0 && (
                     <View style={s.qrHintBubble} pointerEvents="none">
                       <Text style={s.qrHintText}>주문만하기 활성화 QR 입니다</Text>
                       <View style={s.qrHintArrow} />
