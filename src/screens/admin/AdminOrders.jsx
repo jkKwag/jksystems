@@ -33,9 +33,10 @@ const addDays = (dateStr, n) => {
   d.setDate(d.getDate() + n);
   return toDateStr(d);
 };
+// 필터 버튼 한 줄에 다 들어가야 해서 연도는 빼고 월/일만 표시
 const formatDateLabel = (dateStr) => {
   const d = new Date(`${dateStr}T00:00:00`);
-  return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())}`;
+  return `${pad(d.getMonth() + 1)}/${pad(d.getDate())}`;
 };
 
 const CAL_THEME = {
@@ -170,8 +171,8 @@ export default function AdminOrders({ adminInfo }) {
             style={[s.dateField, s.seatPickerField, seatFilter != null && s.seatPickerFieldActive]}
             onPress={() => setSeatPickerOpen(true)}
           >
-            <Text style={[s.dateFieldText, seatFilter != null && s.seatPickerFieldTextActive]}>
-              🪑 {seatFilter ? `좌석 ${seatFilter}` : "전체 좌석"} ▾
+            <Text style={[s.dateFieldText, seatFilter != null && s.seatPickerFieldTextActive]} numberOfLines={1}>
+              🪑 {seatFilter || "전체"} ▾
             </Text>
           </TouchableOpacity>
         )}

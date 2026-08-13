@@ -8,11 +8,11 @@ export const s = StyleSheet.create({
   refreshBtn: { borderWidth: 1, borderColor: colors.textGray, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"] },
   refreshBtnText: { fontSize: font.md, fontWeight: "700", color: colors.textGray },
 
-  dateRangeRow: { flexDirection: "row", alignItems: "center", flexWrap: "wrap", gap: spacing["2"], marginBottom: spacing["4"] },
-  dateField: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["2"], backgroundColor: colors.bgCard },
-  dateFieldText: { fontSize: font.md, fontWeight: "700", color: colors.text },
-  dateRangeSep: { fontSize: font.md, fontWeight: "700", color: colors.textMuted },
-  seatPickerField: { marginLeft: spacing["2"], borderStyle: "dashed" },
+  dateRangeRow: { flexDirection: "row", alignItems: "center", flexWrap: "nowrap", gap: spacing["1.5"], marginBottom: spacing["4"] },
+  dateField: { flexShrink: 1, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: spacing["2"], paddingVertical: spacing["1.5"], backgroundColor: colors.bgCard },
+  dateFieldText: { fontSize: font.base, fontWeight: "700", color: colors.text },
+  dateRangeSep: { fontSize: font.base, fontWeight: "700", color: colors.textMuted },
+  seatPickerField: { flexShrink: 1, marginLeft: "auto", borderStyle: "dashed" },
   seatPickerFieldActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   seatPickerFieldTextActive: { color: colors.white },
 
