@@ -165,6 +165,16 @@ export default function AdminOrders({ adminInfo }) {
         <TouchableOpacity style={s.dateField} onPress={() => setCalTarget("to")}>
           <Text style={s.dateFieldText}>📅 {formatDateLabel(dateTo)}</Text>
         </TouchableOpacity>
+        {seatOptions.length > 0 && (
+          <TouchableOpacity
+            style={[s.dateField, s.seatPickerField, seatFilter != null && s.seatPickerFieldActive]}
+            onPress={() => setSeatPickerOpen(true)}
+          >
+            <Text style={[s.dateFieldText, seatFilter != null && s.seatPickerFieldTextActive]}>
+              🪑 {seatFilter ? `좌석 ${seatFilter}` : "전체 좌석"} ▾
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <View style={s.statusFilterBox}>
@@ -180,16 +190,6 @@ export default function AdminOrders({ adminInfo }) {
               </Text>
             </TouchableOpacity>
           ))}
-          {seatOptions.length > 0 && (
-            <TouchableOpacity
-              style={[s.statusChip, s.seatPickerChip, seatFilter != null && s.statusChipActive]}
-              onPress={() => setSeatPickerOpen(true)}
-            >
-              <Text style={[s.statusChipText, seatFilter != null && s.statusChipTextActive]}>
-                🪑 {seatFilter ? `좌석 ${seatFilter}` : "전체 좌석"} ▾
-              </Text>
-            </TouchableOpacity>
-          )}
         </View>
       </View>
 
