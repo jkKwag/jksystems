@@ -62,6 +62,7 @@ export default function AdminOrders({ adminInfo }) {
   const [dateTo, setDateTo] = useState(todayStr);
   const [calTarget, setCalTarget] = useState(null); // null | "from" | "to"
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [seatFilter, setSeatFilter] = useState(null); // null = 전체
   const [orderStatusLabels, setOrderStatusLabels] = useState({});
   const [payStatusLabels, setPayStatusLabels] = useState({});
   const [busyOrderNo, setBusyOrderNo] = useState(null);
@@ -72,6 +73,7 @@ export default function AdminOrders({ adminInfo }) {
     setLoaded(false);
     const list = await api.order.listByBiz(bizRegNo, from, to);
     setOrders(Array.isArray(list) ? list : []);
+    setSeatFilter(null);
     setLoaded(true);
   };
 
@@ -139,7 +141,11 @@ export default function AdminOrders({ adminInfo }) {
     );
   }
 
-  const filteredOrders = statusFilter === "ALL" ? orders : orders.filter(o => o.status === statusFilter);
+  const seatOptions = [...new Set(orders.map(o => o.seatNo).filter(Boolean))].sort();
+
+  const filteredOrders = orders
+    .filter(o => statusFilter === "ALL" || o.status === statusFilter)
+    .filter(o => seatFilter == null || o.seatNo === seatFilter);
 
   return (
     <View style={s.container}>
@@ -175,6 +181,30 @@ export default function AdminOrders({ adminInfo }) {
           ))}
         </View>
       </View>
+
+      {seatOptions.length > 0 && (
+        <View style={s.statusFilterBox}>
+          <View style={s.statusFilterRow}>
+            <TouchableOpacity
+              style={[s.statusChip, seatFilter == null && s.statusChipActive]}
+              onPress={() => setSeatFilter(null)}
+            >
+              <Text style={[s.statusChipText, seatFilter == null && s.statusChipTextActive]}>전체 좌석</Text>
+            </TouchableOpacity>
+            {seatOptions.map(seatNo => (
+              <TouchableOpacity
+                key={seatNo}
+                style={[s.statusChip, seatFilter === seatNo && s.statusChipActive]}
+                onPress={() => setSeatFilter(seatNo)}
+              >
+                <Text style={[s.statusChipText, seatFilter === seatNo && s.statusChipTextActive]}>
+                  좌석 {seatNo}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      )}
 
       {calTarget && (
         <Modal visible transparent animationType="fade" onRequestClose={() => setCalTarget(null)}>
