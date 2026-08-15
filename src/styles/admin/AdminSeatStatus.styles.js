@@ -35,6 +35,16 @@ export const s = StyleSheet.create({
   warnTag: { backgroundColor: "rgba(240, 96, 60, 0.14)", borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 },
   warnTagText: { fontSize: 11, fontWeight: "800", color: "#f0603c" },
 
+  sortField: { borderWidth: 1, borderColor: BORDER, borderStyle: "dashed", borderRadius: 999, paddingHorizontal: 10, paddingVertical: 5, backgroundColor: SURFACE },
+  sortFieldText: { fontSize: 11.5, fontWeight: "700", color: TEXT_DIM },
+
+  sortOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "center", alignItems: "center", padding: 20 },
+  sortBox: { width: "100%", maxWidth: 280, borderRadius: 16, overflow: "hidden", backgroundColor: SURFACE, borderWidth: 1, borderColor: BORDER, paddingVertical: 6 },
+  sortRow: { paddingHorizontal: 16, paddingVertical: 12 },
+  sortRowActive: { backgroundColor: "rgba(240, 160, 60, 0.12)" },
+  sortRowText: { fontSize: 13, fontWeight: "700", color: TEXT_DIM },
+  sortRowTextActive: { color: C_SEATED },
+
   capacityBar: { flexDirection: "row", gap: 3, height: 9 },
   capacitySeg: { flex: 1, borderRadius: 3, backgroundColor: C_EMPTY_SOFT, borderWidth: 1, borderColor: BORDER_SOFT },
   capacitySegFilled: { backgroundColor: C_SEATED, borderColor: C_SEATED },

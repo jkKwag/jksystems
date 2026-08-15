@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, useWindowDimensions } from "react-native";
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Modal, useWindowDimensions } from "react-native";
 import { s } from "../../styles/admin/AdminSeatStatus.styles";
 import api from "../../lib/api";
 
@@ -14,6 +14,14 @@ const STATE_META = {
 };
 const STATE_ORDER = ["empty", "seated", "ordered", "paid"];
 const WARN_COLOR = "#f0603c";
+
+const SORT_OPTIONS = [
+  { key: null, label: "기본순서" },
+  { key: "empty", label: "비어있음 우선" },
+  { key: "seated", label: "착석 우선" },
+  { key: "ordered", label: "주문완료 우선" },
+  { key: "paid", label: "결제완료 우선" },
+];
 
 const pad = (n) => String(n).padStart(2, "0");
 const DAY_KR = ["일", "월", "화", "수", "목", "금", "토"];
@@ -30,6 +38,8 @@ export default function AdminSeatStatus({ adminInfo }) {
   const [seats, setSeats] = useState([]);
   const [asOf, setAsOf] = useState(new Date());
   const [togglingSeat, setTogglingSeat] = useState(null);
+  const [sortKey, setSortKey] = useState(null);
+  const [sortPickerOpen, setSortPickerOpen] = useState(false);
   const timerRef = useRef(null);
 
   const load = async () => {
@@ -58,6 +68,13 @@ export default function AdminSeatStatus({ adminInfo }) {
   const counts = Object.fromEntries(STATE_ORDER.map(k => [k, seats.filter(v => v.state === k).length]));
   const warnCount = seats.filter(v => v.warn).length;
 
+  // 선택한 상태를 맨 앞으로 보내고 나머지는 기존 순서 유지 — 목록에서 숨기지 않고 순서만 바꾼다.
+  const displayOrder = sortKey ? [sortKey, ...STATE_ORDER.filter(k => k !== sortKey)] : STATE_ORDER;
+  const sortedSeats = sortKey
+    ? [...seats].sort((a, b) => displayOrder.indexOf(a.state) - displayOrder.indexOf(b.state))
+    : seats;
+  const sortLabel = SORT_OPTIONS.find(o => o.key === sortKey)?.label || "기본순서";
+
   return (
     <ScrollView style={s.page} contentContainerStyle={s.pageContent}>
       <View style={s.topbar}>
@@ -83,11 +100,16 @@ export default function AdminSeatStatus({ adminInfo }) {
                 <Text style={s.summaryNum}>{occupied}</Text>
                 <Text style={s.summaryOf}>/ {total}석 사용 중</Text>
               </View>
-              {warnCount > 0 && (
-                <View style={s.warnTag}>
-                  <Text style={s.warnTagText}>⚠ 주문 확인 {warnCount}건</Text>
-                </View>
-              )}
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginLeft: "auto" }}>
+                {warnCount > 0 && (
+                  <View style={s.warnTag}>
+                    <Text style={s.warnTagText}>⚠ 주문 확인 {warnCount}건</Text>
+                  </View>
+                )}
+                <TouchableOpacity style={s.sortField} onPress={() => setSortPickerOpen(true)}>
+                  <Text style={s.sortFieldText}>정렬: {sortLabel} ▾</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             <View style={s.capacityBar}>
@@ -97,7 +119,7 @@ export default function AdminSeatStatus({ adminInfo }) {
             </View>
 
             <View style={s.legendRow}>
-              {STATE_ORDER.map(key => (
+              {displayOrder.map(key => (
                 <View key={key} style={s.legendItem}>
                   <View style={[s.legendSwatch, { backgroundColor: STATE_META[key].color }]} />
                   <Text style={s.legendLabel} numberOfLines={1}>{STATE_META[key].label}</Text>
@@ -108,19 +130,35 @@ export default function AdminSeatStatus({ adminInfo }) {
           </View>
 
           {isNarrow
-            ? <TileGrid seats={seats} onToggle={toggleSeat} togglingSeat={togglingSeat} />
-            : <Board seats={seats} onToggle={toggleSeat} togglingSeat={togglingSeat} />}
+            ? <TileGrid seats={sortedSeats} onToggle={toggleSeat} togglingSeat={togglingSeat} />
+            : <Board seats={seats} stateOrder={displayOrder} onToggle={toggleSeat} togglingSeat={togglingSeat} />}
         </>
       )}
+
+      <Modal visible={sortPickerOpen} transparent animationType="fade" onRequestClose={() => setSortPickerOpen(false)}>
+        <TouchableOpacity style={s.sortOverlay} activeOpacity={1} onPress={() => setSortPickerOpen(false)}>
+          <View style={s.sortBox}>
+            {SORT_OPTIONS.map(opt => (
+              <TouchableOpacity
+                key={opt.label}
+                style={[s.sortRow, sortKey === opt.key && s.sortRowActive]}
+                onPress={() => { setSortKey(opt.key); setSortPickerOpen(false); }}
+              >
+                <Text style={[s.sortRowText, sortKey === opt.key && s.sortRowTextActive]}>{opt.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </ScrollView>
   );
 }
 
-// 넓은 화면 — 상태별 칸반 보드 (비어있음 → 착석 → 주문완료 → 결제완료 흐름)
-function Board({ seats, onToggle, togglingSeat }) {
+// 넓은 화면 — 상태별 칸반 보드 (정렬 선택에 따라 컬럼 순서가 바뀐다)
+function Board({ seats, stateOrder, onToggle, togglingSeat }) {
   return (
     <View style={s.board}>
-      {STATE_ORDER.map(stateKey => {
+      {stateOrder.map(stateKey => {
         const meta = STATE_META[stateKey];
         const items = seats.filter(v => v.state === stateKey);
         return (
