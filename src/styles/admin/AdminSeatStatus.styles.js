@@ -14,7 +14,8 @@ const C_EMPTY_SOFT = "#1a1f2e";
 const tabularNums = Platform.OS === "web" ? { fontVariantNumeric: "tabular-nums" } : {};
 
 export const s = StyleSheet.create({
-  page: { flex: 1, backgroundColor: BG, padding: 20, gap: 18 },
+  page: { flex: 1, backgroundColor: BG },
+  pageContent: { flexGrow: 1, padding: 20, gap: 18 },
 
   center: { flex: 1, justifyContent: "center", alignItems: "center", paddingVertical: 60 },
   emptyText: { fontSize: 13, fontWeight: "700", color: TEXT_FAINT },

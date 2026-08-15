@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { View, Text, ActivityIndicator, TouchableOpacity, useWindowDimensions } from "react-native";
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, useWindowDimensions } from "react-native";
 import { s } from "../../styles/admin/AdminSeatStatus.styles";
 import api from "../../lib/api";
 
@@ -59,7 +59,7 @@ export default function AdminSeatStatus({ adminInfo }) {
   const warnCount = seats.filter(v => v.warn).length;
 
   return (
-    <View style={s.page}>
+    <ScrollView style={s.page} contentContainerStyle={s.pageContent}>
       <View style={s.topbar}>
         <View>
           <Text style={s.eyebrow}>FLOOR · LIVE</Text>
@@ -112,7 +112,7 @@ export default function AdminSeatStatus({ adminInfo }) {
             : <Board seats={seats} onToggle={toggleSeat} togglingSeat={togglingSeat} />}
         </>
       )}
-    </View>
+    </ScrollView>
   );
 }
 
