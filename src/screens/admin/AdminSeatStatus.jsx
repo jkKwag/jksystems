@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { View, Text, ActivityIndicator, useWindowDimensions } from "react-native";
+import { View, Text, ActivityIndicator, TouchableOpacity, useWindowDimensions } from "react-native";
 import { s } from "../../styles/admin/AdminSeatStatus.styles";
 import api from "../../lib/api";
 
@@ -29,6 +29,7 @@ export default function AdminSeatStatus({ adminInfo }) {
   const [loaded, setLoaded] = useState(false);
   const [seats, setSeats] = useState([]);
   const [asOf, setAsOf] = useState(new Date());
+  const [togglingSeat, setTogglingSeat] = useState(null);
   const timerRef = useRef(null);
 
   const load = async () => {
@@ -44,6 +45,13 @@ export default function AdminSeatStatus({ adminInfo }) {
     timerRef.current = setInterval(load, REFRESH_MS);
     return () => clearInterval(timerRef.current);
   }, [bizRegNo]);
+
+  const toggleSeat = async (seatCd, nextStatus) => {
+    setTogglingSeat(seatCd);
+    await api.biz.updateSeatStatus(bizRegNo, seatCd, nextStatus);
+    await load();
+    setTogglingSeat(null);
+  };
 
   const total = seats.length;
   const occupied = seats.filter(v => v.state !== "empty").length;
@@ -99,7 +107,9 @@ export default function AdminSeatStatus({ adminInfo }) {
             </View>
           </View>
 
-          {isNarrow ? <TileGrid seats={seats} /> : <Board seats={seats} />}
+          {isNarrow
+            ? <TileGrid seats={seats} onToggle={toggleSeat} togglingSeat={togglingSeat} />
+            : <Board seats={seats} onToggle={toggleSeat} togglingSeat={togglingSeat} />}
         </>
       )}
     </View>
@@ -107,7 +117,7 @@ export default function AdminSeatStatus({ adminInfo }) {
 }
 
 // 넓은 화면 — 상태별 칸반 보드 (비어있음 → 착석 → 주문완료 → 결제완료 흐름)
-function Board({ seats }) {
+function Board({ seats, onToggle, togglingSeat }) {
   return (
     <View style={s.board}>
       {STATE_ORDER.map(stateKey => {
@@ -125,7 +135,9 @@ function Board({ seats }) {
               </View>
             </View>
             <View style={s.colBody}>
-              {items.map((v, i) => <TableCard key={i} seat={v} meta={meta} variant="board" />)}
+              {items.map((v, i) => (
+                <TableCard key={i} seat={v} meta={meta} variant="board" onToggle={onToggle} toggling={togglingSeat === v.seatCd} />
+              ))}
             </View>
           </View>
         );
@@ -135,21 +147,25 @@ function Board({ seats }) {
 }
 
 // 좁은 화면 — 전체 좌석을 색상 타일로 한 화면에
-function TileGrid({ seats }) {
+function TileGrid({ seats, onToggle, togglingSeat }) {
   return (
     <View style={s.grid}>
       {seats.map((v, i) => (
-        <TableCard key={i} seat={v} meta={STATE_META[v.state]} variant="tile" />
+        <TableCard key={i} seat={v} meta={STATE_META[v.state]} variant="tile" onToggle={onToggle} toggling={togglingSeat === v.seatCd} />
       ))}
     </View>
   );
 }
 
-function TableCard({ seat, meta, variant }) {
+function TableCard({ seat, meta, variant, onToggle, toggling }) {
   const isBoard = variant === "board";
   const cardStyle = isBoard
     ? [s.boardCard, { borderLeftColor: seat.warn ? WARN_COLOR : meta.color }, seat.state === "empty" && s.boardCardEmpty]
     : [s.tile, { backgroundColor: meta.bg, borderTopColor: seat.warn ? WARN_COLOR : meta.color }];
+
+  const isEmpty = seat.state === "empty";
+  const nextStatus = isEmpty ? "SEATED" : "EMPTY";
+  const actionLabel = toggling ? "처리 중..." : isEmpty ? "착석 처리" : "해제";
 
   return (
     <View style={cardStyle}>
@@ -187,6 +203,10 @@ function TableCard({ seat, meta, variant }) {
           {seat.amount != null && <Text style={s.cardAmtSmall}>{fmtWon(seat.amount)}</Text>}
         </>
       )}
+
+      <TouchableOpacity style={s.cardAction} disabled={toggling} onPress={() => onToggle(seat.seatCd, nextStatus)}>
+        <Text style={s.cardActionText}>{actionLabel}</Text>
+      </TouchableOpacity>
     </View>
   );
 }

@@ -77,4 +77,7 @@ export const s = StyleSheet.create({
   cardCap: { fontSize: 11, fontWeight: "600", color: TEXT_FAINT, marginTop: 2 },
   cardTime: { fontSize: 11.5, fontWeight: "800", color: TEXT_DIM, ...tabularNums },
   cardTimeWarn: { color: "#f0603c" },
+
+  cardAction: { marginTop: 10, paddingTop: 9, borderTopWidth: 1, borderTopColor: BORDER_SOFT, alignItems: "center" },
+  cardActionText: { fontSize: 11.5, fontWeight: "800", color: TEXT_DIM },
 });
