@@ -98,6 +98,18 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
   // 테이블번호 없이 들어온 경우(테이블 QR을 거치지 않은 접근)는 매장에 앉아있다고 볼 수 없으므로
   // 포장주문으로 처리한다 (일반 화면의 매장주문/포장주문 토글과 동일한 규칙).
   const orderTypCd = tableNo ? "DINE_IN" : "TAKEOUT";
+
+  // 상단 배지에 좌석코드(URL의 table 파라미터) 대신 좌석명을 보여주기 위한 조회.
+  // 조회 전이나 실패 시엔 기존처럼 코드를 그대로 보여준다.
+  const [tableSeatNm, setTableSeatNm] = useState(null);
+  useEffect(() => {
+    if (!bizno || !tableNo) { setTableSeatNm(null); return; }
+    (async () => {
+      const list = await api.biz.seats(bizno);
+      const seat = Array.isArray(list) ? list.find(s => s.seatCd?.toUpperCase() === tableNo.toUpperCase()) : null;
+      setTableSeatNm(seat?.seatNm || null);
+    })();
+  }, [bizno, tableNo]);
   const [guestPhoneFront, setGuestPhoneFront] = useState("010");
   const [guestPhoneBack, setGuestPhoneBack] = useState("");
   const [guestPhoneError, setGuestPhoneError] = useState(false);
@@ -495,7 +507,7 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
         )}
         {tableNo && (
           <View style={s.tableNoBadge}>
-            <Text style={s.tableNoBadgeText}>No. {tableNo.toUpperCase()}</Text>
+            <Text style={s.tableNoBadgeText}>{tableSeatNm || `No. ${tableNo.toUpperCase()}`}</Text>
           </View>
         )}
         {activeOrders.length > 0 && (

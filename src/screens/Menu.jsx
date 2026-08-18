@@ -321,6 +321,18 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
     setTableNo(tableNoFromUrl || null);
   }, [tableNoFromUrl]);
 
+  // 상단 배지에 좌석코드(URL의 table 파라미터) 대신 좌석명을 보여주기 위한 조회.
+  // 조회 전이나 실패 시엔 기존처럼 코드를 그대로 보여준다.
+  const [tableSeatNm, setTableSeatNm] = useState(null);
+  useEffect(() => {
+    if (!bizno || !tableNo) { setTableSeatNm(null); return; }
+    (async () => {
+      const list = await api.biz.seats(bizno);
+      const seat = Array.isArray(list) ? list.find(s => s.seatCd?.toUpperCase() === tableNo.toUpperCase()) : null;
+      setTableSeatNm(seat?.seatNm || null);
+    })();
+  }, [bizno, tableNo]);
+
   // 직원이 발급한 QR을 스캔했는지(=?grant=토큰) 확인하고, 이 손님(uuid)이 이 테이블에서
   // 주문 가능한 권한을 갖고 있는지 조회한다. URL만 갖고 있어도 재사용할 수 없도록
   // 서버가 최종 검증하며, 여기서는 결제 버튼 노출 여부만 판단한다.
@@ -731,7 +743,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
           <Text style={s.shopAiBadge}>[AI✨]</Text>
           {tableNo && (
             <View style={s.tableBadge}>
-              <Text style={s.tableBadgeText}>No. {tableNo.toUpperCase()}</Text>
+              <Text style={s.tableBadgeText}>{tableSeatNm || `No. ${tableNo.toUpperCase()}`}</Text>
             </View>
           )}
           <TouchableOpacity onPress={() => { if (Platform.OS === "web") window.location.href = "/"; }} style={s.scanListBtn}>
