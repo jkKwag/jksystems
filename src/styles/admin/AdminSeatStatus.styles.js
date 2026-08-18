@@ -55,10 +55,11 @@ export const s = StyleSheet.create({
   legendLabel: { fontSize: 11, fontWeight: "700", color: TEXT_DIM },
   legendCount: { fontSize: 11.5, fontWeight: "800", ...tabularNums },
 
-  // 화면 너비에 따라 한 줄에 들어가는 타일 개수가 자연스럽게 늘어나거나 줄어든다
-  // (좁으면 2열, 넓은 PC 모니터에서는 여러 열로 채워짐)
+  // 화면 너비에 따라 한 줄에 들어가는 타일 개수가 자연스럽게 늘어나거나 줄어든다.
+  // flexBasis를 좁은 폰(320px대)에서도 2열이 항상 나오는 값으로 맞춰서, 좁으면 최소 2열,
+  // 넓은 PC 모니터에서는 여러 열로 채워지게 한다.
   grid: { flexDirection: "row", flexWrap: "wrap", gap: 9 },
-  tile: { flexGrow: 1, flexBasis: 170, maxWidth: 280, minWidth: 150, borderRadius: 14, padding: 12, borderWidth: 1, borderColor: BORDER, borderTopWidth: 3 },
+  tile: { flexGrow: 1, flexBasis: 130, maxWidth: 280, minWidth: 120, borderRadius: 14, padding: 12, borderWidth: 1, borderColor: BORDER, borderTopWidth: 3 },
   cardStateRow: { flexDirection: "row", alignItems: "center", gap: 5 },
   cardStateDot: { width: 6, height: 6, borderRadius: 3 },
   cardStateText: { fontSize: 11.5, fontWeight: "800", flexShrink: 1 },
