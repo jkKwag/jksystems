@@ -27,6 +27,10 @@ const DAY_KR = ["일", "월", "화", "수", "목", "금", "토"];
 const fmtWon = (n) => `₩${n.toLocaleString()}`;
 const fmtClock = (d) =>
   `${d.getFullYear()}.${pad(d.getMonth() + 1)}.${pad(d.getDate())}(${DAY_KR[d.getDay()]}) ${pad(d.getHours())}:${pad(d.getMinutes())} 기준`;
+const fmtTime = (iso) => {
+  const d = new Date(iso);
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
 
 export default function AdminSeatStatus({ adminInfo }) {
   const bizRegNo = adminInfo?.bizRegNo;
@@ -37,6 +41,7 @@ export default function AdminSeatStatus({ adminInfo }) {
   const [togglingSeat, setTogglingSeat] = useState(null);
   const [sortKey, setSortKey] = useState(null);
   const [sortPickerOpen, setSortPickerOpen] = useState(false);
+  const [detailSeat, setDetailSeat] = useState(null);
   const timerRef = useRef(null);
 
   const load = async () => {
@@ -71,6 +76,10 @@ export default function AdminSeatStatus({ adminInfo }) {
     ? [...seats].sort((a, b) => displayOrder.indexOf(a.state) - displayOrder.indexOf(b.state))
     : seats;
   const sortLabel = SORT_OPTIONS.find(o => o.key === sortKey)?.label || "기본순서";
+  const detailSeatLive = detailSeat ? seats.find(v => v.seatCd === detailSeat.seatCd) || detailSeat : null;
+  const detailOrders = detailSeatLive?.orders || [];
+  const detailUnpaid = detailOrders.filter(o => !o.paid);
+  const detailPaid = detailOrders.filter(o => o.paid);
 
   return (
     <ScrollView style={s.page} contentContainerStyle={s.pageContent}>
@@ -128,7 +137,7 @@ export default function AdminSeatStatus({ adminInfo }) {
 
           <View style={s.grid}>
             {sortedSeats.map((v, i) => (
-              <TableCard key={i} seat={v} meta={STATE_META[v.state]} onToggle={toggleSeat} toggling={togglingSeat === v.seatCd} />
+              <TableCard key={i} seat={v} meta={STATE_META[v.state]} onToggle={toggleSeat} toggling={togglingSeat === v.seatCd} onOpenDetail={setDetailSeat} />
             ))}
           </View>
         </>
@@ -149,11 +158,43 @@ export default function AdminSeatStatus({ adminInfo }) {
           </View>
         </TouchableOpacity>
       </Modal>
+
+      <Modal visible={!!detailSeat} transparent animationType="fade" onRequestClose={() => setDetailSeat(null)}>
+        <TouchableOpacity style={s.sortOverlay} activeOpacity={1} onPress={() => setDetailSeat(null)}>
+          <TouchableOpacity activeOpacity={1} style={s.detailBox}>
+            <Text style={s.detailTitle}>{detailSeatLive?.seatNm}</Text>
+
+            <Text style={[s.detailSectionTitle, s.detailSectionUnpaid]}>미결제내역</Text>
+            {detailUnpaid.length === 0 ? (
+              <Text style={s.detailEmptyText}>없음</Text>
+            ) : detailUnpaid.map(o => (
+              <View key={o.orderNo} style={s.detailOrderRow}>
+                <Text style={s.detailOrderTime}>{fmtTime(o.regDt)}</Text>
+                <Text style={s.detailOrderAmt}>{fmtWon(o.amount)}</Text>
+              </View>
+            ))}
+
+            <Text style={[s.detailSectionTitle, s.detailSectionPaid]}>결제내역</Text>
+            {detailPaid.length === 0 ? (
+              <Text style={s.detailEmptyText}>없음</Text>
+            ) : detailPaid.map(o => (
+              <View key={o.orderNo} style={s.detailOrderRow}>
+                <Text style={s.detailOrderTime}>{fmtTime(o.regDt)}</Text>
+                <Text style={s.detailOrderAmt}>{fmtWon(o.amount)}</Text>
+              </View>
+            ))}
+
+            <TouchableOpacity style={s.detailCloseBtn} onPress={() => setDetailSeat(null)}>
+              <Text style={s.detailCloseBtnText}>닫기</Text>
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
     </ScrollView>
   );
 }
 
-function TableCard({ seat, meta, onToggle, toggling }) {
+function TableCard({ seat, meta, onToggle, toggling, onOpenDetail }) {
   const isEmpty = seat.state === "empty";
   const nextStatus = isEmpty ? "SEATED" : "EMPTY";
   const actionLabel = toggling ? "처리 중..." : isEmpty ? "착석 처리" : "해제";
@@ -177,10 +218,10 @@ function TableCard({ seat, meta, onToggle, toggling }) {
         </Text>
       </View>
       {(seat.paidAmount != null || seat.unpaidAmount != null) && (
-        <View style={s.amountRow}>
+        <TouchableOpacity style={s.amountRow} onPress={() => onOpenDetail(seat)}>
           {seat.paidAmount != null && <Text style={[s.cardAmtSmall, s.cardAmtPaid]}>결제 {fmtWon(seat.paidAmount)}</Text>}
           {seat.unpaidAmount != null && <Text style={[s.cardAmtSmall, s.cardAmtUnpaid]}>미결제 {fmtWon(seat.unpaidAmount)}</Text>}
-        </View>
+        </TouchableOpacity>
       )}
 
       <TouchableOpacity style={s.cardAction} disabled={toggling} onPress={() => onToggle(seat.seatCd, nextStatus)}>

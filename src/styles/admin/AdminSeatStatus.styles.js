@@ -77,4 +77,17 @@ export const s = StyleSheet.create({
 
   cardAction: { marginTop: 10, paddingTop: 9, borderTopWidth: 1, borderTopColor: BORDER_SOFT, alignItems: "center" },
   cardActionText: { fontSize: 11.5, fontWeight: "800", color: TEXT_DIM },
+
+  // ---- 좌석 상세(결제/미결제 내역) 레이어 ----
+  detailBox: { width: "100%", maxWidth: 340, maxHeight: "80%", borderRadius: 16, backgroundColor: SURFACE, borderWidth: 1, borderColor: BORDER, padding: 18, gap: 4 },
+  detailTitle: { fontSize: 16, fontWeight: "800", color: TEXT, marginBottom: 8 },
+  detailSectionTitle: { fontSize: 12, fontWeight: "800", marginTop: 10, marginBottom: 4 },
+  detailSectionUnpaid: { color: C_SEATED },
+  detailSectionPaid: { color: C_PAID },
+  detailEmptyText: { fontSize: 12, fontWeight: "600", color: TEXT_FAINT, paddingVertical: 4 },
+  detailOrderRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: 6, borderTopWidth: 1, borderTopColor: BORDER_SOFT },
+  detailOrderTime: { fontSize: 12.5, fontWeight: "700", color: TEXT_DIM, ...tabularNums },
+  detailOrderAmt: { fontSize: 13, fontWeight: "800", color: TEXT, ...tabularNums },
+  detailCloseBtn: { marginTop: 16, paddingVertical: 10, borderRadius: 10, backgroundColor: BORDER, alignItems: "center" },
+  detailCloseBtnText: { fontSize: 13, fontWeight: "800", color: TEXT },
 });
