@@ -62,7 +62,10 @@ export const s = StyleSheet.create({
   cardStateRow: { flexDirection: "row", alignItems: "center", gap: 5 },
   cardStateDot: { width: 6, height: 6, borderRadius: 3 },
   cardStateText: { fontSize: 11.5, fontWeight: "800", flexShrink: 1 },
-  cardAmtSmall: { fontSize: 11, fontWeight: "700", color: TEXT_DIM, marginTop: 4, ...tabularNums },
+  amountRow: { marginTop: 4, gap: 1 },
+  cardAmtSmall: { fontSize: 11, fontWeight: "700", color: TEXT_DIM, ...tabularNums },
+  cardAmtPaid: { color: C_PAID },
+  cardAmtUnpaid: { color: C_SEATED },
 
   // ---- shared card top row ----
   cardTop: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 8, marginBottom: 8 },

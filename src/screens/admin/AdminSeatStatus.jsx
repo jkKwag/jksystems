@@ -176,7 +176,12 @@ function TableCard({ seat, meta, onToggle, toggling }) {
           {seat.state === "seated" ? `착석${seat.warn ? " · 확인필요" : " · 주문 전"}` : meta.label}
         </Text>
       </View>
-      {seat.amount != null && <Text style={s.cardAmtSmall}>{fmtWon(seat.amount)}</Text>}
+      {(seat.paidAmount != null || seat.unpaidAmount != null) && (
+        <View style={s.amountRow}>
+          {seat.paidAmount != null && <Text style={[s.cardAmtSmall, s.cardAmtPaid]}>결제 {fmtWon(seat.paidAmount)}</Text>}
+          {seat.unpaidAmount != null && <Text style={[s.cardAmtSmall, s.cardAmtUnpaid]}>미결제 {fmtWon(seat.unpaidAmount)}</Text>}
+        </View>
+      )}
 
       <TouchableOpacity style={s.cardAction} disabled={toggling} onPress={() => onToggle(seat.seatCd, nextStatus)}>
         <Text style={s.cardActionText}>{actionLabel}</Text>
