@@ -79,15 +79,18 @@ export const s = StyleSheet.create({
   cardActionText: { fontSize: 11.5, fontWeight: "800", color: TEXT_DIM },
 
   // ---- 좌석 상세(결제/미결제 내역) 레이어 ----
-  detailBox: { width: "100%", maxWidth: 340, maxHeight: "80%", borderRadius: 16, backgroundColor: SURFACE, borderWidth: 1, borderColor: BORDER, padding: 18, gap: 4 },
+  detailBox: { width: "100%", maxWidth: 340, maxHeight: "80%", borderRadius: 16, backgroundColor: SURFACE, borderWidth: 1, borderColor: BORDER, padding: 18 },
   detailTitle: { fontSize: 16, fontWeight: "800", color: TEXT, marginBottom: 8 },
+  detailScroll: { maxHeight: 420 },
   detailSectionTitle: { fontSize: 12, fontWeight: "800", marginTop: 10, marginBottom: 4 },
   detailSectionUnpaid: { color: C_SEATED },
   detailSectionPaid: { color: C_PAID },
   detailEmptyText: { fontSize: 12, fontWeight: "600", color: TEXT_FAINT, paddingVertical: 4 },
-  detailOrderRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: 6, borderTopWidth: 1, borderTopColor: BORDER_SOFT },
+  detailOrderCard: { paddingVertical: 7, borderTopWidth: 1, borderTopColor: BORDER_SOFT, gap: 2 },
+  detailOrderRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   detailOrderTime: { fontSize: 12.5, fontWeight: "700", color: TEXT_DIM, ...tabularNums },
   detailOrderAmt: { fontSize: 13, fontWeight: "800", color: TEXT, ...tabularNums },
+  detailOrderItems: { fontSize: 11.5, fontWeight: "600", color: TEXT_DIM },
   detailCloseBtn: { marginTop: 16, paddingVertical: 10, borderRadius: 10, backgroundColor: BORDER, alignItems: "center" },
   detailCloseBtnText: { fontSize: 13, fontWeight: "800", color: TEXT },
 });

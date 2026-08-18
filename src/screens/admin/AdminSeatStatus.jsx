@@ -164,25 +164,37 @@ export default function AdminSeatStatus({ adminInfo }) {
           <TouchableOpacity activeOpacity={1} style={s.detailBox}>
             <Text style={s.detailTitle}>{detailSeatLive?.seatNm}</Text>
 
-            <Text style={[s.detailSectionTitle, s.detailSectionUnpaid]}>미결제내역</Text>
-            {detailUnpaid.length === 0 ? (
-              <Text style={s.detailEmptyText}>없음</Text>
-            ) : detailUnpaid.map(o => (
-              <View key={o.orderNo} style={s.detailOrderRow}>
-                <Text style={s.detailOrderTime}>{fmtTime(o.regDt)}</Text>
-                <Text style={s.detailOrderAmt}>{fmtWon(o.amount)}</Text>
-              </View>
-            ))}
+            <ScrollView style={s.detailScroll}>
+              <Text style={[s.detailSectionTitle, s.detailSectionUnpaid]}>미결제내역</Text>
+              {detailUnpaid.length === 0 ? (
+                <Text style={s.detailEmptyText}>없음</Text>
+              ) : detailUnpaid.map(o => (
+                <View key={o.orderNo} style={s.detailOrderCard}>
+                  <View style={s.detailOrderRow}>
+                    <Text style={s.detailOrderTime}>{fmtTime(o.regDt)}</Text>
+                    <Text style={s.detailOrderAmt}>{fmtWon(o.amount)}</Text>
+                  </View>
+                  {o.items?.length > 0 && (
+                    <Text style={s.detailOrderItems}>{o.items.map(it => `${it.menuNm} x${it.qty}`).join(", ")}</Text>
+                  )}
+                </View>
+              ))}
 
-            <Text style={[s.detailSectionTitle, s.detailSectionPaid]}>결제내역</Text>
-            {detailPaid.length === 0 ? (
-              <Text style={s.detailEmptyText}>없음</Text>
-            ) : detailPaid.map(o => (
-              <View key={o.orderNo} style={s.detailOrderRow}>
-                <Text style={s.detailOrderTime}>{fmtTime(o.regDt)}</Text>
-                <Text style={s.detailOrderAmt}>{fmtWon(o.amount)}</Text>
-              </View>
-            ))}
+              <Text style={[s.detailSectionTitle, s.detailSectionPaid]}>결제내역</Text>
+              {detailPaid.length === 0 ? (
+                <Text style={s.detailEmptyText}>없음</Text>
+              ) : detailPaid.map(o => (
+                <View key={o.orderNo} style={s.detailOrderCard}>
+                  <View style={s.detailOrderRow}>
+                    <Text style={s.detailOrderTime}>{fmtTime(o.regDt)}</Text>
+                    <Text style={s.detailOrderAmt}>{fmtWon(o.amount)}</Text>
+                  </View>
+                  {o.items?.length > 0 && (
+                    <Text style={s.detailOrderItems}>{o.items.map(it => `${it.menuNm} x${it.qty}`).join(", ")}</Text>
+                  )}
+                </View>
+              ))}
+            </ScrollView>
 
             <TouchableOpacity style={s.detailCloseBtn} onPress={() => setDetailSeat(null)}>
               <Text style={s.detailCloseBtnText}>닫기</Text>
