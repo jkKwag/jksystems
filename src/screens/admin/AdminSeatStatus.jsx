@@ -3,7 +3,7 @@ import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Modal } fr
 import { s } from "../../styles/admin/AdminSeatStatus.styles";
 import api from "../../lib/api";
 
-const REFRESH_MS = 20000;
+const REFRESH_MS = 10000;
 
 const STATE_META = {
   empty: { color: "#5b6480", bg: "#161b28", label: "비어있음" },
