@@ -39,6 +39,8 @@ export const s = StyleSheet.create({
     alignItems: "center", justifyContent: "center",
   },
   qrBtnText: { fontSize: 9, fontWeight: "800", color: colors.white },
+  qrBtnDisabled: { backgroundColor: colors.slate300 },
+  qrBtnTextDisabled: { color: colors.slate500 },
 
   qrHintBubble: {
     position: "absolute", bottom: "100%", left: 0, marginBottom: spacing["1.5"],

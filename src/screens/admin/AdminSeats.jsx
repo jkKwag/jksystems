@@ -11,6 +11,7 @@ export default function AdminSeats({ adminInfo }) {
 
   const [loaded, setLoaded] = useState(false);
   const [seats, setSeats] = useState([]);
+  const [seatStateByCd, setSeatStateByCd] = useState({});
   const [formTarget, setFormTarget] = useState(undefined); // undefined=닫힘, null=신규, object=수정
   const [accessQrTarget, setAccessQrTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -27,9 +28,10 @@ export default function AdminSeats({ adminInfo }) {
   const load = async () => {
     if (!bizRegNo) { setLoaded(true); return; }
     setLoaded(false);
-    const list = await api.biz.seatsAdmin(bizRegNo);
+    const [list, statusList] = await Promise.all([api.biz.seatsAdmin(bizRegNo), api.biz.seatStatus(bizRegNo)]);
     const nextSeats = Array.isArray(list) ? list : [];
     setSeats(nextSeats);
+    setSeatStateByCd(Object.fromEntries((Array.isArray(statusList) ? statusList : []).map(v => [v.seatCd, v.state])));
     setSelectedCapacity(null);
     setLoaded(true);
     if (nextSeats.length > 0) {
@@ -173,7 +175,10 @@ export default function AdminSeats({ adminInfo }) {
         </View>
       ) : (
         <ScrollView contentContainerStyle={s.list}>
-          {filteredSeats.map((seat, index) => (
+          {filteredSeats.map((seat, index) => {
+            const inUse = seat.useYn !== "N" && !!seatStateByCd[seat.seatCd] && seatStateByCd[seat.seatCd] !== "empty";
+            const qrDisabled = seat.useYn === "N" || inUse;
+            return (
             <TouchableOpacity
               key={seat.seatCd}
               style={[s.card, highlightId === seat.seatCd && s.cardHighlight, showQrHint && index === 0 && s.cardQrHintSpace]}
@@ -189,10 +194,11 @@ export default function AdminSeats({ adminInfo }) {
                     </View>
                   )}
                   <TouchableOpacity
-                    style={s.qrBtn}
+                    style={[s.qrBtn, qrDisabled && s.qrBtnDisabled]}
+                    disabled={qrDisabled}
                     onPress={(e) => { e?.stopPropagation?.(); setAccessQrTarget(seat); }}
                   >
-                    <Text style={s.qrBtnText}>손님QR</Text>
+                    <Text style={[s.qrBtnText, qrDisabled && s.qrBtnTextDisabled]}>{inUse ? "사용중" : "손님QR"}</Text>
                   </TouchableOpacity>
                 </View>
                 {seat.imgUrl ? (
@@ -232,7 +238,8 @@ export default function AdminSeats({ adminInfo }) {
                 </TouchableOpacity>
               </View>
             </TouchableOpacity>
-          ))}
+            );
+          })}
         </ScrollView>
       )}
 
