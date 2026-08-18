@@ -55,27 +55,10 @@ export const s = StyleSheet.create({
   legendLabel: { fontSize: 11, fontWeight: "700", color: TEXT_DIM },
   legendCount: { fontSize: 11.5, fontWeight: "800", ...tabularNums },
 
-  // ---- desktop board (kanban) ----
-  board: { flexDirection: "row", flexWrap: "wrap", gap: 14 },
-  col: { flexGrow: 1, flexBasis: 220, minWidth: 220 },
-  colHead: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingBottom: 10, marginBottom: 12, borderBottomWidth: 2 },
-  colHeadLabelRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  colHeadSwatch: { width: 9, height: 9, borderRadius: 3 },
-  colHeadLabel: { fontSize: 12.5, fontWeight: "800", letterSpacing: 0.3, color: TEXT },
-  colCountBadge: { borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2 },
-  colCountText: { fontSize: 12, fontWeight: "800", ...tabularNums },
-  colBody: { gap: 10 },
-
-  boardCard: { backgroundColor: SURFACE, borderWidth: 1, borderColor: BORDER, borderLeftWidth: 3, borderRadius: 12, padding: 13 },
-  boardCardEmpty: { backgroundColor: "transparent", borderStyle: "dashed" },
-  boardCardMeta: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: BORDER_SOFT },
-  emptyCta: { fontSize: 11.5, fontWeight: "700", color: TEXT_FAINT },
-  cardAmt: { fontSize: 13, fontWeight: "800", color: TEXT, ...tabularNums },
-  cardTag: { fontSize: 10.5, fontWeight: "700" },
-
-  // ---- mobile tile grid ----
+  // 화면 너비에 따라 한 줄에 들어가는 타일 개수가 자연스럽게 늘어나거나 줄어든다
+  // (좁으면 2열, 넓은 PC 모니터에서는 여러 열로 채워짐)
   grid: { flexDirection: "row", flexWrap: "wrap", gap: 9 },
-  tile: { flexGrow: 1, flexBasis: "47%", minWidth: 150, borderRadius: 14, padding: 12, borderWidth: 1, borderColor: BORDER, borderTopWidth: 3 },
+  tile: { flexGrow: 1, flexBasis: 170, maxWidth: 280, minWidth: 150, borderRadius: 14, padding: 12, borderWidth: 1, borderColor: BORDER, borderTopWidth: 3 },
   cardStateRow: { flexDirection: "row", alignItems: "center", gap: 5 },
   cardStateDot: { width: 6, height: 6, borderRadius: 3 },
   cardStateText: { fontSize: 11.5, fontWeight: "800", flexShrink: 1 },
