@@ -15,6 +15,10 @@ const STATE_META = {
 const STATE_ORDER = ["empty", "seated", "ordered", "paid"];
 const WARN_COLOR = "#f0603c";
 
+// 주문관리(AdminOrders)와 동일한 조리진행상태 전환 규칙
+const NEXT_STATUS = { RECEIVED: "PREPARING", PREPARING: "READY" };
+const NEXT_STATUS_LABEL = { RECEIVED: "준비중 처리", PREPARING: "준비완료 처리" };
+
 const SORT_OPTIONS = [
   { key: null, label: "기본순서" },
   { key: "empty", label: "비어있음 우선" },
@@ -44,6 +48,7 @@ export default function AdminSeatStatus({ adminInfo }) {
   const [sortPickerOpen, setSortPickerOpen] = useState(false);
   const [detailSeat, setDetailSeat] = useState(null);
   const [releaseConfirmSeat, setReleaseConfirmSeat] = useState(null);
+  const [advancingOrder, setAdvancingOrder] = useState(null);
   const timerRef = useRef(null);
 
   const load = async () => {
@@ -74,6 +79,13 @@ export default function AdminSeatStatus({ adminInfo }) {
       return;
     }
     toggleSeat(seat.seatCd, nextStatus);
+  };
+
+  const advanceOrderStatus = async (orderNo, status) => {
+    setAdvancingOrder(orderNo);
+    await api.order.updateStatus(orderNo, { status });
+    await load();
+    setAdvancingOrder(null);
   };
 
   const total = seats.length;
@@ -187,6 +199,17 @@ export default function AdminSeatStatus({ adminInfo }) {
                   </View>
                   {o.items?.length > 0 && (
                     <Text style={s.detailOrderItems}>{o.items.map(it => `${it.menuNm} x${it.qty}`).join(", ")}</Text>
+                  )}
+                  {!!NEXT_STATUS[o.status] && (
+                    <TouchableOpacity
+                      style={s.orderAdvanceBtn}
+                      disabled={advancingOrder === o.orderNo}
+                      onPress={() => advanceOrderStatus(o.orderNo, NEXT_STATUS[o.status])}
+                    >
+                      <Text style={s.orderAdvanceBtnText}>
+                        {advancingOrder === o.orderNo ? "처리 중..." : NEXT_STATUS_LABEL[o.status]}
+                      </Text>
+                    </TouchableOpacity>
                   )}
                 </View>
               ))}

@@ -91,6 +91,8 @@ export const s = StyleSheet.create({
   detailOrderTime: { fontSize: 12.5, fontWeight: "700", color: TEXT_DIM, ...tabularNums },
   detailOrderAmt: { fontSize: 13, fontWeight: "800", color: TEXT, ...tabularNums },
   detailOrderItems: { fontSize: 11.5, fontWeight: "600", color: TEXT_DIM },
+  orderAdvanceBtn: { marginTop: 4, alignSelf: "flex-start", paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, backgroundColor: "rgba(76, 141, 255, 0.16)", borderWidth: 1, borderColor: "#4c8dff" },
+  orderAdvanceBtnText: { fontSize: 11, fontWeight: "800", color: "#4c8dff" },
   detailCloseBtn: { marginTop: 16, paddingVertical: 10, borderRadius: 10, backgroundColor: BORDER, alignItems: "center" },
   detailCloseBtnText: { fontSize: 13, fontWeight: "800", color: TEXT },
 });
