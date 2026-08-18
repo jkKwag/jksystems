@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Modal } from "react-native";
 import { s } from "../../styles/admin/AdminSeatStatus.styles";
 import api from "../../lib/api";
+import ConfirmModal from "../../components/ConfirmModal";
 
 const REFRESH_MS = 10000;
 
@@ -42,6 +43,7 @@ export default function AdminSeatStatus({ adminInfo }) {
   const [sortKey, setSortKey] = useState(null);
   const [sortPickerOpen, setSortPickerOpen] = useState(false);
   const [detailSeat, setDetailSeat] = useState(null);
+  const [releaseConfirmSeat, setReleaseConfirmSeat] = useState(null);
   const timerRef = useRef(null);
 
   const load = async () => {
@@ -63,6 +65,15 @@ export default function AdminSeatStatus({ adminInfo }) {
     await api.biz.updateSeatStatus(bizRegNo, seatCd, nextStatus);
     await load();
     setTogglingSeat(null);
+  };
+
+  // 미결제 내역이 남아있는 좌석을 해제할 땐 확인을 한 번 거친다 — 실수로 미결제 매출을 놓치지 않도록.
+  const requestAction = (seat, nextStatus) => {
+    if (nextStatus === "EMPTY" && seat.unpaidAmount != null) {
+      setReleaseConfirmSeat(seat);
+      return;
+    }
+    toggleSeat(seat.seatCd, nextStatus);
   };
 
   const total = seats.length;
@@ -137,7 +148,7 @@ export default function AdminSeatStatus({ adminInfo }) {
 
           <View style={s.grid}>
             {sortedSeats.map((v, i) => (
-              <TableCard key={i} seat={v} meta={STATE_META[v.state]} onToggle={toggleSeat} toggling={togglingSeat === v.seatCd} onOpenDetail={setDetailSeat} />
+              <TableCard key={i} seat={v} meta={STATE_META[v.state]} onAction={requestAction} toggling={togglingSeat === v.seatCd} onOpenDetail={setDetailSeat} />
             ))}
           </View>
         </>
@@ -202,11 +213,25 @@ export default function AdminSeatStatus({ adminInfo }) {
           </TouchableOpacity>
         </TouchableOpacity>
       </Modal>
+
+      <ConfirmModal
+        visible={!!releaseConfirmSeat}
+        message={`"${releaseConfirmSeat?.seatNm}" 좌석에 미결제 ${releaseConfirmSeat ? fmtWon(releaseConfirmSeat.unpaidAmount) : ""}이 남아있습니다.\n그래도 해제하시겠어요?`}
+        confirmText="해제"
+        cancelText="취소"
+        danger
+        onConfirm={() => {
+          const seatCd = releaseConfirmSeat.seatCd;
+          setReleaseConfirmSeat(null);
+          toggleSeat(seatCd, "EMPTY");
+        }}
+        onCancel={() => setReleaseConfirmSeat(null)}
+      />
     </ScrollView>
   );
 }
 
-function TableCard({ seat, meta, onToggle, toggling, onOpenDetail }) {
+function TableCard({ seat, meta, onAction, toggling, onOpenDetail }) {
   const isEmpty = seat.state === "empty";
   const nextStatus = isEmpty ? "SEATED" : "EMPTY";
   const actionLabel = toggling ? "처리 중..." : isEmpty ? "착석 처리" : "해제";
@@ -236,7 +261,7 @@ function TableCard({ seat, meta, onToggle, toggling, onOpenDetail }) {
         </TouchableOpacity>
       )}
 
-      <TouchableOpacity style={s.cardAction} disabled={toggling} onPress={() => onToggle(seat.seatCd, nextStatus)}>
+      <TouchableOpacity style={s.cardAction} disabled={toggling} onPress={() => onAction(seat, nextStatus)}>
         <Text style={s.cardActionText}>{actionLabel}</Text>
       </TouchableOpacity>
     </View>
