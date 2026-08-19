@@ -185,56 +185,59 @@ export default function AdminSeats({ adminInfo }) {
               onPress={() => setFormTarget(seat)}
               activeOpacity={0.75}
             >
-              <View style={s.thumbWrap}>
-                <View style={s.qrBtnWrap}>
-                  {showQrHint && index === 0 && (
-                    <View style={s.qrHintBubble} pointerEvents="none">
-                      <Text style={s.qrHintText}>주문만하기 활성화 QR 입니다</Text>
-                      <View style={s.qrHintArrow} />
-                    </View>
+              <View style={s.cardTopSection}>
+                <View style={s.thumbWrap}>
+                  {seat.imgUrl ? (
+                    <Image source={{ uri: seat.imgUrl }} style={s.thumb} resizeMode="cover" />
+                  ) : (
+                    <View style={[s.thumb, s.thumbEmpty]}><Text style={s.thumbEmptyText}>NO IMAGE</Text></View>
                   )}
-                  <TouchableOpacity
-                    style={[s.qrBtn, qrDisabled && s.qrBtnDisabled]}
-                    disabled={qrDisabled}
-                    onPress={(e) => { e?.stopPropagation?.(); setAccessQrTarget(seat); }}
-                  >
-                    <Text style={[s.qrBtnText, qrDisabled && s.qrBtnTextDisabled]}>{inUse ? "사용중" : "손님QR"}</Text>
+                </View>
+                <View style={s.cardInfo}>
+                  <View style={s.cardTopRow}>
+                    <Text style={s.seatNm} numberOfLines={1}>{seat.seatNm}</Text>
+                    {seat.useYn === "N" && <View style={s.offBadge}><Text style={s.offBadgeText}>미노출</Text></View>}
+                  </View>
+                  <Text style={s.capacity}>{seat.capacity}인석</Text>
+                  {seat.seatDesc ? <Text style={s.desc} numberOfLines={1}>{seat.seatDesc}</Text> : null}
+                </View>
+                <View style={s.cardActions}>
+                  <View style={s.sortBtnRow}>
+                    <TouchableOpacity
+                      style={[s.sortBtn, (index === 0 || reordering) && s.sortBtnDisabled]}
+                      disabled={index === 0 || reordering}
+                      onPress={(e) => { e?.stopPropagation?.(); moveSeat(filteredSeats, index, -1); }}
+                    >
+                      <Text style={s.sortBtnText}>▲</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[s.sortBtn, (index === filteredSeats.length - 1 || reordering) && s.sortBtnDisabled]}
+                      disabled={index === filteredSeats.length - 1 || reordering}
+                      onPress={(e) => { e?.stopPropagation?.(); moveSeat(filteredSeats, index, 1); }}
+                    >
+                      <Text style={s.sortBtnText}>▼</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <Text style={s.sortOrdText}>좌석정렬순번 {seat.sortOrd ?? "-"}</Text>
+                  <TouchableOpacity style={[s.actionBtn, s.deleteBtn]} onPress={(e) => { e?.stopPropagation?.(); setDeleteTarget(seat); }}>
+                    <Text style={[s.actionBtnText, s.deleteBtnText]}>삭제</Text>
                   </TouchableOpacity>
                 </View>
-                {seat.imgUrl ? (
-                  <Image source={{ uri: seat.imgUrl }} style={s.thumb} resizeMode="cover" />
-                ) : (
-                  <View style={[s.thumb, s.thumbEmpty]}><Text style={s.thumbEmptyText}>NO IMAGE</Text></View>
+              </View>
+
+              <View style={s.qrBtnWrap}>
+                {showQrHint && index === 0 && (
+                  <View style={s.qrHintBubble} pointerEvents="none">
+                    <Text style={s.qrHintText}>주문만하기 활성화 QR 입니다</Text>
+                    <View style={s.qrHintArrow} />
+                  </View>
                 )}
-              </View>
-              <View style={s.cardInfo}>
-                <View style={s.cardTopRow}>
-                  <Text style={s.seatNm} numberOfLines={1}>{seat.seatNm}</Text>
-                  {seat.useYn === "N" && <View style={s.offBadge}><Text style={s.offBadgeText}>미노출</Text></View>}
-                </View>
-                <Text style={s.capacity}>{seat.capacity}인석</Text>
-                {seat.seatDesc ? <Text style={s.desc} numberOfLines={1}>{seat.seatDesc}</Text> : null}
-              </View>
-              <View style={s.cardActions}>
-                <View style={s.sortBtnRow}>
-                  <TouchableOpacity
-                    style={[s.sortBtn, (index === 0 || reordering) && s.sortBtnDisabled]}
-                    disabled={index === 0 || reordering}
-                    onPress={(e) => { e?.stopPropagation?.(); moveSeat(filteredSeats, index, -1); }}
-                  >
-                    <Text style={s.sortBtnText}>▲</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[s.sortBtn, (index === filteredSeats.length - 1 || reordering) && s.sortBtnDisabled]}
-                    disabled={index === filteredSeats.length - 1 || reordering}
-                    onPress={(e) => { e?.stopPropagation?.(); moveSeat(filteredSeats, index, 1); }}
-                  >
-                    <Text style={s.sortBtnText}>▼</Text>
-                  </TouchableOpacity>
-                </View>
-                <Text style={s.sortOrdText}>좌석정렬순번 {seat.sortOrd ?? "-"}</Text>
-                <TouchableOpacity style={[s.actionBtn, s.deleteBtn]} onPress={(e) => { e?.stopPropagation?.(); setDeleteTarget(seat); }}>
-                  <Text style={[s.actionBtnText, s.deleteBtnText]}>삭제</Text>
+                <TouchableOpacity
+                  style={[s.qrBtn, qrDisabled && s.qrBtnDisabled]}
+                  disabled={qrDisabled}
+                  onPress={(e) => { e?.stopPropagation?.(); setAccessQrTarget(seat); }}
+                >
+                  <Text style={[s.qrBtnText, qrDisabled && s.qrBtnTextDisabled]}>{inUse ? "사용중" : "손님QR"}</Text>
                 </TouchableOpacity>
               </View>
             </TouchableOpacity>
