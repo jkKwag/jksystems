@@ -46,6 +46,7 @@ const sortReservations = (list) => [...list].sort((a, b) => new Date(b.rsvnDt) -
 export default function AdminReservations({ adminInfo }) {
   const bizRegNo = adminInfo?.bizRegNo;
   const todayStr = toDateStr(new Date());
+  const maxSelectableDate = addDays(todayStr, 15);
 
   const [loaded, setLoaded] = useState(false);
   const [reservations, setReservations] = useState([]);
@@ -224,7 +225,7 @@ export default function AdminReservations({ adminInfo }) {
             <View style={s.calBox}>
               <Calendar
                 current={calTarget === "from" ? dateFrom : dateTo}
-                maxDate={todayStr}
+                maxDate={maxSelectableDate}
                 onDayPress={(day) => pickDate(day.dateString)}
                 markedDates={{
                   [calTarget === "from" ? dateFrom : dateTo]: { selected: true, selectedColor: "#f97316" },
