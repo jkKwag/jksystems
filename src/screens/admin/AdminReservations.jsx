@@ -57,7 +57,7 @@ export default function AdminReservations({ adminInfo }) {
   const [confirmCompleteRsvnNo, setConfirmCompleteRsvnNo] = useState(null);
   const [alertMsg, setAlertMsg] = useState(null);
   const [dateFrom, setDateFrom] = useState(addDays(todayStr, -1));
-  const [dateTo, setDateTo] = useState(todayStr);
+  const [dateTo, setDateTo] = useState(maxSelectableDate);
   const [calTarget, setCalTarget] = useState(null); // null | "from" | "to"
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [seatFilter, setSeatFilter] = useState(null); // null = 전체
