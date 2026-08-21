@@ -181,7 +181,7 @@ export default function AdminSeats({ adminInfo }) {
             return (
             <TouchableOpacity
               key={seat.seatCd}
-              style={[s.card, highlightId === seat.seatCd && s.cardHighlight, showQrHint && index === 0 && s.cardQrHintSpace]}
+              style={[s.card, highlightId === seat.seatCd && s.cardHighlight]}
               onPress={() => setFormTarget(seat)}
               activeOpacity={0.75}
             >
@@ -228,7 +228,7 @@ export default function AdminSeats({ adminInfo }) {
               <View style={s.qrBtnWrap}>
                 {showQrHint && index === 0 && (
                   <View style={s.qrHintBubble} pointerEvents="none">
-                    <Text style={s.qrHintText}>주문만하기 활성화 QR 입니다</Text>
+                    <Text style={s.qrHintText}>앱 내에서 결제가 불가능한 손님이나, 주문 후 나중에 결제를 하고싶은 손님을 위한 QR입니다.</Text>
                     <View style={s.qrHintArrow} />
                   </View>
                 )}
