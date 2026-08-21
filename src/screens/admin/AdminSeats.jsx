@@ -18,6 +18,7 @@ export default function AdminSeats({ adminInfo }) {
   const [alertMsg, setAlertMsg] = useState(null);
   const [saving, setSaving] = useState(false);
   const [selectedCapacity, setSelectedCapacity] = useState(null); // null = 전체
+  const [capExpanded, setCapExpanded] = useState(false);
   const [reordering, setReordering] = useState(false);
   const [highlightId, setHighlightId] = useState(null);
   const [showQrHint, setShowQrHint] = useState(false);
@@ -142,30 +143,49 @@ export default function AdminSeats({ adminInfo }) {
       </View>
       <Text style={s.hintText}>좌석 카드를 클릭하면 수정할 수 있어요.</Text>
 
-      {capacities.length > 0 && (
-        <View style={s.capFilterBox}>
-          <View style={s.capFilterRow}>
-            <TouchableOpacity
-              style={[s.capChip, selectedCapacity == null && s.capChipActive]}
-              onPress={() => setSelectedCapacity(null)}
-            >
-              <Text style={[s.capChipText, selectedCapacity == null && s.capChipTextActive]}>전체</Text>
-            </TouchableOpacity>
-            {capacities.map(cap => {
-              const active = selectedCapacity === cap;
-              return (
-                <TouchableOpacity
-                  key={cap}
-                  style={[s.capChip, active && s.capChipActive]}
-                  onPress={() => setSelectedCapacity(cap)}
-                >
-                  <Text style={[s.capChipText, active && s.capChipTextActive]}>{cap}인</Text>
-                </TouchableOpacity>
-              );
-            })}
+      {capacities.length > 0 && (() => {
+        const chips = [
+          <TouchableOpacity
+            key="__all"
+            style={[s.capChip, selectedCapacity == null && s.capChipActive]}
+            onPress={() => setSelectedCapacity(null)}
+          >
+            <Text style={[s.capChipText, selectedCapacity == null && s.capChipTextActive]}>전체</Text>
+          </TouchableOpacity>,
+          ...capacities.map(cap => {
+            const active = selectedCapacity === cap;
+            return (
+              <TouchableOpacity
+                key={cap}
+                style={[s.capChip, active && s.capChipActive]}
+                onPress={() => setSelectedCapacity(cap)}
+              >
+                <Text style={[s.capChipText, active && s.capChipTextActive]}>{cap}인</Text>
+              </TouchableOpacity>
+            );
+          }),
+        ];
+        return (
+          <View style={s.capFilterBox}>
+            <View style={s.capFilterOuterRow}>
+              {capExpanded ? (
+                <View style={s.capFilterRow}>{chips}</View>
+              ) : (
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.capFilterScroll}>
+                  <View style={s.capFilterRowNowrap}>{chips}</View>
+                </ScrollView>
+              )}
+              <TouchableOpacity
+                style={s.capToggleBtn}
+                onPress={() => setCapExpanded(v => !v)}
+                accessibilityLabel={capExpanded ? "인원 필터 접기" : "인원 필터 펼치기"}
+              >
+                <View style={[s.capToggleTri, capExpanded && s.capToggleTriUp]} />
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      )}
+        );
+      })()}
 
       {!loaded ? (
         <ActivityIndicator style={{ marginTop: 40 }} color="#f97316" />

@@ -13,11 +13,22 @@ export const s = StyleSheet.create({
   hintText: { fontSize: font.sm, color: colors.textMuted, marginTop: spacing["1"], marginBottom: spacing["3"] },
 
   capFilterBox: { backgroundColor: colors.slate200, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.slate300, padding: spacing["3.5"], marginBottom: spacing["4"] },
-  capFilterRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing["2"] },
+  capFilterOuterRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"] },
+  capFilterRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing["2"], flex: 1 },
+  capFilterScroll: { flex: 1 },
+  capFilterRowNowrap: { flexDirection: "row", gap: spacing["2"] },
   capChip: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"], backgroundColor: colors.bgCard },
   capChipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   capChipText: { fontSize: font.base, fontWeight: "700", color: colors.textGray },
   capChipTextActive: { color: colors.white },
+  capToggleBtn: { width: 32, height: 32, borderRadius: 999, borderWidth: 1, borderColor: colors.slate300, backgroundColor: colors.bgCard, alignItems: "center", justifyContent: "center" },
+  capToggleTri: {
+    width: 0, height: 0,
+    borderLeftWidth: 6, borderRightWidth: 6, borderTopWidth: 8,
+    borderLeftColor: "transparent", borderRightColor: "transparent", borderTopColor: colors.textGray,
+    marginTop: 2,
+  },
+  capToggleTriUp: { transform: [{ rotate: "180deg" }], marginTop: -2, marginBottom: 2 },
 
   center: { flex: 1, justifyContent: "center", alignItems: "center", paddingVertical: spacing["10"] },
   emptyText: { fontSize: font.md, color: colors.textMuted, textAlign: "center" },
