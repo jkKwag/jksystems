@@ -20,11 +20,22 @@ export const s = StyleSheet.create({
   calBox: { width: "100%", maxWidth: 360, borderRadius: radius["2xl"], overflow: "hidden", backgroundColor: colors.slate800 },
 
   statusFilterBox: { backgroundColor: colors.slate200, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.slate300, paddingHorizontal: spacing["3.5"], paddingVertical: 7, marginBottom: spacing["4"] },
-  statusFilterRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing["2"] },
+  statusFilterOuterRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"] },
+  statusFilterRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing["2"], flex: 1 },
+  statusFilterScroll: { flex: 1 },
+  statusFilterRowNowrap: { flexDirection: "row", gap: spacing["2"] },
   statusChip: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"], backgroundColor: colors.bgCard },
   statusChipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   statusChipText: { fontSize: font.base, fontWeight: "700", color: colors.textGray },
   statusChipTextActive: { color: colors.white },
+  statusToggleBtn: { width: 32, height: 32, borderRadius: 999, borderWidth: 1, borderColor: colors.slate300, backgroundColor: colors.bgCard, alignItems: "center", justifyContent: "center" },
+  statusToggleTri: {
+    width: 0, height: 0,
+    borderLeftWidth: 6, borderRightWidth: 6, borderTopWidth: 8,
+    borderLeftColor: "transparent", borderRightColor: "transparent", borderTopColor: colors.textGray,
+    marginTop: 2,
+  },
+  statusToggleTriUp: { transform: [{ rotate: "180deg" }], marginTop: -2, marginBottom: 2 },
 
   seatPickerBox: { width: "100%", maxWidth: 280, borderRadius: radius["2xl"], overflow: "hidden", backgroundColor: colors.bgCard, paddingVertical: spacing["1.5"] },
   seatPickerRow: { paddingHorizontal: spacing["4"], paddingVertical: spacing["3"] },

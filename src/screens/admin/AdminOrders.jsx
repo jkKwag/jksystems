@@ -62,6 +62,7 @@ export default function AdminOrders({ adminInfo }) {
   const [dateTo, setDateTo] = useState(todayStr);
   const [calTarget, setCalTarget] = useState(null); // null | "from" | "to"
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [statusExpanded, setStatusExpanded] = useState(false);
   const [seatFilter, setSeatFilter] = useState(null); // null = 전체
   const [seatPickerOpen, setSeatPickerOpen] = useState(false);
   const [orderStatusLabels, setOrderStatusLabels] = useState({});
@@ -177,21 +178,39 @@ export default function AdminOrders({ adminInfo }) {
         )}
       </View>
 
-      <View style={s.statusFilterBox}>
-        <View style={s.statusFilterRow}>
-          {STATUS_FILTERS.map(status => (
-            <TouchableOpacity
-              key={status}
-              style={[s.statusChip, statusFilter === status && s.statusChipActive]}
-              onPress={() => setStatusFilter(status)}
-            >
-              <Text style={[s.statusChipText, statusFilter === status && s.statusChipTextActive]}>
-                {status === "ALL" ? "전체" : (orderStatusLabels[status] || status)}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
+      {(() => {
+        const chips = STATUS_FILTERS.map(status => (
+          <TouchableOpacity
+            key={status}
+            style={[s.statusChip, statusFilter === status && s.statusChipActive]}
+            onPress={() => setStatusFilter(status)}
+          >
+            <Text style={[s.statusChipText, statusFilter === status && s.statusChipTextActive]}>
+              {status === "ALL" ? "전체" : (orderStatusLabels[status] || status)}
+            </Text>
+          </TouchableOpacity>
+        ));
+        return (
+          <View style={s.statusFilterBox}>
+            <View style={s.statusFilterOuterRow}>
+              {statusExpanded ? (
+                <View style={s.statusFilterRow}>{chips}</View>
+              ) : (
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.statusFilterScroll}>
+                  <View style={s.statusFilterRowNowrap}>{chips}</View>
+                </ScrollView>
+              )}
+              <TouchableOpacity
+                style={s.statusToggleBtn}
+                onPress={() => setStatusExpanded(v => !v)}
+                accessibilityLabel={statusExpanded ? "상태 필터 접기" : "상태 필터 펼치기"}
+              >
+                <View style={[s.statusToggleTri, statusExpanded && s.statusToggleTriUp]} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        );
+      })()}
 
       {seatPickerOpen && (
         <Modal visible transparent animationType="fade" onRequestClose={() => setSeatPickerOpen(false)}>
