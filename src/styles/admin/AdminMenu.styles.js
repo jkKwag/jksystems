@@ -13,11 +13,16 @@ export const s = StyleSheet.create({
   hintText: { fontSize: font.sm, color: colors.textMuted, marginTop: spacing["1"], marginBottom: spacing["3"] },
 
   catFilterBox: { backgroundColor: colors.slate200, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.slate300, padding: spacing["3.5"], marginBottom: spacing["4"] },
-  catFilterRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing["2"] },
+  catFilterOuterRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"] },
+  catFilterRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing["2"], flex: 1 },
+  catFilterScroll: { flex: 1 },
+  catFilterRowNowrap: { flexDirection: "row", gap: spacing["2"] },
   catChip: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"], backgroundColor: colors.bgCard },
   catChipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   catChipText: { fontSize: font.base, fontWeight: "700", color: colors.textGray },
   catChipTextActive: { color: colors.white },
+  catToggleBtn: { borderWidth: 1, borderColor: colors.slate300, borderRadius: radius.pill, paddingHorizontal: spacing["2.5"], paddingVertical: spacing["1.5"], backgroundColor: colors.bgCard },
+  catToggleBtnText: { fontSize: font.base, fontWeight: "700", color: colors.textGray },
 
   center: { flex: 1, justifyContent: "center", alignItems: "center", paddingVertical: spacing["10"] },
   emptyText: { fontSize: font.md, color: colors.textMuted, textAlign: "center" },

@@ -18,6 +18,7 @@ export default function AdminMenu({ adminInfo }) {
   const [alertMsg, setAlertMsg] = useState(null);
   const [saving, setSaving] = useState(false);
   const [selectedCatCd, setSelectedCatCd] = useState(null); // null = 전체
+  const [catExpanded, setCatExpanded] = useState(false);
   const [reordering, setReordering] = useState(false);
   const [highlightId, setHighlightId] = useState(null);
   const spinAnim = useRef(new Animated.Value(0)).current;
@@ -138,31 +139,46 @@ export default function AdminMenu({ adminInfo }) {
       </View>
       <Text style={s.hintText}>메뉴 카드를 클릭하면 메뉴를 수정할 수 있어요.</Text>
 
-      {visibleCategories.length > 0 && (
-        <View style={s.catFilterBox}>
-          <View style={s.catFilterRow}>
-            <TouchableOpacity
-              style={[s.catChip, !selectedCatCd && s.catChipActive]}
-              onPress={() => setSelectedCatCd(null)}
-            >
-              <Text style={[s.catChipText, !selectedCatCd && s.catChipTextActive]}>전체 {menus.length}</Text>
-            </TouchableOpacity>
-            {visibleCategories.map(c => {
-              const count = menus.filter(m => m.bizCatCd === c.bizCatCd).length;
-              const active = selectedCatCd === c.bizCatCd;
-              return (
-                <TouchableOpacity
-                  key={c.bizCatCd}
-                  style={[s.catChip, active && s.catChipActive]}
-                  onPress={() => setSelectedCatCd(c.bizCatCd)}
-                >
-                  <Text style={[s.catChipText, active && s.catChipTextActive]}>{c.bizCatNm} {count}</Text>
-                </TouchableOpacity>
-              );
-            })}
+      {visibleCategories.length > 0 && (() => {
+        const chips = [
+          <TouchableOpacity
+            key="__all"
+            style={[s.catChip, !selectedCatCd && s.catChipActive]}
+            onPress={() => setSelectedCatCd(null)}
+          >
+            <Text style={[s.catChipText, !selectedCatCd && s.catChipTextActive]}>전체 {menus.length}</Text>
+          </TouchableOpacity>,
+          ...visibleCategories.map(c => {
+            const count = menus.filter(m => m.bizCatCd === c.bizCatCd).length;
+            const active = selectedCatCd === c.bizCatCd;
+            return (
+              <TouchableOpacity
+                key={c.bizCatCd}
+                style={[s.catChip, active && s.catChipActive]}
+                onPress={() => setSelectedCatCd(c.bizCatCd)}
+              >
+                <Text style={[s.catChipText, active && s.catChipTextActive]}>{c.bizCatNm} {count}</Text>
+              </TouchableOpacity>
+            );
+          }),
+        ];
+        return (
+          <View style={s.catFilterBox}>
+            <View style={s.catFilterOuterRow}>
+              {catExpanded ? (
+                <View style={s.catFilterRow}>{chips}</View>
+              ) : (
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.catFilterScroll}>
+                  <View style={s.catFilterRowNowrap}>{chips}</View>
+                </ScrollView>
+              )}
+              <TouchableOpacity style={s.catToggleBtn} onPress={() => setCatExpanded(v => !v)}>
+                <Text style={s.catToggleBtnText} numberOfLines={1}>{catExpanded ? "접기 ▴" : "펼치기 ▾"}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      )}
+        );
+      })()}
 
       {!loaded ? (
         <ActivityIndicator style={{ marginTop: 40 }} color="#f97316" />
