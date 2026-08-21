@@ -21,8 +21,14 @@ export const s = StyleSheet.create({
   catChipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   catChipText: { fontSize: font.base, fontWeight: "700", color: colors.textGray },
   catChipTextActive: { color: colors.white },
-  catToggleBtn: { borderWidth: 1, borderColor: colors.slate300, borderRadius: radius.pill, paddingHorizontal: spacing["2.5"], paddingVertical: spacing["1.5"], backgroundColor: colors.bgCard },
-  catToggleBtnText: { fontSize: font.base, fontWeight: "700", color: colors.textGray },
+  catToggleBtn: { width: 32, height: 32, borderRadius: 999, borderWidth: 1, borderColor: colors.slate300, backgroundColor: colors.bgCard, alignItems: "center", justifyContent: "center" },
+  catToggleTri: {
+    width: 0, height: 0,
+    borderLeftWidth: 6, borderRightWidth: 6, borderTopWidth: 8,
+    borderLeftColor: "transparent", borderRightColor: "transparent", borderTopColor: colors.textGray,
+    marginTop: 2,
+  },
+  catToggleTriUp: { transform: [{ rotate: "180deg" }], marginTop: -2, marginBottom: 2 },
 
   center: { flex: 1, justifyContent: "center", alignItems: "center", paddingVertical: spacing["10"] },
   emptyText: { fontSize: font.md, color: colors.textMuted, textAlign: "center" },

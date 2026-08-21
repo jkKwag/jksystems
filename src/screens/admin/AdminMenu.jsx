@@ -172,8 +172,12 @@ export default function AdminMenu({ adminInfo }) {
                   <View style={s.catFilterRowNowrap}>{chips}</View>
                 </ScrollView>
               )}
-              <TouchableOpacity style={s.catToggleBtn} onPress={() => setCatExpanded(v => !v)}>
-                <Text style={s.catToggleBtnText} numberOfLines={1}>{catExpanded ? "접기 ▴" : "펼치기 ▾"}</Text>
+              <TouchableOpacity
+                style={s.catToggleBtn}
+                onPress={() => setCatExpanded(v => !v)}
+                accessibilityLabel={catExpanded ? "카테고리 접기" : "카테고리 펼치기"}
+              >
+                <View style={[s.catToggleTri, catExpanded && s.catToggleTriUp]} />
               </TouchableOpacity>
             </View>
           </View>
