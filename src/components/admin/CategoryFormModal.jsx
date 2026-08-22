@@ -36,6 +36,9 @@ export default function CategoryFormModal({ visible, initial, saving, bizRegNo, 
     setCatOpen(false);
     setCatOptions([]);
     setCatFetched(false);
+    // 동일업종 등록 카테고리는 값을 새로 골라주는 편의 기능일 뿐이라, 기등록된 값으로
+    // 미리 채워두지 않는다. 건드리지 않으면 기존 catCd가 그대로 저장된다.
+    setCatQuery("");
   }, [visible, initial]);
 
   // 업종에 맞는 카테고리 목록은 콤보를 실제로 클릭(포인터 다운)해서 열 때만 조회 (신규/수정 공통).
@@ -49,15 +52,6 @@ export default function CategoryFormModal({ visible, initial, saving, bizRegNo, 
     const list = await api.biz.indCategories(bizRegNo);
     setCatOptions(Array.isArray(list) ? list : []);
   };
-
-  // 수정 화면일 때 저장된 코드에 해당하는 카테고리명을 검색창에 채워둔다
-  useEffect(() => {
-    if (!visible) return;
-    const code = initial?.catCd;
-    if (!code) { setCatQuery(""); return; }
-    const found = catOptions.find(o => o.catCd === code);
-    setCatQuery(found ? found.catNm : code);
-  }, [visible, initial, catOptions]);
 
   if (!visible) return null;
 
