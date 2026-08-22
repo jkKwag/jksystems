@@ -38,7 +38,7 @@ export default function AdminSeats({ adminInfo }) {
     if (nextSeats.length > 0) {
       if (qrHintTimer.current) clearTimeout(qrHintTimer.current);
       setShowQrHint(true);
-      qrHintTimer.current = setTimeout(() => setShowQrHint(false), 3000);
+      qrHintTimer.current = setTimeout(() => setShowQrHint(false), 5000);
     }
   };
 
@@ -248,7 +248,7 @@ export default function AdminSeats({ adminInfo }) {
               <View style={s.qrBtnWrap}>
                 {showQrHint && index === 0 && (
                   <View style={s.qrHintBubble} pointerEvents="none">
-                    <Text style={s.qrHintText}>앱 내에서 결제가 불가능한 손님이나, 주문 후 나중에 결제를 하고싶은 손님을 위한 QR입니다.</Text>
+                    <Text style={s.qrHintText}>{"앱 내에서 결제가 불가능한 손님이나,\n주문 후 나중에 결제를 하고싶은 손님을 위한 QR입니다."}</Text>
                     <View style={s.qrHintArrow} />
                   </View>
                 )}
