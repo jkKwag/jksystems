@@ -175,6 +175,7 @@ export default function AdminBizCategory({ adminInfo }) {
         visible={formTarget !== undefined}
         initial={formTarget}
         saving={saving}
+        bizRegNo={bizRegNo}
         onSave={handleSaveCategory}
         onClose={() => setFormTarget(undefined)}
       />

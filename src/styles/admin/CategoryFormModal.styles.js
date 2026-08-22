@@ -16,6 +16,12 @@ export const s = StyleSheet.create({
 
   fieldError: { fontSize: font.sm, color: "#ef4444", fontWeight: "600", marginTop: spacing["1"] },
 
+  comboBox: { marginTop: spacing["1.5"], borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, backgroundColor: colors.bgCard, overflow: "hidden" },
+  comboScroll: { maxHeight: 200 },
+  comboRow: { paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"], borderBottomWidth: 1, borderBottomColor: colors.border },
+  comboRowText: { fontSize: font.md, color: colors.text },
+  comboEmpty: { paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"], fontSize: font.sm, color: colors.textGray },
+
   btnRow: { flexDirection: "row", gap: spacing["2.5"], marginTop: spacing["4"], paddingHorizontal: spacing["5"], paddingBottom: spacing["5"] },
   cancelBtn: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingVertical: spacing["2.5"], alignItems: "center" },
   cancelBtnText: { fontSize: font.md, fontWeight: "700", color: colors.textGray },

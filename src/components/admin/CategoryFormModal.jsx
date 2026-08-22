@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, Switch, ActivityIndicator, Platform } from "react-native";
 import { s } from "../../styles/admin/CategoryFormModal.styles";
+import api from "../../lib/api";
 
 const emptyForm = { bizCatNm: "", catCd: "", sortOrd: "", useYn: "Y", rmrk: "" };
 const emptyFieldErrors = { bizCatNm: "" };
@@ -10,9 +11,12 @@ const HEADER_GRADIENT = Platform.OS === "web"
   ? { background: "linear-gradient(135deg, #0f172a 0%, #14532d 100%)" }
   : {};
 
-export default function CategoryFormModal({ visible, initial, saving, onSave, onClose }) {
+export default function CategoryFormModal({ visible, initial, saving, bizRegNo, onSave, onClose }) {
   const [form, setForm] = useState(emptyForm);
   const [fieldErrors, setFieldErrors] = useState(emptyFieldErrors);
+  const [catOptions, setCatOptions] = useState([]);
+  const [catQuery, setCatQuery] = useState("");
+  const [catOpen, setCatOpen] = useState(false);
 
   useEffect(() => {
     if (!visible) return;
@@ -28,7 +32,26 @@ export default function CategoryFormModal({ visible, initial, saving, onSave, on
       setForm(emptyForm);
     }
     setFieldErrors(emptyFieldErrors);
+    setCatOpen(false);
   }, [visible, initial]);
+
+  // 업종에 맞는 카테고리 목록은 모달 열릴 때 한 번만 조회
+  useEffect(() => {
+    if (!visible || !bizRegNo) { setCatOptions([]); return; }
+    (async () => {
+      const list = await api.biz.indCategories(bizRegNo);
+      setCatOptions(Array.isArray(list) ? list : []);
+    })();
+  }, [visible, bizRegNo]);
+
+  // 수정 화면일 때 저장된 코드에 해당하는 카테고리명을 검색창에 채워둔다
+  useEffect(() => {
+    if (!visible) return;
+    const code = initial?.catCd;
+    if (!code) { setCatQuery(""); return; }
+    const found = catOptions.find(o => o.catCd === code);
+    setCatQuery(found ? found.catNm : code);
+  }, [visible, initial, catOptions]);
 
   if (!visible) return null;
 
@@ -36,6 +59,24 @@ export default function CategoryFormModal({ visible, initial, saving, onSave, on
     setForm(f => ({ ...f, [key]: v }));
     setFieldErrors(fe => (fe[key] ? { ...fe, [key]: "" } : fe));
   };
+
+  const onCatQueryChange = (v) => {
+    setCatQuery(v);
+    setCatOpen(true);
+    setForm(f => ({ ...f, catCd: "" }));
+  };
+
+  const selectCat = (opt) => {
+    setForm(f => ({ ...f, catCd: opt.catCd }));
+    setCatQuery(opt.catNm);
+    setCatOpen(false);
+  };
+
+  const filteredCatOptions = catOptions.filter(o => {
+    const q = catQuery.trim().toLowerCase();
+    if (!q) return true;
+    return o.catNm.toLowerCase().includes(q) || o.catCd.toLowerCase().includes(q);
+  });
 
   const submit = () => {
     const errors = {
@@ -60,10 +101,33 @@ export default function CategoryFormModal({ visible, initial, saving, onSave, on
             <Text style={s.title}>{initial ? "카테고리 수정" : "새 카테고리 등록"}</Text>
           </View>
 
-          <ScrollView style={s.body} contentContainerStyle={{ gap: 14 }}>
+          <ScrollView style={s.body} contentContainerStyle={{ gap: 14 }} keyboardShouldPersistTaps="handled">
             <View>
               <Text style={s.label}>동일업종 등록 카테고리</Text>
-              <TextInput style={s.inp} placeholder="선택" value={form.catCd} onChangeText={update("catCd")} autoCapitalize="none" />
+              <TextInput
+                style={s.inp}
+                placeholder="검색 또는 선택 (선택)"
+                value={catQuery}
+                onChangeText={onCatQueryChange}
+                onFocus={() => setCatOpen(true)}
+                onBlur={() => setTimeout(() => setCatOpen(false), 150)}
+                autoCapitalize="none"
+              />
+              {catOpen && (
+                <View style={s.comboBox}>
+                  <ScrollView style={s.comboScroll} keyboardShouldPersistTaps="handled">
+                    {filteredCatOptions.length === 0 ? (
+                      <Text style={s.comboEmpty}>검색 결과가 없습니다</Text>
+                    ) : (
+                      filteredCatOptions.map(opt => (
+                        <TouchableOpacity key={opt.catCd} style={s.comboRow} onPress={() => selectCat(opt)}>
+                          <Text style={s.comboRowText}>{opt.catNm}</Text>
+                        </TouchableOpacity>
+                      ))
+                    )}
+                  </ScrollView>
+                </View>
+              )}
             </View>
 
             <View>

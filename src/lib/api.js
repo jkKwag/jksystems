@@ -72,6 +72,7 @@ const api = {
     create: (body) => post(`/api/biz`, body),
     update: (bizno, body) => put(`/api/biz/${bizno}`, body),
     categories: (bizno) => get(`/api/biz/${bizno}/categories`),
+    indCategories: (bizno) => get(`/api/biz/${bizno}/ind-categories`),
     createCategory: (bizno, body) => post(`/api/biz/${bizno}/categories`, body),
     updateCategory: (bizno, bizCatCd, body) => put(`/api/biz/${bizno}/categories/${bizCatCd}`, body),
     deleteCategory: (bizno, bizCatCd) => del(`/api/biz/${bizno}/categories/${bizCatCd}`),
