@@ -15,6 +15,7 @@ export default function CategoryFormModal({ visible, initial, saving, bizRegNo, 
   const [form, setForm] = useState(emptyForm);
   const [fieldErrors, setFieldErrors] = useState(emptyFieldErrors);
   const [catOptions, setCatOptions] = useState([]);
+  const [catFetched, setCatFetched] = useState(false);
   const [catQuery, setCatQuery] = useState("");
   const [catOpen, setCatOpen] = useState(false);
 
@@ -33,16 +34,21 @@ export default function CategoryFormModal({ visible, initial, saving, bizRegNo, 
     }
     setFieldErrors(emptyFieldErrors);
     setCatOpen(false);
+    setCatOptions([]);
+    setCatFetched(false);
   }, [visible, initial]);
 
-  // 업종에 맞는 카테고리 목록은 모달 열릴 때 한 번만 조회
-  useEffect(() => {
-    if (!visible || !bizRegNo) { setCatOptions([]); return; }
-    (async () => {
-      const list = await api.biz.indCategories(bizRegNo);
-      setCatOptions(Array.isArray(list) ? list : []);
-    })();
-  }, [visible, bizRegNo]);
+  // 업종에 맞는 카테고리 목록은 콤보를 실제로 클릭(포인터 다운)해서 열 때만 조회 (신규/수정 공통).
+  // RN Web Modal이 열리면서 첫 입력창에 자동으로 focus()를 걸어주는데, 이건 진짜 클릭이 아니라서
+  // onFocus에 붙이면 모달이 열리자마자 오조회가 발생한다. pointerDown은 프로그램상 focus()로는
+  // 발생하지 않으므로 실제 클릭에만 반응한다.
+  const openCatCombo = async () => {
+    setCatOpen(true);
+    if (catFetched || !bizRegNo) return;
+    setCatFetched(true);
+    const list = await api.biz.indCategories(bizRegNo);
+    setCatOptions(Array.isArray(list) ? list : []);
+  };
 
   // 수정 화면일 때 저장된 코드에 해당하는 카테고리명을 검색창에 채워둔다
   useEffect(() => {
@@ -62,7 +68,7 @@ export default function CategoryFormModal({ visible, initial, saving, bizRegNo, 
 
   const onCatQueryChange = (v) => {
     setCatQuery(v);
-    setCatOpen(true);
+    openCatCombo();
     setForm(f => ({ ...f, catCd: "" }));
   };
 
@@ -118,7 +124,7 @@ export default function CategoryFormModal({ visible, initial, saving, bizRegNo, 
                 placeholder="검색 또는 선택 (선택)"
                 value={catQuery}
                 onChangeText={onCatQueryChange}
-                onFocus={() => setCatOpen(true)}
+                onPointerDown={openCatCombo}
                 onBlur={() => setTimeout(() => {
                   setCatOpen(false);
                   setForm(f => {
