@@ -62,20 +62,19 @@ export default function CategoryFormModal({ visible, initial, saving, onSave, on
 
           <ScrollView style={s.body} contentContainerStyle={{ gap: 14 }}>
             <View>
+              <Text style={s.label}>동일업종 등록 카테고리</Text>
+              <TextInput style={s.inp} placeholder="선택" value={form.catCd} onChangeText={update("catCd")} autoCapitalize="none" />
+            </View>
+
+            <View>
               <Text style={s.label}>카테고리명</Text>
               <TextInput style={s.inp} placeholder="예: 커피, 디저트" value={form.bizCatNm} onChangeText={update("bizCatNm")} />
               {!!fieldErrors.bizCatNm && <Text style={s.fieldError}>{fieldErrors.bizCatNm}</Text>}
             </View>
 
-            <View style={s.row}>
-              <View style={{ flex: 1 }}>
-                <Text style={s.label}>참조코드</Text>
-                <TextInput style={s.inp} placeholder="선택" value={form.catCd} onChangeText={update("catCd")} autoCapitalize="none" />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={s.label}>정렬순서</Text>
-                <TextInput style={s.inp} placeholder="자동" value={form.sortOrd} onChangeText={update("sortOrd")} keyboardType="numeric" />
-              </View>
+            <View>
+              <Text style={s.label}>정렬순서</Text>
+              <TextInput style={s.inp} placeholder="자동" value={form.sortOrd} onChangeText={update("sortOrd")} keyboardType="numeric" />
             </View>
 
             <View>

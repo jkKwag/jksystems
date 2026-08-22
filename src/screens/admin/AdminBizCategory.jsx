@@ -141,7 +141,7 @@ export default function AdminBizCategory({ adminInfo }) {
                   <Text style={s.catNm} numberOfLines={1}>{cat.bizCatNm}</Text>
                   {cat.useYn === "N" && <View style={s.offBadge}><Text style={s.offBadgeText}>미노출</Text></View>}
                 </View>
-                {cat.catCd ? <Text style={s.catCdText}>참조코드 {cat.catCd}</Text> : null}
+                {cat.catCd ? <Text style={s.catCdText}>동일업종 등록 카테고리 {cat.catCd}</Text> : null}
                 {cat.rmrk ? <Text style={s.rmrk} numberOfLines={1}>{cat.rmrk}</Text> : null}
               </View>
               <View style={s.cardActions}>
