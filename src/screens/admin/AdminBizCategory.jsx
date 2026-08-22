@@ -176,6 +176,7 @@ export default function AdminBizCategory({ adminInfo }) {
         initial={formTarget}
         saving={saving}
         bizRegNo={bizRegNo}
+        categories={categories}
         onSave={handleSaveCategory}
         onClose={() => setFormTarget(undefined)}
       />

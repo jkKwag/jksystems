@@ -11,7 +11,7 @@ const HEADER_GRADIENT = Platform.OS === "web"
   ? { background: "linear-gradient(135deg, #0f172a 0%, #14532d 100%)" }
   : {};
 
-export default function CategoryFormModal({ visible, initial, saving, bizRegNo, onSave, onClose }) {
+export default function CategoryFormModal({ visible, initial, saving, bizRegNo, categories = [], onSave, onClose }) {
   const [form, setForm] = useState(emptyForm);
   const [fieldErrors, setFieldErrors] = useState(emptyFieldErrors);
   const [catOptions, setCatOptions] = useState([]);
@@ -67,9 +67,18 @@ export default function CategoryFormModal({ visible, initial, saving, bizRegNo, 
   };
 
   const selectCat = (opt) => {
-    setForm(f => ({ ...f, catCd: opt.catCd }));
+    const maxSortOrd = categories.reduce((max, c) => Math.max(max, c.sortOrd ?? -1), -1);
+    setForm(f => ({
+      ...f,
+      catCd: opt.catCd,
+      bizCatNm: opt.catNm,
+      sortOrd: String(maxSortOrd + 1),
+      useYn: "Y",
+      rmrk: opt.catNm,
+    }));
     setCatQuery(opt.catNm);
     setCatOpen(false);
+    setFieldErrors(emptyFieldErrors);
   };
 
   const filteredCatOptions = catOptions.filter(o => {
@@ -102,7 +111,7 @@ export default function CategoryFormModal({ visible, initial, saving, bizRegNo, 
           </View>
 
           <ScrollView style={s.body} contentContainerStyle={{ gap: 14 }} keyboardShouldPersistTaps="handled">
-            <View>
+            <View style={s.catWrap}>
               <Text style={s.label}>동일업종 등록 카테고리</Text>
               <TextInput
                 style={s.inp}
@@ -110,7 +119,13 @@ export default function CategoryFormModal({ visible, initial, saving, bizRegNo, 
                 value={catQuery}
                 onChangeText={onCatQueryChange}
                 onFocus={() => setCatOpen(true)}
-                onBlur={() => setTimeout(() => setCatOpen(false), 150)}
+                onBlur={() => setTimeout(() => {
+                  setCatOpen(false);
+                  setForm(f => {
+                    if (!f.catCd) setCatQuery("");
+                    return f;
+                  });
+                }, 150)}
                 autoCapitalize="none"
               />
               {catOpen && (
