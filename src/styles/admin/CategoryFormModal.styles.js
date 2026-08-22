@@ -19,11 +19,11 @@ export const s = StyleSheet.create({
   catWrap: { position: "relative", zIndex: 50 },
   comboBox: {
     position: "absolute", top: "100%", left: 0, right: 0, marginTop: spacing["1.5"], zIndex: 50, elevation: 6,
-    borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, backgroundColor: colors.bgCard, overflow: "hidden",
+    borderWidth: 1, borderColor: colors.greenBorder, borderRadius: radius.md, backgroundColor: colors.greenPaleBg2, overflow: "hidden",
     shadowColor: "#000", shadowOpacity: 0.15, shadowRadius: 8, shadowOffset: { width: 0, height: 4 },
   },
   comboScroll: { maxHeight: 200 },
-  comboRow: { paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"], borderBottomWidth: 1, borderBottomColor: colors.border },
+  comboRow: { paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"], borderBottomWidth: 1, borderBottomColor: colors.greenBorder },
   comboRowText: { fontSize: font.md, color: colors.text },
   comboEmpty: { paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"], fontSize: font.sm, color: colors.textGray },
 
