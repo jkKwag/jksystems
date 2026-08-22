@@ -36,7 +36,7 @@ export default function CategoryFormModal({ visible, initial, saving, bizRegNo, 
     setCatOpen(false);
     setCatOptions([]);
     setCatFetched(false);
-    // 동일업종 등록 카테고리는 값을 새로 골라주는 편의 기능일 뿐이라, 기등록된 값으로
+    // 동종업종 등록 카테고리는 값을 새로 골라주는 편의 기능일 뿐이라, 기등록된 값으로
     // 미리 채워두지 않는다. 건드리지 않으면 기존 catCd가 그대로 저장된다.
     setCatQuery("");
   }, [visible, initial]);
@@ -112,7 +112,7 @@ export default function CategoryFormModal({ visible, initial, saving, bizRegNo, 
 
           <ScrollView style={s.body} contentContainerStyle={{ gap: 14 }} keyboardShouldPersistTaps="handled">
             <View style={s.catWrap}>
-              <Text style={s.label}>동일업종 등록 카테고리</Text>
+              <Text style={s.label}>동종업종 등록 카테고리</Text>
               <TextInput
                 style={s.inp}
                 placeholder="검색 또는 선택(선택하면 카테고리명이 자동 입력 됩니다)"
