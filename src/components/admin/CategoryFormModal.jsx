@@ -67,15 +67,15 @@ export default function CategoryFormModal({ visible, initial, saving, bizRegNo, 
   };
 
   const selectCat = (opt) => {
-    const maxSortOrd = categories.reduce((max, c) => Math.max(max, c.sortOrd ?? -1), -1);
-    setForm(f => ({
-      ...f,
-      catCd: opt.catCd,
-      bizCatNm: opt.catNm,
-      sortOrd: String(maxSortOrd + 1),
-      useYn: "Y",
-      rmrk: opt.catNm,
-    }));
+    setForm(f => {
+      const next = { ...f, catCd: opt.catCd, bizCatNm: opt.catNm, useYn: "Y", rmrk: opt.catNm };
+      // 정렬순번은 신규 등록일 때만 마지막 순번+1로 채워준다. 수정 화면에서는 기존 순번을 유지.
+      if (!initial) {
+        const maxSortOrd = categories.reduce((max, c) => Math.max(max, c.sortOrd ?? -1), -1);
+        next.sortOrd = String(maxSortOrd + 1);
+      }
+      return next;
+    });
     setCatQuery(opt.catNm);
     setCatOpen(false);
     setFieldErrors(emptyFieldErrors);
