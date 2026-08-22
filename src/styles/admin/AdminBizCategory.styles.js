@@ -20,7 +20,7 @@ export const s = StyleSheet.create({
   cardHighlight: { backgroundColor: colors.accentLight },
 
   cardInfo: { flex: 1, gap: 2 },
-  cardTopRow: { flexDirection: "row", alignItems: "center", gap: spacing["1.5"], flexWrap: "wrap" },
+  cardTopRow: { flexDirection: "column", alignItems: "flex-start", gap: spacing["1.5"] },
   catNm: { fontSize: font.xl, fontWeight: "800", color: colors.text, flexShrink: 1 },
   catCdText: { fontSize: font.sm, color: colors.textMuted, fontWeight: "600" },
   rmrk: { fontSize: font.sm, color: colors.textMuted },
