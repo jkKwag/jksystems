@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Animated, Easing } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Animated, Easing, Switch } from "react-native";
 import { s } from "../../styles/admin/AdminBizCategory.styles";
 import api from "../../lib/api";
 import CategoryFormModal from "../../components/admin/CategoryFormModal";
@@ -86,6 +86,20 @@ export default function AdminBizCategory({ adminInfo }) {
 
   useEffect(() => () => { if (highlightTimer.current) clearTimeout(highlightTimer.current); }, []);
 
+  // 카테고리 수정 화면과 동일한 방식(Switch)으로, 목록에서 바로 노출여부를 토글한다.
+  const toggleUseYn = async (cat) => {
+    const nextUseYn = cat.useYn === "Y" ? "N" : "Y";
+    const { data, error } = await api.biz.updateCategory(bizRegNo, cat.bizCatCd, {
+      catCd: cat.catCd,
+      bizCatNm: cat.bizCatNm,
+      sortOrd: cat.sortOrd,
+      useYn: nextUseYn,
+      rmrk: cat.rmrk,
+    });
+    if (error || !data) { setAlertMsg("노출여부 변경에 실패했습니다. 다시 시도해주세요."); return; }
+    setCategories(prev => prev.map(c => c.bizCatCd === cat.bizCatCd ? data : c));
+  };
+
   const doDelete = async () => {
     const bizCatCd = deleteTarget?.bizCatCd;
     setDeleteTarget(null);
@@ -139,10 +153,10 @@ export default function AdminBizCategory({ adminInfo }) {
               <View style={s.cardInfo}>
                 <View style={s.cardTopRow}>
                   <Text style={s.catNm} numberOfLines={1}>{cat.bizCatNm}</Text>
-                  {cat.useYn === "N" && <View style={s.offBadge}><Text style={s.offBadgeText}>미노출</Text></View>}
+                  <View onClick={(e) => e.stopPropagation()}>
+                    <Switch value={cat.useYn === "Y"} onValueChange={() => toggleUseYn(cat)} />
+                  </View>
                 </View>
-                {cat.catCd ? <Text style={s.catCdText}>동일업종 등록 카테고리 {cat.catCd}</Text> : null}
-                {cat.rmrk ? <Text style={s.rmrk} numberOfLines={1}>{cat.rmrk}</Text> : null}
               </View>
               <View style={s.cardActions}>
                 <View style={s.sortBtnRow}>
