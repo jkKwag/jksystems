@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, ActivityIndicator, Platform } from "react-native";
 import { s } from "../../styles/admin/MenuOptionsModal.styles";
 import api from "../../lib/api";
@@ -25,6 +25,7 @@ export default function MenuOptionsModal({ visible, menu, onClose }) {
   const [rows, setRows] = useState([emptyRow()]);
   const [editingGroupCd, setEditingGroupCd] = useState(null);
   const [originalOptCds, setOriginalOptCds] = useState([]);
+  const scrollRef = useRef(null);
 
   const resetForm = () => {
     setGrpNm("");
@@ -52,6 +53,8 @@ export default function MenuOptionsModal({ visible, menu, onClose }) {
     setRows(existingRows.length ? existingRows : [emptyRow()]);
     setOriginalOptCds(existingRows.map(r => r.optCd));
     setError("");
+    // 폼이 다시 그려진 뒤 옵션그룹 수정 위치(하단)로 부드럽게 스크롤
+    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 50);
   };
 
   const cancelEdit = () => resetForm();
@@ -165,7 +168,7 @@ export default function MenuOptionsModal({ visible, menu, onClose }) {
             </TouchableOpacity>
           </View>
 
-          <ScrollView style={s.body} contentContainerStyle={s.bodyContent}>
+          <ScrollView ref={scrollRef} style={s.body} contentContainerStyle={s.bodyContent}>
             {!loaded ? (
               <ActivityIndicator style={{ marginTop: 24 }} color="#f97316" />
             ) : groups.length === 0 ? (
@@ -234,13 +237,13 @@ export default function MenuOptionsModal({ visible, menu, onClose }) {
                   </TouchableOpacity>
                 </View>
                 <TextInput
-                  style={[s.inp, { flex: 2 }]}
+                  style={[s.inp, { flex: 2, minWidth: 0 }]}
                   placeholder="옵션명 (예: 톨)"
                   value={r.optNm}
                   onChangeText={(v) => updateRow(r.key, "optNm", v)}
                 />
                 <TextInput
-                  style={[s.inp, { flex: 1 }]}
+                  style={[s.inp, { flex: 1, minWidth: 0 }]}
                   placeholder="추가금액"
                   value={r.addPrice}
                   onChangeText={(v) => updateRow(r.key, "addPrice", v)}
