@@ -4,13 +4,12 @@
   "main": "index.js",
   "private": true,
   "dependencies": {
-    "@expo/webpack-config": "^19.0.0",
-    "@react-native-async-storage/async-storage": "^3.1.1",
+    "@react-native-async-storage/async-storage": "2.2.0",
     "@react-navigation/bottom-tabs": "^7.18.2",
     "@react-navigation/native": "^7.3.3",
     "@tosspayments/tosspayments-sdk": "^2.7.1",
     "bcryptjs": "^3.0.3",
-    "expo": "~56.0.12",
+    "expo": "~56.0.20",
     "expo-status-bar": "~56.0.4",
     "jsqr": "^1.4.0",
     "onnxruntime-web": "^1.27.0",
@@ -20,9 +19,9 @@
     "react-dom": "19.2.3",
     "react-native": "0.85.3",
     "react-native-calendars": "^1.1314.0",
-    "react-native-safe-area-context": "^5.8.0",
-    "react-native-screens": "^4.25.2",
-    "react-native-web": "~0.20.0"
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "~4.26.0",
+    "react-native-web": "^0.21.2"
   },
   "scripts": {
     "start": "expo start",
@@ -31,6 +30,7 @@
     "web": "expo start --web"
   },
   "devDependencies": {
-    "playwright": "^1.61.1"
+    "playwright": "^1.61.1",
+    "react-refresh": "^0.14.2"
   }
 }
