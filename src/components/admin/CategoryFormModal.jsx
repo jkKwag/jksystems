@@ -115,7 +115,7 @@ export default function CategoryFormModal({ visible, initial, saving, bizRegNo, 
               <Text style={s.label}>동종업종 등록 카테고리</Text>
               <TextInput
                 style={s.inp}
-                placeholder="검색 또는 선택(선택하면 카테고리명이 자동 입력 됩니다)"
+                placeholder="(검색 또는 선택 시 카테고리명이 자동 입력됩니다.)"
                 value={catQuery}
                 onChangeText={onCatQueryChange}
                 onPointerDown={openCatCombo}
