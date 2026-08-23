@@ -45,6 +45,10 @@ export const s = StyleSheet.create({
   toggleBtnTextActive: { color: colors.white },
 
   optRowInput: { flexDirection: "row", gap: spacing["2"], alignItems: "center" },
+  rowSortBtns: { flexDirection: "row", gap: spacing["1"] },
+  rowSortBtn: { width: 26, height: 26, borderRadius: radius.sm, backgroundColor: colors.slate100, justifyContent: "center", alignItems: "center" },
+  rowSortBtnDisabled: { opacity: 0.35 },
+  rowSortBtnText: { fontSize: font.sm, fontWeight: "800", color: colors.textGray },
   rowRemoveBtn: { width: 32, height: 32, borderRadius: radius.round, backgroundColor: colors.slate100, justifyContent: "center", alignItems: "center" },
   rowRemoveBtnText: { fontSize: font.md, color: colors.textGray, fontWeight: "700" },
 

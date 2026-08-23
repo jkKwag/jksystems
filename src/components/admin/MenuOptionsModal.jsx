@@ -78,6 +78,15 @@ export default function MenuOptionsModal({ visible, menu, onClose }) {
   };
   const addRow = () => setRows(prev => [...prev, emptyRow()]);
   const removeRow = (key) => setRows(prev => prev.length > 1 ? prev.filter(r => r.key !== key) : prev);
+  const moveRow = (index, direction) => {
+    setRows(prev => {
+      const targetIndex = index + direction;
+      if (targetIndex < 0 || targetIndex >= prev.length) return prev;
+      const arr = [...prev];
+      [arr[index], arr[targetIndex]] = [arr[targetIndex], arr[index]];
+      return arr;
+    });
+  };
 
   const submitGroup = async () => {
     if (!grpNm.trim()) { setError("옵션그룹 이름을 입력해주세요."); return; }
@@ -97,8 +106,8 @@ export default function MenuOptionsModal({ visible, menu, onClose }) {
       const currentOptCds = validRows.filter(r => r.optCd).map(r => r.optCd);
       const removedOptCds = originalOptCds.filter(optCd => !currentOptCds.includes(optCd));
       const results = await Promise.all([
-        ...validRows.map(r => {
-          const body = { optNm: r.optNm.trim(), addPrice: Number(r.addPrice) || 0 };
+        ...validRows.map((r, idx) => {
+          const body = { optNm: r.optNm.trim(), addPrice: Number(r.addPrice) || 0, sortOrd: idx + 1 };
           return r.optCd
             ? api.menu.updateOption(menu.menuCd, editingGroupCd, r.optCd, body)
             : api.menu.addOption(menu.menuCd, editingGroupCd, body);
@@ -216,9 +225,17 @@ export default function MenuOptionsModal({ visible, menu, onClose }) {
 
             {rows.map((r, i) => (
               <View key={r.key} style={s.optRowInput}>
+                <View style={s.rowSortBtns}>
+                  <TouchableOpacity style={[s.rowSortBtn, i === 0 && s.rowSortBtnDisabled]} disabled={i === 0} onPress={() => moveRow(i, -1)}>
+                    <Text style={s.rowSortBtnText}>▲</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[s.rowSortBtn, i === rows.length - 1 && s.rowSortBtnDisabled]} disabled={i === rows.length - 1} onPress={() => moveRow(i, 1)}>
+                    <Text style={s.rowSortBtnText}>▼</Text>
+                  </TouchableOpacity>
+                </View>
                 <TextInput
                   style={[s.inp, { flex: 2 }]}
-                  placeholder={`옵션명 ${i + 1} (예: 톨)`}
+                  placeholder="옵션명 (예: 톨)"
                   value={r.optNm}
                   onChangeText={(v) => updateRow(r.key, "optNm", v)}
                 />
