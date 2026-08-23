@@ -203,6 +203,7 @@ export default function MenuOptionsModal({ visible, menu, onClose }) {
             )}
 
             <View style={s.divider} />
+            <View style={s.newGroupBox}>
             <Text style={s.newGroupTitle}>{editingGroupCd ? "옵션그룹 수정" : "새 옵션그룹 추가"}</Text>
 
             <TextInput style={s.inp} placeholder="옵션그룹 이름 (예: 사이즈)" value={grpNm} onChangeText={setGrpNm} />
@@ -259,6 +260,7 @@ export default function MenuOptionsModal({ visible, menu, onClose }) {
             </TouchableOpacity>
 
             {!!error && <Text style={s.error}>⚠️ {error}</Text>}
+            </View>
 
             <View style={s.saveRow}>
               <TouchableOpacity style={[s.saveBtn, editingGroupCd && s.saveBtnUpdate]} onPress={submitGroup} disabled={saving}>

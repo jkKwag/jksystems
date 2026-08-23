@@ -33,6 +33,7 @@ export const s = StyleSheet.create({
   optionDeleteText: { fontSize: font.sm, color: colors.redLight, fontWeight: "600" },
 
   divider: { height: 1, backgroundColor: colors.borderLight, marginVertical: spacing["1"] },
+  newGroupBox: { backgroundColor: colors.slate200, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.slate300, padding: spacing["3.5"], gap: spacing["3"] },
   newGroupTitle: { fontSize: font.lg, fontWeight: "800", color: colors.text },
 
   inp: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["2.5"], fontSize: font.md, color: colors.text },
