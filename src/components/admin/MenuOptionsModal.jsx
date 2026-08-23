@@ -1,10 +1,15 @@
 import { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, ActivityIndicator } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Modal, ScrollView, ActivityIndicator, Platform } from "react-native";
 import { s } from "../../styles/admin/MenuOptionsModal.styles";
 import api from "../../lib/api";
 import ConfirmModal from "../ConfirmModal";
 
-const emptyRow = () => ({ key: Math.random().toString(36).slice(2), optNm: "", addPrice: "" });
+// 카테고리/메뉴 등록 모달과 동일한 남색→녹색 그라데이션 헤더 (웹 전용, RN 네이티브는 primary 단색)
+const HEADER_GRADIENT = Platform.OS === "web"
+  ? { background: "linear-gradient(135deg, #0f172a 0%, #14532d 100%)" }
+  : {};
+
+const emptyRow = () => ({ key: Math.random().toString(36).slice(2), optCd: null, optNm: "", addPrice: "" });
 
 export default function MenuOptionsModal({ visible, menu, onClose }) {
   const [loaded, setLoaded] = useState(false);
@@ -18,14 +23,38 @@ export default function MenuOptionsModal({ visible, menu, onClose }) {
   const [optType, setOptType] = useState("R");
   const [requiredYn, setRequiredYn] = useState("N");
   const [rows, setRows] = useState([emptyRow()]);
+  const [editingGroupCd, setEditingGroupCd] = useState(null);
+  const [originalOptCds, setOriginalOptCds] = useState([]);
 
   const resetForm = () => {
     setGrpNm("");
     setOptType("R");
     setRequiredYn("N");
     setRows([emptyRow()]);
+    setEditingGroupCd(null);
+    setOriginalOptCds([]);
     setError("");
   };
+
+  // 그룹의 "수정"을 누르면 하단 폼이 그 그룹 값으로 채워지고, 저장 시 새로 만드는 대신
+  // 이 그룹/옵션들을 업데이트하는 모드로 전환된다.
+  const startEditGroup = (g) => {
+    const existingRows = (g.options || []).map(o => ({
+      key: o.optCd,
+      optCd: o.optCd,
+      optNm: o.optNm,
+      addPrice: String(Number(o.addPrice) || 0),
+    }));
+    setEditingGroupCd(g.optGrpCd);
+    setGrpNm(g.optGrpNm);
+    setOptType(g.optType);
+    setRequiredYn(g.requiredYn);
+    setRows(existingRows.length ? existingRows : [emptyRow()]);
+    setOriginalOptCds(existingRows.map(r => r.optCd));
+    setError("");
+  };
+
+  const cancelEdit = () => resetForm();
 
   const load = async () => {
     if (!menu?.menuCd) return;
@@ -52,12 +81,38 @@ export default function MenuOptionsModal({ visible, menu, onClose }) {
 
   const submitGroup = async () => {
     if (!grpNm.trim()) { setError("옵션그룹 이름을 입력해주세요."); return; }
-    const options = rows
-      .filter(r => r.optNm.trim())
-      .map(r => ({ optNm: r.optNm.trim(), addPrice: Number(r.addPrice) || 0 }));
-    if (options.length === 0) { setError("옵션을 1개 이상 입력해주세요."); return; }
+    const validRows = rows.filter(r => r.optNm.trim());
+    if (validRows.length === 0) { setError("옵션을 1개 이상 입력해주세요."); return; }
     setError("");
     setSaving(true);
+
+    if (editingGroupCd) {
+      const { error: grpError } = await api.menu.updateOptionGroup(menu.menuCd, editingGroupCd, {
+        optGrpNm: grpNm.trim(),
+        optType,
+        requiredYn,
+      });
+      if (grpError) { setSaving(false); setError("옵션그룹 수정에 실패했습니다."); return; }
+
+      const currentOptCds = validRows.filter(r => r.optCd).map(r => r.optCd);
+      const removedOptCds = originalOptCds.filter(optCd => !currentOptCds.includes(optCd));
+      const results = await Promise.all([
+        ...validRows.map(r => {
+          const body = { optNm: r.optNm.trim(), addPrice: Number(r.addPrice) || 0 };
+          return r.optCd
+            ? api.menu.updateOption(menu.menuCd, editingGroupCd, r.optCd, body)
+            : api.menu.addOption(menu.menuCd, editingGroupCd, body);
+        }),
+        ...removedOptCds.map(optCd => api.menu.deleteOption(menu.menuCd, editingGroupCd, optCd)),
+      ]);
+      setSaving(false);
+      if (results.some(r => r?.error)) { setError("옵션그룹 수정에 실패했습니다."); return; }
+      await load();
+      resetForm();
+      return;
+    }
+
+    const options = validRows.map(r => ({ optNm: r.optNm.trim(), addPrice: Number(r.addPrice) || 0 }));
     const { data, error: apiError } = await api.menu.createOptionGroup(menu.menuCd, {
       optGrpNm: grpNm.trim(),
       optType,
@@ -76,6 +131,7 @@ export default function MenuOptionsModal({ visible, menu, onClose }) {
     const { error: apiError } = await api.menu.deleteOptionGroup(menu.menuCd, optGrpCd);
     if (apiError) { setError("삭제에 실패했습니다."); return; }
     setGroups(prev => prev.filter(g => g.optGrpCd !== optGrpCd));
+    if (editingGroupCd === optGrpCd) resetForm();
   };
 
   const doDeleteOption = async () => {
@@ -93,7 +149,7 @@ export default function MenuOptionsModal({ visible, menu, onClose }) {
       <View style={s.overlay}>
         <TouchableOpacity style={s.overlayBg} activeOpacity={1} onPress={onClose} />
         <View style={s.sheet}>
-          <View style={s.header}>
+          <View style={[s.header, HEADER_GRADIENT]}>
             <Text style={s.headerTitle}>🧩 {menu?.menuNm} 옵션상세</Text>
             <TouchableOpacity onPress={onClose} style={s.closeBtn}>
               <Text style={s.closeBtnText}>✕</Text>
@@ -113,6 +169,9 @@ export default function MenuOptionsModal({ visible, menu, onClose }) {
                     <View style={s.groupMetaRow}>
                       <View style={s.typeBadge}><Text style={s.typeBadgeText}>{g.optType === "C" ? "다중선택" : "단일선택"}</Text></View>
                       {g.requiredYn === "Y" && <View style={s.requiredBadge}><Text style={s.requiredBadgeText}>필수</Text></View>}
+                      <TouchableOpacity onPress={() => startEditGroup(g)}>
+                        <Text style={s.groupEditText}>수정</Text>
+                      </TouchableOpacity>
                       <TouchableOpacity onPress={() => setDeleteGroupTarget(g.optGrpCd)}>
                         <Text style={s.groupDeleteText}>그룹삭제</Text>
                       </TouchableOpacity>
@@ -132,7 +191,7 @@ export default function MenuOptionsModal({ visible, menu, onClose }) {
             )}
 
             <View style={s.divider} />
-            <Text style={s.newGroupTitle}>새 옵션그룹 추가</Text>
+            <Text style={s.newGroupTitle}>{editingGroupCd ? "옵션그룹 수정" : "새 옵션그룹 추가"}</Text>
 
             <TextInput style={s.inp} placeholder="옵션그룹 이름 (예: 사이즈)" value={grpNm} onChangeText={setGrpNm} />
 
@@ -181,9 +240,18 @@ export default function MenuOptionsModal({ visible, menu, onClose }) {
 
             {!!error && <Text style={s.error}>⚠️ {error}</Text>}
 
-            <TouchableOpacity style={s.saveBtn} onPress={submitGroup} disabled={saving}>
-              {saving ? <ActivityIndicator color="#fff" size="small" /> : <Text style={s.saveBtnText}>옵션그룹 저장</Text>}
-            </TouchableOpacity>
+            <View style={s.saveRow}>
+              <TouchableOpacity style={[s.saveBtn, editingGroupCd && s.saveBtnUpdate]} onPress={submitGroup} disabled={saving}>
+                {saving ? <ActivityIndicator color="#fff" size="small" /> : (
+                  <Text style={s.saveBtnText}>{editingGroupCd ? "옵션그룹 수정 저장" : "옵션그룹 저장"}</Text>
+                )}
+              </TouchableOpacity>
+              {!!editingGroupCd && (
+                <TouchableOpacity style={s.cancelEditBtn} onPress={cancelEdit} disabled={saving}>
+                  <Text style={s.cancelEditText}>취소</Text>
+                </TouchableOpacity>
+              )}
+            </View>
           </ScrollView>
         </View>
       </View>

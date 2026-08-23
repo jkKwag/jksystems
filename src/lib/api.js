@@ -127,6 +127,8 @@ const api = {
     options: (menuCd) => get(`/api/menu/${menuCd}/options`),
     createOptionGroup: (menuCd, body) => post(`/api/menu/${menuCd}/option-groups`, body),
     addOption: (menuCd, optGrpCd, body) => post(`/api/menu/${menuCd}/option-groups/${optGrpCd}/options`, body),
+    updateOptionGroup: (menuCd, optGrpCd, body) => put(`/api/menu/${menuCd}/option-groups/${optGrpCd}`, body),
+    updateOption: (menuCd, optGrpCd, optCd, body) => put(`/api/menu/${menuCd}/option-groups/${optGrpCd}/options/${optCd}`, body),
     deleteOptionGroup: (menuCd, optGrpCd) => del(`/api/menu/${menuCd}/option-groups/${optGrpCd}`),
     deleteOption: (menuCd, optGrpCd, optCd) => del(`/api/menu/${menuCd}/option-groups/${optGrpCd}/options/${optCd}`),
   },

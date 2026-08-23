@@ -6,10 +6,10 @@ export const s = StyleSheet.create({
   overlayBg: { ...StyleSheet.absoluteFillObject, backgroundColor: colors.overlayDark },
   sheet: { backgroundColor: colors.bgBase, borderTopLeftRadius: radius["3xl"], borderTopRightRadius: radius["3xl"], maxHeight: "85%", overflow: "hidden" },
 
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: spacing["4.5"], backgroundColor: colors.bgCard, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
-  headerTitle: { fontSize: font["2xl"], fontWeight: "900", color: colors.text, flexShrink: 1 },
-  closeBtn: { width: 32, height: 32, borderRadius: radius.round, backgroundColor: colors.slate100, justifyContent: "center", alignItems: "center" },
-  closeBtnText: { fontSize: font.lg, color: colors.textGray, fontWeight: "700" },
+  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: spacing["4.5"], backgroundColor: colors.primary },
+  headerTitle: { fontSize: font["2xl"], fontWeight: "900", color: colors.white, flexShrink: 1 },
+  closeBtn: { width: 32, height: 32, borderRadius: radius.round, backgroundColor: "rgba(255,255,255,0.15)", justifyContent: "center", alignItems: "center" },
+  closeBtnText: { fontSize: font.lg, color: colors.white, fontWeight: "700" },
 
   body: { flexShrink: 1 },
   bodyContent: { padding: spacing["4"], gap: spacing["3"] },
@@ -24,6 +24,7 @@ export const s = StyleSheet.create({
   typeBadgeText: { fontSize: font.sm, fontWeight: "700", color: colors.textGray },
   requiredBadge: { backgroundColor: colors.amberPaleBg, borderRadius: radius.sm, paddingHorizontal: spacing["2"], paddingVertical: 3 },
   requiredBadgeText: { fontSize: font.sm, fontWeight: "700", color: colors.amberDark },
+  groupEditText: { fontSize: font.sm, fontWeight: "700", color: colors.green },
   groupDeleteText: { fontSize: font.sm, fontWeight: "700", color: "#ef4444" },
 
   optionRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"], paddingVertical: 3 },
@@ -52,6 +53,10 @@ export const s = StyleSheet.create({
 
   error: { fontSize: font.sm, color: "#ef4444", fontWeight: "600" },
 
-  saveBtn: { backgroundColor: colors.primary, borderRadius: radius.md, paddingVertical: spacing["3"], alignItems: "center", marginTop: spacing["1"], marginBottom: spacing["6"] },
+  saveRow: { flexDirection: "row", alignItems: "center", gap: spacing["2.5"], marginTop: spacing["1"], marginBottom: spacing["6"] },
+  saveBtn: { flex: 1, backgroundColor: colors.primary, borderRadius: radius.md, paddingVertical: spacing["3"], alignItems: "center" },
+  saveBtnUpdate: { backgroundColor: colors.green },
   saveBtnText: { fontSize: font.md, fontWeight: "800", color: colors.white },
+  cancelEditBtn: { paddingHorizontal: spacing["2"], paddingVertical: spacing["3"] },
+  cancelEditText: { fontSize: font.md, fontWeight: "700", color: colors.textGray },
 });
