@@ -30,7 +30,7 @@ export const s = StyleSheet.create({
   optionRow: { flexDirection: "row", alignItems: "center", gap: spacing["2"], paddingVertical: 3 },
   optionNm: { flex: 1, fontSize: font.md, color: colors.textSecondary, fontWeight: "600" },
   optionPrice: { fontSize: font.md, color: colors.textSecondary, fontWeight: "700" },
-  optionDeleteText: { fontSize: font.sm, color: colors.textMuted, fontWeight: "600" },
+  optionDeleteText: { fontSize: font.sm, color: colors.redLight, fontWeight: "600" },
 
   divider: { height: 1, backgroundColor: colors.borderLight, marginVertical: spacing["1"] },
   newGroupTitle: { fontSize: font.lg, fontWeight: "800", color: colors.text },
