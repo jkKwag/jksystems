@@ -120,8 +120,6 @@ export const s = StyleSheet.create({
   qtyNum: { fontSize: font.lg, fontWeight: "800", color: colors.text, minWidth: 20, textAlign: "center" },
 
   callBar: { padding: spacing["4"], gap: spacing["2.5"] },
-  callBarRow: { flexDirection: "row" },
-  callBtnFlex: { flex: 1 },
   callBtn: { borderWidth: 1.5, borderColor: colors.border, borderRadius: radius.lg, padding: 13, alignItems: "center" },
   callBtnDisabled: { opacity: 0.4 },
   callBtnText: { color: colors.textGray, fontSize: font.lg, fontWeight: "700" },
