@@ -959,9 +959,9 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
             </TouchableOpacity>
           );
         })}
-        <View style={s.callBar}>
+        <View style={[s.callBar, orderType === "매장주문" && s.callBarRow]}>
           <TouchableOpacity
-            style={[s.callBtn, !bizInfo?.telNo && s.callBtnDisabled]}
+            style={[s.callBtn, orderType === "매장주문" && s.callBtnFlex, !bizInfo?.telNo && s.callBtnDisabled]}
             onPress={() => bizInfo?.telNo && Linking.openURL(`tel:${bizInfo.telNo}`)}
           >
             <Text style={s.callBtnText}>📞 전화 문의</Text>
@@ -970,6 +970,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
             <TouchableOpacity
               style={[
                 s.staffCallBtn,
+                s.callBtnFlex,
                 staffCallStatus === "done" && s.staffCallBtnDone,
                 staffCallStatus === "calling" && s.staffCallBtnDisabled,
               ]}
