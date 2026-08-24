@@ -12,6 +12,7 @@ self.addEventListener("push", (event) => {
       await self.registration.showNotification(data.title, {
         body: data.body,
         tag: "staff-call",
+        renotify: true,
       });
       const clientsList = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
       clientsList.forEach((client) => client.postMessage({ type: "STAFF_CALL_PUSH", title: data.title, body: data.body }));
