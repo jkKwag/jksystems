@@ -15,18 +15,29 @@ export function getNotificationPermission() {
   return Notification.permission;
 }
 
+// 페이지 하나당 메시지 리스너는 한 번만 등록한다 — setupStaffCallPush가 여러 번
+// 호출돼도(예: 컴포넌트가 다시 마운트되는 경우) 리스너가 계속 쌓여 알림이 중복
+// 처리되는 일이 없도록, 콜백은 아래 변수에 최신값으로만 갱신한다.
+let staffCallPushCallback = null;
+let messageListenerRegistered = false;
+
 // 관리자 화면 진입 시 알림 권한을 요청하고, 서비스워커를 등록해 웹 푸시(직원호출)를
 // 받을 수 있도록 구독 정보를 백엔드에 저장한다. onPush는 실제 알림이 도착했을 때
 // (탭이 열려있는 동안) 호출되는 콜백 — 소리 재생 등에 사용한다.
 export async function setupStaffCallPush(bizRegNo, onPush) {
   if (typeof window === "undefined" || !("serviceWorker" in navigator) || !("PushManager" in window)) return;
 
+  staffCallPushCallback = onPush;
+
   try {
     const registration = await navigator.serviceWorker.register("/sw.js");
 
-    navigator.serviceWorker.addEventListener("message", (event) => {
-      if (event.data?.type === "STAFF_CALL_PUSH") onPush?.(event.data);
-    });
+    if (!messageListenerRegistered) {
+      navigator.serviceWorker.addEventListener("message", (event) => {
+        if (event.data?.type === "STAFF_CALL_PUSH") staffCallPushCallback?.(event.data);
+      });
+      messageListenerRegistered = true;
+    }
 
     const permission = await Notification.requestPermission();
     if (permission !== "granted") return;
