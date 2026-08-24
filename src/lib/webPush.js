@@ -9,6 +9,12 @@ function urlBase64ToUint8Array(base64String) {
   return outputArray;
 }
 
+// 현재 브라우저의 알림 권한 상태. 아직 허용/차단을 결정하지 않았다면 "default".
+export function getNotificationPermission() {
+  if (typeof window === "undefined" || !("Notification" in window)) return "unsupported";
+  return Notification.permission;
+}
+
 // 관리자 화면 진입 시 알림 권한을 요청하고, 서비스워커를 등록해 웹 푸시(직원호출)를
 // 받을 수 있도록 구독 정보를 백엔드에 저장한다. onPush는 실제 알림이 도착했을 때
 // (탭이 열려있는 동안) 호출되는 콜백 — 소리 재생 등에 사용한다.
