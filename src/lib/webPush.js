@@ -48,6 +48,18 @@ export async function setupStaffCallPush(bizRegNo, onPush) {
   }
 }
 
+// 관리자 탭이 열려있는 동안, 알림 문구(좌석명 등 포함)를 음성으로 읽어준다.
+export function speakStaffCall(text) {
+  if (typeof window === "undefined" || !("speechSynthesis" in window) || !text) return;
+  try {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "ko-KR";
+    window.speechSynthesis.speak(utterance);
+  } catch (e) {
+    // 음성 재생 실패는 조용히 무시 (비프음은 이미 울렸음)
+  }
+}
+
 // 별도 사운드 파일 없이 짧은 알림음을 즉석에서 생성해 재생한다.
 export function playAlertBeep() {
   try {

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, useWindowDimensions, Platform } from "react-native";
 import { s } from "../../styles/admin/AdminHome.styles";
 import api from "../../lib/api";
-import { setupStaffCallPush, playAlertBeep, getNotificationPermission } from "../../lib/webPush";
+import { setupStaffCallPush, playAlertBeep, speakStaffCall, getNotificationPermission } from "../../lib/webPush";
 import AdminReservations from "./AdminReservations";
 import AdminBizList from "./AdminBizList";
 import AdminBizQr from "./AdminBizQr";
@@ -172,18 +172,22 @@ export default function AdminHome({ adminInfo, onLogout }) {
   // 브라우저 알림 권한이 아직 미결정(default) 상태면, 네이티브 권한 팝업을 띄우기 전에
   // 안내 문구를 먼저 보여준다 — 한 번 허용/차단으로 결정되고 나면 다시 뜨지 않는다.
   const [pushPromptVisible, setPushPromptVisible] = useState(false);
+  const handleStaffCallPush = (data) => {
+    playAlertBeep();
+    speakStaffCall(data?.body);
+  };
   useEffect(() => {
     if (isSuper || !adminInfo?.bizRegNo) return;
     if (getNotificationPermission() === "default") {
       setPushPromptVisible(true);
       return;
     }
-    setupStaffCallPush(adminInfo.bizRegNo, () => playAlertBeep());
+    setupStaffCallPush(adminInfo.bizRegNo, handleStaffCallPush);
   }, [isSuper, adminInfo?.bizRegNo]);
 
   const handlePushPromptConfirm = () => {
     setPushPromptVisible(false);
-    setupStaffCallPush(adminInfo.bizRegNo, () => playAlertBeep());
+    setupStaffCallPush(adminInfo.bizRegNo, handleStaffCallPush);
   };
 
   const brandTitle = isSuper ? "SUPER관리자" : (bizNm || "JK Scaneat 관리자");
