@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, useWindowDimensions, Platform } from "react-native";
 import { s } from "../../styles/admin/AdminHome.styles";
 import api from "../../lib/api";
+import { setupStaffCallPush, playAlertBeep } from "../../lib/webPush";
 import AdminReservations from "./AdminReservations";
 import AdminBizList from "./AdminBizList";
 import AdminBizQr from "./AdminBizQr";
@@ -166,6 +167,12 @@ export default function AdminHome({ adminInfo, onLogout }) {
       setBizNm(biz?.bizNm || null);
     })();
   }, [adminInfo?.bizRegNo]);
+
+  // 직원호출 웹 푸시 — 슈퍼관리자가 아닌, 매장에 소속된 관리자/직원만 알림을 구독한다.
+  useEffect(() => {
+    if (isSuper || !adminInfo?.bizRegNo) return;
+    setupStaffCallPush(adminInfo.bizRegNo, () => playAlertBeep());
+  }, [isSuper, adminInfo?.bizRegNo]);
 
   const brandTitle = isSuper ? "SUPER관리자" : (bizNm || "JK Scaneat 관리자");
 

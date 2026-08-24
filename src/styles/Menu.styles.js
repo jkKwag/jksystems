@@ -119,10 +119,14 @@ export const s = StyleSheet.create({
   qtyBtnText: { fontSize: font["4xl"], fontWeight: "700", color: colors.text },
   qtyNum: { fontSize: font.lg, fontWeight: "800", color: colors.text, minWidth: 20, textAlign: "center" },
 
-  callBar: { padding: spacing["4"] },
+  callBar: { padding: spacing["4"], gap: spacing["2.5"] },
   callBtn: { borderWidth: 1.5, borderColor: colors.border, borderRadius: radius.lg, padding: 13, alignItems: "center" },
   callBtnDisabled: { opacity: 0.4 },
   callBtnText: { color: colors.textGray, fontSize: font.lg, fontWeight: "700" },
+  staffCallBtn: { backgroundColor: colors.accent, borderRadius: radius.lg, padding: 13, alignItems: "center" },
+  staffCallBtnDone: { backgroundColor: colors.green },
+  staffCallBtnDisabled: { opacity: 0.6 },
+  staffCallBtnText: { color: colors.white, fontSize: font.lg, fontWeight: "800" },
 
   /* 장바구니 바 */
   cartBar: { flexShrink: 0, backgroundColor: colors.text, flexDirection: "row", alignItems: "center", paddingHorizontal: spacing["4.5"], paddingVertical: 14, gap: spacing["2.5"] },

@@ -524,6 +524,7 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
   // 테이블번호 없이 들어온 경우(테이블 QR을 거치지 않은 접근)는 매장에 앉아있다고 볼 수 없으므로
   // 포장주문으로 시작하고, 매장주문은 아예 선택할 수 없게 막는다.
   const [orderType, setOrderType] = useState(tableNoFromUrl ? "매장주문" : "포장주문");
+  const [staffCallStatus, setStaffCallStatus] = useState("idle"); // idle | calling | done
   const [guestPhoneFront, setGuestPhoneFront] = useState("010");
   const [guestPhoneBack, setGuestPhoneBack] = useState("");
   const [guestPhoneError, setGuestPhoneError] = useState(false);
@@ -706,6 +707,14 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
   // 결제 없이 먼저 접수하는 매장주문("주문만 하기")은 직원 QR로 권한을 받은 손님만 가능 —
   // 결제는 즉시 이뤄지므로 원격 재주문 악용 비용이 있지만, 무결제 접수는 그 비용이 없어 악용되기 쉽다.
   const canOrderOnly = orderType === "매장주문" && !!tableNo && grantChecked && hasGrant;
+
+  const handleStaffCall = async () => {
+    if (staffCallStatus === "calling") return;
+    setStaffCallStatus("calling");
+    const { error } = await api.push.staffCall(bizno, tableNo);
+    setStaffCallStatus(error ? "idle" : "done");
+    if (!error) setTimeout(() => setStaffCallStatus("idle"), 3000);
+  };
 
   // 지금 장바구니를 실제 주문으로 서버에 저장 (결제 없이 접수). 실패하면 null.
   const createOrderForCart = async () => {
@@ -957,6 +966,21 @@ export default function Menu({ bizno, tableNo: tableNoFromUrl }) {
           >
             <Text style={s.callBtnText}>📞 전화 문의</Text>
           </TouchableOpacity>
+          {orderType === "매장주문" && (
+            <TouchableOpacity
+              style={[
+                s.staffCallBtn,
+                staffCallStatus === "done" && s.staffCallBtnDone,
+                staffCallStatus === "calling" && s.staffCallBtnDisabled,
+              ]}
+              onPress={handleStaffCall}
+              disabled={staffCallStatus === "calling"}
+            >
+              <Text style={s.staffCallBtnText}>
+                {staffCallStatus === "done" ? "✅ 호출 완료" : "🔔 직원호출"}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </ScrollView>
 

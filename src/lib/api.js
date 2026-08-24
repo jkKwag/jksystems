@@ -188,6 +188,11 @@ const api = {
     revenueRanking: (limit = 5) => get(`/api/dashboard/revenue-ranking?limit=${limit}`),
     security: () => get(`/api/dashboard/security`),
   },
+  push: {
+    vapidPublicKey: () => get(`/api/push/vapid-public-key`),
+    subscribe: (bizno, body) => post(`/api/biz/${bizno}/push/subscribe`, body),
+    staffCall: (bizno, seatCd) => post(`/api/biz/${bizno}/staff-call${seatCd ? `?seatCd=${encodeURIComponent(seatCd)}` : ""}`, {}),
+  },
 };
 
 export default api;
