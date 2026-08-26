@@ -59,12 +59,18 @@ export async function setupStaffCallPush(bizRegNo, onPush) {
   }
 }
 
+// speak() 호출 후 지역변수 참조가 없으면 크롬이 실제 발화 전에 가비지 컬렉션으로
+// utterance를 수거해버려 소리 없이 씹히는 경우가 있어, 끝날 때까지 참조를 붙잡아둔다.
+let pendingUtterance = null;
+
 // 관리자 탭이 열려있는 동안, 알림 문구(좌석명 등 포함)를 음성으로 읽어준다.
 export function speakStaffCall(text) {
   if (typeof window === "undefined" || !("speechSynthesis" in window) || !text) return;
   try {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "ko-KR";
+    utterance.onend = utterance.onerror = () => { pendingUtterance = null; };
+    pendingUtterance = utterance;
     window.speechSynthesis.speak(utterance);
   } catch (e) {
     // 음성 재생 실패는 조용히 무시 (비프음은 이미 울렸음)
