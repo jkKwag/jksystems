@@ -405,7 +405,7 @@ function AppInner() {
         )}
       </ScrollView>
 
-      <TouchableOpacity style={s.qrFab} onPress={() => setShowQrScanner(true)}>
+      <TouchableOpacity style={[s.qrFab, { bottom: insets.bottom + 28 }]} onPress={() => setShowQrScanner(true)}>
         <Image source={{ uri: QR_ICON_URI }} style={{ width: 20, height: 20 }} />
         <Text style={s.qrFabText}>QR 스캔</Text>
       </TouchableOpacity>
