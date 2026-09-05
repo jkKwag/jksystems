@@ -238,7 +238,7 @@ function AppInner() {
   if (isAdmin) return <AdminHome adminInfo={adminInfo} onLogout={handleLogout} />;
 
   const AppHeader = () => (
-    <GradientHeader style={[s.header, { paddingTop: insets.top + 4 }]}>
+    <GradientHeader style={[s.header, { paddingTop: insets.top + 12, paddingBottom: 12 }]}>
       <Logo />
       <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
         {activeBizno && (
@@ -352,7 +352,7 @@ function AppInner() {
     <View style={s.container}>
       <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
 
-      <GradientHeader style={[s.header, { paddingTop: insets.top + 4 }]}>
+      <GradientHeader style={[s.header, { paddingTop: insets.top + 12, paddingBottom: 12 }]}>
         <Logo />
         <TouchableOpacity style={[s.adminBtn, isAdmin && s.adminBtnActive]} onPress={isAdmin ? handleLogout : () => setShowLogin(true)}>
           <Text style={[s.adminBtnText, isAdmin && s.adminBtnTextActive]}>{isAdmin ? "🔓 로그아웃" : "⚙️ 관리자"}</Text>
