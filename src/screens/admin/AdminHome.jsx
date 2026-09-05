@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, useWindowDimensions, Platform } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { s } from "../../styles/admin/AdminHome.styles";
+import GradientHeader from "../../components/GradientHeader";
 import api from "../../lib/api";
 import { setupStaffCallPush, playAlertBeep, speakStaffCall, getNotificationPermission } from "../../lib/webPush";
 import AdminReservations from "./AdminReservations";
@@ -28,10 +29,6 @@ import TotpSetupModal from "../../components/admin/TotpSetupModal";
 
 const MOBILE_BREAKPOINT = 768;
 const DASHBOARD_URL = "/admin/dashboard";
-
-const HEADER_GRADIENT = Platform.OS === "web"
-  ? { background: "linear-gradient(135deg, #0f172a 0%, #14532d 100%)" }
-  : {};
 
 // menu_url -> 실제 구현된 화면 컴포넌트. 없는 항목은 준비중 플레이스홀더로 표시.
 const MENU_SCREENS = {
@@ -216,7 +213,7 @@ export default function AdminHome({ adminInfo, onLogout }) {
 
   const Sidebar = () => (
     <View style={isMobile ? s.sidebarMobile : s.sidebar}>
-      <View style={[s.sidebarHeader, HEADER_GRADIENT, isMobile && { paddingTop: insets.top + 16 }]}>
+      <GradientHeader style={[s.sidebarHeader, isMobile && { paddingTop: insets.top + 16 }]}>
         <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
             <Text style={s.brand}>{brandTitle}</Text>
@@ -235,7 +232,7 @@ export default function AdminHome({ adminInfo, onLogout }) {
         {isSuper && (
           <Text style={s.adminNm}>{adminInfo?.adminNm || adminInfo?.adminId}</Text>
         )}
-      </View>
+      </GradientHeader>
       <ScrollView style={s.menuScroll} contentContainerStyle={{ paddingVertical: 8 }}>
         {!loaded ? (
           <ActivityIndicator color="#fff" style={{ marginTop: 24 }} />
@@ -255,7 +252,7 @@ export default function AdminHome({ adminInfo, onLogout }) {
     <View style={isMobile ? s.containerMobile : s.container}>
       {isMobile ? (
         <>
-          <View style={[s.topBar, HEADER_GRADIENT, { paddingTop: insets.top + 12 }]}>
+          <GradientHeader style={[s.topBar, { paddingTop: insets.top + 12 }]}>
             <TouchableOpacity style={s.hamburgerBtn} onPress={() => setShowMenu(true)}>
               <Text style={s.hamburgerBtnText}>☰</Text>
             </TouchableOpacity>
@@ -263,7 +260,7 @@ export default function AdminHome({ adminInfo, onLogout }) {
             <TouchableOpacity style={s.hamburgerBtn} onPress={requestLogout}>
               <Text style={s.hamburgerBtnText}>🔓</Text>
             </TouchableOpacity>
-          </View>
+          </GradientHeader>
           {showMenu && (
             <View style={s.drawerOverlay}>
               <TouchableOpacity style={s.drawerBackdrop} activeOpacity={1} onPress={() => setShowMenu(false)} />

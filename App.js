@@ -21,10 +21,7 @@ import BizSignup from "./src/components/BizSignup";
 import AdminHome from "./src/screens/admin/AdminHome";
 import QrScanner from "./src/components/QrScanner";
 import { s } from "./src/styles/App.styles";
-
-const HEADER_GRADIENT = Platform.OS === "web"
-  ? { background: "linear-gradient(135deg, #0f172a 0%, #14532d 100%)" }
-  : {};
+import GradientHeader from "./src/components/GradientHeader";
 
 const getMenuBizno = () => {
   if (Platform.OS !== "web") return null;
@@ -223,7 +220,7 @@ function AppInner() {
   if (isAdmin) return <AdminHome adminInfo={adminInfo} onLogout={handleLogout} />;
 
   const AppHeader = () => (
-    <View style={[s.header, HEADER_GRADIENT]}>
+    <GradientHeader style={s.header}>
       <Logo />
       <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
         {menuBizno && (
@@ -248,7 +245,7 @@ function AppInner() {
           <View style={s.hLine} /><View style={s.hLine} /><View style={s.hLine} />
         </TouchableOpacity>
       </View>
-    </View>
+    </GradientHeader>
   );
 
   const AppDrawer = () => (
@@ -337,12 +334,12 @@ function AppInner() {
     <View style={s.container}>
       <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
 
-      <View style={[s.header, HEADER_GRADIENT]}>
+      <GradientHeader style={s.header}>
         <Logo />
         <TouchableOpacity style={[s.adminBtn, isAdmin && s.adminBtnActive]} onPress={isAdmin ? handleLogout : () => setShowLogin(true)}>
           <Text style={[s.adminBtnText, isAdmin && s.adminBtnTextActive]}>{isAdmin ? "🔓 로그아웃" : "⚙️ 관리자"}</Text>
         </TouchableOpacity>
-      </View>
+      </GradientHeader>
 
       <ScrollView style={s.content} contentContainerStyle={s.visitPage}>
         <Text style={s.visitPageTitle}>내 스캔 목록</Text>
