@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Image, Modal, Platform } from "react-native";
-import { PaddleOcrService, V5_KOREAN_MOBILE_MODEL } from "ppu-paddle-ocr/web";
 import { s } from "../../styles/admin/AdminBizList.styles";
 import api from "../../lib/api";
 import ConfirmModal from "../../components/ConfirmModal";
@@ -65,10 +64,14 @@ function buildCertFormData(blob) {
 }
 
 // PaddleOcrService 초기화는 모델을 네트워크에서 받아오는 무거운 작업이라, 세션 동안 한 번만 만들어서 재사용한다.
+// ppu-paddle-ocr/web은 웹 전용(onnxruntime-web의 window.ort 셔임에 의존)이라, 최상단에서
+// 바로 import하면 네이티브(안드로이드/iOS)에서 모듈 로드 시점에 즉시 크래시가 난다 — 실제로 이
+// 함수는 Platform.OS === "web"일 때만 호출되므로, import 자체도 그 시점까지 미룬다.
 let paddleServicePromise = null;
 function getPaddleService() {
   if (!paddleServicePromise) {
     paddleServicePromise = (async () => {
+      const { PaddleOcrService, V5_KOREAN_MOBILE_MODEL } = await import("ppu-paddle-ocr/web");
       const service = new PaddleOcrService({ model: V5_KOREAN_MOBILE_MODEL });
       await service.initialize();
       return service;
