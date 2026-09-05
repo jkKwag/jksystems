@@ -141,7 +141,11 @@ function AppInner() {
   }, []);
 
   useEffect(() => {
-    if (Platform.OS !== "web" || menuBizno) return;
+    if (menuBizno) return;
+    // "내 스캔 목록"은 브라우저 localStorage 기반 익명 UUID로 스캔 이력을 추적하는
+    // 웹 전용 기능이라, 네이티브에서는 그냥 빈 목록으로 즉시 로딩 완료 처리한다
+    // (안 그러면 setVisitLoaded(true)가 호출될 일이 없어 로딩 화면에서 영원히 멈춘다).
+    if (Platform.OS !== "web") { setVisitLoaded(true); return; }
     (async () => {
       const uuid = localStorage.getItem("scaneat_uuid");
       if (!uuid) { setVisitLoaded(true); return; }
