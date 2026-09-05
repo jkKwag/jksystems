@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, useWindowDimensions, Platform } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { s } from "../../styles/admin/AdminHome.styles";
 import api from "../../lib/api";
 import { setupStaffCallPush, playAlertBeep, speakStaffCall, getNotificationPermission } from "../../lib/webPush";
@@ -100,6 +101,7 @@ function MenuNode({ node, depth, expanded, onToggle, selectedCd, onSelect }) {
 export default function AdminHome({ adminInfo, onLogout }) {
   const { width } = useWindowDimensions();
   const isMobile = width < MOBILE_BREAKPOINT;
+  const insets = useSafeAreaInsets();
 
   const [loaded, setLoaded] = useState(false);
   const [menuTree, setMenuTree] = useState([]);
@@ -214,7 +216,7 @@ export default function AdminHome({ adminInfo, onLogout }) {
 
   const Sidebar = () => (
     <View style={isMobile ? s.sidebarMobile : s.sidebar}>
-      <View style={[s.sidebarHeader, HEADER_GRADIENT]}>
+      <View style={[s.sidebarHeader, HEADER_GRADIENT, isMobile && { paddingTop: insets.top + 16 }]}>
         <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
             <Text style={s.brand}>{brandTitle}</Text>
@@ -253,7 +255,7 @@ export default function AdminHome({ adminInfo, onLogout }) {
     <View style={isMobile ? s.containerMobile : s.container}>
       {isMobile ? (
         <>
-          <View style={[s.topBar, HEADER_GRADIENT]}>
+          <View style={[s.topBar, HEADER_GRADIENT, { paddingTop: insets.top + 12 }]}>
             <TouchableOpacity style={s.hamburgerBtn} onPress={() => setShowMenu(true)}>
               <Text style={s.hamburgerBtnText}>☰</Text>
             </TouchableOpacity>
