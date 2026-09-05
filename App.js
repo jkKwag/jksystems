@@ -19,8 +19,7 @@ import AdminSubscriptionComplete from "./src/screens/admin/AdminSubscriptionComp
 import AdminLogin from "./src/components/AdminLogin";
 import BizSignup from "./src/components/BizSignup";
 import AdminHome from "./src/screens/admin/AdminHome";
-import QrScanner from "./src/components/QrScanner";
-import NativeQrScanner from "./src/components/NativeQrScanner";
+import QrScanner from "./src/platform/QrScanner";
 import { s } from "./src/styles/App.styles";
 import GradientHeader from "./src/components/GradientHeader";
 
@@ -410,11 +409,7 @@ function AppInner() {
         <Text style={s.qrFabText}>QR 스캔</Text>
       </TouchableOpacity>
 
-      {Platform.OS === "web" ? (
-        <QrScanner visible={showQrScanner} onScan={handleQrScan} onClose={() => setShowQrScanner(false)} />
-      ) : (
-        <NativeQrScanner visible={showQrScanner} onScan={handleQrScan} onClose={() => setShowQrScanner(false)} />
-      )}
+      <QrScanner visible={showQrScanner} onScan={handleQrScan} onClose={() => setShowQrScanner(false)} />
       <AdminLogin
         visible={showLogin}
         onClose={() => setShowLogin(false)}
