@@ -213,7 +213,7 @@ export default function AdminHome({ adminInfo, onLogout }) {
 
   const Sidebar = () => (
     <View style={isMobile ? s.sidebarMobile : s.sidebar}>
-      <GradientHeader style={[s.sidebarHeader, isMobile && { paddingTop: insets.top + 16 }]}>
+      <GradientHeader style={[s.sidebarHeader, isMobile && { paddingTop: insets.top + 6 }]}>
         <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
             <Text style={s.brand}>{brandTitle}</Text>
@@ -252,7 +252,7 @@ export default function AdminHome({ adminInfo, onLogout }) {
     <View style={isMobile ? s.containerMobile : s.container}>
       {isMobile ? (
         <>
-          <GradientHeader style={[s.topBar, { paddingTop: insets.top + 12 }]}>
+          <GradientHeader style={[s.topBar, { paddingTop: insets.top + 4 }]}>
             <TouchableOpacity style={s.hamburgerBtn} onPress={() => setShowMenu(true)}>
               <Text style={s.hamburgerBtnText}>☰</Text>
             </TouchableOpacity>
