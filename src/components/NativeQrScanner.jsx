@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { View, Text, TouchableOpacity, Modal } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CameraView, useCameraPermissions, scanFromURLAsync } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import { s } from "../styles/QrScanner.styles";
@@ -9,6 +10,7 @@ import { s } from "../styles/QrScanner.styles";
 // 구현했다. 앨범 선택도 jsqr(픽셀 데이터 필요)로는 못 하니, expo-camera가 제공하는
 // scanFromURLAsync(네이티브가 이미지 파일을 직접 디코딩)를 대신 쓴다.
 export default function NativeQrScanner({ visible, onScan, onClose }) {
+  const insets = useSafeAreaInsets();
   const [permission, requestPermission] = useCameraPermissions();
   const [hint, setHint] = useState(null);
   const scannedRef = useRef(false);
@@ -86,7 +88,7 @@ export default function NativeQrScanner({ visible, onScan, onClose }) {
 
           {hint && <Text style={s.hint}>{hint}</Text>}
 
-          <View style={s.footer}>
+          <View style={[s.footer, { paddingBottom: insets.bottom + 20 }]}>
             <Text style={s.footerLabel}>앨범 또는 파일에서 QR 이미지 불러오기</Text>
             <TouchableOpacity style={s.fileBtn} onPress={handlePickImage}>
               <Text style={s.fileBtnText}>📁 파일 선택</Text>
