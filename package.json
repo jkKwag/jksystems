@@ -11,6 +11,7 @@
     "bcryptjs": "^3.0.3",
     "expo": "57",
     "expo-camera": "~57.0.4",
+    "expo-image-picker": "~57.0.1",
     "expo-linear-gradient": "~57.0.1",
     "expo-status-bar": "~57.0.1",
     "jsqr": "^1.4.0",

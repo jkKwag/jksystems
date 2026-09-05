@@ -34,6 +34,12 @@
         {
           "cameraPermission": "QR 코드를 스캔하기 위해 카메라 접근 권한이 필요합니다."
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "앨범에서 QR 코드 이미지를 선택하기 위해 접근 권한이 필요합니다."
+        }
       ]
     ]
   }
