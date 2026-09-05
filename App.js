@@ -20,6 +20,7 @@ import AdminLogin from "./src/components/AdminLogin";
 import BizSignup from "./src/components/BizSignup";
 import AdminHome from "./src/screens/admin/AdminHome";
 import QrScanner from "./src/components/QrScanner";
+import NativeQrScanner from "./src/components/NativeQrScanner";
 import { s } from "./src/styles/App.styles";
 import GradientHeader from "./src/components/GradientHeader";
 
@@ -68,6 +69,12 @@ function AppInner() {
   const [showDrawer, setShowDrawer] = useState(false);
   const [menuOverlay, setMenuOverlay] = useState(null); // null | "supporters" | "qna" | "faq"
   const [menuMode, setMenuMode] = useState(null); // null | "test" | "elderly"
+  // 웹은 URL(/menu/:bizno)로 메뉴 화면에 진입하지만, 네이티브는 URL 라우팅이 없어서
+  // QR 스캔 성공 시 이 state를 채워서 메뉴 화면으로 전환한다.
+  const [nativeMenuBizno, setNativeMenuBizno] = useState(null);
+  const [nativeTableNo, setNativeTableNo] = useState(null);
+  const activeBizno = menuBizno || nativeMenuBizno;
+  const activeTableNo = tableNo || nativeTableNo;
 
   useEffect(() => {
     if (!menuBizno) return;
@@ -188,13 +195,23 @@ function AppInner() {
 
   const handleQrScan = (result) => {
     setShowQrScanner(false);
+    // 웹은 URL 이동(/menu/:bizno)으로 메뉴 화면에 진입하지만, 네이티브는 그런 라우팅이
+    // 없어서 파싱한 사업자번호/테이블번호를 state로 넣어 화면을 전환한다.
+    let bizno = null, table = null;
     try {
       const url = new URL(result);
       const match = url.pathname.match(/^\/menu\/(.+)/);
-      if (match) window.location.href = `/menu/${match[1]}${url.search}`;
+      if (match) { bizno = match[1]; table = url.searchParams.get("table"); }
     } catch {
-      const match = result.match(/\/menu\/(.+)/);
-      if (match) window.location.href = `/menu/${match[1]}`;
+      const match = result.match(/\/menu\/([^/?]+)/);
+      if (match) bizno = match[1];
+    }
+    if (!bizno) return;
+    if (Platform.OS === "web") {
+      window.location.href = `/menu/${bizno}${table ? `?table=${encodeURIComponent(table)}` : ""}`;
+    } else {
+      setNativeMenuBizno(bizno);
+      setNativeTableNo(table);
     }
   };
 
@@ -224,7 +241,7 @@ function AppInner() {
     <GradientHeader style={[s.header, { paddingTop: insets.top + 4 }]}>
       <Logo />
       <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-        {menuBizno && (
+        {activeBizno && (
           <TouchableOpacity
             style={s.displayToggle}
             onPress={() => {
@@ -281,13 +298,13 @@ function AppInner() {
     </Modal>
   );
 
-  if (menuBizno && menuMode === "elderly") {
+  if (activeBizno && menuMode === "elderly") {
     return (
       <View style={s.container}>
         <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
         <AppHeader />
         <View style={s.content}>
-          <ElderlyMenu bizno={menuBizno} tableNo={tableNo} onBack={() => setMenuMode(null)} />
+          <ElderlyMenu bizno={activeBizno} tableNo={activeTableNo} onBack={() => setMenuMode(null)} />
           {(menuOverlay === "supporters" || menuOverlay === "qna" || menuOverlay === "faq" || menuOverlay === "storage") && (
             <View style={[StyleSheet.absoluteFillObject, s.overlayScreen]}>
               {menuOverlay === "supporters" && <Supporters isAdmin={false} />}
@@ -302,13 +319,13 @@ function AppInner() {
     );
   }
 
-  if (menuBizno) {
+  if (activeBizno) {
     return (
       <View style={s.container}>
         <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
         <AppHeader />
         <View style={s.content}>
-          <Menu bizno={menuBizno} tableNo={tableNo} />
+          <Menu bizno={activeBizno} tableNo={activeTableNo} />
           {(menuOverlay === "supporters" || menuOverlay === "qna" || menuOverlay === "faq" || menuOverlay === "storage") && (
             <View style={[StyleSheet.absoluteFillObject, s.overlayScreen]}>
               {menuOverlay === "supporters" && <Supporters isAdmin={false} />}
@@ -388,14 +405,16 @@ function AppInner() {
         )}
       </ScrollView>
 
-      {Platform.OS === "web" && (
-        <TouchableOpacity style={s.qrFab} onPress={() => setShowQrScanner(true)}>
-          <Image source={{ uri: QR_ICON_URI }} style={{ width: 20, height: 20 }} />
-          <Text style={s.qrFabText}>QR 스캔</Text>
-        </TouchableOpacity>
-      )}
+      <TouchableOpacity style={s.qrFab} onPress={() => setShowQrScanner(true)}>
+        <Image source={{ uri: QR_ICON_URI }} style={{ width: 20, height: 20 }} />
+        <Text style={s.qrFabText}>QR 스캔</Text>
+      </TouchableOpacity>
 
-      <QrScanner visible={showQrScanner} onScan={handleQrScan} onClose={() => setShowQrScanner(false)} />
+      {Platform.OS === "web" ? (
+        <QrScanner visible={showQrScanner} onScan={handleQrScan} onClose={() => setShowQrScanner(false)} />
+      ) : (
+        <NativeQrScanner visible={showQrScanner} onScan={handleQrScan} onClose={() => setShowQrScanner(false)} />
+      )}
       <AdminLogin
         visible={showLogin}
         onClose={() => setShowLogin(false)}

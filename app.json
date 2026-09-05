@@ -28,7 +28,13 @@
       }
     },
     "plugins": [
-      "expo-status-bar"
+      "expo-status-bar",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "QR 코드를 스캔하기 위해 카메라 접근 권한이 필요합니다."
+        }
+      ]
     ]
   }
 }
