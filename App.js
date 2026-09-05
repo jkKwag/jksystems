@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { View, Text, TouchableOpacity, StatusBar, Platform, Modal, ScrollView, Animated, Image, StyleSheet } from "react-native";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
 
 const QR_ICON_URI = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyMSAyMSc+PHJlY3QgeD0nMScgeT0nMScgd2lkdGg9JzgnIGhlaWdodD0nOCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScxLjUnLz48cmVjdCB4PSczLjUnIHk9JzMuNScgd2lkdGg9JzMnIGhlaWdodD0nMycgZmlsbD0nd2hpdGUnLz48cmVjdCB4PScxMicgeT0nMScgd2lkdGg9JzgnIGhlaWdodD0nOCcgZmlsbD0nbm9uZScgc3Ryb2tlPSd3aGl0ZScgc3Ryb2tlLXdpZHRoPScxLjUnLz48cmVjdCB4PScxNC41JyB5PSczLjUnIHdpZHRoPSczJyBoZWlnaHQ9JzMnIGZpbGw9J3doaXRlJy8+PHJlY3QgeD0nMScgeT0nMTInIHdpZHRoPSc4JyBoZWlnaHQ9JzgnIGZpbGw9J25vbmUnIHN0cm9rZT0nd2hpdGUnIHN0cm9rZS13aWR0aD0nMS41Jy8+PHJlY3QgeD0nMy41JyB5PScxNC41JyB3aWR0aD0nMycgaGVpZ2h0PSczJyBmaWxsPSd3aGl0ZScvPjxyZWN0IHg9JzExJyB5PScxMScgd2lkdGg9JzInIGhlaWdodD0nMicgZmlsbD0nd2hpdGUnLz48cmVjdCB4PScxNCcgeT0nMTEnIHdpZHRoPScxLjUnIGhlaWdodD0nMS41JyBmaWxsPSd3aGl0ZScvPjxyZWN0IHg9JzE3JyB5PScxMScgd2lkdGg9JzInIGhlaWdodD0nMicgZmlsbD0nd2hpdGUnLz48cmVjdCB4PScxMScgeT0nMTQnIHdpZHRoPScxLjUnIGhlaWdodD0nMS41JyBmaWxsPSd3aGl0ZScvPjxyZWN0IHg9JzE0JyB5PScxNCcgd2lkdGg9JzInIGhlaWdodD0nMicgZmlsbD0nd2hpdGUnLz48cmVjdCB4PScxMScgeT0nMTcnIHdpZHRoPScyJyBoZWlnaHQ9JzInIGZpbGw9J3doaXRlJy8+PHJlY3QgeD0nMTcnIHk9JzE3JyB3aWR0aD0nMicgaGVpZ2h0PScyJyBmaWxsPSd3aGl0ZScvPjwvc3ZnPgo=";
 import supabase from "./src/lib/supabase";
@@ -55,6 +55,7 @@ const Logo = () => (
 );
 
 function AppInner() {
+  const insets = useSafeAreaInsets();
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminInfo, setAdminInfo] = useState(null); // { adminId, adminNm, adminRole, bizRegNo }
   const [visitHistory, setVisitHistory] = useState([]);
@@ -220,7 +221,7 @@ function AppInner() {
   if (isAdmin) return <AdminHome adminInfo={adminInfo} onLogout={handleLogout} />;
 
   const AppHeader = () => (
-    <GradientHeader style={s.header}>
+    <GradientHeader style={[s.header, { paddingTop: insets.top + 4 }]}>
       <Logo />
       <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
         {menuBizno && (
@@ -334,7 +335,7 @@ function AppInner() {
     <View style={s.container}>
       <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
 
-      <GradientHeader style={s.header}>
+      <GradientHeader style={[s.header, { paddingTop: insets.top + 4 }]}>
         <Logo />
         <TouchableOpacity style={[s.adminBtn, isAdmin && s.adminBtnActive]} onPress={isAdmin ? handleLogout : () => setShowLogin(true)}>
           <Text style={[s.adminBtnText, isAdmin && s.adminBtnTextActive]}>{isAdmin ? "🔓 로그아웃" : "⚙️ 관리자"}</Text>
