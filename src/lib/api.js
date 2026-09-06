@@ -65,6 +65,12 @@ const api = {
     changeEmployeePassword: (empId, body) => put(`/api/admin/employees/${empId}/password`, body),
     verifyPassword: (adminId, body) => post(`/api/admin/users/${adminId}/verify-password`, body),
     verifyEmployeePassword: (empId, body) => post(`/api/admin/employees/${empId}/verify-password`, body),
+    passkeyRegisterOptions: () => post(`/api/admin/passkey/register-options`, {}),
+    passkeyRegister: (body) => post(`/api/admin/passkey/register`, body),
+    passkeyDevices: () => get(`/api/admin/passkey/devices`),
+    passkeyDeleteDevice: (credId) => del(`/api/admin/passkey/devices/${credId}`),
+    passkeyLoginOptions: (adminId) => post(`/api/admin/passkey/login-options`, { adminId }),
+    passkeyLogin: (body) => post(`/api/admin/passkey/login`, body),
   },
   biz: {
     list: (page = 0, size = 10) => get(`/api/biz?page=${page}&size=${size}`),

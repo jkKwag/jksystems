@@ -5,6 +5,7 @@ import api from "../../lib/api";
 import { formatBizRegNo } from "../../lib/formatBizRegNo";
 import ConfirmModal from "../../components/ConfirmModal";
 import TotpSetupModal from "../../components/admin/TotpSetupModal";
+import PasskeyManageModal from "../../components/admin/PasskeyManageModal";
 
 const pad = (n) => String(n).padStart(2, "0");
 const formatDt = (iso) => {
@@ -19,6 +20,8 @@ export default function AdminAccounts({ adminInfo }) {
   const bizRegNo = adminInfo?.bizRegNo;
   const isSuperAdmin = adminInfo?.adminRole === "SUPER";
   const canChangePw = (targetId) => isSuperAdmin || adminInfo?.adminId === targetId;
+  // 패스키는 본인 기기에서만 등록할 수 있는 거라 본인 계정 행에만 보여준다 (슈퍼관리자는 등록 자체가 불가).
+  const canManagePasskey = (targetId, role) => adminInfo?.adminId === targetId && role !== "SUPER";
 
   const [loaded, setLoaded] = useState(false);
   const [users, setUsers] = useState([]);
@@ -36,6 +39,7 @@ export default function AdminAccounts({ adminInfo }) {
   const spinAnim = useRef(new Animated.Value(0)).current;
 
   const [showTotpSetup, setShowTotpSetup] = useState(false);
+  const [showPasskeyManage, setShowPasskeyManage] = useState(false);
 
   const currentPwEmpty = pwTouched.current && !currentPw;
   const newPwTooShort = newPw.length < 8;
@@ -188,14 +192,21 @@ export default function AdminAccounts({ adminInfo }) {
                       <View style={s.detailRow}><Text style={s.detailKey}>권한</Text><Text style={s.detailVal}>{ROLE_LABEL[u.adminRole] || u.adminRole}</Text></View>
                       <View style={s.detailRow}><Text style={s.detailKey}>휴대전화</Text><Text style={s.detailVal}>{u.mobileTel || "-"}</Text></View>
                       <View style={s.detailRow}><Text style={s.detailKey}>전화</Text><Text style={s.detailVal}>{u.tel || "-"}</Text></View>
-                      {canChangePw(u.adminId) && (
-                        <TouchableOpacity
-                          style={s.pwChangeBtn}
-                          onPress={() => setPwTarget({ type: "admin", id: u.adminId, nm: u.adminNm || u.adminId })}
-                        >
-                          <Text style={s.pwChangeBtnText}>비밀번호 변경</Text>
-                        </TouchableOpacity>
-                      )}
+                      <View style={{ flexDirection: "row", gap: 8 }}>
+                        {canChangePw(u.adminId) && (
+                          <TouchableOpacity
+                            style={s.pwChangeBtn}
+                            onPress={() => setPwTarget({ type: "admin", id: u.adminId, nm: u.adminNm || u.adminId })}
+                          >
+                            <Text style={s.pwChangeBtnText}>비밀번호 변경</Text>
+                          </TouchableOpacity>
+                        )}
+                        {canManagePasskey(u.adminId, u.adminRole) && (
+                          <TouchableOpacity style={s.pwChangeBtn} onPress={() => setShowPasskeyManage(true)}>
+                            <Text style={s.pwChangeBtnText}>지문 등록</Text>
+                          </TouchableOpacity>
+                        )}
+                      </View>
                     </View>
                   )}
                 </TouchableOpacity>
@@ -252,14 +263,21 @@ export default function AdminAccounts({ adminInfo }) {
                       <View style={s.detailRow}><Text style={s.detailKey}>연락처 이메일</Text><Text style={s.detailVal}>{emp.email || "-"}</Text></View>
                       <View style={s.detailRow}><Text style={s.detailKey}>휴대전화</Text><Text style={s.detailVal}>{emp.mobileTel || "-"}</Text></View>
                       <View style={s.detailRow}><Text style={s.detailKey}>메모</Text><Text style={s.detailVal}>{emp.rmrk || "-"}</Text></View>
-                      {canChangePw(emp.empId) && (
-                        <TouchableOpacity
-                          style={s.pwChangeBtn}
-                          onPress={() => setPwTarget({ type: "emp", id: emp.empId, nm: emp.empNm || emp.empId })}
-                        >
-                          <Text style={s.pwChangeBtnText}>비밀번호 변경</Text>
-                        </TouchableOpacity>
-                      )}
+                      <View style={{ flexDirection: "row", gap: 8 }}>
+                        {canChangePw(emp.empId) && (
+                          <TouchableOpacity
+                            style={s.pwChangeBtn}
+                            onPress={() => setPwTarget({ type: "emp", id: emp.empId, nm: emp.empNm || emp.empId })}
+                          >
+                            <Text style={s.pwChangeBtnText}>비밀번호 변경</Text>
+                          </TouchableOpacity>
+                        )}
+                        {canManagePasskey(emp.empId, "EMPLOYEE") && (
+                          <TouchableOpacity style={s.pwChangeBtn} onPress={() => setShowPasskeyManage(true)}>
+                            <Text style={s.pwChangeBtnText}>지문 등록</Text>
+                          </TouchableOpacity>
+                        )}
+                      </View>
                     </View>
                   )}
                 </TouchableOpacity>
@@ -370,6 +388,11 @@ export default function AdminAccounts({ adminInfo }) {
           </View>
         </Modal>
       )}
+
+      <PasskeyManageModal
+        visible={showPasskeyManage}
+        onClose={() => setShowPasskeyManage(false)}
+      />
 
       <TotpSetupModal
         visible={showTotpSetup}

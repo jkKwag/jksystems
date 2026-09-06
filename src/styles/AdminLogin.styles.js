@@ -17,4 +17,19 @@ export const s = StyleSheet.create({
   loginBtnText: { color: colors.white, fontWeight: "700", fontSize: font.xl },
   cancelBtn: { backgroundColor: colors.slate100, borderRadius: radius.lg, padding: spacing["3"], alignItems: "center" },
   cancelBtnText: { color: "#6b7280", fontWeight: "600", fontSize: font.lg },
+
+  ghostLink: { alignItems: "center", padding: spacing["2"] },
+  ghostLinkText: { color: "#6b7280", fontWeight: "600", fontSize: font.md, textDecorationLine: "underline" },
+  backLink: { alignSelf: "flex-start", padding: 0, marginBottom: spacing["4"] },
+  backLinkText: { color: "#6b7280", fontWeight: "700", fontSize: font.base },
+  rememberedHint: { fontSize: font.base, color: colors.green, marginTop: -spacing["2"], marginBottom: spacing["3"] },
+  rememberedHintLink: { color: "#6b7280", textDecorationLine: "underline" },
+
+  passkeyStage: { alignItems: "center", justifyContent: "center", paddingVertical: spacing["4"] },
+  fpCircle: { width: 84, height: 84, borderRadius: radius.round, backgroundColor: "#eef2ff", borderWidth: 2, borderColor: "#c7d2fe", alignItems: "center", justifyContent: "center", marginBottom: spacing["4"] },
+  fpCircleScanning: { backgroundColor: "#fff7ed", borderColor: "#fdba74" },
+  fpCircleError: { backgroundColor: "#fef2f2", borderColor: "#fecaca" },
+  fpIcon: { fontSize: 36 },
+  passkeyTitle: { fontSize: font.xl, fontWeight: "800", color: colors.text, marginBottom: spacing["1"] },
+  passkeyDesc: { fontSize: font.base, color: colors.textMuted, textAlign: "center", marginBottom: spacing["5"], lineHeight: 18 },
 });
