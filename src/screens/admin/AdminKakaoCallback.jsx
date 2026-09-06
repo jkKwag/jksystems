@@ -55,7 +55,7 @@ export default function AdminKakaoCallback() {
         await completeLogin(data.login);
         return;
       }
-      setSignupInfo({ signupToken: data.signupToken, nickname: data.nickname });
+      setSignupInfo({ signupToken: data.signupToken, nickname: data.nickname, email: data.email });
       setStatus("signupForm");
     })();
   }, []);
@@ -71,6 +71,7 @@ export default function AdminKakaoCallback() {
       signupToken: signupInfo.signupToken,
       bizRegNo: digitsOnly(bizRegNo),
       mobileTel: mobileTel.trim(),
+      emailAddr: signupInfo.email || null,
     });
     setSubmitting(false);
     if (error || !data) { setFormError(error?.message || "가입에 실패했습니다."); return; }
