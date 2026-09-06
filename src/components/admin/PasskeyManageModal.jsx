@@ -21,8 +21,9 @@ export default function PasskeyManageModal({ visible, onClose }) {
   const [error, setError] = useState("");
 
   const load = async () => {
-    const { data } = await api.admin.passkeyDevices();
-    setDevices(Array.isArray(data) ? data : []);
+    // GET 헬퍼(api.js의 get())는 {data,error} 래핑 없이 결과를 그대로 반환한다 — POST/PUT/DELETE와 다름.
+    const list = await api.admin.passkeyDevices();
+    setDevices(Array.isArray(list) ? list : []);
   };
 
   useEffect(() => {
