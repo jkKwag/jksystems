@@ -186,6 +186,24 @@ export default function AdminAccounts({ adminInfo }) {
 
                   <Text style={s.regDt}>등록일 {formatDt(u.regDt)}</Text>
 
+                  {(canManagePasskey(u.adminId, u.adminRole) || canChangePw(u.adminId)) && (
+                    <View style={s.securityBtnRow}>
+                      {canManagePasskey(u.adminId, u.adminRole) && (
+                        <TouchableOpacity style={s.securityBtn} onPress={() => setShowPasskeyManage(true)}>
+                          <Text style={s.securityBtnText}>지문 등록</Text>
+                        </TouchableOpacity>
+                      )}
+                      {canChangePw(u.adminId) && (
+                        <TouchableOpacity
+                          style={s.securityBtn}
+                          onPress={() => setPwTarget({ type: "admin", id: u.adminId, nm: u.adminNm || u.adminId })}
+                        >
+                          <Text style={s.securityBtnText}>비밀번호 변경</Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  )}
+
                   {expanded && (
                     <View style={s.detailBox}>
                       <View style={s.detailRow}><Text style={s.detailKey}>사업자번호</Text><Text style={s.detailVal}>{formatBizRegNo(u.bizRegNo)}</Text></View>
@@ -193,21 +211,6 @@ export default function AdminAccounts({ adminInfo }) {
                       <View style={s.detailRow}><Text style={s.detailKey}>권한</Text><Text style={s.detailVal}>{ROLE_LABEL[u.adminRole] || u.adminRole}</Text></View>
                       <View style={s.detailRow}><Text style={s.detailKey}>휴대전화</Text><Text style={s.detailVal}>{u.mobileTel || "-"}</Text></View>
                       <View style={s.detailRow}><Text style={s.detailKey}>전화</Text><Text style={s.detailVal}>{u.tel || "-"}</Text></View>
-                      <View style={{ flexDirection: "row", gap: 8 }}>
-                        {canChangePw(u.adminId) && (
-                          <TouchableOpacity
-                            style={s.pwChangeBtn}
-                            onPress={() => setPwTarget({ type: "admin", id: u.adminId, nm: u.adminNm || u.adminId })}
-                          >
-                            <Text style={s.pwChangeBtnText}>비밀번호 변경</Text>
-                          </TouchableOpacity>
-                        )}
-                        {canManagePasskey(u.adminId, u.adminRole) && (
-                          <TouchableOpacity style={s.pwChangeBtn} onPress={() => setShowPasskeyManage(true)}>
-                            <Text style={s.pwChangeBtnText}>지문 등록</Text>
-                          </TouchableOpacity>
-                        )}
-                      </View>
                     </View>
                   )}
                 </TouchableOpacity>
@@ -257,6 +260,24 @@ export default function AdminAccounts({ adminInfo }) {
 
                   <Text style={s.regDt}>입사일 {formatDt(emp.hireDt)}{emp.resignDt ? ` · 퇴직일 ${formatDt(emp.resignDt)}` : ""}</Text>
 
+                  {(canManagePasskey(emp.empId, "EMPLOYEE") || canChangePw(emp.empId)) && (
+                    <View style={s.securityBtnRow}>
+                      {canManagePasskey(emp.empId, "EMPLOYEE") && (
+                        <TouchableOpacity style={s.securityBtn} onPress={() => setShowPasskeyManage(true)}>
+                          <Text style={s.securityBtnText}>지문 등록</Text>
+                        </TouchableOpacity>
+                      )}
+                      {canChangePw(emp.empId) && (
+                        <TouchableOpacity
+                          style={s.securityBtn}
+                          onPress={() => setPwTarget({ type: "emp", id: emp.empId, nm: emp.empNm || emp.empId })}
+                        >
+                          <Text style={s.securityBtnText}>비밀번호 변경</Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  )}
+
                   {expanded && (
                     <View style={s.detailBox}>
                       <View style={s.detailRow}><Text style={s.detailKey}>소속</Text><Text style={s.detailVal}>{emp.deptNm || "-"}</Text></View>
@@ -264,21 +285,6 @@ export default function AdminAccounts({ adminInfo }) {
                       <View style={s.detailRow}><Text style={s.detailKey}>연락처 이메일</Text><Text style={s.detailVal}>{emp.email || "-"}</Text></View>
                       <View style={s.detailRow}><Text style={s.detailKey}>휴대전화</Text><Text style={s.detailVal}>{emp.mobileTel || "-"}</Text></View>
                       <View style={s.detailRow}><Text style={s.detailKey}>메모</Text><Text style={s.detailVal}>{emp.rmrk || "-"}</Text></View>
-                      <View style={{ flexDirection: "row", gap: 8 }}>
-                        {canChangePw(emp.empId) && (
-                          <TouchableOpacity
-                            style={s.pwChangeBtn}
-                            onPress={() => setPwTarget({ type: "emp", id: emp.empId, nm: emp.empNm || emp.empId })}
-                          >
-                            <Text style={s.pwChangeBtnText}>비밀번호 변경</Text>
-                          </TouchableOpacity>
-                        )}
-                        {canManagePasskey(emp.empId, "EMPLOYEE") && (
-                          <TouchableOpacity style={s.pwChangeBtn} onPress={() => setShowPasskeyManage(true)}>
-                            <Text style={s.pwChangeBtnText}>지문 등록</Text>
-                          </TouchableOpacity>
-                        )}
-                      </View>
                     </View>
                   )}
                 </TouchableOpacity>

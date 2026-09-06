@@ -55,6 +55,9 @@ export const s = StyleSheet.create({
 
   pwChangeBtn: { alignSelf: "flex-start", marginTop: spacing["1"], borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"] },
   pwChangeBtnText: { fontSize: font.sm, fontWeight: "700", color: colors.textGray },
+  securityBtnRow: { flexDirection: "row", gap: spacing["2"], marginTop: spacing["2"] },
+  securityBtn: { backgroundColor: colors.accent, borderRadius: radius.md, paddingHorizontal: spacing["3"], paddingVertical: spacing["1.5"] },
+  securityBtnText: { fontSize: font.sm, fontWeight: "700", color: colors.white },
 
   pwOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center", padding: spacing["5"] },
   pwCard: { width: "100%", maxWidth: 380, backgroundColor: colors.bgCard, borderRadius: radius["2xl"], overflow: "hidden" },
