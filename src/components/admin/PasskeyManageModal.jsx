@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, Modal, TextInput, ActivityIndicator } from "react-native";
 import { s } from "../../styles/admin/AdminAccounts.styles";
+import GradientHeader from "../GradientHeader";
 import api from "../../lib/api";
 import { isPasskeyAvailable, createPasskeyCredential } from "../../platform/passkey";
 
@@ -63,7 +64,10 @@ export default function PasskeyManageModal({ visible, onClose }) {
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
       <View style={s.pwOverlay}>
         <View style={s.pwCard}>
-          <Text style={s.pwTitle}>지문(패스키) 관리</Text>
+          <GradientHeader style={s.pwHeader}>
+            <Text style={s.pwHeaderTitle}>지문(패스키) 관리</Text>
+          </GradientHeader>
+          <View style={s.pwBody}>
           <Text style={s.pwFieldHint}>등록해두면 다음부터 비밀번호 대신 이 기기의 지문/Face ID로 로그인할 수 있어요.</Text>
 
           {devices === null ? (
@@ -116,6 +120,7 @@ export default function PasskeyManageModal({ visible, onClose }) {
               </View>
             </>
           )}
+          </View>
         </View>
       </View>
     </Modal>

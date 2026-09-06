@@ -57,7 +57,10 @@ export const s = StyleSheet.create({
   pwChangeBtnText: { fontSize: font.sm, fontWeight: "700", color: colors.textGray },
 
   pwOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", justifyContent: "center", alignItems: "center", padding: spacing["5"] },
-  pwCard: { width: "100%", maxWidth: 380, backgroundColor: colors.bgCard, borderRadius: radius["2xl"], padding: spacing["5"] },
+  pwCard: { width: "100%", maxWidth: 380, backgroundColor: colors.bgCard, borderRadius: radius["2xl"], overflow: "hidden" },
+  pwHeader: { paddingHorizontal: spacing["5"], paddingVertical: spacing["4"] },
+  pwHeaderTitle: { fontSize: font.xl, fontWeight: "800", color: colors.white },
+  pwBody: { padding: spacing["5"] },
   pwTitle: { fontSize: font.xl, fontWeight: "800", color: colors.text, marginBottom: spacing["3"] },
   pwFieldWrap: { marginBottom: spacing["3"] },
   pwInputRow: { position: "relative", justifyContent: "center" },

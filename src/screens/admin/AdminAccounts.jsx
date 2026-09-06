@@ -4,6 +4,7 @@ import { s } from "../../styles/admin/AdminAccounts.styles";
 import api from "../../lib/api";
 import { formatBizRegNo } from "../../lib/formatBizRegNo";
 import ConfirmModal from "../../components/ConfirmModal";
+import GradientHeader from "../../components/GradientHeader";
 import TotpSetupModal from "../../components/admin/TotpSetupModal";
 import PasskeyManageModal from "../../components/admin/PasskeyManageModal";
 
@@ -291,8 +292,10 @@ export default function AdminAccounts({ adminInfo }) {
         <Modal visible transparent animationType="fade" onRequestClose={closePwModal}>
           <View style={s.pwOverlay}>
             <View style={s.pwCard}>
-              <Text style={s.pwTitle}>{pwTarget.nm} 비밀번호 변경</Text>
-
+              <GradientHeader style={s.pwHeader}>
+                <Text style={s.pwHeaderTitle}>{pwTarget.nm} 비밀번호 변경</Text>
+              </GradientHeader>
+              <View style={s.pwBody}>
               <View style={s.pwFieldWrap}>
                 <View style={s.pwInputRow}>
                   <TextInput
@@ -383,6 +386,7 @@ export default function AdminAccounts({ adminInfo }) {
                     ? <ActivityIndicator color="#fff" size="small" />
                     : <Text style={s.pwConfirmBtnText}>변경하기</Text>}
                 </TouchableOpacity>
+              </View>
               </View>
             </View>
           </View>

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, Modal, TextInput, ActivityIndicator, Image } from "react-native";
 import QRCode from "qrcode";
 import { s } from "../../styles/admin/AdminAccounts.styles";
+import GradientHeader from "../GradientHeader";
 import api from "../../lib/api";
 
 // SUPER 계정 전용 TOTP(구글 OTP 등) 2단계 인증 등록 모달 — 사이드바, 계정 관리 화면 등
@@ -54,8 +55,10 @@ export default function TotpSetupModal({ visible, onClose, onSuccess }) {
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
       <View style={s.pwOverlay}>
         <View style={s.pwCard}>
-          <Text style={s.pwTitle}>2단계 인증(TOTP) 설정</Text>
-
+          <GradientHeader style={s.pwHeader}>
+            <Text style={s.pwHeaderTitle}>2단계 인증(TOTP) 설정</Text>
+          </GradientHeader>
+          <View style={s.pwBody}>
           {totpSecret ? (
             <>
               <Text style={s.pwFieldHint}>
@@ -114,6 +117,7 @@ export default function TotpSetupModal({ visible, onClose, onSuccess }) {
           ) : (
             <ActivityIndicator style={{ marginVertical: 20 }} color="#f97316" />
           )}
+          </View>
         </View>
       </View>
     </Modal>
