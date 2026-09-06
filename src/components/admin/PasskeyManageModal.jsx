@@ -46,7 +46,7 @@ export default function PasskeyManageModal({ visible, onClose }) {
       await load();
     } catch (e) {
       // 이 기기(인증기)로 이미 등록된 계정이면 브라우저가 자체적으로 중복 등록을 막고 이 에러를 던진다.
-      if (e?.name === "InvalidStateError") setError("이미 생성된 지문입니다. 삭제 후 재생성 가능합니다.");
+      if (e?.name === "InvalidStateError") setError("이미 생성된 지문(패스키)입니다. 삭제 후 재생성 가능합니다.");
       else if (e?.name !== "NotAllowedError") setError(e?.message || "패스키 등록 중 문제가 발생했습니다.");
     } finally {
       setRegistering(false);
