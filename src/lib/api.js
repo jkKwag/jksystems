@@ -72,6 +72,10 @@ const api = {
     passkeyLoginOptions: (adminId) => post(`/api/admin/passkey/login-options`, { adminId }),
     passkeyLogin: (body) => post(`/api/admin/passkey/login`, body),
   },
+  kakao: {
+    exchange: (code) => post(`/api/biz/signup/kakao/exchange`, { code }),
+    signup: (body) => post(`/api/biz/signup/kakao`, body),
+  },
   biz: {
     list: (page = 0, size = 10) => get(`/api/biz?page=${page}&size=${size}`),
     get: (bizno) => get(`/api/biz/${bizno}`),

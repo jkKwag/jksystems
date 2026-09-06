@@ -32,4 +32,10 @@ export const s = StyleSheet.create({
   fpIcon: { fontSize: 36 },
   passkeyTitle: { fontSize: font.xl, fontWeight: "800", color: colors.text, marginBottom: spacing["1"] },
   passkeyDesc: { fontSize: font.base, color: colors.textMuted, textAlign: "center", marginBottom: spacing["5"], lineHeight: 18 },
+
+  kakaoBtn: { backgroundColor: "#FEE500", borderRadius: radius.lg, padding: spacing["3.5"], flexDirection: "row", alignItems: "center", justifyContent: "center", gap: spacing["1.5"], marginBottom: spacing["3.5"] },
+  kakaoBtnText: { color: "#191919", fontWeight: "700", fontSize: font.xl },
+  dividerRow: { flexDirection: "row", alignItems: "center", gap: spacing["2.5"], marginBottom: spacing["3.5"] },
+  dividerLine: { flex: 1, height: 1, backgroundColor: colors.border },
+  dividerText: { fontSize: font.base, color: colors.textSubtle },
 });

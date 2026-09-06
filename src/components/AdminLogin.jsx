@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, Modal, ActivityIndicator, StyleSheet } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Modal, ActivityIndicator, StyleSheet, Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { s } from "../styles/AdminLogin.styles";
 import api from "../lib/api";
 import { isPasskeyAvailable, getPasskeyAssertion } from "../platform/passkey";
+import { startKakaoLogin } from "../lib/kakao";
 
 const LAST_EMAIL_KEY = "adminLoginLastEmail";
 
@@ -113,6 +114,16 @@ export default function AdminLogin({ visible, onClose, onLogin, onSignupClick })
           <View style={s.body}>
             {step === "email" && (
               <>
+                {Platform.OS === "web" && (
+                  <>
+                    <TouchableOpacity style={s.kakaoBtn} onPress={startKakaoLogin}>
+                      <Text style={s.kakaoBtnText}>💬 카카오로 계속하기</Text>
+                    </TouchableOpacity>
+                    <View style={s.dividerRow}>
+                      <View style={s.dividerLine} /><Text style={s.dividerText}>또는</Text><View style={s.dividerLine} />
+                    </View>
+                  </>
+                )}
                 <Text style={s.label}>이메일</Text>
                 <TextInput
                   style={s.inp}
@@ -164,6 +175,16 @@ export default function AdminLogin({ visible, onClose, onLogin, onSignupClick })
                 )}
                 {step === "combined" && (
                   <>
+                    {Platform.OS === "web" && (
+                      <>
+                        <TouchableOpacity style={s.kakaoBtn} onPress={startKakaoLogin}>
+                          <Text style={s.kakaoBtnText}>💬 카카오로 계속하기</Text>
+                        </TouchableOpacity>
+                        <View style={s.dividerRow}>
+                          <View style={s.dividerLine} /><Text style={s.dividerText}>또는</Text><View style={s.dividerLine} />
+                        </View>
+                      </>
+                    )}
                     <Text style={s.label}>이메일</Text>
                     <TextInput
                       style={s.inp}
