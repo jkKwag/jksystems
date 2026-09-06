@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, Modal, TextInput, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, Modal, ActivityIndicator } from "react-native";
 import { s } from "../../styles/admin/AdminAccounts.styles";
 import GradientHeader from "../GradientHeader";
 import api from "../../lib/api";
-import { isPasskeyAvailable, createPasskeyCredential } from "../../platform/passkey";
+import { isPasskeyAvailable, createPasskeyCredential, detectPlatformLabel } from "../../platform/passkey";
 
 const pad = (n) => String(n).padStart(2, "0");
 const formatDt = (iso) => {
@@ -17,7 +17,6 @@ const formatDt = (iso) => {
 export default function PasskeyManageModal({ visible, onClose }) {
   const [devices, setDevices] = useState(null);
   const [supported, setSupported] = useState(null);
-  const [newLabel, setNewLabel] = useState("");
   const [registering, setRegistering] = useState(false);
   const [error, setError] = useState("");
 
@@ -29,7 +28,7 @@ export default function PasskeyManageModal({ visible, onClose }) {
 
   useEffect(() => {
     if (!visible) return;
-    setError(""); setNewLabel("");
+    setError("");
     load();
     isPasskeyAvailable().then(setSupported);
   }, [visible]);
@@ -41,10 +40,9 @@ export default function PasskeyManageModal({ visible, onClose }) {
       if (optError || !options) throw new Error(optError?.message || "등록 옵션을 가져오지 못했습니다.");
       const credentialJson = await createPasskeyCredential(options);
       const { error: regError } = await api.admin.passkeyRegister({
-        credentialJson, platform: "WEB", deviceLabel: newLabel.trim() || null,
+        credentialJson, platform: "WEB", deviceLabel: detectPlatformLabel(),
       });
       if (regError) throw new Error(regError?.message || "패스키 등록에 실패했습니다.");
-      setNewLabel("");
       await load();
     } catch (e) {
       // 이 기기(인증기)로 이미 등록된 계정이면 브라우저가 자체적으로 중복 등록을 막고 이 에러를 던진다.
@@ -100,15 +98,6 @@ export default function PasskeyManageModal({ visible, onClose }) {
             <Text style={[s.pwFieldHint, { textAlign: "center" }]}>이 브라우저/기기에서는 패스키를 지원하지 않아요.</Text>
           ) : (
             <>
-              <View style={s.pwFieldWrap}>
-                <TextInput
-                  style={s.pwInput}
-                  placeholder="기기 이름 (선택, 예: 사무실 노트북)"
-                  placeholderTextColor="#94a3b8"
-                  value={newLabel}
-                  onChangeText={setNewLabel}
-                />
-              </View>
               {!!error && <Text style={s.pwFieldError}>{error}</Text>}
               <View style={s.pwBtnRow}>
                 <TouchableOpacity style={s.pwCancelBtn} onPress={onClose} disabled={registering}>

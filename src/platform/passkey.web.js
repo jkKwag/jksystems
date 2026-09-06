@@ -18,6 +18,17 @@ function bufferToBase64url(buffer) {
   return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
+// 기기 이름을 직접 입력받는 대신 자동으로 "web-OS" 라벨을 붙여준다 — 등록 화면에서 사용.
+export function detectPlatformLabel() {
+  const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+  let os = "unknown";
+  if (/android/i.test(ua)) os = "android";
+  else if (/iphone|ipad|ipod/i.test(ua)) os = "ios";
+  else if (/mac/i.test(ua)) os = "mac";
+  else if (/win/i.test(ua)) os = "windows";
+  return `web-${os}`;
+}
+
 export async function isPasskeyAvailable() {
   if (typeof window === "undefined" || !window.PublicKeyCredential) return false;
   try {
