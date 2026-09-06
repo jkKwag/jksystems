@@ -26,7 +26,14 @@ export default function AdminContract({ adminInfo }) {
   const [wiping, setWiping] = useState(false);
   const [wipeAlertMsg, setWipeAlertMsg] = useState(null);
 
-  const openWipeModal = () => { setWipeConfirmInput(""); setWipeModalVisible(true); };
+  const openWipeModal = () => {
+    if (!adminInfo?.bizRegNo) {
+      setWipeAlertMsg("사업장정보 조회 후 삭제 가능합니다.");
+      return;
+    }
+    setWipeConfirmInput("");
+    setWipeModalVisible(true);
+  };
   const closeWipeModal = () => { setWipeModalVisible(false); setWipeConfirmInput(""); };
 
   const runWipe = async () => {
@@ -113,7 +120,7 @@ export default function AdminContract({ adminInfo }) {
   return (
     <View style={s.container}>
       <NotInUseBanner />
-      <TouchableOpacity style={s.wipeBtn} onPress={openWipeModal} disabled={!adminInfo?.bizRegNo}>
+      <TouchableOpacity style={s.wipeBtn} onPress={openWipeModal}>
         <Text style={s.wipeBtnText}>사업자 전체 데이터 삭제 (테스트용)</Text>
       </TouchableOpacity>
       <View style={s.headerRow}>
