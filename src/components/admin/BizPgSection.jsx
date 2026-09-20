@@ -89,7 +89,9 @@ export default function BizPgSection({ bizRegNo, isSuper }) {
               <View style={s.fieldBoxFull}>
                 <TextInput
                   style={s.fieldInput}
-                  placeholder={toss ? "새 시크릿키 (교체할 때만 입력)" : "시크릿키 (test_sk_... / live_sk_...)"}
+                  // 실제 값은 서버가 절대 돌려주지 않아 진짜 마스킹은 불가능하지만, "이미 등록되어
+                  // 있다"는 걸 비밀번호 필드처럼 점(•)으로 표시해 빈 칸과 구분되게 한다.
+                  placeholder={toss?.hasSecretKey ? "•••••••••••• (등록됨 — 교체하려면 새로 입력)" : "시크릿키 (test_sk_... / live_sk_...)"}
                   placeholderTextColor={PLACEHOLDER_COLOR}
                   value={secretKey}
                   onChangeText={setSecretKey}
