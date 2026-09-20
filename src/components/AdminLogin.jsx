@@ -81,9 +81,14 @@ export default function AdminLogin({ visible, onClose, onLogin, onSignupClick })
     } catch (e) {
       setPasskeyStage("error");
       // 사용자가 지문 인증 자체를 취소한 경우엔 에러 문구를 따로 안 보여준다.
-      // 그 외에는 원인 파악을 위해 브라우저가 던진 에러 이름/메시지를 화면에 그대로 노출한다
-      // (특히 모바일에서는 개발자도구 콘솔을 보기 어려워서 임시로 화면에 노출해둠).
-      if (e?.name !== "NotAllowedError") {
+      if (e?.name === "NotAllowedError") {
+        // no-op
+      } else if (e?.name === "AbortError") {
+        // 일부 기기에서 브라우저가 응답 없이 멈추는 문제 때문에 우리 쪽에서 강제로 취소한 경우.
+        setError("지문 인증이 응답하지 않아 중단했습니다. 다시 시도하거나 비밀번호로 로그인해주세요.");
+      } else {
+        // 그 외에는 원인 파악을 위해 브라우저가 던진 에러 이름/메시지를 화면에 그대로 노출한다
+        // (특히 모바일에서는 개발자도구 콘솔을 보기 어려워서 임시로 화면에 노출해둠).
         setError(`패스키 인증 중 문제가 발생했습니다. (${e?.name || "Error"}: ${e?.message || "알 수 없는 오류"})`);
       }
     } finally {

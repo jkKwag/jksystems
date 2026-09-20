@@ -2,6 +2,15 @@
 // 그대로 받아서 navigator.credentials.create()/get()에 필요한 ArrayBuffer로 변환해주고,
 // 결과도 다시 서버가 바로 검증할 수 있는 JSON 문자열로 바꿔 돌려준다.
 
+// 일부 안드로이드 Chrome 버전에서 Credential Manager가 응답 없이 무한 대기하는 알려진 플랫폼
+// 버그(Chromium issue 476437881)가 있어, 지정된 시간이 지나면 AbortController로 강제 취소한다.
+// 이렇게 취소해야 다음 시도가 "A request is already pending." 없이 깨끗하게 다시 시작될 수 있다.
+function withAbortTimeout(ms) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  return { signal: controller.signal, clear: () => clearTimeout(timer) };
+}
+
 function base64urlToBuffer(base64url) {
   const base64 = base64url.replace(/-/g, "+").replace(/_/g, "/");
   const padded = base64 + "=".repeat((4 - (base64.length % 4)) % 4);
@@ -51,11 +60,20 @@ export async function createPasskeyCredential(options) {
     pubKeyCredParams: options.pubKeyCredParams.map(p => ({ type: p.type, alg: p.alg })),
     excludeCredentials: (options.excludeCredentials || []).map(c => ({ type: c.type, id: base64urlToBuffer(c.id) })),
     authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required", residentKey: "preferred" },
+    // 이 기기 자체의 생체인증만 쓴다고 명시 — 안드로이드 Credential Manager가 더 복잡한(버그 있는)
+    // 경로 대신 플랫폼 인증기로 바로 가도록 유도한다.
+    hints: ["client-device"],
     attestation: "none",
     timeout: options.timeoutMillis,
   };
 
-  const credential = await navigator.credentials.create({ publicKey });
+  const { signal, clear } = withAbortTimeout(options.timeoutMillis);
+  let credential;
+  try {
+    credential = await navigator.credentials.create({ publicKey, signal });
+  } finally {
+    clear();
+  }
   const response = credential.response;
   return JSON.stringify({
     id: credential.id,
@@ -77,10 +95,17 @@ export async function getPasskeyAssertion(options) {
     rpId: options.rpId,
     allowCredentials: (options.allowCredentials || []).map(c => ({ type: c.type, id: base64urlToBuffer(c.id) })),
     userVerification: "required",
+    hints: ["client-device"],
     timeout: options.timeoutMillis,
   };
 
-  const credential = await navigator.credentials.get({ publicKey });
+  const { signal, clear } = withAbortTimeout(options.timeoutMillis);
+  let credential;
+  try {
+    credential = await navigator.credentials.get({ publicKey, signal });
+  } finally {
+    clear();
+  }
   const response = credential.response;
   return JSON.stringify({
     id: credential.id,
