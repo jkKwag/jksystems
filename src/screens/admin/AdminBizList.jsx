@@ -4,6 +4,7 @@ import { s } from "../../styles/admin/AdminBizList.styles";
 import api from "../../lib/api";
 import ConfirmModal from "../../components/ConfirmModal";
 import IndClsPickerModal from "../../components/IndClsPickerModal";
+import BizPgSection from "../../components/admin/BizPgSection";
 import { formatBizRegNo } from "../../lib/formatBizRegNo";
 
 const PAGE_SIZE = 10;
@@ -546,6 +547,10 @@ export default function AdminBizList({ adminInfo, onSelectBiz }) {
           <TextInput style={s.fieldInput} placeholder="상세주소" placeholderTextColor={PLACEHOLDER_COLOR} value={form.addrDtl} onChangeText={update("addrDtl")} {...focusHandlers("addrDtl")} />
         </View>
       </View>
+
+      {biz && expandedKey !== "__new__" && (
+        <BizPgSection bizRegNo={biz.bizRegNo} isSuper={isSuper} />
+      )}
 
       {!!formError && <Text style={s.error}>⚠️ {formError}</Text>}
 
