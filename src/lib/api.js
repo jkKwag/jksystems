@@ -124,6 +124,10 @@ const api = {
     pendingApprovals: () => get(`/api/biz/approvals`),
     approveBiz: (bizno) => put(`/api/biz/${bizno}/approve`, {}),
     rejectBiz: (bizno, body) => put(`/api/biz/${bizno}/reject`, body),
+    pgConnections: (bizno) => get(`/api/biz/${bizno}/pg`),
+    registerPg: (bizno, body) => post(`/api/biz/${bizno}/pg`, body),
+    activatePg: (bizno, provider) => put(`/api/biz/${bizno}/pg/${provider}/activate`, {}),
+    deactivatePg: (bizno, provider) => put(`/api/biz/${bizno}/pg/${provider}/deactivate`, {}),
   },
   industry: {
     get: (indCd) => get(`/api/industry/${indCd}`),
