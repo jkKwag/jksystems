@@ -93,7 +93,10 @@ export async function getPasskeyAssertion(options) {
   const publicKey = {
     challenge: base64urlToBuffer(options.challenge),
     rpId: options.rpId,
-    allowCredentials: (options.allowCredentials || []).map(c => ({ type: c.type, id: base64urlToBuffer(c.id) })),
+    // allowCredentials로 특정 기기ID를 콕 집어서 요청하면 일부 안드로이드 Chrome에서 Credential
+    // Manager가 응답 없이 멈추는 문제가 있어(등록은 되는데 로그인만 멈추는 걸로 확인됨), 의도적으로
+    // 제한을 걸지 않고 이 사이트에 등록된 아무 패스키나 고르게 한다. 실제로 그 계정 것이 맞는지는
+    // 백엔드 PasskeyService.login()이 flowId에 저장된 adminNo와 대조해서 사후 검증한다.
     userVerification: "required",
     hints: ["client-device"],
     timeout: options.timeoutMillis,
