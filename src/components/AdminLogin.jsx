@@ -17,6 +17,11 @@ export default function AdminLogin({ visible, onClose, onLogin, onSignupClick })
   const [loading, setLoading] = useState(false);
   const pwRef = useRef(null);
   const totpRef = useRef(null);
+  // 버튼의 disabled는 리액트 state 반영 전까지(같은 틱 안에서) 두 번째 클릭을 못 막을 수 있어서,
+  // 동기적으로 즉시 체크되는 ref로 진짜 "동시에 두 번 호출" 자체를 막는다 — 안드로이드 Chrome 등에서
+  // 터치 이벤트가 중복 발생해 navigator.credentials.get()이 두 번 불리면 브라우저가
+  // "OperationError: A request is already pending."를 던지는 문제 방지.
+  const passkeyInFlightRef = useRef(false);
 
   // null=아직 확인 중, true=이 브라우저가 패스키를 지원(2단계 흐름), false=미지원(기존 한 화면 그대로)
   const [passkeySupported, setPasskeySupported] = useState(null);
@@ -60,6 +65,8 @@ export default function AdminLogin({ visible, onClose, onLogin, onSignupClick })
   };
 
   const tryPasskey = async () => {
+    if (passkeyInFlightRef.current) return;
+    passkeyInFlightRef.current = true;
     setPasskeyStage("scanning"); setError("");
     try {
       const credentialJson = await getPasskeyAssertion(passkeyOptions);
@@ -79,6 +86,8 @@ export default function AdminLogin({ visible, onClose, onLogin, onSignupClick })
       if (e?.name !== "NotAllowedError") {
         setError(`패스키 인증 중 문제가 발생했습니다. (${e?.name || "Error"}: ${e?.message || "알 수 없는 오류"})`);
       }
+    } finally {
+      passkeyInFlightRef.current = false;
     }
   };
 
