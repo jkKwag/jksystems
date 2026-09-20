@@ -125,6 +125,7 @@ const api = {
     approveBiz: (bizno) => put(`/api/biz/${bizno}/approve`, {}),
     rejectBiz: (bizno, body) => put(`/api/biz/${bizno}/reject`, body),
     pgConnections: (bizno) => get(`/api/biz/${bizno}/pg`),
+    pgClientKey: (bizno) => get(`/api/biz/${bizno}/pg/client-key`),
     registerPg: (bizno, body) => post(`/api/biz/${bizno}/pg`, body),
     activatePg: (bizno, provider) => put(`/api/biz/${bizno}/pg/${provider}/activate`, {}),
     deactivatePg: (bizno, provider) => put(`/api/biz/${bizno}/pg/${provider}/deactivate`, {}),
