@@ -18,7 +18,12 @@ export default function BizPgSection({ bizRegNo, isSuper }) {
 
   const load = useCallback(async () => {
     const list = await api.biz.pgConnections(bizRegNo);
-    setConnections(Array.isArray(list) ? list : []);
+    const arr = Array.isArray(list) ? list : [];
+    setConnections(arr);
+    // 클라이언트키는 민감정보가 아니라 저장된 값을 그대로 보여줘도 된다 — 시크릿키와 달리
+    // 등록 여부를 빈 칸만 보고는 알 수 없다는 문제가 있어서, 텍스트박스에 현재값을 채워둔다.
+    const toss = arr.find(c => c.pgProvider === "TOSS");
+    setClientKey(toss?.clientKey || "");
   }, [bizRegNo]);
 
   useEffect(() => { load(); }, [load]);
