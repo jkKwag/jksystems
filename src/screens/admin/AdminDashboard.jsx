@@ -106,11 +106,12 @@ export default function AdminDashboard({ adminInfo, onNavigate }) {
   const points = revenueByDay.map((v, i) => ({ ...linePoint(i, v, maxRevenue, pointGap), value: v, date: days[i] }));
   const chartWidth = days.length * pointGap;
 
+  // 전체 누적이 아니라 오늘 하루 기준으로 보여준다 — 주문은 접수일(regDt), 예약은 방문 예정일(rsvnDt) 기준.
   const orderStatusCounts = ["RECEIVED", "PREPARING", "READY", "CANCELED"].map(st => ({
-    st, count: orders.filter(o => o.status === st).length,
+    st, count: orders.filter(o => o.status === st && dateStr(o.regDt) === today).length,
   }));
   const rsvnStatusCounts = ["PENDING", "CONFIRMED", "REJECTED", "CANCELLED", "COMPLETED"].map(st => ({
-    st, count: reservations.filter(r => r.rsvnStatus === st).length,
+    st, count: reservations.filter(r => r.rsvnStatus === st && dateStr(r.rsvnDt) === today).length,
   }));
 
   const menuCounts = {};
@@ -219,7 +220,7 @@ export default function AdminDashboard({ adminInfo, onNavigate }) {
 
       <View style={s.twoColRow}>
         <View style={[s.card, s.halfCard]}>
-          <Text style={s.cardTitle}>주문 현황</Text>
+          <Text style={s.cardTitle}>오늘 주문 현황</Text>
           {orderStatusCounts.map(({ st, count }) => (
             <View key={st} style={s.statusRow}>
               <View style={[s.statusDot, { backgroundColor: ORDER_STATUS_COLOR[st] }]} />
@@ -229,7 +230,7 @@ export default function AdminDashboard({ adminInfo, onNavigate }) {
           ))}
         </View>
         <View style={[s.card, s.halfCard]}>
-          <Text style={s.cardTitle}>예약 현황</Text>
+          <Text style={s.cardTitle}>오늘 예약 현황</Text>
           {rsvnStatusCounts.map(({ st, count }) => (
             <View key={st} style={s.statusRow}>
               <View style={[s.statusDot, { backgroundColor: RSVN_STATUS_COLOR[st] }]} />
