@@ -456,8 +456,11 @@ export default function ElderlyMenu({ bizno, tableNo, onBack }) {
         storedPendingCart = true;
       }
 
+      // 업체가 자체 PG를 등록했으면 그 클라이언트키로, 없으면(null) 플랫폼 고정
+      // 테스트 클라이언트키로 결제위젯을 연다 — 백엔드 시크릿키 폴백과 동일한 방식.
+      const bizClientKey = await api.biz.pgClientKey(bizno);
       const { loadTossPayments, ANONYMOUS } = await import("@tosspayments/tosspayments-sdk");
-      const tossPayments = await loadTossPayments(TOSS_CLIENT_KEY);
+      const tossPayments = await loadTossPayments(bizClientKey || TOSS_CLIENT_KEY);
       const payment = tossPayments.payment({ customerKey: ANONYMOUS });
       const firstMenu = menus.find(m => m.menuCd === Object.keys(cart)[0]);
       const orderCountForName = cartCount > 0 ? cartCount : pendingCount;
